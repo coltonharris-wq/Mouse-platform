@@ -14,7 +14,8 @@ class MoonshotClient:
     def __init__(self, api_key: str = None):
         self.api_key = api_key or os.getenv("MOONSHOT_API_KEY")
         self.base_url = "https://api.moonshot.cn/v1"
-        self.model = os.getenv("MOONSHOT_MODEL", "moonshot-v1-8k")
+        # Using Kimi K2.5 model as default
+        self.model = os.getenv("MOONSHOT_MODEL", "kimi-k2.5")
     
     async def chat_completion(
         self, 

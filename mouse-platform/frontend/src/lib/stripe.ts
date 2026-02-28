@@ -30,10 +30,10 @@ export const WORK_HOURS_PACKAGES = {
     name: 'Growth',
     slug: 'growth',
     priceCents: 29700,
-    workHours: 65,
+    workHours: 70,
     description: 'Best value for growing teams',
     features: [
-      '65 AI Work Hours',
+      '70 AI Work Hours',
       'Everything in Starter',
       'Priority support',
       'API access'
@@ -44,10 +44,10 @@ export const WORK_HOURS_PACKAGES = {
     name: 'Pro',
     slug: 'pro',
     priceCents: 49700,
-    workHours: 165,
+    workHours: 125,
     description: 'Maximum value for power users',
     features: [
-      '165 AI Work Hours',
+      '125 AI Work Hours',
       'Everything in Growth',
       'Dedicated support',
       'Custom integrations'

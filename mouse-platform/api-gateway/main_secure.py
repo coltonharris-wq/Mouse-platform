@@ -711,19 +711,18 @@ async def calculate_token_cost(
         if api_calls:
             costs["api_calls"] = {
                 "count": api_calls,
-                "tokens": TokenPricingConfig.calculate_api_cost(api_calls),
-                "rate": "1 token/call"
+                "hours": TokenPricingConfig.calculate_api_cost(api_calls),
+                "rate": "0.01 hours/call"
             }
-            total += costs["api_calls"]["tokens"]
+            total += costs["api_calls"]["hours"]
         
         return {
             "costs": costs,
-            "total_tokens": total,
-            "estimated_hours": total / 100,  # Rough estimate: 100 tokens = 1 hour of work
+            "total_hours": total,
             "packages_needed": {
-                "starter": max(1, (total + 3999) // 4000),
-                "growth": max(1, (total + 11999) // 12000),
-                "pro": max(1, (total + 29999) // 30000)
+                "starter": max(1, (total + 19) // 20),  # 20 hours per starter package
+                "growth": max(1, (total + 69) // 70),    # 70 hours per growth package
+                "pro": max(1, (total + 124) // 125)      # 125 hours per pro package
             }
         }
     except Exception as e:
