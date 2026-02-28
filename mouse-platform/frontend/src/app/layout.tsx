@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import Navigation from '@/components/Navigation';
 
 export const metadata: Metadata = {
   title: 'Mouse Platform - AI-Powered Business Intelligence',
@@ -12,9 +13,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-dark-bg text-white antialiased min-h-screen">
-        {children}
+    <html lang="en">
+      <body className="bg-gray-50 text-gray-900 antialiased min-h-screen">
+        <Navigation />
+        <main>{children}</main>
       </body>
     </html>
   );
