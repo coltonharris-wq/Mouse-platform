@@ -191,6 +191,18 @@ class SupabaseClient:
             .execute()
         return result.data or []
     
+    async def get_token_order_by_session(self, session_id: str) -> Optional[Dict]:
+        """Get token order by Stripe checkout session ID"""
+        result = self.client.table("token_orders")\
+            .select("*")\
+            .eq("stripe_checkout_session_id", session_id)\
+            .execute()
+        return result.data[0] if result.data else None
+    
+    async def update_token_order(self, order_id: str, data: Dict):
+        """Update token order"""
+        return self.client.table("token_orders").update(data).eq("id", order_id).execute()
+    
     # Demo helpers
     async def get_demo_customers(self) -> List[Dict]:
         """Get all demo customers"""
