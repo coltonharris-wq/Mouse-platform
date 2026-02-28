@@ -3,18 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --navy: #1e3a5f;
-  --navy-light: #2d4a6f;
-  --navy-dark: #152a45;
-  --accent: #3b82f6;
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 255, 255, 255;
-  --background-end-rgb: 255, 255, 255;
+  --background: #F8FAFC;
+  --foreground: #1E293B;
+  --navy: #0B1F3B;
+  --teal: #0F6B6E;
+  --orange: #F97316;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: white;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 @layer utilities {
@@ -24,13 +23,18 @@ body {
 }
 
 /* Navy theme colors */
-.bg-navy { background-color: #1e3a5f; }
-.bg-navy-light { background-color: #2d4a6f; }
-.bg-navy-dark { background-color: #152a45; }
-.text-navy { color: #1e3a5f; }
-.border-navy { border-color: #1e3a5f; }
-.hover\:bg-navy-light:hover { background-color: #2d4a6f; }
-.hover\:text-navy:hover { color: #1e3a5f; }
+.bg-navy { background-color: #0B1F3B; }
+.bg-navy-light { background-color: #1a3a5c; }
+.bg-navy-dark { background-color: #051020; }
+.text-navy { color: #0B1F3B; }
+.border-navy { border-color: #0B1F3B; }
+.hover\:bg-navy-light:hover { background-color: #1a3a5c; }
+.hover\:text-navy:hover { color: #0B1F3B; }
+
+/* Teal theme colors */
+.bg-teal { background-color: #0F6B6E; }
+.text-teal { color: #0F6B6E; }
+.border-teal { border-color: #0F6B6E; }
 
 /* Animations */
 @keyframes pulse-slow {
@@ -69,7 +73,7 @@ body {
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #1e3a5f 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #0B1F3B 0%, #0F6B6E 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

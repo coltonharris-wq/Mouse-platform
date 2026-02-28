@@ -1,29 +1,21 @@
-import type { Metadata } from 'next'
-import './globals.css'
-import { WorkHoursProvider } from './context/WorkHoursContext'
-import { SecurityProvider } from './context/SecurityContext'
-import KingMouseAvatar from './components/KingMouseAvatar'
+import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: 'Mouse Platform - AI Employee Management',
-  description: 'Deploy AI employees that work 24/7. Manage sales, resellers, and customers from a unified platform.',
-}
+  title: "Mouse Platform — AI Workforce Operating System",
+  description: "Deploy AI Employees that operate your existing software. No integrations. No dev team.",
+};
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-white">
-        <SecurityProvider>
-          <WorkHoursProvider>
-            {children}
-            <KingMouseAvatar />
-          </WorkHoursProvider>
-        </SecurityProvider>
+      <body className="bg-mouse-offwhite text-mouse-charcoal antialiased">
+        {children}
       </body>
     </html>
-  )
+  );
 }

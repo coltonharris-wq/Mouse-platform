@@ -1,218 +1,163 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Bot, Eye, EyeOff, Loader2 } from 'lucide-react';
-
-type UserRole = 'admin' | 'sales' | 'reseller' | 'customer';
-
-interface User {
-  email: string;
-  password: string;
-  role: UserRole;
-  name: string;
-}
-
-// Demo users for testing
-const demoUsers: User[] = [
-  { email: 'admin@mouse.ai', password: 'admin123', role: 'admin', name: 'Admin User' },
-  { email: 'sales@mouse.ai', password: 'sales123', role: 'sales', name: 'Sales User' },
-  { email: 'reseller@mouse.ai', password: 'reseller123', role: 'reseller', name: 'Reseller User' },
-  { email: 'customer@mouse.ai', password: 'customer123', role: 'customer', name: 'Customer User' },
-];
+import { useState } from "react";
+import Link from "next/link";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    setError('');
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const user = demoUsers.find(u => u.email === email && u.password === password);
-
-    if (user) {
-      // Store user info in localStorage (in production, use secure cookies/JWT)
-      localStorage.setItem('user', JSON.stringify({
-        email: user.email,
-        role: user.role,
-        name: user.name,
-      }));
-
-      // Redirect based on role
-      switch (user.role) {
-        case 'admin':
-          router.push('/dashboard/admin');
-          break;
-        case 'sales':
-          router.push('/dashboard/sales');
-          break;
-        case 'reseller':
-          router.push('/dashboard/reseller');
-          break;
-        case 'customer':
-          router.push('/dashboard/customer');
-          break;
-        default:
-          router.push('/dashboard');
+    // MOCK LOGIN - redirects based on email
+    setTimeout(() => {
+      if (!email || !password) {
+        setError("Please enter your email and password.");
+        setLoading(false);
+        return;
       }
-    } else {
-      setError('Invalid email or password');
-      setLoading(false);
-    }
-  };
 
-  const fillDemoCredentials = (role: UserRole) => {
-    const user = demoUsers.find(u => u.role === role);
-    if (user) {
-      setEmail(user.email);
-      setPassword(user.password);
-    }
-  };
+      // Role-based routing
+      const lowerEmail = email.toLowerCase();
+      if (lowerEmail.includes("admin") || lowerEmail.includes("owner")) {
+        window.location.href = "/admin";
+      } else if (lowerEmail.includes("reseller") || lowerEmail.includes("partner")) {
+        window.location.href = "/dashboard";
+      } else {
+        window.location.href = "/portal";
+      }
+    }, 500);
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-[#1e3a5f] rounded-lg flex items-center justify-center">
-              <Bot className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold text-[#1e3a5f]">Mouse</span>
-          </Link>
-        </div>
-        <h2 className="mt-6 text-center text-3xl font-bold text-[#1e3a5f]">
-          Sign in to your account
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Access your dashboard based on your role
-        </p>
-      </div>
+    <div className="min-h-screen bg-mouse-navy flex flex-col">
+      <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-6">
+        <div className="w-full max-w-md">
+          {/* Logo */}
+          <div className="text-center mb-10">
+            <Link href="/" className="text-white font-bold text-2xl tracking-tight">
+              Mouse
+            </Link>
+            <p className="text-mouse-slate mt-1.5 text-sm">AI Workforce Operating System</p>
+          </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-              {error}
-            </div>
-          )}
+          {/* Card */}
+          <div className="bg-white rounded-lg p-8 shadow-xl">
+            <h1 className="text-xl font-bold text-mouse-navy mb-1">Sign In</h1>
+            <p className="text-mouse-charcoal text-sm mb-7">
+              Enter your credentials to access your account.
+            </p>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <div className="mt-1">
+            {error && (
+              <div className="bg-red-50 border border-mouse-red/30 text-mouse-red text-sm rounded px-4 py-3 mb-6">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-mouse-navy text-sm font-semibold mb-1.5"
+                >
+                  Email Address
+                </label>
                 <input
                   id="email"
-                  name="email"
                   type="email"
                   autoComplete="email"
-                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#1e3a5f] focus:border-[#1e3a5f] sm:text-sm"
                   placeholder="you@company.com"
+                  required
+                  className="w-full border border-mouse-slate/50 rounded px-4 py-2.5 text-mouse-charcoal text-sm placeholder:text-mouse-slate/60 focus:outline-none focus:ring-2 focus:ring-mouse-teal focus:border-mouse-teal transition-colors"
                 />
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1 relative">
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-mouse-navy text-sm font-semibold mb-1.5"
+                >
+                  Password
+                </label>
                 <input
                   id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type="password"
                   autoComplete="current-password"
-                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#1e3a5f] focus:border-[#1e3a5f] sm:text-sm"
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
+                  required
+                  className="w-full border border-mouse-slate/50 rounded px-4 py-2.5 text-mouse-charcoal text-sm placeholder:text-mouse-slate/60 focus:outline-none focus:ring-2 focus:ring-mouse-teal focus:border-mouse-teal transition-colors"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+              </div>
+
+              <div className="flex justify-end">
+                <Link
+                  href="/forgot-password"
+                  className="text-mouse-teal text-xs font-medium hover:text-mouse-navy transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-[#1e3a5f] focus:ring-[#1e3a5f] border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                  Remember me
-                </label>
+                  Forgot password?
+                </Link>
               </div>
 
-              <div className="text-sm">
-                <a href="#" className="font-medium text-[#1e3a5f] hover:text-[#2d4a6f]">
-                  Forgot your password?
-                </a>
-              </div>
-            </div>
-
-            <div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#1e3a5f] hover:bg-[#2d4a6f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1e3a5f] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-mouse-orange text-white py-2.5 rounded font-semibold text-sm hover:bg-orange-600 disabled:opacity-60 transition-colors"
               >
-                {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  'Sign in'
-                )}
+                {loading ? "Signing in..." : "Sign In"}
               </button>
-            </div>
-          </form>
+            </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Demo Credentials</span>
-              </div>
-            </div>
-
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              {(['admin', 'sales', 'reseller', 'customer'] as UserRole[]).map((role) => (
-                <button
-                  key={role}
-                  onClick={() => fillDemoCredentials(role)}
-                  className="flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 capitalize"
+            {/* Contact link */}
+            <div className="mt-6 pt-5 border-t border-gray-100 text-center">
+              <p className="text-mouse-charcoal text-sm">
+                Don&apos;t have an account?{" "}
+                <Link
+                  href="mailto:hello@mouseplatform.com"
+                  className="text-mouse-teal font-medium hover:text-mouse-navy transition-colors"
                 >
-                  {role}
-                </button>
-              ))}
+                  Contact us
+                </Link>
+              </p>
             </div>
-            <p className="mt-2 text-xs text-center text-gray-500">
-              Click any role to auto-fill demo credentials
+          </div>
+
+          {/* Role routing links */}
+          <div className="mt-5 space-y-2 text-center">
+            <p className="text-mouse-slate text-xs">
+              Platform Owner?{" "}
+              <Link
+                href="/admin"
+                className="text-white font-medium hover:text-mouse-teal transition-colors"
+              >
+                Admin Login
+              </Link>{" "}
+              &rarr;
+            </p>
+            <p className="text-mouse-slate text-xs">
+              Reseller?{" "}
+              <Link
+                href="/dashboard"
+                className="text-white font-medium hover:text-mouse-teal transition-colors"
+              >
+                Partner Login
+              </Link>{" "}
+              &rarr;
             </p>
           </div>
+
+          {/* Role routing note */}
+          <p className="mt-6 text-mouse-slate/60 text-xs text-center leading-relaxed px-4">
+            After sign-in, platform owners are directed to /admin, resellers to /dashboard, and customers to /portal.
+          </p>
         </div>
       </div>
     </div>

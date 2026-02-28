@@ -7,6 +7,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        mouse: {
+          navy: "#0B1F3B",
+          teal: "#0F6B6E",
+          orange: "#F97316",
+          green: "#16A34A",
+          red: "#DC2626",
+          offwhite: "#F8FAFC",
+          charcoal: "#1E293B",
+          slate: "#CBD5E1",
+        },
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',
