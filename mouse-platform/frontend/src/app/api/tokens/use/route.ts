@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call backend to use tokens
+    // Call backend to use AI Work Hours
     const response = await fetch(
       `${API_BASE_URL}/api/v1/customers/${customerId}/tokens/use`,
       {
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       const error = await response.json();
       return NextResponse.json(
-        { error: error.detail || 'Failed to use tokens' },
+        { error: error.detail || 'Failed to use AI Work Hours' },
         { status: response.status }
       );
     }
@@ -42,9 +42,9 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Token usage error:', error);
+    console.error('AI Work Hours usage error:', error);
     return NextResponse.json(
-      { error: 'Failed to use tokens' },
+      { error: 'Failed to use AI Work Hours' },
       { status: 500 }
     );
   }

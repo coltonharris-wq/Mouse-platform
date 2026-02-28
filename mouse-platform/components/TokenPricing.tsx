@@ -1,34 +1,31 @@
 'use client'
 
 import { useState } from 'react'
-import { Calculator, ChevronDown, ChevronUp, Coins, Zap, Crown, Sparkles } from 'lucide-react'
+import { Calculator, ChevronDown, ChevronUp, Clock, Zap, Crown, Sparkles } from 'lucide-react'
 
-interface TokenPackage {
+interface WorkHoursPackage {
   slug: string
   name: string
   price: string
-  tokens: number
-  bonusTokens: number
-  totalTokens: number
-  estimatedHours: number
+  workHours: number
+  bonusHours: number
+  totalHours: number
   description: string
   features: string[]
   popular: boolean
 }
 
-const TOKEN_PACKAGES: TokenPackage[] = [
+const WORK_HOURS_PACKAGES: WorkHoursPackage[] = [
   {
     slug: 'starter',
     name: 'Starter Pack',
-    price: '$19',
-    tokens: 2000,
-    bonusTokens: 0,
-    totalTokens: 2000,
-    estimatedHours: 20,
+    price: '$97',
+    workHours: 20,
+    bonusHours: 0,
+    totalHours: 20,
     description: 'Perfect for trying out AI employees',
     features: [
-      '2,000 tokens',
-      '~20 hours of AI work',
+      '20 AI Work Hours',
       'All AI employee types',
       'Email support'
     ],
@@ -37,15 +34,13 @@ const TOKEN_PACKAGES: TokenPackage[] = [
   {
     slug: 'growth',
     name: 'Growth Pack',
-    price: '$49',
-    tokens: 6000,
-    bonusTokens: 500,
-    totalTokens: 6500,
-    estimatedHours: 65,
+    price: '$297',
+    workHours: 65,
+    bonusHours: 0,
+    totalHours: 65,
     description: 'Best value for growing teams',
     features: [
-      '6,500 tokens (500 bonus)',
-      '~65 hours of AI work',
+      '65 AI Work Hours',
       'All AI employee types',
       'Priority support',
       'Custom AI training'
@@ -55,15 +50,13 @@ const TOKEN_PACKAGES: TokenPackage[] = [
   {
     slug: 'pro',
     name: 'Pro Pack',
-    price: '$99',
-    tokens: 15000,
-    bonusTokens: 1500,
-    totalTokens: 16500,
-    estimatedHours: 165,
+    price: '$497',
+    workHours: 165,
+    bonusHours: 0,
+    totalHours: 165,
     description: 'Maximum value for power users',
     features: [
-      '16,500 tokens (1,500 bonus)',
-      '~165 hours of AI work',
+      '165 AI Work Hours',
       'All AI employee types',
       'Priority support',
       'Custom AI training',
@@ -73,12 +66,12 @@ const TOKEN_PACKAGES: TokenPackage[] = [
   }
 ]
 
-const TOKEN_RATES = {
-  vm_minute: 1,
-  api_call: 0.1,
-  screenshot: 0.5,
-  ai_message: 0.2,
-  file_upload_mb: 1
+const WORK_HOURS_RATES = {
+  vm_minute: 0.017,
+  api_call: 0.001,
+  screenshot: 0.005,
+  ai_message: 0.002,
+  file_upload_mb: 0.01
 }
 
 interface PricingCalculatorProps {
@@ -86,59 +79,58 @@ interface PricingCalculatorProps {
   currentBalance?: number
 }
 
-export default function TokenPricing({ onPurchase, currentBalance = 0 }: PricingCalculatorProps) {
+export default function WorkHoursPricing({ onPurchase, currentBalance = 0 }: PricingCalculatorProps) {
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false)
-  const [selectedPackage, setSelectedPackage] = useState<TokenPackage>(TOKEN_PACKAGES[1])
+  const [selectedPackage, setSelectedPackage] = useState<WorkHoursPackage>(WORK_HOURS_PACKAGES[1])
   const [vmHoursPerMonth, setVmHoursPerMonth] = useState(40)
   const [apiCallsPerMonth, setApiCallsPerMonth] = useState(500)
   const [screenshotsPerMonth, setScreenshotsPerMonth] = useState(200)
 
   // Calculate monthly usage
   const vmMinutes = vmHoursPerMonth * 60
-  const vmCost = Math.ceil(vmMinutes * TOKEN_RATES.vm_minute)
-  const apiCost = Math.ceil(apiCallsPerMonth * TOKEN_RATES.api_call)
-  const screenshotCost = Math.ceil(screenshotsPerMonth * TOKEN_RATES.screenshot)
+  const vmCost = Math.ceil(vmMinutes * WORK_HOURS_RATES.vm_minute)
+  const apiCost = Math.ceil(apiCallsPerMonth * WORK_HOURS_RATES.api_call)
+  const screenshotCost = Math.ceil(screenshotsPerMonth * WORK_HOURS_RATES.screenshot)
   const totalMonthlyCost = vmCost + apiCost + screenshotCost
 
   // Find recommended package
-  const recommendedPackage = TOKEN_PACKAGES.find(p => p.totalTokens >= totalMonthlyCost * 3) || TOKEN_PACKAGES[2]
+  const recommendedPackage = WORK_HOURS_PACKAGES.find(p => p.totalHours >= totalMonthlyCost * 3) || WORK_HOURS_PACKAGES[2]
 
   // Calculate savings
   const hourlyRate = 35
   const humanCost = vmHoursPerMonth * hourlyRate * 4 // Assuming 4 weeks per month
-  const aiCost = (recommendedPackage.totalTokens / totalMonthlyCost) * recommendedPackage.totalTokens * (19 / 2000) // Approximate cost
-  const monthlySavings = humanCost - (recommendedPackage.totalTokens > 0 ? parseInt(recommendedPackage.price.replace('$', '')) : 0)
+  const monthlySavings = humanCost - parseInt(recommendedPackage.price.replace('$', ''))
 
   return (
     <div className="space-y-8">
-      {/* Token Balance Display */}
+      {/* Work Hours Balance Display */}
       {currentBalance > 0 && (
         <div className="bg-gradient-to-r from-mouse-teal to-mouse-navy rounded-lg p-6 text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-white/20 rounded-lg">
-                <Coins className="w-6 h-6" />
+                <Clock className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-sm opacity-80">Your Token Balance</p>
-                <p className="text-3xl font-bold">{currentBalance.toLocaleString()} tokens</p>
+                <p className="text-sm opacity-80">Your AI Work Hours Balance</p>
+                <p className="text-3xl font-bold">{currentBalance.toLocaleString()} hours</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm opacity-80">Estimated Hours Left</p>
-              <p className="text-2xl font-bold">~{Math.floor(currentBalance / 100)} hours</p>
+              <p className="text-sm opacity-80">Est. Tasks Remaining</p>
+              <p className="text-2xl font-bold">~{Math.floor(currentBalance / 0.1)} tasks</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Token Packages */}
+      {/* Work Hours Packages */}
       <div>
-        <h2 className="text-2xl font-bold text-mouse-navy mb-2">Purchase Tokens</h2>
-        <p className="text-mouse-charcoal mb-6">Choose the package that fits your needs. All tokens never expire.</p>
+        <h2 className="text-2xl font-bold text-mouse-navy mb-2">Purchase AI Work Hours</h2>
+        <p className="text-mouse-charcoal mb-6">Choose the package that fits your needs. All AI Work Hours never expire.</p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TOKEN_PACKAGES.map((pkg) => (
+          {WORK_HOURS_PACKAGES.map((pkg) => (
             <div
               key={pkg.slug}
               className={`relative rounded-xl border-2 p-6 transition-all hover:shadow-lg ${
@@ -161,21 +153,16 @@ export default function TokenPricing({ onPurchase, currentBalance = 0 }: Pricing
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-4xl font-bold text-mouse-navy">{pkg.price}</span>
                 </div>
-                {pkg.bonusTokens > 0 && (
-                  <p className="text-sm text-mouse-teal font-medium mt-1">
-                    +{pkg.bonusTokens.toLocaleString()} bonus tokens!
-                  </p>
-                )}
               </div>
 
               <div className="bg-mouse-offwhite rounded-lg p-4 mb-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">Total Tokens</span>
-                  <span className="text-lg font-bold text-mouse-navy">{pkg.totalTokens.toLocaleString()}</span>
+                  <span className="text-sm text-gray-600">Total AI Work Hours</span>
+                  <span className="text-lg font-bold text-mouse-navy">{pkg.totalHours.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Est. AI Work Hours</span>
-                  <span className="text-sm font-medium text-mouse-green">~{pkg.estimatedHours} hours</span>
+                  <span className="text-sm text-gray-600">Hourly Rate</span>
+                  <span className="text-sm font-medium text-mouse-green">${(parseInt(pkg.price.replace('$', '')) / pkg.totalHours).toFixed(2)}/hour</span>
                 </div>
               </div>
 
@@ -206,7 +193,7 @@ export default function TokenPricing({ onPurchase, currentBalance = 0 }: Pricing
         </div>
       </div>
 
-      {/* Token Usage Calculator */}
+      {/* Work Hours Usage Calculator */}
       <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
         <button
           onClick={() => setIsCalculatorOpen(!isCalculatorOpen)}
@@ -215,8 +202,8 @@ export default function TokenPricing({ onPurchase, currentBalance = 0 }: Pricing
           <div className="flex items-center gap-3">
             <Calculator className="w-6 h-6" />
             <div className="text-left">
-              <h3 className="text-lg font-semibold">Token Usage Calculator</h3>
-              <p className="text-sm opacity-80">Estimate your monthly token needs</p>
+              <h3 className="text-lg font-semibold">AI Work Hours Calculator</h3>
+              <p className="text-sm opacity-80">Estimate your monthly AI Work Hours needs</p>
             </div>
           </div>
           {isCalculatorOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
@@ -239,7 +226,7 @@ export default function TokenPricing({ onPurchase, currentBalance = 0 }: Pricing
                   max={1000}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {TOKEN_RATES.vm_minute} token per minute
+                  {WORK_HOURS_RATES.vm_minute} hours per minute
                 </p>
               </div>
               <div>
@@ -255,7 +242,7 @@ export default function TokenPricing({ onPurchase, currentBalance = 0 }: Pricing
                   max={100000}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {TOKEN_RATES.api_call} tokens per call
+                  {WORK_HOURS_RATES.api_call} hours per call
                 </p>
               </div>
               <div>
@@ -271,7 +258,7 @@ export default function TokenPricing({ onPurchase, currentBalance = 0 }: Pricing
                   max={10000}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {TOKEN_RATES.screenshot} tokens per screenshot
+                  {WORK_HOURS_RATES.screenshot} hours per screenshot
                 </p>
               </div>
             </div>
@@ -284,25 +271,25 @@ export default function TokenPricing({ onPurchase, currentBalance = 0 }: Pricing
                 <div className="text-center">
                   <div className="text-sm text-gray-600 mb-1">VM Runtime</div>
                   <div className="text-xl font-bold text-mouse-navy">
-                    {vmCost.toLocaleString()} tokens
+                    {vmCost.toLocaleString()} hours
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="text-sm text-gray-600 mb-1">API Calls</div>
                   <div className="text-xl font-bold text-mouse-navy">
-                    {apiCost.toLocaleString()} tokens
+                    {apiCost.toLocaleString()} hours
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="text-sm text-gray-600 mb-1">Screenshots</div>
                   <div className="text-xl font-bold text-mouse-navy">
-                    {screenshotCost.toLocaleString()} tokens
+                    {screenshotCost.toLocaleString()} hours
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="text-sm text-gray-600 mb-1">Total / Month</div>
                   <div className="text-xl font-bold text-mouse-teal">
-                    {totalMonthlyCost.toLocaleString()} tokens
+                    {totalMonthlyCost.toLocaleString()} hours
                   </div>
                 </div>
               </div>
@@ -316,7 +303,7 @@ export default function TokenPricing({ onPurchase, currentBalance = 0 }: Pricing
                       {recommendedPackage.name} - {recommendedPackage.price}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {recommendedPackage.totalTokens.toLocaleString()} tokens covers ~{Math.floor(recommendedPackage.totalTokens / (totalMonthlyCost || 1))} months
+                      {recommendedPackage.totalHours.toLocaleString()} hours covers ~{Math.floor(recommendedPackage.totalHours / (totalMonthlyCost || 1))} months
                     </p>
                   </div>
                   <div className="text-right">
@@ -332,28 +319,28 @@ export default function TokenPricing({ onPurchase, currentBalance = 0 }: Pricing
         )}
       </div>
 
-      {/* Token Usage Guide */}
+      {/* Work Hours Usage Guide */}
       <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-mouse-navy mb-4 flex items-center gap-2">
           <Zap className="w-5 h-5 text-mouse-teal" />
-          What Can You Do With Tokens?
+          What Can You Do With AI Work Hours?
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-lg p-4 shadow-sm">
-            <div className="text-2xl font-bold text-mouse-teal mb-1">1,000</div>
-            <div className="text-sm text-gray-600">~16 hours of AI employee work</div>
+            <div className="text-2xl font-bold text-mouse-teal mb-1">10</div>
+            <div className="text-sm text-gray-600">~10 hours of AI employee work</div>
           </div>
           <div className="bg-white rounded-lg p-4 shadow-sm">
-            <div className="text-2xl font-bold text-mouse-teal mb-1">5,000</div>
-            <div className="text-sm text-gray-600">~83 hours of AI employee work</div>
+            <div className="text-2xl font-bold text-mouse-teal mb-1">65</div>
+            <div className="text-sm text-gray-600">~65 hours of AI employee work</div>
           </div>
           <div className="bg-white rounded-lg p-4 shadow-sm">
-            <div className="text-2xl font-bold text-mouse-teal mb-1">10,000</div>
-            <div className="text-sm text-gray-600">~166 hours of AI employee work</div>
+            <div className="text-2xl font-bold text-mouse-teal mb-1">165</div>
+            <div className="text-sm text-gray-600">~165 hours of AI employee work</div>
           </div>
           <div className="bg-white rounded-lg p-4 shadow-sm">
             <div className="text-2xl font-bold text-mouse-teal mb-1">∞</div>
-            <div className="text-sm text-gray-600">Tokens never expire!</div>
+            <div className="text-sm text-gray-600">AI Work Hours never expire!</div>
           </div>
         </div>
       </div>
@@ -361,25 +348,25 @@ export default function TokenPricing({ onPurchase, currentBalance = 0 }: Pricing
   )
 }
 
-// Simple token balance component for dashboard
-export function TokenBalanceCard({ balance, onPurchase }: { balance: number; onPurchase?: () => void }) {
-  const estimatedHours = Math.floor(balance / 100)
+// Simple work hours balance component for dashboard
+export function WorkHoursBalanceCard({ balance, onPurchase }: { balance: number; onPurchase?: () => void }) {
+  const estimatedTasks = Math.floor(balance / 0.1)
   
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-mouse-teal/10 rounded-lg">
-            <Coins className="w-6 h-6 text-mouse-teal" />
+            <Clock className="w-6 h-6 text-mouse-teal" />
           </div>
           <div>
-            <h3 className="font-semibold text-mouse-navy">Token Balance</h3>
-            <p className="text-2xl font-bold text-mouse-navy">{balance.toLocaleString()}</p>
+            <h3 className="font-semibold text-mouse-navy">AI Work Hours Balance</h3>
+            <p className="text-2xl font-bold text-mouse-navy">{balance.toLocaleString()} hours</p>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-sm text-gray-500">Est. Hours Left</p>
-          <p className="text-xl font-semibold text-mouse-green">~{estimatedHours}h</p>
+          <p className="text-sm text-gray-500">Est. Tasks Left</p>
+          <p className="text-xl font-semibold text-mouse-green">~{estimatedTasks}</p>
         </div>
       </div>
       
@@ -387,7 +374,7 @@ export function TokenBalanceCard({ balance, onPurchase }: { balance: number; onP
       <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
         <div 
           className="bg-mouse-teal h-2 rounded-full transition-all"
-          style={{ width: `${Math.min((balance / 16500) * 100, 100)}%` }}
+          style={{ width: `${Math.min((balance / 165) * 100, 100)}%` }}
         />
       </div>
       
@@ -395,14 +382,14 @@ export function TokenBalanceCard({ balance, onPurchase }: { balance: number; onP
         onClick={onPurchase}
         className="w-full py-2 bg-mouse-navy text-white rounded-lg font-medium hover:bg-mouse-navy/90 transition-colors"
       >
-        Purchase More Tokens
+        Purchase More AI Work Hours
       </button>
     </div>
   )
 }
 
-// Token transaction history component
-export function TokenTransactionHistory({ transactions }: { transactions: any[] }) {
+// Work hours transaction history component
+export function WorkHoursTransactionHistory({ transactions }: { transactions: any[] }) {
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
       <h3 className="font-semibold text-mouse-navy mb-4">Recent Transactions</h3>
@@ -417,7 +404,7 @@ export function TokenTransactionHistory({ transactions }: { transactions: any[] 
                 <div className={`p-2 rounded-lg ${
                   tx.amount > 0 ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'
                 }`}>
-                  {tx.amount > 0 ? '+' : ''}{tx.amount}
+                  {tx.amount > 0 ? '+' : ''}{tx.amount}h
                 </div>
                 <div>
                   <p className="font-medium text-sm text-gray-800">{tx.description}</p>
@@ -427,7 +414,7 @@ export function TokenTransactionHistory({ transactions }: { transactions: any[] 
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-500">Balance: {tx.balance_after}</p>
+                <p className="text-sm text-gray-500">Balance: {tx.balance_after}h</p>
               </div>
             </div>
           ))}

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🐭 Knight Army - Live Visual Stream</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #58a6ff;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #8b949e;
+            margin-bottom: 30px;
+        }
+        .knight-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .knight-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .knight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-color: #58a6ff;
+        }
+        .knight-header {
+            background: #21262d;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .knight-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #f0f6fc;
+        }
+        .status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #3fb950;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .knight-preview {
+            aspect-ratio: 16/10;
+            background: #0d1117;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .knight-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .knight-actions {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: background 0.2s;
+        }
+        .btn-primary {
+            background: #238636;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #2ea043;
+        }
+        .btn-secondary {
+            background: #1f6feb;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #388bfd;
+        }
+        .info-panel {
+            max-width: 1600px;
+            margin: 30px auto;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .info-panel h2 {
+            margin-top: 0;
+            color: #58a6ff;
+        }
+        .info-panel ul {
+            line-height: 1.8;
+        }
+        .info-panel code {
+            background: #21262d;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+        .refresh-bar {
+            text-align: center;
+            padding: 10px;
+            background: #21262d;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .refresh-btn {
+            background: #8957e5;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .refresh-btn:hover {
+            background: #a371f7;
+        }
+    </style>
+</head>
+<body>
+    <h1>🐭 Knight Army Command Center</h1>
+    <p class="subtitle">Live Visual Stream of 8 Knight VMs | Mouse Platform</p>
+    
+    <div class="refresh-bar">
+        <button class="refresh-btn" onclick="location.reload()">🔄 Refresh All Views</button>
+        <span style="margin-left: 20px; color: #8b949e;">Last updated: <span id="timestamp"></span></span>
+    </div>
+
+    <div class="knight-grid">
+        <!-- Knight 1 -->
+        <div class="knight-card">
+            <div class="knight-header">
+                <span class="knight-name">⚔️ Knight 1</span>
+                <span class="status" title="Running"></span>
+            </div>
+            <div class="knight-preview">
+                <iframe class="knight-iframe" src="https://orgo-computer-puxot5i8.orgo.dev"></iframe>
+            </div>
+            <div class="knight-actions">
+                <a href="https://orgo-computer-puxot5i8.orgo.dev" target="_blank" class="btn btn-primary">Open VNC</a>
+                <a href="https://claude.ai" target="_blank" class="btn btn-secondary">Claude.ai</a>
+            </div>
+        </div>
+
+        <!-- Knight 2 -->
+        <div class="knight-card">
+            <div class="knight-header">
+                <span class="knight-name">⚔️ Knight 2</span>
+                <span class="status" title="Running"></span>
+            </div>
+            <div class="knight-preview">
+                <iframe class="knight-iframe" src="https://orgo-computer-p5uod1ze.orgo.dev"></iframe>
+            </div>
+            <div class="knight-actions">
+                <a href="https://orgo-computer-p5uod1ze.orgo.dev" target="_blank" class="btn btn-primary">Open VNC</a>
+                <a href="https://claude.ai" target="_blank" class="btn btn-secondary">Claude.ai</a>
+            </div>
+        </div>
+
+        <!-- Knight 3 -->
+        <div class="knight-card">
+            <div class="knight-header">
+                <span class="knight-name">⚔️ Knight 3</span>
+                <span class="status" title="Running"></span>
+            </div>
+            <div class="knight-preview">
+                <iframe class="knight-iframe" src="https://orgo-computer-p328rz68.orgo.dev"></iframe>
+            </div>
+            <div class="knight-actions">
+                <a href="https://orgo-computer-p328rz68.orgo.dev" target="_blank" class="btn btn-primary">Open VNC</a>
+                <a href="https://claude.ai" target="_blank" class="btn btn-secondary">Claude.ai</a>
+            </div>
+        </div>
+
+        <!-- Knight 4 -->
+        <div class="knight-card">
+            <div class="knight-header">
+                <span class="knight-name">⚔️ Knight 4</span>
+                <span class="status" title="Running"></span>
+            </div>
+            <div class="knight-preview">
+                <iframe class="knight-iframe" src="https://orgo-6c9101fa-c983-4fbb-b757-4f0fa91b2ece.orgo.dev"></iframe>
+            </div>
+            <div class="knight-actions">
+                <a href="https://orgo-6c9101fa-c983-4fbb-b757-4f0fa91b2ece.orgo.dev" target="_blank" class="btn btn-primary">Open VNC</a>
+                <a href="https://claude.ai" target="_blank" class="btn btn-secondary">Claude.ai</a>
+            </div>
+        </div>
+
+        <!-- Knight 5 -->
+        <div class="knight-card">
+            <div class="knight-header">
+                <span class="knight-name">⚔️ Knight 5</span>
+                <span class="status" title="Running"></span>
+            </div>
+            <div class="knight-preview">
+                <iframe class="knight-iframe" src="https://orgo-6e4627e5-79af-4ca1-a98e-154142058708.orgo.dev"></iframe>
+            </div>
+            <div class="knight-actions">
+                <a href="https://orgo-6e4627e5-79af-4ca1-a98e-154142058708.orgo.dev" target="_blank" class="btn btn-primary">Open VNC</a>
+                <a href="https://claude.ai" target="_blank" class="btn btn-secondary">Claude.ai</a>
+            </div>
+        </div>
+
+        <!-- Knight 6 -->
+        <div class="knight-card">
+            <div class="knight-header">
+                <span class="knight-name">⚔️ Knight 6</span>
+                <span class="status" title="Running"></span>
+            </div>
+            <div class="knight-preview">
+                <iframe class="knight-iframe" src="https://orgo-43a1b334-91e9-4a9b-951f-2b8e67b35c1e.orgo.dev"></iframe>
+            </div>
+            <div class="knight-actions">
+                <a href="https://orgo-43a1b334-91e9-4a9b-951f-2b8e67b35c1e.orgo.dev" target="_blank" class="btn btn-primary">Open VNC</a>
+                <a href="https://claude.ai" target="_blank" class="btn btn-secondary">Claude.ai</a>
+            </div>
+        </div>
+
+        <!-- Knight 7 -->
+        <div class="knight-card">
+            <div class="knight-header">
+                <span class="knight-name">⚔️ Knight 7</span>
+                <span class="status" title="Running"></span>
+            </div>
+            <div class="knight-preview">
+                <iframe class="knight-iframe" src="https://orgo-3d54d948-fdbe-4e9f-8c1a-cdd24a5e4fed.orgo.dev"></iframe>
+            </div>
+            <div class="knight-actions">
+                <a href="https://orgo-3d54d948-fdbe-4e9f-8c1a-cdd24a5e4fed.orgo.dev" target="_blank" class="btn btn-primary">Open VNC</a>
+                <a href="https://claude.ai" target="_blank" class="btn btn-secondary">Claude.ai</a>
+            </div>
+        </div>
+
+        <!-- Knight 8 -->
+        <div class="knight-card">
+            <div class="knight-header">
+                <span class="knight-name">⚔️ Knight 8</span>
+                <span class="status" title="Running"></span>
+            </div>
+            <div class="knight-preview">
+                <iframe class="knight-iframe" src="https://orgo-f99b97ac-93c9-4620-b848-b8bacb4b823a.orgo.dev"></iframe>
+            </div>
+            <div class="knight-actions">
+                <a href="https://orgo-f99b97ac-93c9-4620-b848-b8bacb4b823a.orgo.dev" target="_blank" class="btn btn-primary">Open VNC</a>
+                <a href="https://claude.ai" target="_blank" class="btn btn-secondary">Claude.ai</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <h2>📋 Quick Start Guide</h2>
+        <ul>
+            <li><strong>Watch Live:</strong> Each knight is streaming live VNC - click "Open VNC" to interact directly</li>
+            <li><strong>Open Claude:</strong> Click "Claude.ai" to open Claude in a new tab for that knight</li>
+            <li><strong>Firefox Ready:</strong> Firefox is pre-installed on all knights</li>
+            <li><strong>Terminal Access:</strong> Use <code>Ctrl+Alt+T</code> in any VNC to open a terminal</li>
+            <li><strong>VS Code: Server:</strong> Run <code>code-server</code> in terminal for browser-based VS Code:</li>
+        </ul>
+        
+        <h2>🎬 Making It Like the YouTube Video</h2>
+        <ul>
+            <li>Each knight is a separate VM running Linux with Firefox</li>
+            <li>VNC allows you to see everything happening in real-time</li>
+            <li>Knights can work on code in browser-based IDEs or claude.ai</li>
+            <li>All 8 knights visible simultaneously - like a control room!</li>
+        </ul>
+
+        <h2>⚡ Pro Tips</h2>
+        <ul>
+            <li><strong>Full Screen:</strong> Click the VNC fullscreen button for immersive view</li>
+            <li><strong>Copy/Paste:</strong> Use the VNC clipboard sync in the sidebar</li>
+            <li><strong>Refresh:</strong> If a knight freezes, click the refresh button above</li>
+            <li><strong>Multiple Monitors:</strong> Open different knights in separate browser windows</li>
+        </ul>
+    </div>
+
+    <script>
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        }, 30000);
+    </script>
+</body>
+</html>

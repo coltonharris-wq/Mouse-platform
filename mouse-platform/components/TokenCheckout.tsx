@@ -1,73 +1,69 @@
 'use client'
 
 import { useState } from 'react'
-import { Coins, Check, Loader2, AlertCircle, Sparkles } from 'lucide-react'
+import { Clock, Check, Loader2, AlertCircle, Sparkles } from 'lucide-react'
 
-interface TokenPackage {
+interface WorkHoursPackage {
   slug: string
   name: string
   price: string
   priceCents: number
-  tokens: number
-  bonusTokens: number
-  totalTokens: number
-  estimatedHours: number
+  workHours: number
+  bonusHours: number
+  totalHours: number
   description: string
   features: string[]
   popular: boolean
 }
 
-const TOKEN_PACKAGES: TokenPackage[] = [
+const WORK_HOURS_PACKAGES: WorkHoursPackage[] = [
   {
     slug: 'starter',
     name: 'Starter Pack',
-    price: '$19',
-    priceCents: 1900,
-    tokens: 2000,
-    bonusTokens: 0,
-    totalTokens: 2000,
-    estimatedHours: 20,
+    price: '$97',
+    priceCents: 9700,
+    workHours: 20,
+    bonusHours: 0,
+    totalHours: 20,
     description: 'Perfect for trying out AI employees',
-    features: ['2,000 tokens', '~20 hours of AI work', 'All AI employee types', 'Email support'],
+    features: ['20 AI Work Hours', 'All AI employee types', 'Email support'],
     popular: false
   },
   {
     slug: 'growth',
     name: 'Growth Pack',
-    price: '$49',
-    priceCents: 4900,
-    tokens: 6000,
-    bonusTokens: 500,
-    totalTokens: 6500,
-    estimatedHours: 65,
+    price: '$297',
+    priceCents: 29700,
+    workHours: 65,
+    bonusHours: 0,
+    totalHours: 65,
     description: 'Best value for growing teams',
-    features: ['6,500 tokens (500 bonus)', '~65 hours of AI work', 'All AI employee types', 'Priority support', 'Custom AI training'],
+    features: ['65 AI Work Hours', 'All AI employee types', 'Priority support', 'Custom AI training'],
     popular: true
   },
   {
     slug: 'pro',
     name: 'Pro Pack',
-    price: '$99',
-    priceCents: 9900,
-    tokens: 15000,
-    bonusTokens: 1500,
-    totalTokens: 16500,
-    estimatedHours: 165,
+    price: '$497',
+    priceCents: 49700,
+    workHours: 165,
+    bonusHours: 0,
+    totalHours: 165,
     description: 'Maximum value for power users',
-    features: ['16,500 tokens (1,500 bonus)', '~165 hours of AI work', 'All AI employee types', 'Priority support', 'Custom AI training', 'API access'],
+    features: ['165 AI Work Hours', 'All AI employee types', 'Priority support', 'Custom AI training', 'API access'],
     popular: false
   }
 ]
 
-interface TokenCheckoutProps {
+interface WorkHoursCheckoutProps {
   customerId: string
   apiBaseUrl: string
   onSuccess?: () => void
   onCancel?: () => void
 }
 
-export default function TokenCheckout({ customerId, apiBaseUrl, onSuccess, onCancel }: TokenCheckoutProps) {
-  const [selectedPackage, setSelectedPackage] = useState<TokenPackage>(TOKEN_PACKAGES[1])
+export default function WorkHoursCheckout({ customerId, apiBaseUrl, onSuccess, onCancel }: WorkHoursCheckoutProps) {
+  const [selectedPackage, setSelectedPackage] = useState<WorkHoursPackage>(WORK_HOURS_PACKAGES[1])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [step, setStep] = useState<'select' | 'processing' | 'success'>('select')
@@ -113,7 +109,7 @@ export default function TokenCheckout({ customerId, apiBaseUrl, onSuccess, onCan
         </div>
         <h2 className="text-2xl font-bold text-mouse-navy mb-2">Purchase Complete!</h2>
         <p className="text-gray-600 mb-6">
-          Your {selectedPackage.totalTokens.toLocaleString()} tokens have been added to your account.
+          Your {selectedPackage.totalHours.toLocaleString()} AI Work Hours have been added to your account.
         </p>
         <button
           onClick={onSuccess}
@@ -130,14 +126,14 @@ export default function TokenCheckout({ customerId, apiBaseUrl, onSuccess, onCan
       {/* Header */}
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 bg-mouse-teal/10 text-mouse-teal px-4 py-2 rounded-full text-sm font-medium mb-4">
-          <Coins className="w-4 h-4" />
-          Purchase Tokens
+          <Clock className="w-4 h-4" />
+          Purchase AI Work Hours
         </div>
         <h1 className="text-3xl font-bold text-mouse-navy mb-2">
-          Choose Your Token Package
+          Choose Your AI Work Hours Package
         </h1>
         <p className="text-gray-600">
-          Tokens never expire. Use them anytime for AI employee work.
+          AI Work Hours never expire. Use them anytime for AI employee work.
         </p>
       </div>
 
@@ -151,7 +147,7 @@ export default function TokenCheckout({ customerId, apiBaseUrl, onSuccess, onCan
 
       {/* Package Selection */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {TOKEN_PACKAGES.map((pkg) => (
+        {WORK_HOURS_PACKAGES.map((pkg) => (
           <div
             key={pkg.slug}
             onClick={() => setSelectedPackage(pkg)}
@@ -188,25 +184,19 @@ export default function TokenCheckout({ customerId, apiBaseUrl, onSuccess, onCan
             <div className="text-center mb-6">
               <span className="text-4xl font-bold text-mouse-navy">{pkg.price}</span>
               <span className="text-gray-500 ml-1">one-time</span>
-              {pkg.bonusTokens > 0 && (
-                <p className="text-sm text-mouse-teal font-medium mt-2">
-                  <Sparkles className="w-4 h-4 inline mr-1" />
-                  +{pkg.bonusTokens.toLocaleString()} bonus tokens!
-                </p>
-              )}
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600">Total Tokens</span>
+                <span className="text-sm text-gray-600">Total AI Work Hours</span>
                 <span className="text-lg font-bold text-mouse-navy">
-                  {pkg.totalTokens.toLocaleString()}
+                  {pkg.totalHours.toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Est. AI Hours</span>
+                <span className="text-sm text-gray-600">Hourly Rate</span>
                 <span className="text-sm font-medium text-mouse-green">
-                  ~{pkg.estimatedHours} hours
+                  ${(pkg.priceCents / 100 / pkg.totalHours).toFixed(2)}/hour
                 </span>
               </div>
             </div>
@@ -229,7 +219,7 @@ export default function TokenCheckout({ customerId, apiBaseUrl, onSuccess, onCan
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="font-medium text-gray-800">{selectedPackage.name}</p>
-            <p className="text-sm text-gray-500">{selectedPackage.totalTokens.toLocaleString()} tokens</p>
+            <p className="text-sm text-gray-500">{selectedPackage.totalHours.toLocaleString()} AI Work Hours</p>
           </div>
           <p className="text-xl font-bold text-mouse-navy">{selectedPackage.price}</p>
         </div>

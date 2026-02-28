@@ -2,8 +2,8 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { TOKEN_PACKAGES, TOKEN_COSTS, formatPrice, formatTokens } from '@/lib/stripe';
-import { Check, Coins, MessageSquare, Bot, Clock, Mail, Zap, AlertCircle } from 'lucide-react';
+import { WORK_HOURS_PACKAGES, WORK_HOURS_COSTS, formatPrice, formatWorkHours } from '@/lib/stripe';
+import { Check, Clock, MessageSquare, Bot, Mail, Zap, AlertCircle } from 'lucide-react';
 
 function PricingContent() {
   const router = useRouter();
@@ -44,7 +44,7 @@ function PricingContent() {
     }
   };
 
-  const packages = Object.values(TOKEN_PACKAGES);
+  const packages = Object.values(WORK_HOURS_PACKAGES);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -52,15 +52,15 @@ function PricingContent() {
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Token Pricing
+            AI Work Hours Pricing
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Pay only for what you use. Purchase tokens and spend them on AI employees, 
+            Pay only for what you use. Purchase AI Work Hours and spend them on AI employees, 
             VM runtime, and more.
           </p>
         </div>
 
-        {/* Token Packages */}
+        {/* Work Hours Packages */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {packages.map((pkg) => (
             <div
@@ -89,13 +89,13 @@ function PricingContent() {
                   {formatPrice(pkg.priceCents)}
                 </span>
                 <div className="flex items-center justify-center gap-2 mt-2 text-teal-600">
-                  <Coins className="w-5 h-5" />
+                  <Clock className="w-5 h-5" />
                   <span className="font-semibold">
-                    {formatTokens(pkg.tokenAmount)} tokens
+                    {formatWorkHours(pkg.workHours)} AI Work Hours
                   </span>
                 </div>
                 <p className="text-sm text-gray-500 mt-1">
-                  ${((pkg.priceCents / 100) / (pkg.tokenAmount / 1000)).toFixed(2)} per 1,000 tokens
+                  ${((pkg.priceCents / 100) / pkg.workHours).toFixed(2)} per hour
                 </p>
               </div>
 
@@ -117,7 +117,7 @@ function PricingContent() {
                     : 'bg-gray-900 text-white hover:bg-gray-800'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {loading === pkg.slug ? 'Loading...' : 'Buy Tokens'}
+                {loading === pkg.slug ? 'Loading...' : 'Buy AI Work Hours'}
               </button>
             </div>
           ))}
@@ -129,7 +129,7 @@ function PricingContent() {
             Need More?
           </h2>
           <p className="text-gray-400 mb-6 max-w-xl mx-auto">
-            Enterprise plans with custom token amounts, volume discounts, and dedicated support.
+            Enterprise plans with custom AI Work Hours, volume discounts, and dedicated support.
           </p>
           <a
             href="mailto:sales@mouseplatform.com"
@@ -139,10 +139,10 @@ function PricingContent() {
           </a>
         </div>
 
-        {/* Token Costs Section */}
+        {/* Work Hours Costs Section */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-            What Can You Do With Tokens?
+            What Can You Do With AI Work Hours?
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -153,7 +153,7 @@ function PricingContent() {
               <div>
                 <h3 className="font-semibold text-gray-900">Message King Mouse</h3>
                 <p className="text-2xl font-bold text-teal-600">
-                  {TOKEN_COSTS.messageKingMouse.tokens} tokens
+                  {WORK_HOURS_COSTS.messageKingMouse.hours} hours
                 </p>
                 <p className="text-sm text-gray-500">
                   Each message sent to your AI assistant
@@ -168,7 +168,7 @@ function PricingContent() {
               <div>
                 <h3 className="font-semibold text-gray-900">Deploy AI Employee</h3>
                 <p className="text-2xl font-bold text-blue-600">
-                  {TOKEN_COSTS.deployAiEmployee.tokens} tokens
+                  {WORK_HOURS_COSTS.deployAiEmployee.hours} hour
                 </p>
                 <p className="text-sm text-gray-500">
                   One-time cost per AI employee deployment
@@ -183,7 +183,7 @@ function PricingContent() {
               <div>
                 <h3 className="font-semibold text-gray-900">VM Runtime</h3>
                 <p className="text-2xl font-bold text-purple-600">
-                  {TOKEN_COSTS.vmRuntime1h.tokens} tokens/hour
+                  {WORK_HOURS_COSTS.vmRuntime1h.hours} hour/hour
                 </p>
                 <p className="text-sm text-gray-500">
                   Per hour of VM runtime for AI employees
@@ -198,7 +198,7 @@ function PricingContent() {
               <div>
                 <h3 className="font-semibold text-gray-900">Process Email</h3>
                 <p className="text-2xl font-bold text-green-600">
-                  {TOKEN_COSTS.processEmail.tokens} tokens
+                  {WORK_HOURS_COSTS.processEmail.hours} hours
                 </p>
                 <p className="text-sm text-gray-500">
                   Per email processed by AI employees
@@ -213,7 +213,7 @@ function PricingContent() {
               <div>
                 <h3 className="font-semibold text-gray-900">API Call</h3>
                 <p className="text-2xl font-bold text-orange-600">
-                  {TOKEN_COSTS.apiCall.tokens} token
+                  {WORK_HOURS_COSTS.apiCall.hours} hours
                 </p>
                 <p className="text-sm text-gray-500">
                   Per API request to the platform
@@ -228,7 +228,7 @@ function PricingContent() {
               <div>
                 <h3 className="font-semibold text-gray-900">Low Balance Alert</h3>
                 <p className="text-2xl font-bold text-red-600">
-                  &lt; 500 tokens
+                  &lt; 5 hours
                 </p>
                 <p className="text-sm text-gray-500">
                   We&apos;ll notify you when running low

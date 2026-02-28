@@ -1,6 +1,9 @@
-export const metadata = {
-  title: 'Mouse Platform',
-  description: 'AI-powered business intelligence platform',
+import type { Metadata } from 'next';
+import './globals.css';
+
+export const metadata: Metadata = {
+  title: 'Mouse Platform - AI-Powered Business Intelligence',
+  description: 'Deploy AI employees and manage your business with intelligent automation',
 };
 
 export default function RootLayout({
@@ -9,8 +12,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" className="dark">
+      <body className="bg-dark-bg text-white antialiased min-h-screen">
+        {children}
+      </body>
     </html>
   );
 }

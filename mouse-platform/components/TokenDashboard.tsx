@@ -146,7 +146,7 @@ export default function TokenDashboard({
         </button>
       </div>
 
-      {/* Token Balance Card */}
+      {/* AI Work Hours Balance Card */}
       <div className={`rounded-xl p-6 ${
         isLowBalance 
           ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white' 
@@ -158,7 +158,7 @@ export default function TokenDashboard({
               <Coins className="w-8 h-8" />
             </div>
             <div>
-              <p className="text-sm opacity-80">Available Tokens</p>
+              <p className="text-sm opacity-80">Available AI Work Hours</p>
               <p className="text-4xl font-bold">{tokens.balance.toLocaleString()}</p>
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function TokenDashboard({
           <div className="mt-4 p-3 bg-white/20 rounded-lg flex items-center gap-3">
             <AlertCircle className="w-5 h-5" />
             <p className="text-sm">
-              Your token balance is running low. Purchase more tokens to keep your AI employees working.
+              Your AI Work Hours balance is running low. Purchase more AI Work Hours to keep your AI employees working.
             </p>
           </div>
         )}
@@ -205,7 +205,7 @@ export default function TokenDashboard({
             className="px-4 py-2 bg-white text-mouse-navy rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
           >
             <ShoppingCart className="w-4 h-4 inline mr-1" />
-            View All Packages
+            Purchase AI Work Hours
           </button>
         </div>
       </div>
@@ -340,7 +340,7 @@ export default function TokenDashboard({
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-mouse-navy flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-mouse-teal" />
-              Token Activity
+              AI Work Hours Activity
             </h3>
             <button
               onClick={onPurchaseTokens}
@@ -414,7 +414,7 @@ export default function TokenDashboard({
             className="p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-left"
           >
             <Coins className="w-6 h-6 text-mouse-teal mb-2" />
-            <p className="font-medium text-gray-800">Buy Tokens</p>
+            <p className="font-medium text-gray-800">Buy AI Work Hours</p>
             <p className="text-xs text-gray-500">Add to your balance</p>
           </button>
           

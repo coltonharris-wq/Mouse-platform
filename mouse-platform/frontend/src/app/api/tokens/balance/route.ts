@@ -24,15 +24,15 @@ export async function GET(request: NextRequest) {
     );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch token balance');
+      throw new Error('Failed to fetch AI Work Hours balance');
     }
 
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Token balance error:', error);
+    console.error('AI Work Hours balance error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch token balance' },
+      { error: 'Failed to fetch AI Work Hours balance' },
       { status: 500 }
     );
   }

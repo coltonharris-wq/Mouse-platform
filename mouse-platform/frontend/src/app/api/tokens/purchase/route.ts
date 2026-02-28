@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       sessionId: session.id
     });
   } catch (error) {
-    console.error('Token purchase error:', error);
+    console.error('AI Work Hours purchase error:', error);
     return NextResponse.json(
       { error: 'Failed to create checkout session' },
       { status: 500 }

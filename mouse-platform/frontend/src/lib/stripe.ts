@@ -9,17 +9,17 @@ const getStripe = () => {
   });
 };
 
-// Token package definitions matching the backend
-export const TOKEN_PACKAGES = {
+// Work Hours package definitions
+export const WORK_HOURS_PACKAGES = {
   starter: {
     id: 'starter',
     name: 'Starter',
     slug: 'starter',
-    priceCents: 1900,
-    tokenAmount: 4000,
+    priceCents: 9700,
+    workHours: 20,
     description: 'Perfect for small teams getting started',
     features: [
-      '4,000 tokens',
+      '20 AI Work Hours',
       'Message with King Mouse',
       'Deploy AI employees',
       'Email support'
@@ -29,11 +29,11 @@ export const TOKEN_PACKAGES = {
     id: 'growth',
     name: 'Growth',
     slug: 'growth',
-    priceCents: 4900,
-    tokenAmount: 12000,
+    priceCents: 29700,
+    workHours: 65,
     description: 'Best value for growing teams',
     features: [
-      '12,000 tokens',
+      '65 AI Work Hours',
       'Everything in Starter',
       'Priority support',
       'API access'
@@ -43,11 +43,11 @@ export const TOKEN_PACKAGES = {
     id: 'pro',
     name: 'Pro',
     slug: 'pro',
-    priceCents: 9900,
-    tokenAmount: 30000,
+    priceCents: 49700,
+    workHours: 165,
     description: 'Maximum value for power users',
     features: [
-      '30,000 tokens',
+      '165 AI Work Hours',
       'Everything in Growth',
       'Dedicated support',
       'Custom integrations'
@@ -55,7 +55,19 @@ export const TOKEN_PACKAGES = {
   }
 };
 
-// Token costs for actions
+// Keep TOKEN_PACKAGES for backward compatibility during migration
+export const TOKEN_PACKAGES = WORK_HOURS_PACKAGES;
+
+// Work hour costs for actions
+export const WORK_HOURS_COSTS = {
+  messageKingMouse: { hours: 0.1, description: 'Send a message to King Mouse' },
+  deployAiEmployee: { hours: 1, description: 'Deploy a new AI employee' },
+  vmRuntime1h: { hours: 1, description: '1 hour of VM runtime' },
+  processEmail: { hours: 0.05, description: 'Process 1 email' },
+  apiCall: { hours: 0.01, description: 'API call' }
+};
+
+// Keep TOKEN_COSTS for backward compatibility
 export const TOKEN_COSTS = {
   messageKingMouse: { tokens: 10, description: 'Send a message to King Mouse' },
   deployAiEmployee: { tokens: 100, description: 'Deploy a new AI employee' },
@@ -65,10 +77,14 @@ export const TOKEN_COSTS = {
 };
 
 // Low balance threshold
-export const LOW_BALANCE_THRESHOLD = 500;
+export const LOW_BALANCE_THRESHOLD = 5;
 
 export function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(0)}`;
+}
+
+export function formatWorkHours(hours: number): string {
+  return `${hours.toLocaleString()} hours`;
 }
 
 export function formatTokens(tokens: number): string {
@@ -86,7 +102,7 @@ export async function createCheckoutSession(
   cancelUrl: string
 ) {
   const stripe = getStripe();
-  const pkg = TOKEN_PACKAGES[packageSlug as keyof typeof TOKEN_PACKAGES];
+  const pkg = WORK_HOURS_PACKAGES[packageSlug as keyof typeof WORK_HOURS_PACKAGES];
   if (!pkg) throw new Error('Invalid package');
 
   const session = await stripe.checkout.sessions.create({
@@ -96,7 +112,7 @@ export async function createCheckoutSession(
           currency: 'usd',
           product_data: {
             name: pkg.name,
-            description: `${pkg.tokenAmount.toLocaleString()} tokens - ${pkg.description}`
+            description: `${pkg.workHours.toLocaleString()} AI Work Hours - ${pkg.description}`
           },
           unit_amount: pkg.priceCents
         },
@@ -109,7 +125,7 @@ export async function createCheckoutSession(
     metadata: {
       customerId,
       packageSlug,
-      tokenAmount: pkg.tokenAmount.toString()
+      workHours: pkg.workHours.toString()
     }
   });
 
