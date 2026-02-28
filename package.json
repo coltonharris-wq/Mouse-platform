@@ -1,0 +1,14 @@
+{
+  "name": "mouse-platform",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd mouse-platform/frontend && npm run dev",
+    "build": "cd mouse-platform/frontend && npm run build",
+    "start": "cd mouse-platform/frontend && npm start",
+    "lint": "cd mouse-platform/frontend && npm run lint"
+  },
+  "dependencies": {
+    "next": "15.1.3"
+  }
+}
