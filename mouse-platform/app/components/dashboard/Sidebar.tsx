@@ -24,7 +24,9 @@ import {
   FileText,
   ClipboardList,
   UserCircle,
-  Mail
+  Mail,
+  PlayIcon,
+  Clock
 } from 'lucide-react';
 
 export type UserRole = 'admin' | 'sales' | 'reseller' | 'customer';
@@ -69,6 +71,8 @@ const menuItems: Record<UserRole, MenuItem[]> = {
     { name: 'Dashboard', href: '/dashboard/customer', icon: LayoutDashboard },
     { name: 'AI Employees', href: '/dashboard/customer/employees', icon: Bot },
     { name: 'VM Viewer', href: '/dashboard/customer/vm', icon: Monitor },
+    { name: 'Screen Replay', href: '/dashboard/customer/screen-replay', icon: PlayIcon },
+    { name: 'Work Hours', href: '/dashboard/customer/work-hours', icon: Clock },
     { name: 'Task Queue', href: '/dashboard/customer/tasks', icon: ListTodo },
     { name: 'Billing', href: '/dashboard/customer/billing', icon: CreditCard },
     { name: 'Connections', href: '/dashboard/customer/connections', icon: Plug },

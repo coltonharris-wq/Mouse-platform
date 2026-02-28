@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Sidebar from '../components/dashboard/Sidebar';
+import KingMouseAvatar from '../components/king-mouse/KingMouseAvatar';
 
 export default function DashboardLayout({
   children,
@@ -60,6 +61,7 @@ export default function DashboardLayout({
       <main className="flex-1 overflow-auto">
         {children}
       </main>
+      <KingMouseAvatar />
     </div>
   );
 }

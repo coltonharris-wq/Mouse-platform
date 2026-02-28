@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { WorkHoursProvider } from './context/WorkHoursContext'
+import { SecurityProvider } from './context/SecurityContext'
+import KingMouseAvatar from './components/KingMouseAvatar'
 
 export const metadata: Metadata = {
   title: 'Mouse Platform - AI Employee Management',
@@ -14,7 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-white">
-        {children}
+        <SecurityProvider>
+          <WorkHoursProvider>
+            {children}
+            <KingMouseAvatar />
+          </WorkHoursProvider>
+        </SecurityProvider>
       </body>
     </html>
   )

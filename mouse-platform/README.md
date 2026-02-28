@@ -10,20 +10,19 @@ git clone https://github.com/coltonh/mouse-platform.git
 cd mouse-platform
 
 # 2. Install dependencies
-cd api-gateway && pip install -r requirements.txt
-cd ../frontend && npm install
+npm install
 
-# 3. Set environment variables
-cp api-gateway/.env.example api-gateway/.env
-# Edit with your API keys
+# 3. Set environment variables (optional for local dev)
+cp .env.example .env
+# Edit with your API keys if needed
 
-# 4. Run database migrations
-supabase db push
-
-# 5. Start services
-npm run dev          # Frontend
-npm run api          # API Gateway
+# 4. Run the development server
+npm run dev
 ```
+
+The app will be available at `http://localhost:3000`
+
+No deploy needed to view changes - just run `npm run dev` locally!
 
 ## Run the Demo
 
@@ -44,43 +43,43 @@ This creates a test customer "Clean Eats" with 2 AI employees working on live VM
 
 ## Key Features
 
-🤖 **King Mouse** - Customer-facing AI on Telegram  
-👥 **AI Employees** - Role-specific agents (Web Dev, Social Media, Sales, etc.)  
-💻 **Real VMs** - Each employee works on actual cloud computer  
-📺 **Live Streaming** - Watch employees work in real-time  
-💰 **Stripe Connect** - Auto-split payments 88/12
-
-## API Endpoints
-
-| Endpoint | Description |
-|----------|-------------|
-| `POST /api/v1/customers` | Create customer + King Mouse |
-| `POST /api/v1/customers/:id/message` | Chat with King Mouse |
-| `POST /api/v1/customers/:id/vms` | Deploy AI employee |
-| `GET /api/v1/customers/:id/vms/:id/screenshot` | Get VM screenshot |
-| `WS /ws/vms/:customer/:vm` | Live VM streaming |
-
-## Documentation
-
-- [ARCHITECTURE.md](ARCHITECTURE.md) - System design
-- [DEPLOYMENT.md](DEPLOYMENT.md) - Deploy instructions
-- [DEMO.md](DEMO.md) - Run the demo
+🤖 **King Mouse** - Customer-facing AI on Telegram with floating chat widget
+👥 **AI Employees** - Role-specific agents (Web Dev, Social Media, Sales, etc.)
+💻 **Real VMs** - Each employee works on actual cloud computer
+📺 **Live Streaming** - Watch employees work in real-time
+📹 **Screen Replay** - Record and replay AI employee actions
+🛡️ **6-Layer Security** - Comprehensive guardrails and protection
+💰 **Work Hours System** - Purchase, track, and manage AI work hours
+💳 **Stripe Connect** - Auto-split payments 88/12
 
 ## Project Structure
 
 ```
 mouse-platform/
-├── api-gateway/          # Python FastAPI backend
-│   ├── main.py          # API routes
-│   ├── orchestrator.py  # Core business logic
-│   ├── ai_agents.py     # King Mouse & Knight agents
-│   ├── orgo_client.py   # VM management
+├── app/                    # Next.js app directory
+│   ├── components/         # Shared components
+│   │   ├── dashboard/      # Dashboard components
+│   │   ├── king-mouse/     # King Mouse components
+│   │   └── security/       # Security components
+│   ├── dashboard/          # Dashboard pages
+│   │   ├── admin/          # Admin portal
+│   │   ├── customer/       # Customer portal
+│   │   ├── reseller/       # Reseller portal
+│   │   └── sales/          # Sales portal
+│   ├── api/                # API routes
+│   ├── globals.css         # Global styles
+│   ├── layout.tsx          # Root layout
+│   └── page.tsx            # Landing page
+├── api-gateway/            # Python FastAPI backend
+│   ├── main.py            # API routes
+│   ├── orchestrator.py    # Core business logic
+│   ├── ai_agents.py       # King Mouse & Knight agents
+│   ├── orgo_client.py     # VM management
 │   ├── supabase_client.py
 │   └── telegram_bot.py
-├── frontend/            # Next.js app
-├── demo/                # Demo scripts
-├── supabase/            # Database schema
-└── docs/               # Documentation
+├── demo/                   # Demo scripts
+├── supabase/               # Database schema
+└── docs/                  # Documentation
 ```
 
 ## Environment Variables
@@ -104,6 +103,53 @@ TELEGRAM_BOT_TOKEN=
 # AI
 MOONSHOT_API_KEY=
 ```
+
+## Development
+
+### Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+### Available Scripts
+
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build for production
+- `npm start` - Start production server
+- `npm run lint` - Run ESLint
+
+### Portals
+
+The platform includes 4 specialized portals:
+
+1. **Admin Portal** (`/dashboard/admin`) - System management
+2. **Sales Portal** (`/dashboard/sales`) - Pipeline and leads
+3. **Reseller Portal** (`/dashboard/reseller`) - Commission tracking
+4. **Customer Portal** (`/dashboard/customer`) - AI employee management
+
+### Key Components
+
+- **King Mouse Avatar** - Floating chat widget for customer support
+- **Screen Replay** - Full session recording and playback
+- **Security Dashboard** - 6-layer guardrails visualization
+- **Work Hours System** - Balance tracking and purchasing
+
+## Documentation
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) - System design
+- [DEPLOYMENT.md](DEPLOYMENT.md) - Deploy instructions
+- [DEMO.md](DEMO.md) - Run the demo
 
 ## License
 
