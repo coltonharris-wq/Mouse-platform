@@ -114,6 +114,83 @@ class SupabaseClient:
         """Create revenue event record"""
         return self.client.table("revenue_events").insert(data).execute()
     
+    # Token balance operations
+    async def create_token_balance(self, customer_id: str, initial_balance: int = 0):
+        """Create token balance for customer"""
+        data = {
+            "customer_id": customer_id,
+            "balance": initial_balance,
+            "lifetime_earned": initial_balance,
+            "lifetime_spent": 0
+        }
+        return self.client.table("token_balances").insert(data).execute()
+    
+    async def get_token_balance(self, customer_id: str) -> Optional[Dict]:
+        """Get token balance for customer"""
+        result = self.client.table("token_balances").select("*").eq("customer_id", customer_id).execute()
+        return result.data[0] if result.data else None
+    
+    async def credit_tokens(self, customer_id: str, amount: int, description: str, 
+                           transaction_type: str = "purchase", reference_id: str = None,
+                           reference_type: str = None) -> str:
+        """Credit tokens to customer using database function"""
+        result = self.client.rpc("credit_tokens", {
+            "p_customer_id": customer_id,
+            "p_amount": amount,
+            "p_type": transaction_type,
+            "p_description": description,
+            "p_reference_id": reference_id,
+            "p_reference_type": reference_type
+        }).execute()
+        return result.data if result.data else None
+    
+    async def debit_tokens(self, customer_id: str, amount: int, description: str,
+                          reference_id: str = None, reference_type: str = None):
+        """Debit tokens from customer using database function"""
+        result = self.client.rpc("debit_tokens", {
+            "p_customer_id": customer_id,
+            "p_amount": amount,
+            "p_description": description,
+            "p_reference_id": reference_id,
+            "p_reference_type": reference_type
+        }).execute()
+        return result.data if result.data else None
+    
+    async def use_tokens(self, customer_id: str, amount: int, description: str,
+                        reference_id: str = None, reference_type: str = None):
+        """Use/deduct tokens atomically"""
+        result = self.client.rpc("use_tokens", {
+            "p_customer_id": customer_id,
+            "p_amount": amount,
+            "p_description": description,
+            "p_reference_id": reference_id,
+            "p_reference_type": reference_type
+        }).execute()
+        return result.data if result.data else None
+    
+    async def get_token_transactions(self, customer_id: str, limit: int = 50) -> List[Dict]:
+        """Get token transactions for customer"""
+        result = self.client.table("token_transactions")\
+            .select("*")\
+            .eq("customer_id", customer_id)\
+            .order("created_at", desc=True)\
+            .limit(limit)\
+            .execute()
+        return result.data or []
+    
+    async def create_token_order(self, data: Dict):
+        """Create token order record"""
+        return self.client.table("token_orders").insert(data).execute()
+    
+    async def get_customer_token_orders(self, customer_id: str) -> List[Dict]:
+        """Get token orders for customer"""
+        result = self.client.table("token_orders")\
+            .select("*")\
+            .eq("customer_id", customer_id)\
+            .order("created_at", desc=True)\
+            .execute()
+        return result.data or []
+    
     # Demo helpers
     async def get_demo_customers(self) -> List[Dict]:
         """Get all demo customers"""
