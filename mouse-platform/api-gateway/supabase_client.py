@@ -89,6 +89,11 @@ class SupabaseClient:
         result = self.client.table("employees").select("*").eq("vm_id", vm_id).execute()
         return result.data[0] if result.data else None
     
+    async def get_employee_by_idempotency_key(self, idempotency_key: str) -> Optional[Dict]:
+        """Get employee by idempotency key"""
+        result = self.client.table("employees").select("*").eq("idempotency_key", idempotency_key).execute()
+        return result.data[0] if result.data else None
+    
     async def get_employees_by_customer(self, customer_id: str, skip: int = 0, limit: int = 100) -> List[Dict]:
         """Get employees by customer ID with pagination support"""
         result = self.client.table("employees").select("*").eq("customer_id", customer_id).execute()

@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 import asyncio
@@ -14,8 +15,10 @@ from orgo_client import OrgoClient
 from telegram_bot import TelegramBot
 from token_pricing import TokenPricingConfig
 from stripe_webhook_handler import StripeWebhookHandler
+from async_queue import payment_queue, background_queue, TaskPriority
+from cache_manager import vm_status_cache, screenshot_cache, general_cache
 
-app = FastAPI(title="Mouse Platform API", version="2.0.0")
+app = FastAPI(title="Mouse Platform API", version="2.1.0-performance")
 
 # CORS
 app.add_middleware(
@@ -93,16 +96,85 @@ class TokenCreditRequest(BaseModel):
     reference_id: Optional[str] = None
     reference_type: Optional[str] = None
 
+# Startup and Shutdown Events
+@app.on_event("startup")
+async def startup_event():
+    """Initialize caches and queues on startup"""
+    print("[Startup] Initializing performance optimizations...")
+    
+    # Start caches
+    await vm_status_cache.start()
+    await screenshot_cache.start()
+    await general_cache.start()
+    
+    # Start queues
+    await payment_queue.start()
+    await background_queue.start()
+    
+    # Register webhook handler with queue
+    async def process_stripe_event(payload):
+        await stripe_handler.process_queued_event(payload)
+    
+    # Register handlers for all stripe event types
+    stripe_events = [
+        "stripe_checkout.session.completed",
+        "stripe_checkout.session.expired",
+        "stripe_payment_intent.succeeded",
+        "stripe_payment_intent.payment_failed",
+        "stripe_charge.succeeded",
+        "stripe_charge.failed",
+        "stripe_charge.refunded",
+        "stripe_refund.created",
+        "stripe_customer.created",
+        "stripe_customer.deleted"
+    ]
+    for event_type in stripe_events:
+        payment_queue.register_handler(event_type, process_stripe_event)
+    
+    print("[Startup] Performance optimizations initialized!")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown"""
+    print("[Shutdown] Cleaning up...")
+    
+    # Stop caches
+    await vm_status_cache.stop()
+    await screenshot_cache.stop()
+    await general_cache.stop()
+    
+    # Stop queues
+    await payment_queue.stop()
+    await background_queue.stop()
+    
+    # Close HTTP client
+    await orgo.close()
+    
+    print("[Shutdown] Cleanup complete!")
+
 # Health Check
 @app.get("/health")
 async def health_check():
+    """Enhanced health check with performance metrics"""
     return {
         "status": "healthy",
+        "version": "2.1.0-performance",
         "timestamp": datetime.utcnow().isoformat(),
         "services": {
             "supabase": supabase.health(),
             "orgo": orgo.health(),
             "telegram": telegram.health()
+        },
+        "performance": {
+            "caches": {
+                "vm_status": vm_status_cache.get_stats(),
+                "screenshots": screenshot_cache.get_stats(),
+                "general": general_cache.get_stats()
+            },
+            "queues": {
+                "payment": payment_queue.get_metrics(),
+                "background": background_queue.get_metrics()
+            }
         }
     }
 
@@ -135,7 +207,7 @@ async def get_customer(customer_id: str):
 
 @app.get("/api/v1/customers/{customer_id}/dashboard")
 async def get_customer_dashboard(customer_id: str):
-    """Get complete dashboard data for customer including tokens, employees, and transactions"""
+    """Get complete dashboard data for customer including tokens, employees, and transactions - OPTIMIZED"""
     try:
         dashboard = await platform.get_customer_dashboard(customer_id)
         return dashboard
@@ -144,7 +216,7 @@ async def get_customer_dashboard(customer_id: str):
 
 @app.get("/api/v1/customers/{customer_id}/king-mouse")
 async def get_king_mouse_status(customer_id: str):
-    """Get King Mouse bot status and QR code"""
+    """Get King Mouse bot status - OPTIMIZED with caching"""
     try:
         status = await platform.get_king_mouse_status(customer_id)
         return status
@@ -172,15 +244,18 @@ async def send_message(customer_id: str, request: MessageRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 # ============================================
-# VM/EMPLOYEE ROUTES
+# VM/EMPLOYEE ROUTES - OPTIMIZED
 # ============================================
 
 @app.get("/api/v1/customers/{customer_id}/vms")
-async def list_vms(customer_id: str):
-    """List all VMs for a customer"""
+async def list_vms(customer_id: str, fast: bool = True):
+    """List all VMs for a customer - OPTIMIZED with concurrent fetching"""
     try:
-        vms = await platform.list_customer_vms(customer_id)
-        return {"vms": vms}
+        if fast:
+            vms = await platform.list_customer_vms_fast(customer_id)
+        else:
+            vms = await platform.list_customer_vms(customer_id)
+        return {"vms": vms, "count": len(vms)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -204,15 +279,15 @@ async def deploy_vm(customer_id: str, request: EmployeeDeployRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/customers/{customer_id}/vms/{vm_id}/screenshot")
-async def get_screenshot(customer_id: str, vm_id: str):
-    """Get current VM screenshot"""
+async def get_screenshot(customer_id: str, vm_id: str, quality: str = "medium"):
+    """Get current VM screenshot - OPTIMIZED with caching and compression"""
     try:
         # Verify customer owns this VM
         employee = await supabase.get_employee_by_vm(vm_id)
         if not employee or employee["customer_id"] != customer_id:
             raise HTTPException(status_code=403, detail="Access denied - VM not found or unauthorized")
         
-        result = await platform.stream_vm(customer_id, vm_id)
+        result = await platform.stream_vm(customer_id, vm_id, quality=quality)
         return result
     except HTTPException:
         raise
@@ -493,12 +568,12 @@ async def calculate_token_cost(
         raise HTTPException(status_code=500, detail=str(e))
 
 # ============================================
-# WEBSOCKET FOR LIVE VM STREAMING
+# WEBSOCKET FOR LIVE VM STREAMING - OPTIMIZED
 # ============================================
 
 @app.websocket("/ws/vms/{customer_id}/{vm_id}")
 async def vm_websocket(websocket: WebSocket, customer_id: str, vm_id: str):
-    """WebSocket for real-time VM screenshot streaming"""
+    """WebSocket for real-time VM screenshot streaming - OPTIMIZED with caching"""
     # Verify customer owns this VM before accepting connection
     employee = await supabase.get_employee_by_vm(vm_id)
     if not employee or employee["customer_id"] != customer_id:
@@ -509,15 +584,24 @@ async def vm_websocket(websocket: WebSocket, customer_id: str, vm_id: str):
     await manager.connect(websocket, client_id)
     
     try:
+        screenshot_count = 0
         while True:
-            # Get screenshot every 3 seconds
-            screenshot = await orgo.get_screenshot(vm_id)
+            # Get screenshot every 2 seconds (reduced from 3 for smoother experience)
+            # Use cache for most requests, fresh every 3rd request
+            use_cache = screenshot_count % 3 != 0
+            
+            screenshot = await orgo.get_screenshot(vm_id, use_cache=use_cache)
+            
             await manager.broadcast({
                 "type": "screenshot",
                 "data": screenshot,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.utcnow().isoformat(),
+                "cached": use_cache
             }, client_id)
-            await asyncio.sleep(3)
+            
+            screenshot_count += 1
+            await asyncio.sleep(2)
+            
     except WebSocketDisconnect:
         manager.disconnect(websocket, client_id)
     except Exception as e:
@@ -525,7 +609,7 @@ async def vm_websocket(websocket: WebSocket, customer_id: str, vm_id: str):
         manager.disconnect(websocket, client_id)
 
 # ============================================
-# WEBHOOK ROUTES
+# WEBHOOK ROUTES - OPTIMIZED WITH QUEUE
 # ============================================
 
 @app.post("/webhooks/telegram")
@@ -550,7 +634,7 @@ async def telegram_webhook(update: dict):
 
 @app.post("/webhooks/stripe")
 async def stripe_webhook(request: Request):
-    """Handle Stripe webhooks with signature verification"""
+    """Handle Stripe webhooks with signature verification - OPTIMIZED with async queue"""
     try:
         payload = await request.body()
         sig_header = request.headers.get('stripe-signature')
@@ -566,7 +650,7 @@ async def stripe_webhook(request: Request):
         except stripe.error.SignatureVerificationError:
             raise HTTPException(status_code=400, detail="Invalid signature")
         
-        # Handle the event
+        # Handle the event (queued for async processing)
         result = await stripe_handler.handle_event(event)
         return result
         
@@ -599,15 +683,19 @@ async def cleanup_demo():
         raise HTTPException(status_code=500, detail=str(e))
 
 # ============================================
-# ADMIN ROUTES
+# ADMIN ROUTES - OPTIMIZED
 # ============================================
 
 @app.get("/admin/vms/status")
-async def get_all_vm_status():
-    """Get status of all VMs (admin only)"""
+async def get_all_vm_status(use_cache: bool = True):
+    """Get status of all VMs (admin only) - OPTIMIZED with caching"""
     try:
-        status = await orgo.list_all_vms()
-        return {"vms": status}
+        status = await orgo.list_all_vms(use_cache=use_cache)
+        return {
+            "vms": status,
+            "count": len(status),
+            "cached": use_cache
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -644,6 +732,30 @@ async def get_customer_token_history(customer_id: str):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/admin/performance/metrics")
+async def get_performance_metrics():
+    """Get detailed performance metrics (admin only)"""
+    return {
+        "caches": {
+            "vm_status": vm_status_cache.get_stats(),
+            "screenshots": screenshot_cache.get_stats(),
+            "general": general_cache.get_stats()
+        },
+        "queues": {
+            "payment": payment_queue.get_metrics(),
+            "background": background_queue.get_metrics()
+        },
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+@app.post("/admin/cache/clear")
+async def clear_all_caches():
+    """Clear all caches (admin only)"""
+    await vm_status_cache.clear()
+    await screenshot_cache.clear()
+    await general_cache.clear()
+    return {"success": True, "message": "All caches cleared"}
 
 if __name__ == "__main__":
     import uvicorn
