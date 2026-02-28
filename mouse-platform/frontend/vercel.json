@@ -1,17 +1,20 @@
 {
   "version": 2,
   "name": "mouse-platform-frontend",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "nextjs",
+  "rewrites": [
+    { "source": "/admin/:path*", "destination": "/admin/:path*" },
+    { "source": "/reseller/:path*", "destination": "/reseller/:path*" },
+    { "source": "/sales/:path*", "destination": "/sales/:path*" },
+    { "source": "/portal/:path*", "destination": "/portal/:path*" },
+    { "source": "/dashboard", "destination": "/dashboard" },
+    { "source": "/employees/:path*", "destination": "/employees/:path*" },
+    { "source": "/tokens/:path*", "destination": "/tokens/:path*" },
+    { "source": "/vms/:path*", "destination": "/vms/:path*" },
+    { "source": "/pricing", "destination": "/pricing" },
+    { "source": "/api/:path*", "destination": "/api/:path*" }
   ],
   "env": {
     "NEXT_PUBLIC_API_URL": "https://api.mouseplatform.com"

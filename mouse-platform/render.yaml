@@ -1,4 +1,17 @@
 services:
+  # Frontend service
+  - type: web
+    name: mouse-platform-frontend
+    runtime: static
+    buildCommand: cd mouse-platform/frontend && npm ci && npm run build
+    staticPublishPath: mouse-platform/frontend/dist
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NEXT_PUBLIC_API_URL
+        value: https://api.mouseplatform.com
+
+  # API service
   - type: web
     name: mouse-platform-api
     runtime: python
@@ -29,4 +42,4 @@ services:
       - key: ADMIN_API_TOKEN
         generateValue: true
       - key: FRONTEND_URL
-        value: https://app.mouseplatform.com
+        value: https://mouse-platform-frontend.onrender.com

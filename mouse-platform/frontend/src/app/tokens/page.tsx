@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loadStripe } from "@stripe/stripe-js";
 
 interface TokenPackage {
   slug: string;
