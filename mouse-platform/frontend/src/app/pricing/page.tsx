@@ -1,16 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { TOKEN_PACKAGES, TOKEN_COSTS, formatPrice, formatTokens } from '@/lib/stripe';
 import { Check, Coins, MessageSquare, Bot, Clock, Mail, Zap, AlertCircle } from 'lucide-react';
 
-interface PricingPageProps {
-  customerId?: string;
-}
-
-export default function PricingPage({ customerId }: PricingPageProps) {
+function PricingContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const customerId = searchParams.get('customerId') || undefined;
   const [loading, setLoading] = useState<string | null>(null);
 
   const handlePurchase = async (packageSlug: string) => {
@@ -241,5 +239,17 @@ export default function PricingPage({ customerId }: PricingPageProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+      </div>
+    }>
+      <PricingContent />
+    </Suspense>
   );
 }

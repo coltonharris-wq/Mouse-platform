@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Coins, 
@@ -33,11 +34,10 @@ interface TokenBalance {
   last_updated: string;
 }
 
-interface DashboardPageProps {
-  customerId: string;
-}
-
-export default function DashboardPage({ customerId }: DashboardPageProps) {
+function DashboardContent() {
+  const searchParams = useSearchParams();
+  const customerId = searchParams.get('customerId') || 'demo-customer';
+  
   const [balance, setBalance] = useState<TokenBalance | null>(null);
   const [transactions, setTransactions] = useState<TokenTransaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -359,5 +359,17 @@ export default function DashboardPage({ customerId }: DashboardPageProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }
