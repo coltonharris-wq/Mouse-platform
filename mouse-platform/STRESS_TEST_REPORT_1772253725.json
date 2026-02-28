@@ -1,0 +1,1099 @@
+{
+  "test_run_id": "stress-test-1772253725",
+  "timestamp": "2026-02-27T23:42:05.155820",
+  "target_url": "http://localhost:8000",
+  "duration_seconds": 10.45,
+  "summary": {
+    "total_tests": 126,
+    "passed": 103,
+    "failed": 23,
+    "success_rate": "81.7%"
+  },
+  "bugs": {
+    "critical": 2,
+    "high": 1,
+    "medium": 9,
+    "low": 20,
+    "total": 32
+  },
+  "bugs_found": [
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_e0d0-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_e0d0e9a5306f"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_ba95-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_ba9532a1b30b"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_1546-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_1546e8fbba29"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_3ab8-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_3ab8deca0622"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_549e-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_549e6ab31040"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_e0d0-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_e0d0e9a5306f"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_26b4-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_26b482c70685"
+    },
+    {
+      "severity": "MEDIUM",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_403a-001",
+      "description": "Employee status still 'deploying' in response, should be 'active'",
+      "customer": "cst_403ad091c183"
+    },
+    {
+      "severity": "MEDIUM",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_9f81-001",
+      "description": "Employee status still 'deploying' in response, should be 'active'",
+      "customer": "cst_9f8125ad5d1d"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_3ab8-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_3ab8deca0622"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_26b4-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_26b482c70685"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_e0d0-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_e0d0e9a5306f"
+    },
+    {
+      "severity": "MEDIUM",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_8070-001",
+      "description": "Employee status still 'deploying' in response, should be 'active'",
+      "customer": "cst_8070b122caea"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_1546-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_1546e8fbba29"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_549e-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_549e6ab31040"
+    },
+    {
+      "severity": "MEDIUM",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_358e-001",
+      "description": "Employee status still 'deploying' in response, should be 'active'",
+      "customer": "cst_358e03a0a11f"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_3ab8-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_3ab8deca0622"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_26b4-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_26b482c70685"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_e0d0-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_e0d0e9a5306f"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_1546-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_1546e8fbba29"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_3ab8-002",
+      "description": "VM limit reached for plan: starter",
+      "customer": "cst_3ab8deca0622"
+    },
+    {
+      "severity": "MEDIUM",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_9f81-001",
+      "description": "Employee status still 'deploying' in response, should be 'active'",
+      "customer": "cst_9f8125ad5d1d"
+    },
+    {
+      "severity": "MEDIUM",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_403a-001",
+      "description": "Employee status still 'deploying' in response, should be 'active'",
+      "customer": "cst_403ad091c183"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_403a-002",
+      "description": "VM limit reached for plan: growth",
+      "customer": "cst_403ad091c183"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_9f81-002",
+      "description": "VM limit reached for plan: growth",
+      "customer": "cst_9f8125ad5d1d"
+    },
+    {
+      "severity": "MEDIUM",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_8070-001",
+      "description": "Employee status still 'deploying' in response, should be 'active'",
+      "customer": "cst_8070b122caea"
+    },
+    {
+      "severity": "LOW",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_9f81-002",
+      "description": "VM limit reached for plan: growth",
+      "customer": "cst_9f8125ad5d1d"
+    },
+    {
+      "severity": "MEDIUM",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_8070-001",
+      "description": "Employee status still 'deploying' in response, should be 'active'",
+      "customer": "cst_8070b122caea"
+    },
+    {
+      "severity": "MEDIUM",
+      "bug_id": "BUG-DEPLOY_EMPLOYEE_cst_8070-001",
+      "description": "Employee status still 'deploying' in response, should be 'active'",
+      "customer": "cst_8070b122caea"
+    },
+    {
+      "severity": "CRITICAL",
+      "bug_id": "BUG-UNAUTHORIZED_ACCESS_cst_e0d0-001",
+      "description": "SECURITY LEAK: Customer cst_e0d0e9a5306f successfully accessed VM vm_f962bd247e94 that doesn't belong to them!",
+      "customer": "cst_e0d0e9a5306f",
+      "target_vm": "vm_f962bd247e94"
+    },
+    {
+      "severity": "CRITICAL",
+      "bug_id": "BUG-UNAUTHORIZED_ACCESS_cst_1546-001",
+      "description": "SECURITY LEAK: Customer cst_1546e8fbba29 successfully accessed VM vm_e7bbd0dbea73 that doesn't belong to them!",
+      "customer": "cst_1546e8fbba29",
+      "target_vm": "vm_e7bbd0dbea73"
+    },
+    {
+      "severity": "HIGH",
+      "bug_id": "BUG-RATE-LIMIT-001",
+      "description": "No rate limiting detected - sent 20 rapid requests, all accepted",
+      "total_requests": 20
+    }
+  ],
+  "test_results": [
+    {
+      "test_name": "HEALTH_CHECK",
+      "customer_id": "",
+      "success": true,
+      "duration_ms": 4.78,
+      "error": null
+    },
+    {
+      "test_name": "GET_TOKEN_PACKAGES",
+      "customer_id": "",
+      "success": true,
+      "duration_ms": 0.48,
+      "error": null
+    },
+    {
+      "test_name": "CUSTOMER_SIGNUP_0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": true,
+      "duration_ms": 117.62,
+      "error": null
+    },
+    {
+      "test_name": "GET_CUSTOMER_cst_e0d0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": true,
+      "duration_ms": 0.81,
+      "error": null
+    },
+    {
+      "test_name": "KING_MOUSE_STATUS_cst_e0d0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": true,
+      "duration_ms": 1.28,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_e0d0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": true,
+      "duration_ms": 5.58,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_e0d0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": true,
+      "duration_ms": 0.99,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_e0d0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": true,
+      "duration_ms": 0.98,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_e0d0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": true,
+      "duration_ms": 1.13,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_e0d0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": false,
+      "duration_ms": 1.28,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_e0d0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": false,
+      "duration_ms": 2.49,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_e0d0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": false,
+      "duration_ms": 3.05,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_e0d0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": false,
+      "duration_ms": 0.99,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "LIST_VMS_cst_e0d0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": true,
+      "duration_ms": 3.18,
+      "error": null
+    },
+    {
+      "test_name": "GET_SCREENSHOT_cst_e0d0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": true,
+      "duration_ms": 3.03,
+      "error": null
+    },
+    {
+      "test_name": "CUSTOMER_SIGNUP_1",
+      "customer_id": "cst_549e6ab31040",
+      "success": true,
+      "duration_ms": 308.81,
+      "error": null
+    },
+    {
+      "test_name": "GET_CUSTOMER_cst_549e",
+      "customer_id": "cst_549e6ab31040",
+      "success": true,
+      "duration_ms": 0.86,
+      "error": null
+    },
+    {
+      "test_name": "KING_MOUSE_STATUS_cst_549e",
+      "customer_id": "cst_549e6ab31040",
+      "success": true,
+      "duration_ms": 1.14,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_549e",
+      "customer_id": "cst_549e6ab31040",
+      "success": true,
+      "duration_ms": 1.01,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_549e",
+      "customer_id": "cst_549e6ab31040",
+      "success": true,
+      "duration_ms": 1.66,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_549e",
+      "customer_id": "cst_549e6ab31040",
+      "success": true,
+      "duration_ms": 0.76,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_549e",
+      "customer_id": "cst_549e6ab31040",
+      "success": true,
+      "duration_ms": 0.98,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_549e",
+      "customer_id": "cst_549e6ab31040",
+      "success": false,
+      "duration_ms": 1.71,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_549e",
+      "customer_id": "cst_549e6ab31040",
+      "success": false,
+      "duration_ms": 1.45,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "LIST_VMS_cst_549e",
+      "customer_id": "cst_549e6ab31040",
+      "success": true,
+      "duration_ms": 1.1,
+      "error": null
+    },
+    {
+      "test_name": "GET_SCREENSHOT_cst_549e",
+      "customer_id": "cst_549e6ab31040",
+      "success": true,
+      "duration_ms": 1.18,
+      "error": null
+    },
+    {
+      "test_name": "CUSTOMER_SIGNUP_2",
+      "customer_id": "cst_3ab8deca0622",
+      "success": true,
+      "duration_ms": 350.03,
+      "error": null
+    },
+    {
+      "test_name": "GET_CUSTOMER_cst_3ab8",
+      "customer_id": "cst_3ab8deca0622",
+      "success": true,
+      "duration_ms": 0.85,
+      "error": null
+    },
+    {
+      "test_name": "KING_MOUSE_STATUS_cst_3ab8",
+      "customer_id": "cst_3ab8deca0622",
+      "success": true,
+      "duration_ms": 2.02,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_3ab8",
+      "customer_id": "cst_3ab8deca0622",
+      "success": true,
+      "duration_ms": 1.26,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_3ab8",
+      "customer_id": "cst_3ab8deca0622",
+      "success": true,
+      "duration_ms": 1.08,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_3ab8",
+      "customer_id": "cst_3ab8deca0622",
+      "success": true,
+      "duration_ms": 3.48,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_3ab8",
+      "customer_id": "cst_3ab8deca0622",
+      "success": true,
+      "duration_ms": 0.82,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_3ab8",
+      "customer_id": "cst_3ab8deca0622",
+      "success": false,
+      "duration_ms": 0.95,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_3ab8",
+      "customer_id": "cst_3ab8deca0622",
+      "success": false,
+      "duration_ms": 3.1,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_3ab8",
+      "customer_id": "cst_3ab8deca0622",
+      "success": false,
+      "duration_ms": 1.36,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_3ab8",
+      "customer_id": "cst_3ab8deca0622",
+      "success": false,
+      "duration_ms": 3.79,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "LIST_VMS_cst_3ab8",
+      "customer_id": "cst_3ab8deca0622",
+      "success": true,
+      "duration_ms": 3.04,
+      "error": null
+    },
+    {
+      "test_name": "GET_SCREENSHOT_cst_3ab8",
+      "customer_id": "cst_3ab8deca0622",
+      "success": true,
+      "duration_ms": 1.22,
+      "error": null
+    },
+    {
+      "test_name": "CUSTOMER_SIGNUP_3",
+      "customer_id": "cst_26b482c70685",
+      "success": true,
+      "duration_ms": 246.29,
+      "error": null
+    },
+    {
+      "test_name": "GET_CUSTOMER_cst_26b4",
+      "customer_id": "cst_26b482c70685",
+      "success": true,
+      "duration_ms": 0.86,
+      "error": null
+    },
+    {
+      "test_name": "KING_MOUSE_STATUS_cst_26b4",
+      "customer_id": "cst_26b482c70685",
+      "success": true,
+      "duration_ms": 1.73,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_26b4",
+      "customer_id": "cst_26b482c70685",
+      "success": true,
+      "duration_ms": 1.14,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_26b4",
+      "customer_id": "cst_26b482c70685",
+      "success": true,
+      "duration_ms": 1.22,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_26b4",
+      "customer_id": "cst_26b482c70685",
+      "success": true,
+      "duration_ms": 2.3,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_26b4",
+      "customer_id": "cst_26b482c70685",
+      "success": true,
+      "duration_ms": 1.22,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_26b4",
+      "customer_id": "cst_26b482c70685",
+      "success": false,
+      "duration_ms": 1.27,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_26b4",
+      "customer_id": "cst_26b482c70685",
+      "success": false,
+      "duration_ms": 3.45,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_26b4",
+      "customer_id": "cst_26b482c70685",
+      "success": false,
+      "duration_ms": 1.06,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "LIST_VMS_cst_26b4",
+      "customer_id": "cst_26b482c70685",
+      "success": true,
+      "duration_ms": 2.56,
+      "error": null
+    },
+    {
+      "test_name": "GET_SCREENSHOT_cst_26b4",
+      "customer_id": "cst_26b482c70685",
+      "success": true,
+      "duration_ms": 1.29,
+      "error": null
+    },
+    {
+      "test_name": "CUSTOMER_SIGNUP_4",
+      "customer_id": "cst_ba9532a1b30b",
+      "success": true,
+      "duration_ms": 479.81,
+      "error": null
+    },
+    {
+      "test_name": "GET_CUSTOMER_cst_ba95",
+      "customer_id": "cst_ba9532a1b30b",
+      "success": true,
+      "duration_ms": 1.14,
+      "error": null
+    },
+    {
+      "test_name": "KING_MOUSE_STATUS_cst_ba95",
+      "customer_id": "cst_ba9532a1b30b",
+      "success": true,
+      "duration_ms": 0.85,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_ba95",
+      "customer_id": "cst_ba9532a1b30b",
+      "success": true,
+      "duration_ms": 0.83,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_ba95",
+      "customer_id": "cst_ba9532a1b30b",
+      "success": true,
+      "duration_ms": 2.59,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_ba95",
+      "customer_id": "cst_ba9532a1b30b",
+      "success": true,
+      "duration_ms": 1.38,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_ba95",
+      "customer_id": "cst_ba9532a1b30b",
+      "success": true,
+      "duration_ms": 0.93,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_ba95",
+      "customer_id": "cst_ba9532a1b30b",
+      "success": false,
+      "duration_ms": 1.35,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "LIST_VMS_cst_ba95",
+      "customer_id": "cst_ba9532a1b30b",
+      "success": true,
+      "duration_ms": 2.54,
+      "error": null
+    },
+    {
+      "test_name": "GET_SCREENSHOT_cst_ba95",
+      "customer_id": "cst_ba9532a1b30b",
+      "success": true,
+      "duration_ms": 2.09,
+      "error": null
+    },
+    {
+      "test_name": "CUSTOMER_SIGNUP_5",
+      "customer_id": "cst_403ad091c183",
+      "success": true,
+      "duration_ms": 202.13,
+      "error": null
+    },
+    {
+      "test_name": "GET_CUSTOMER_cst_403a",
+      "customer_id": "cst_403ad091c183",
+      "success": true,
+      "duration_ms": 2.7,
+      "error": null
+    },
+    {
+      "test_name": "KING_MOUSE_STATUS_cst_403a",
+      "customer_id": "cst_403ad091c183",
+      "success": true,
+      "duration_ms": 0.81,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_403a",
+      "customer_id": "cst_403ad091c183",
+      "success": true,
+      "duration_ms": 2.7,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_403a",
+      "customer_id": "cst_403ad091c183",
+      "success": true,
+      "duration_ms": 2.14,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_403a",
+      "customer_id": "cst_403ad091c183",
+      "success": true,
+      "duration_ms": 2.52,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_403a",
+      "customer_id": "cst_403ad091c183",
+      "success": true,
+      "duration_ms": 1.09,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_403a",
+      "customer_id": "cst_403ad091c183",
+      "success": true,
+      "duration_ms": 889.09,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_403a",
+      "customer_id": "cst_403ad091c183",
+      "success": true,
+      "duration_ms": 1004.31,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_403a",
+      "customer_id": "cst_403ad091c183",
+      "success": false,
+      "duration_ms": 1.15,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "LIST_VMS_cst_403a",
+      "customer_id": "cst_403ad091c183",
+      "success": true,
+      "duration_ms": 1.37,
+      "error": null
+    },
+    {
+      "test_name": "GET_SCREENSHOT_cst_403a",
+      "customer_id": "cst_403ad091c183",
+      "success": true,
+      "duration_ms": 3.03,
+      "error": null
+    },
+    {
+      "test_name": "CUSTOMER_SIGNUP_6",
+      "customer_id": "cst_358e03a0a11f",
+      "success": true,
+      "duration_ms": 256.46,
+      "error": null
+    },
+    {
+      "test_name": "GET_CUSTOMER_cst_358e",
+      "customer_id": "cst_358e03a0a11f",
+      "success": true,
+      "duration_ms": 1.27,
+      "error": null
+    },
+    {
+      "test_name": "KING_MOUSE_STATUS_cst_358e",
+      "customer_id": "cst_358e03a0a11f",
+      "success": true,
+      "duration_ms": 2.32,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_358e",
+      "customer_id": "cst_358e03a0a11f",
+      "success": true,
+      "duration_ms": 1.17,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_358e",
+      "customer_id": "cst_358e03a0a11f",
+      "success": true,
+      "duration_ms": 1.37,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_358e",
+      "customer_id": "cst_358e03a0a11f",
+      "success": true,
+      "duration_ms": 1.07,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_358e",
+      "customer_id": "cst_358e03a0a11f",
+      "success": true,
+      "duration_ms": 1.2,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_358e",
+      "customer_id": "cst_358e03a0a11f",
+      "success": true,
+      "duration_ms": 692.34,
+      "error": null
+    },
+    {
+      "test_name": "LIST_VMS_cst_358e",
+      "customer_id": "cst_358e03a0a11f",
+      "success": true,
+      "duration_ms": 1.88,
+      "error": null
+    },
+    {
+      "test_name": "GET_SCREENSHOT_cst_358e",
+      "customer_id": "cst_358e03a0a11f",
+      "success": true,
+      "duration_ms": 1.68,
+      "error": null
+    },
+    {
+      "test_name": "CUSTOMER_SIGNUP_7",
+      "customer_id": "cst_9f8125ad5d1d",
+      "success": true,
+      "duration_ms": 208.52,
+      "error": null
+    },
+    {
+      "test_name": "GET_CUSTOMER_cst_9f81",
+      "customer_id": "cst_9f8125ad5d1d",
+      "success": true,
+      "duration_ms": 2.22,
+      "error": null
+    },
+    {
+      "test_name": "KING_MOUSE_STATUS_cst_9f81",
+      "customer_id": "cst_9f8125ad5d1d",
+      "success": true,
+      "duration_ms": 2.79,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_9f81",
+      "customer_id": "cst_9f8125ad5d1d",
+      "success": true,
+      "duration_ms": 4.51,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_9f81",
+      "customer_id": "cst_9f8125ad5d1d",
+      "success": true,
+      "duration_ms": 2.73,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_9f81",
+      "customer_id": "cst_9f8125ad5d1d",
+      "success": true,
+      "duration_ms": 1.89,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_9f81",
+      "customer_id": "cst_9f8125ad5d1d",
+      "success": true,
+      "duration_ms": 1.26,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_9f81",
+      "customer_id": "cst_9f8125ad5d1d",
+      "success": true,
+      "duration_ms": 629.88,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_9f81",
+      "customer_id": "cst_9f8125ad5d1d",
+      "success": true,
+      "duration_ms": 1044.66,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_9f81",
+      "customer_id": "cst_9f8125ad5d1d",
+      "success": false,
+      "duration_ms": 2.61,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_9f81",
+      "customer_id": "cst_9f8125ad5d1d",
+      "success": false,
+      "duration_ms": 1.2,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "LIST_VMS_cst_9f81",
+      "customer_id": "cst_9f8125ad5d1d",
+      "success": true,
+      "duration_ms": 1.89,
+      "error": null
+    },
+    {
+      "test_name": "GET_SCREENSHOT_cst_9f81",
+      "customer_id": "cst_9f8125ad5d1d",
+      "success": true,
+      "duration_ms": 1.75,
+      "error": null
+    },
+    {
+      "test_name": "CUSTOMER_SIGNUP_8",
+      "customer_id": "cst_8070b122caea",
+      "success": true,
+      "duration_ms": 464.39,
+      "error": null
+    },
+    {
+      "test_name": "GET_CUSTOMER_cst_8070",
+      "customer_id": "cst_8070b122caea",
+      "success": true,
+      "duration_ms": 1.17,
+      "error": null
+    },
+    {
+      "test_name": "KING_MOUSE_STATUS_cst_8070",
+      "customer_id": "cst_8070b122caea",
+      "success": true,
+      "duration_ms": 0.87,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_8070",
+      "customer_id": "cst_8070b122caea",
+      "success": true,
+      "duration_ms": 1.28,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_8070",
+      "customer_id": "cst_8070b122caea",
+      "success": true,
+      "duration_ms": 0.92,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_8070",
+      "customer_id": "cst_8070b122caea",
+      "success": true,
+      "duration_ms": 2.2,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_8070",
+      "customer_id": "cst_8070b122caea",
+      "success": true,
+      "duration_ms": 1.41,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_8070",
+      "customer_id": "cst_8070b122caea",
+      "success": true,
+      "duration_ms": 731.92,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_8070",
+      "customer_id": "cst_8070b122caea",
+      "success": true,
+      "duration_ms": 1330.04,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_8070",
+      "customer_id": "cst_8070b122caea",
+      "success": true,
+      "duration_ms": 1096.38,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_8070",
+      "customer_id": "cst_8070b122caea",
+      "success": true,
+      "duration_ms": 1394.17,
+      "error": null
+    },
+    {
+      "test_name": "LIST_VMS_cst_8070",
+      "customer_id": "cst_8070b122caea",
+      "success": true,
+      "duration_ms": 1.83,
+      "error": null
+    },
+    {
+      "test_name": "GET_SCREENSHOT_cst_8070",
+      "customer_id": "cst_8070b122caea",
+      "success": true,
+      "duration_ms": 1.23,
+      "error": null
+    },
+    {
+      "test_name": "CUSTOMER_SIGNUP_9",
+      "customer_id": "cst_1546e8fbba29",
+      "success": true,
+      "duration_ms": 188.73,
+      "error": null
+    },
+    {
+      "test_name": "GET_CUSTOMER_cst_1546",
+      "customer_id": "cst_1546e8fbba29",
+      "success": true,
+      "duration_ms": 0.81,
+      "error": null
+    },
+    {
+      "test_name": "KING_MOUSE_STATUS_cst_1546",
+      "customer_id": "cst_1546e8fbba29",
+      "success": true,
+      "duration_ms": 2.76,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_1546",
+      "customer_id": "cst_1546e8fbba29",
+      "success": true,
+      "duration_ms": 1.34,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_1546",
+      "customer_id": "cst_1546e8fbba29",
+      "success": true,
+      "duration_ms": 1.05,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_1546",
+      "customer_id": "cst_1546e8fbba29",
+      "success": true,
+      "duration_ms": 0.86,
+      "error": null
+    },
+    {
+      "test_name": "SEND_MESSAGE_cst_1546",
+      "customer_id": "cst_1546e8fbba29",
+      "success": true,
+      "duration_ms": 2.56,
+      "error": null
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_1546",
+      "customer_id": "cst_1546e8fbba29",
+      "success": false,
+      "duration_ms": 1.16,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_1546",
+      "customer_id": "cst_1546e8fbba29",
+      "success": false,
+      "duration_ms": 2.84,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "DEPLOY_EMPLOYEE_cst_1546",
+      "customer_id": "cst_1546e8fbba29",
+      "success": false,
+      "duration_ms": 2.43,
+      "error": "{'detail': 'VM limit reached for plan'}"
+    },
+    {
+      "test_name": "LIST_VMS_cst_1546",
+      "customer_id": "cst_1546e8fbba29",
+      "success": true,
+      "duration_ms": 3.22,
+      "error": null
+    },
+    {
+      "test_name": "GET_SCREENSHOT_cst_1546",
+      "customer_id": "cst_1546e8fbba29",
+      "success": true,
+      "duration_ms": 3.01,
+      "error": null
+    },
+    {
+      "test_name": "UNAUTHORIZED_ACCESS_cst_e0d0",
+      "customer_id": "cst_e0d0e9a5306f",
+      "success": false,
+      "duration_ms": 0.8,
+      "error": "SECURITY BUG: Unauthorized access succeeded"
+    },
+    {
+      "test_name": "UNAUTHORIZED_ACCESS_cst_1546",
+      "customer_id": "cst_1546e8fbba29",
+      "success": false,
+      "duration_ms": 0.74,
+      "error": "SECURITY BUG: Unauthorized access succeeded"
+    },
+    {
+      "test_name": "DUPLICATE_EMAIL_TEST",
+      "customer_id": "",
+      "success": true,
+      "duration_ms": 0.92,
+      "error": null
+    },
+    {
+      "test_name": "INVALID_INPUT_TEST",
+      "customer_id": "",
+      "success": true,
+      "duration_ms": 1.84,
+      "error": null
+    },
+    {
+      "test_name": "RATE_LIMITING_TEST",
+      "customer_id": "",
+      "success": false,
+      "duration_ms": 504.85,
+      "error": "BUG: No rate limiting detected"
+    }
+  ]
+}
