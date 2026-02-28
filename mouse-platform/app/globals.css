@@ -3,19 +3,18 @@
 @tailwind utilities;
 
 :root {
+  --navy: #1e3a5f;
+  --navy-light: #2d4a6f;
+  --navy-dark: #152a45;
+  --accent: #3b82f6;
   --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
+  --background-start-rgb: 255, 255, 255;
   --background-end-rgb: 255, 255, 255;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: white;
 }
 
 @layer utilities {
@@ -23,3 +22,12 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Navy theme colors */
+.bg-navy { background-color: #1e3a5f; }
+.bg-navy-light { background-color: #2d4a6f; }
+.bg-navy-dark { background-color: #152a45; }
+.text-navy { color: #1e3a5f; }
+.border-navy { border-color: #1e3a5f; }
+.hover\:bg-navy-light:hover { background-color: #2d4a6f; }
+.hover\:text-navy:hover { color: #1e3a5f; }
