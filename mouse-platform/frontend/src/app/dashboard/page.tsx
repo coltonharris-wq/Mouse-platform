@@ -4,14 +4,13 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { 
-  Coins, 
+  Clock, 
   ArrowUpRight, 
   ArrowDownRight, 
   ShoppingCart, 
   AlertCircle,
   MessageSquare,
   Bot,
-  Clock,
   History,
   Plus,
   Sparkles,
@@ -19,9 +18,9 @@ import {
   TrendingUp,
   Activity
 } from 'lucide-react';
-import { formatTokens, isLowBalance, TOKEN_COSTS } from '@/lib/stripe';
+import { formatWorkHours, isLowBalance, WORK_HOURS_COSTS } from '@/lib/stripe';
 
-interface TokenTransaction {
+interface WorkHoursTransaction {
   id: string;
   type: 'purchase' | 'usage' | 'bonus' | 'refund';
   amount: number;
@@ -31,7 +30,7 @@ interface TokenTransaction {
   created_at: string;
 }
 
-interface TokenBalance {
+interface WorkHoursBalance {
   balance: number;
   lifetime_earned: number;
   lifetime_spent: number;
@@ -42,15 +41,15 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const customerId = searchParams.get('customerId') || 'demo-customer';
   
-  const [balance, setBalance] = useState<TokenBalance | null>(null);
-  const [transactions, setTransactions] = useState<TokenTransaction[]>([]);
+  const [balance, setBalance] = useState<WorkHoursBalance | null>(null);
+  const [transactions, setTransactions] = useState<WorkHoursTransaction[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTokenData();
+    fetchWorkHoursData();
   }, [customerId]);
 
-  const fetchTokenData = async () => {
+  const fetchWorkHoursData = async () => {
     try {
       const [balanceRes, transactionsRes] = await Promise.all([
         fetch(`/api/tokens/balance?customerId=${customerId}`),
@@ -59,15 +58,27 @@ function DashboardContent() {
 
       if (balanceRes.ok) {
         const balanceData = await balanceRes.json();
-        setBalance(balanceData);
+        // Convert token balance to hours (assuming 100 tokens = 1 hour)
+        setBalance({
+          ...balanceData,
+          balance: Math.floor((balanceData.balance || 0) / 100),
+          lifetime_earned: Math.floor((balanceData.lifetime_earned || 0) / 100),
+          lifetime_spent: Math.floor((balanceData.lifetime_spent || 0) / 100),
+        });
       }
 
       if (transactionsRes.ok) {
         const transactionsData = await transactionsRes.json();
-        setTransactions(transactionsData.transactions || []);
+        // Convert transaction amounts to hours
+        const convertedTransactions = (transactionsData.transactions || []).map((tx: any) => ({
+          ...tx,
+          amount: Math.floor((tx.amount || 0) / 100),
+          balance_after: Math.floor((tx.balance_after || 0) / 100),
+        }));
+        setTransactions(convertedTransactions);
       }
     } catch (error) {
-      console.error('Error fetching AI Work Hours data:', error);
+      console.error('Error fetching work hours data:', error);
     } finally {
       setLoading(false);
     }
@@ -105,7 +116,7 @@ function DashboardContent() {
 
   const currentBalance = balance?.balance || 0;
   const lowBalance = isLowBalance(currentBalance);
-  const estimatedHours = Math.floor(currentBalance / 100);
+  const estimatedTasks = Math.floor(currentBalance / 0.1);
 
   return (
     <div className="min-h-screen bg-dark-bg">
@@ -123,11 +134,11 @@ function DashboardContent() {
             <h1 className="text-3xl font-bold text-white">Dashboard</h1>
           </div>
           <p className="text-gray-400">
-            Manage your AI employees and token balance
+            Manage your AI employees and AI Work Hours balance
           </p>
         </div>
 
-        {/* Token Balance Card */}
+        {/* Work Hours Balance Card */}
         <div className={`relative overflow-hidden rounded-2xl p-8 mb-8 ${
           lowBalance 
             ? 'bg-gradient-to-br from-rose-500/20 via-dark-surface to-dark-surface border-2 border-rose-500/50' 
@@ -139,20 +150,20 @@ function DashboardContent() {
           <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className={`p-4 rounded-2xl ${lowBalance ? 'bg-rose-500/20' : 'bg-mouse-teal/20'}`}>
-                <Coins className={`w-10 h-10 ${lowBalance ? 'text-rose-400' : 'text-mouse-teal'}`} />
+                <Clock className={`w-10 h-10 ${lowBalance ? 'text-rose-400' : 'text-mouse-teal'}`} />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-400 uppercase tracking-wide">
-                  Token Balance
+                  AI Work Hours Balance
                 </p>
                 <p className={`text-5xl font-bold ${lowBalance ? 'text-rose-400' : 'gradient-text'}`}>
-                  {formatTokens(currentBalance)}
+                  {formatWorkHours(currentBalance)}
                 </p>
                 {lowBalance && (
                   <div className="flex items-center gap-2 mt-2 text-rose-400">
                     <AlertCircle className="w-4 h-4" />
                     <span className="text-sm font-medium">
-                      Low balance - Purchase more tokens
+                      Low balance - Purchase more AI Work Hours
                     </span>
                   </div>
                 )}
@@ -161,20 +172,20 @@ function DashboardContent() {
 
             <div className="flex items-center gap-6">
               <div className="text-center px-4 py-2 bg-dark-bg-tertiary/50 rounded-xl">
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Est. Hours</p>
-                <p className="text-2xl font-bold text-white">~{estimatedHours}h</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Est. Tasks</p>
+                <p className="text-2xl font-bold text-white">~{estimatedTasks}</p>
               </div>
               <div className="w-px h-16 bg-dark-border"></div>
               <div className="text-center">
                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Lifetime Earned</p>
                 <p className="text-xl font-semibold text-green-400">
-                  {formatTokens(balance?.lifetime_earned || 0)}
+                  {formatWorkHours(balance?.lifetime_earned || 0)}
                 </p>
               </div>
               <div className="text-center">
                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Lifetime Spent</p>
                 <p className="text-xl font-semibold text-rose-400">
-                  {formatTokens(balance?.lifetime_spent || 0)}
+                  {formatWorkHours(balance?.lifetime_spent || 0)}
                 </p>
               </div>
             </div>
@@ -188,7 +199,7 @@ function DashboardContent() {
               }`}
             >
               <ShoppingCart className="w-5 h-5" />
-              Buy Tokens
+              Buy AI Work Hours
             </Link>
           </div>
 
@@ -199,13 +210,13 @@ function DashboardContent() {
                 className={`h-full rounded-full transition-all duration-500 ${
                   lowBalance ? 'bg-gradient-to-r from-rose-500 to-rose-400' : 'bg-gradient-to-r from-mouse-teal to-accent-cyan'
                 }`}
-                style={{ width: `${Math.min((currentBalance / 30000) * 100, 100)}%` }}
+                style={{ width: `${Math.min((currentBalance / 165) * 100, 100)}%` }}
               />
             </div>
             <div className="flex justify-between mt-2 text-xs text-gray-500">
               <span>0</span>
-              <span>15,000</span>
-              <span>30,000+</span>
+              <span>82h</span>
+              <span>165h+</span>
             </div>
           </div>
         </div>
@@ -260,12 +271,12 @@ function DashboardContent() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Token Costs */}
+          {/* Work Hours Costs */}
           <div className="lg:col-span-1">
             <div className="glass-card p-6">
               <div className="flex items-center gap-2 mb-6">
                 <Zap className="w-5 h-5 text-mouse-teal" />
-                <h2 className="section-title mb-0">Token Costs</h2>
+                <h2 className="section-title mb-0">AI Work Hours Costs</h2>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-4 bg-dark-bg-tertiary/50 rounded-xl hover:bg-dark-bg-tertiary transition-colors">
@@ -276,7 +287,7 @@ function DashboardContent() {
                     <span className="text-gray-300">Message King Mouse</span>
                   </div>
                   <span className="font-semibold text-white bg-dark-bg px-3 py-1 rounded-full text-sm">
-                    {TOKEN_COSTS.messageKingMouse.tokens} tokens
+                    {WORK_HOURS_COSTS.messageKingMouse.hours} hours
                   </span>
                 </div>
 
@@ -288,7 +299,7 @@ function DashboardContent() {
                     <span className="text-gray-300">Deploy AI Employee</span>
                   </div>
                   <span className="font-semibold text-white bg-dark-bg px-3 py-1 rounded-full text-sm">
-                    {TOKEN_COSTS.deployAiEmployee.tokens} tokens
+                    {WORK_HOURS_COSTS.deployAiEmployee.hours} hour
                   </span>
                 </div>
 
@@ -300,19 +311,19 @@ function DashboardContent() {
                     <span className="text-gray-300">VM Runtime (1 hour)</span>
                   </div>
                   <span className="font-semibold text-white bg-dark-bg px-3 py-1 rounded-full text-sm">
-                    {TOKEN_COSTS.vmRuntime1h.tokens} tokens
+                    {WORK_HOURS_COSTS.vmRuntime1h.hours} hour
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-dark-bg-tertiary/50 rounded-xl hover:bg-dark-bg-tertiary transition-colors">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-green-500/10 rounded-lg">
-                      <Coins className="w-5 h-5 text-green-400" />
+                      <Clock className="w-5 h-5 text-green-400" />
                     </div>
                     <span className="text-gray-300">Process Email</span>
                   </div>
                   <span className="font-semibold text-white bg-dark-bg px-3 py-1 rounded-full text-sm">
-                    {TOKEN_COSTS.processEmail.tokens} tokens
+                    {WORK_HOURS_COSTS.processEmail.hours} hours
                   </span>
                 </div>
 
@@ -324,14 +335,14 @@ function DashboardContent() {
                     <span className="text-gray-300">API Call</span>
                   </div>
                   <span className="font-semibold text-white bg-dark-bg px-3 py-1 rounded-full text-sm">
-                    {TOKEN_COSTS.apiCall.tokens} token
+                    {WORK_HOURS_COSTS.apiCall.hours} hours
                   </span>
                 </div>
               </div>
 
               <div className="mt-6 p-4 bg-mouse-teal/10 border border-mouse-teal/20 rounded-xl">
                 <p className="text-sm text-mouse-teal">
-                  <strong>💡 Tip:</strong> Purchase tokens in bulk with the Growth or Pro packages for better value!
+                  <strong>💡 Tip:</strong> Purchase AI Work Hours in bulk with the Growth or Pro packages for better value!
                 </p>
               </div>
             </div>
@@ -357,14 +368,14 @@ function DashboardContent() {
                   </div>
                   <p className="text-gray-400 mb-2">No transactions yet</p>
                   <p className="text-sm text-gray-500">
-                    Purchase tokens to get started
+                    Purchase AI Work Hours to get started
                   </p>
                   <Link 
                     href="/pricing" 
                     className="inline-flex items-center gap-2 mt-4 btn-primary text-sm"
                   >
                     <ShoppingCart className="w-4 h-4" />
-                    Buy Tokens
+                    Buy AI Work Hours
                   </Link>
                 </div>
               ) : (
@@ -396,10 +407,10 @@ function DashboardContent() {
                         <p className={`font-semibold text-lg ${
                           tx.amount > 0 ? 'text-green-400' : 'text-rose-400'
                         }`}>
-                          {tx.amount > 0 ? '+' : ''}{formatTokens(tx.amount)}
+                          {tx.amount > 0 ? '+' : ''}{formatWorkHours(tx.amount)}
                         </p>
                         <p className="text-xs text-gray-500">
-                          Bal: {formatTokens(tx.balance_after)}
+                          Bal: {formatWorkHours(tx.balance_after)}
                         </p>
                       </div>
                     </div>
@@ -433,7 +444,7 @@ function DashboardContent() {
                 <div>
                   <h3 className="font-semibold text-white text-lg">Deploy Employee</h3>
                   <p className="text-sm text-gray-400">
-                    Cost: {TOKEN_COSTS.deployAiEmployee.tokens} tokens
+                    Cost: {WORK_HOURS_COSTS.deployAiEmployee.hours} hour
                   </p>
                 </div>
               </div>
@@ -450,7 +461,7 @@ function DashboardContent() {
                 <div>
                   <h3 className="font-semibold text-white text-lg">Chat with King Mouse</h3>
                   <p className="text-sm text-gray-400">
-                    Cost: {TOKEN_COSTS.messageKingMouse.tokens} tokens/message
+                    Cost: {WORK_HOURS_COSTS.messageKingMouse.hours} hours/message
                   </p>
                 </div>
               </div>
@@ -467,7 +478,7 @@ function DashboardContent() {
                 <div>
                   <h3 className="font-semibold text-white text-lg">View VMs</h3>
                   <p className="text-sm text-gray-400">
-                    {TOKEN_COSTS.vmRuntime1h.tokens} tokens/hour runtime
+                    {WORK_HOURS_COSTS.vmRuntime1h.hours} hour/hour runtime
                   </p>
                 </div>
               </div>

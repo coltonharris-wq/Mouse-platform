@@ -2,8 +2,22 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { WORK_HOURS_PACKAGES, WORK_HOURS_COSTS, formatPrice, formatWorkHours } from '@/lib/stripe';
-import { Check, Clock, MessageSquare, Bot, Mail, Zap, AlertCircle } from 'lucide-react';
+import { TOKEN_PACKAGES, TOKEN_COSTS, formatPrice, formatTokens } from '@/lib/stripe';
+import { 
+  Check, 
+  Coins, 
+  MessageSquare, 
+  Bot, 
+  Clock, 
+  Mail, 
+  Zap, 
+  AlertCircle,
+  Sparkles,
+  TrendingUp,
+  Shield,
+  ArrowRight,
+  Loader2
+} from 'lucide-react';
 
 function PricingContent() {
   const router = useRouter();
@@ -44,197 +58,290 @@ function PricingContent() {
     }
   };
 
-  const packages = Object.values(WORK_HOURS_PACKAGES);
+  const packages = Object.values(TOKEN_PACKAGES);
+
+  const getPackageColor = (slug: string) => {
+    switch (slug) {
+      case 'starter':
+        return {
+          border: 'border-gray-600',
+          accent: 'text-gray-400',
+          bg: 'bg-gray-500/10',
+          button: 'bg-gray-700 hover:bg-gray-600'
+        };
+      case 'growth':
+        return {
+          border: 'border-mouse-teal',
+          accent: 'text-mouse-teal',
+          bg: 'bg-mouse-teal/10',
+          button: 'bg-gradient-to-r from-mouse-teal to-mouse-teal-dark hover:from-mouse-teal-light hover:to-mouse-teal'
+        };
+      case 'pro':
+        return {
+          border: 'border-accent-purple',
+          accent: 'text-accent-purple',
+          bg: 'bg-accent-purple/10',
+          button: 'bg-gradient-to-r from-accent-purple to-accent-purple/80 hover:from-accent-purple-light hover:to-accent-purple'
+        };
+      default:
+        return {
+          border: 'border-gray-600',
+          accent: 'text-gray-400',
+          bg: 'bg-gray-500/10',
+          button: 'bg-gray-700 hover:bg-gray-600'
+        };
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-dark-bg">
+      {/* Background effects */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-mouse-teal/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/3 w-[500px] h-[500px] bg-accent-purple/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent-cyan/3 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            AI Work Hours Pricing
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-mouse-teal/10 border border-mouse-teal/20 rounded-full mb-6">
+            <Sparkles className="w-4 h-4 text-mouse-teal" />
+            <span className="text-sm font-medium text-mouse-teal">Simple, Transparent Pricing</span>
+          </div>
+          <h1 className="text-5xl font-bold text-white mb-4">
+            Token Pricing
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Pay only for what you use. Purchase AI Work Hours and spend them on AI employees, 
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            Pay only for what you use. Purchase tokens and spend them on AI employees, 
             VM runtime, and more.
           </p>
         </div>
 
-        {/* Work Hours Packages */}
+        {/* Token Packages */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          {packages.map((pkg) => (
-            <div
-              key={pkg.slug}
-              className={`relative rounded-2xl bg-white p-8 shadow-lg border-2 ${
-                pkg.slug === 'growth' 
-                  ? 'border-teal-500 ring-4 ring-teal-100' 
-                  : 'border-gray-200'
-              }`}
-            >
-              {pkg.slug === 'growth' && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-teal-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                    Most Popular
-                  </span>
-                </div>
-              )}
-
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900">{pkg.name}</h3>
-                <p className="text-gray-500 mt-2">{pkg.description}</p>
-              </div>
-
-              <div className="text-center mb-8">
-                <span className="text-5xl font-bold text-gray-900">
-                  {formatPrice(pkg.priceCents)}
-                </span>
-                <div className="flex items-center justify-center gap-2 mt-2 text-teal-600">
-                  <Clock className="w-5 h-5" />
-                  <span className="font-semibold">
-                    {formatWorkHours(pkg.workHours)} AI Work Hours
-                  </span>
-                </div>
-                <p className="text-sm text-gray-500 mt-1">
-                  ${((pkg.priceCents / 100) / pkg.workHours).toFixed(2)} per hour
-                </p>
-              </div>
-
-              <ul className="space-y-3 mb-8">
-                {pkg.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-600">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                onClick={() => handlePurchase(pkg.slug)}
-                disabled={loading === pkg.slug}
-                className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
-                  pkg.slug === 'growth'
-                    ? 'bg-teal-600 text-white hover:bg-teal-700'
-                    : 'bg-gray-900 text-white hover:bg-gray-800'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
+          {packages.map((pkg) => {
+            const colors = getPackageColor(pkg.slug);
+            return (
+              <div
+                key={pkg.slug}
+                className={`relative rounded-2xl bg-dark-surface border-2 ${colors.border} p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-card-hover ${
+                  pkg.slug === 'growth' ? 'ring-4 ring-mouse-teal/10' : ''
+                }`}
               >
-                {loading === pkg.slug ? 'Loading...' : 'Buy AI Work Hours'}
-              </button>
-            </div>
-          ))}
+                {pkg.slug === 'growth' && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-gradient-to-r from-mouse-teal to-mouse-teal-dark text-white px-6 py-2 rounded-full text-sm font-bold shadow-glow-teal">
+                      Most Popular
+                    </span>
+                  </div>
+                )}
+
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-white mb-2">{pkg.name}</h3>
+                  <p className="text-gray-400">{pkg.description}</p>
+                </div>
+
+                <div className="text-center mb-8">
+                  <span className="text-6xl font-bold gradient-text">
+                    {formatPrice(pkg.priceCents)}
+                  </span>
+                  <div className={`flex items-center justify-center gap-2 mt-4 ${colors.accent}`}>
+                    <div className={`p-2 ${colors.bg} rounded-lg`}>
+                      <Coins className="w-5 h-5" />
+                    </div>
+                    <span className="font-bold text-lg">
+                      {formatTokens(pkg.tokenAmount)} tokens
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2">
+                    ${((pkg.priceCents / 100) / (pkg.tokenAmount / 1000)).toFixed(2)} per 1,000 tokens
+                  </p>
+                </div>
+
+                <ul className="space-y-4 mb-8">
+                  {pkg.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-3">
+                      <div className={`p-1 ${colors.bg} rounded-full mt-0.5`}>
+                        <Check className={`w-4 h-4 ${colors.accent}`} />
+                      </div>
+                      <span className="text-gray-300">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={() => handlePurchase(pkg.slug)}
+                  disabled={loading === pkg.slug}
+                  className={`w-full py-4 px-4 rounded-xl font-bold text-white transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${colors.button}`}
+                >
+                  {loading === pkg.slug ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Loading...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      Buy {pkg.name}
+                      <ArrowRight className="w-5 h-5" />
+                    </span>
+                  )}
+                </button>
+              </div>
+            );
+          })}
         </div>
 
         {/* Enterprise CTA */}
-        <div className="bg-gray-900 rounded-2xl p-8 text-center mb-16">
-          <h2 className="text-2xl font-bold text-white mb-4">
-            Need More?
-          </h2>
-          <p className="text-gray-400 mb-6 max-w-xl mx-auto">
-            Enterprise plans with custom AI Work Hours, volume discounts, and dedicated support.
-          </p>
-          <a
-            href="mailto:sales@mouseplatform.com"
-            className="inline-block bg-white text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-          >
-            Contact Sales
-          </a>
+        <div className="relative overflow-hidden rounded-2xl p-10 mb-16 bg-gradient-to-r from-mouse-navy via-dark-surface to-mouse-navy border border-dark-border">
+          <div className="absolute inset-0 bg-gradient-shine bg-[length:200%_100%] animate-shimmer opacity-5"></div>
+          <div className="relative flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="text-center md:text-left">
+              <div className="flex items-center gap-3 justify-center md:justify-start mb-3">
+                <Shield className="w-8 h-8 text-mouse-teal" />
+                <h2 className="text-3xl font-bold text-white">Enterprise</h2>
+              </div>
+              <p className="text-gray-400 max-w-xl">
+                Custom token amounts, volume discounts, dedicated support, and SLA guarantees for large organizations.
+              </p>
+            </div>
+            <a
+              href="mailto:sales@mouseplatform.com"
+              className="btn-secondary whitespace-nowrap"
+            >
+              Contact Sales
+            </a>
+          </div>
         </div>
 
-        {/* Work Hours Costs Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-            What Can You Do With AI Work Hours?
-          </h2>
+        {/* Token Costs Section */}
+        <div className="glass-card p-10">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 mb-4">
+              <TrendingUp className="w-6 h-6 text-mouse-teal" />
+              <h2 className="text-3xl font-bold text-white">What Can You Do With Tokens?</h2>
+            </div>
+            <p className="text-gray-400">Estimate your usage based on common actions</p>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-              <div className="bg-teal-100 p-3 rounded-lg">
-                <MessageSquare className="w-6 h-6 text-teal-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Message King Mouse</h3>
-                <p className="text-2xl font-bold text-teal-600">
-                  {WORK_HOURS_COSTS.messageKingMouse.hours} hours
-                </p>
-                <p className="text-sm text-gray-500">
-                  Each message sent to your AI assistant
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Bot className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Deploy AI Employee</h3>
-                <p className="text-2xl font-bold text-blue-600">
-                  {WORK_HOURS_COSTS.deployAiEmployee.hours} hour
-                </p>
-                <p className="text-sm text-gray-500">
-                  One-time cost per AI employee deployment
-                </p>
+            <div className="group p-6 bg-dark-bg-tertiary/50 rounded-2xl border border-dark-border hover:border-mouse-teal/30 transition-all duration-300 hover:transform hover:-translate-y-1">
+              <div className="flex items-start gap-4">
+                <div className="p-4 bg-mouse-teal/10 rounded-xl group-hover:bg-mouse-teal/20 transition-colors">
+                  <MessageSquare className="w-7 h-7 text-mouse-teal" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white text-lg mb-1">Message King Mouse</h3>
+                  <p className="text-3xl font-bold text-mouse-teal mb-2">
+                    {TOKEN_COSTS.messageKingMouse.tokens}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    tokens per message sent to your AI assistant
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <Clock className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">VM Runtime</h3>
-                <p className="text-2xl font-bold text-purple-600">
-                  {WORK_HOURS_COSTS.vmRuntime1h.hours} hour/hour
-                </p>
-                <p className="text-sm text-gray-500">
-                  Per hour of VM runtime for AI employees
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-              <div className="bg-green-100 p-3 rounded-lg">
-                <Mail className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Process Email</h3>
-                <p className="text-2xl font-bold text-green-600">
-                  {WORK_HOURS_COSTS.processEmail.hours} hours
-                </p>
-                <p className="text-sm text-gray-500">
-                  Per email processed by AI employees
-                </p>
+            <div className="group p-6 bg-dark-bg-tertiary/50 rounded-2xl border border-dark-border hover:border-accent-purple/30 transition-all duration-300 hover:transform hover:-translate-y-1">
+              <div className="flex items-start gap-4">
+                <div className="p-4 bg-accent-purple/10 rounded-xl group-hover:bg-accent-purple/20 transition-colors">
+                  <Bot className="w-7 h-7 text-accent-purple" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white text-lg mb-1">Deploy AI Employee</h3>
+                  <p className="text-3xl font-bold text-accent-purple mb-2">
+                    {TOKEN_COSTS.deployAiEmployee.tokens}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    one-time cost per AI employee deployment
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-              <div className="bg-orange-100 p-3 rounded-lg">
-                <Zap className="w-6 h-6 text-orange-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">API Call</h3>
-                <p className="text-2xl font-bold text-orange-600">
-                  {WORK_HOURS_COSTS.apiCall.hours} hours
-                </p>
-                <p className="text-sm text-gray-500">
-                  Per API request to the platform
-                </p>
+            <div className="group p-6 bg-dark-bg-tertiary/50 rounded-2xl border border-dark-border hover:border-accent-cyan/30 transition-all duration-300 hover:transform hover:-translate-y-1">
+              <div className="flex items-start gap-4">
+                <div className="p-4 bg-accent-cyan/10 rounded-xl group-hover:bg-accent-cyan/20 transition-colors">
+                  <Clock className="w-7 h-7 text-accent-cyan" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white text-lg mb-1">VM Runtime</h3>
+                  <p className="text-3xl font-bold text-accent-cyan mb-2">
+                    {TOKEN_COSTS.vmRuntime1h.tokens}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    tokens per hour of VM runtime for AI employees
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-              <div className="bg-red-100 p-3 rounded-lg">
-                <AlertCircle className="w-6 h-6 text-red-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Low Balance Alert</h3>
-                <p className="text-2xl font-bold text-red-600">
-                  &lt; 5 hours
-                </p>
-                <p className="text-sm text-gray-500">
-                  We&apos;ll notify you when running low
-                </p>
+            <div className="group p-6 bg-dark-bg-tertiary/50 rounded-2xl border border-dark-border hover:border-green-500/30 transition-all duration-300 hover:transform hover:-translate-y-1">
+              <div className="flex items-start gap-4">
+                <div className="p-4 bg-green-500/10 rounded-xl group-hover:bg-green-500/20 transition-colors">
+                  <Mail className="w-7 h-7 text-green-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white text-lg mb-1">Process Email</h3>
+                  <p className="text-3xl font-bold text-green-400 mb-2">
+                    {TOKEN_COSTS.processEmail.tokens}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    tokens per email processed by AI employees
+                  </p>
+                </div>
               </div>
             </div>
+
+            <div className="group p-6 bg-dark-bg-tertiary/50 rounded-2xl border border-dark-border hover:border-accent-amber/30 transition-all duration-300 hover:transform hover:-translate-y-1">
+              <div className="flex items-start gap-4">
+                <div className="p-4 bg-accent-amber/10 rounded-xl group-hover:bg-accent-amber/20 transition-colors">
+                  <Zap className="w-7 h-7 text-accent-amber" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white text-lg mb-1">API Call</h3>
+                  <p className="text-3xl font-bold text-accent-amber mb-2">
+                    {TOKEN_COSTS.apiCall.tokens}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    token per API request to the platform
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="group p-6 bg-dark-bg-tertiary/50 rounded-2xl border border-dark-border hover:border-rose-500/30 transition-all duration-300 hover:transform hover:-translate-y-1">
+              <div className="flex items-start gap-4">
+                <div className="p-4 bg-rose-500/10 rounded-xl group-hover:bg-rose-500/20 transition-colors">
+                  <AlertCircle className="w-7 h-7 text-rose-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white text-lg mb-1">Low Balance Alert</h3>
+                  <p className="text-3xl font-bold text-rose-400 mb-2">
+                    &lt; 500
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    we&apos;ll notify you when tokens run low
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="mt-16 text-center">
+          <h3 className="text-2xl font-bold text-white mb-4">Have Questions?</h3>
+          <p className="text-gray-400 mb-6">
+            Check out our documentation or contact support for help.
+          </p>
+          <div className="flex items-center justify-center gap-4">
+            <a href="#" className="btn-secondary">
+              View Documentation
+            </a>
+            <a href="mailto:support@mouseplatform.com" className="btn-primary">
+              Contact Support
+            </a>
           </div>
         </div>
       </div>
@@ -245,8 +352,8 @@ function PricingContent() {
 export default function PricingPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+      <div className="min-h-screen bg-dark-bg flex items-center justify-center">
+        <div className="spinner w-12 h-12"></div>
       </div>
     }>
       <PricingContent />
