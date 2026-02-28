@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "name": "mouse-platform",
+  "framework": "nextjs",
+  "buildCommand": "cd mouse-platform/frontend && npm run build",
+  "outputDirectory": "mouse-platform/frontend/.next",
+  "installCommand": "npm install && cd mouse-platform/frontend && npm install",
+  "devCommand": "cd mouse-platform/frontend && npm run dev",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "@next_public_api_url"
+  }
+}
