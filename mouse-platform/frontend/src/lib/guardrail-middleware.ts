@@ -57,7 +57,9 @@ function extractCustomerId(request: NextRequest): string | null {
   }
 
   // Fall back to IP-based tracking (with warning)
-  const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+             request.headers.get('x-real-ip') || 
+             'unknown';
   return `ip:${ip}`;
 }
 
@@ -123,7 +125,9 @@ export async function applyRequestGuardrails(
   // Apply guardrails
   const result = applyGuardrails(customerId, userInput, {
     userAgent: request.headers.get('user-agent') || undefined,
-    ipAddress: request.ip || request.headers.get('x-forwarded-for') || undefined,
+    ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0] || 
+               request.headers.get('x-real-ip') || 
+               undefined,
     requestId
   });
 

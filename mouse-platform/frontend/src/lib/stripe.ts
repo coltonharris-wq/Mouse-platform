@@ -1,10 +1,23 @@
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
-});
+// Lazy initialization of Stripe client
+let stripeInstance: Stripe | null = null;
 
-export { stripe };
+function getStripe(): Stripe {
+  if (!stripeInstance) {
+    const apiKey = process.env.STRIPE_SECRET_KEY;
+    if (!apiKey) {
+      throw new Error('STRIPE_SECRET_KEY is not configured');
+    }
+    stripeInstance = new Stripe(apiKey, {
+      apiVersion: '2024-12-18.acacia',
+    });
+  }
+  return stripeInstance;
+}
+
+// For use in other modules that need direct access
+export { getStripe as stripe };
 
 // Token package definitions matching the backend
 export const TOKEN_PACKAGES = {
@@ -82,6 +95,7 @@ export async function createCheckoutSession(
   successUrl: string,
   cancelUrl: string
 ) {
+  const stripe = getStripe();
   const pkg = TOKEN_PACKAGES[packageSlug as keyof typeof TOKEN_PACKAGES];
   if (!pkg) throw new Error('Invalid package');
 

@@ -33,11 +33,8 @@ interface TokenBalance {
   last_updated: string;
 }
 
-interface DashboardPageProps {
-  customerId: string;
-}
-
-export default function DashboardPage({ customerId }: DashboardPageProps) {
+export default function DashboardPage() {
+  const [customerId, setCustomerId] = useState<string>('demo-customer');
   const [balance, setBalance] = useState<TokenBalance | null>(null);
   const [transactions, setTransactions] = useState<TokenTransaction[]>([]);
   const [loading, setLoading] = useState(true);

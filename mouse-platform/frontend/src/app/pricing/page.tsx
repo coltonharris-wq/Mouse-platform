@@ -5,13 +5,10 @@ import { useRouter } from 'next/navigation';
 import { TOKEN_PACKAGES, TOKEN_COSTS, formatPrice, formatTokens } from '@/lib/stripe';
 import { Check, Coins, MessageSquare, Bot, Clock, Mail, Zap, AlertCircle } from 'lucide-react';
 
-interface PricingPageProps {
-  customerId?: string;
-}
-
-export default function PricingPage({ customerId }: PricingPageProps) {
+export default function PricingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
+  const [customerId] = useState<string>('demo-customer');
 
   const handlePurchase = async (packageSlug: string) => {
     if (!customerId) {

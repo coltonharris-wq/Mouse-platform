@@ -1,19 +1,15 @@
 {
   "version": 2,
   "name": "mouse-platform-frontend",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://api.mouseplatform.com"
+    "NEXT_PUBLIC_API_URL": "@next_public_api_url"
+  },
+  "github": {
+    "enabled": true,
+    "autoAlias": true
   }
 }
