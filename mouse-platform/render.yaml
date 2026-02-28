@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: mouse-platform-api
+    runtime: python
+    plan: standard
+    buildCommand: cd api-gateway && pip install -r requirements.txt
+    startCommand: cd api-gateway && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: ENVIRONMENT
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: ORGO_API_KEY
+        sync: false
+      - key: ORGO_WORKSPACE_ID
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: MOONSHOT_API_KEY
+        sync: false
+      - key: ADMIN_API_TOKEN
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://app.mouseplatform.com

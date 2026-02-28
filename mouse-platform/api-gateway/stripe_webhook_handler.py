@@ -1,22 +1,26 @@
 """
 Stripe Webhook Handler for Token Purchases
-Handles Stripe webhook events for token-based pricing
+Handles Stripe webhook events for token-based pricing - OPTIMIZED with async queue
 """
 import os
 import stripe
 from typing import Dict, Optional
 from datetime import datetime
 
+from async_queue import payment_queue, TaskPriority
+
 # Initialize Stripe
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
+
 class StripeWebhookHandler:
-    """Handles Stripe webhook events for token purchases and subscriptions"""
+    """Handles Stripe webhook events for token purchases and subscriptions - with async processing"""
     
     def __init__(self, supabase_client):
         self.supabase = supabase_client
-    
+        self._processed_events = set()  # Idempotency check
+        
     def construct_event(self, payload: bytes, sig_header: str) -> Dict:
         """
         Verify and construct Stripe webhook event
@@ -28,30 +32,72 @@ class StripeWebhookHandler:
     
     async def handle_event(self, event: Dict) -> Dict:
         """
-        Route webhook event to appropriate handler
+        Route webhook event to appropriate handler - queues for async processing
+        Returns immediately with acknowledgment, processes in background
+        """
+        event_type = event.get("type")
+        event_id = event.get("id")
+        
+        # Idempotency check
+        if event_id in self._processed_events:
+            return {"received": True, "handled": True, "duplicate": True}
+        
+        self._processed_events.add(event_id)
+        
+        # Keep set size manageable
+        if len(self._processed_events) > 10000:
+            self._processed_events = set(list(self._processed_events)[-5000:])
+        
+        # Define which events are queued vs handled synchronously
+        sync_events = {}  # Events that need immediate response
+        
+        handler = sync_events.get(event_type)
+        if handler:
+            # Handle synchronously for events requiring immediate response
+            return await handler(event)
+        
+        # Queue all other events for async processing
+        # This prevents webhook timeouts and handles bursts
+        task_id = await payment_queue.submit(
+            task_type=f"stripe_{event_type}",
+            payload=event,
+            priority=TaskPriority.HIGH
+        )
+        
+        return {
+            "received": True,
+            "queued": True,
+            "task_id": task_id,
+            "type": event_type
+        }
+    
+    async def process_queued_event(self, event: Dict) -> Dict:
+        """
+        Process a queued webhook event
+        Called by the async queue worker
         """
         event_type = event.get("type")
         
         handlers = {
             # Checkout events
-            "checkout.session.completed": self.handle_checkout_completed,
-            "checkout.session.expired": self.handle_checkout_expired,
+            "checkout.session.completed": self._handle_checkout_completed,
+            "checkout.session.expired": self._handle_checkout_expired,
             
             # Payment events
-            "payment_intent.succeeded": self.handle_payment_intent_succeeded,
-            "payment_intent.payment_failed": self.handle_payment_intent_failed,
+            "payment_intent.succeeded": self._handle_payment_intent_succeeded,
+            "payment_intent.payment_failed": self._handle_payment_intent_failed,
             
             # Charge events
-            "charge.succeeded": self.handle_charge_succeeded,
-            "charge.failed": self.handle_charge_failed,
-            "charge.refunded": self.handle_charge_refunded,
+            "charge.succeeded": self._handle_charge_succeeded,
+            "charge.failed": self._handle_charge_failed,
+            "charge.refunded": self._handle_charge_refunded,
             
             # Refund events
-            "refund.created": self.handle_refund_created,
+            "refund.created": self._handle_refund_created,
             
             # Customer events
-            "customer.created": self.handle_customer_created,
-            "customer.deleted": self.handle_customer_deleted,
+            "customer.created": self._handle_customer_created,
+            "customer.deleted": self._handle_customer_deleted,
         }
         
         handler = handlers.get(event_type)
@@ -62,10 +108,10 @@ class StripeWebhookHandler:
     
     # ========== CHECKOUT SESSION HANDLERS ==========
     
-    async def handle_checkout_completed(self, event: Dict) -> Dict:
+    async def _handle_checkout_completed(self, event: Dict) -> Dict:
         """
-        Handle completed checkout session
-        This is where we credit tokens after successful payment
+        Handle completed checkout session - ASYNC PROCESSING
+        This is the main token crediting flow
         """
         session = event["data"]["object"]
         session_id = session["id"]
@@ -95,9 +141,6 @@ class StripeWebhookHandler:
                 "session_id": session_id
             }
         
-        # Get payment intent for reference
-        payment_intent_id = session.get("payment_intent")
-        
         # Check if we already processed this order
         existing_order = await self.supabase.get_token_order_by_session(session_id)
         if existing_order and existing_order.get("status") == "completed":
@@ -107,6 +150,9 @@ class StripeWebhookHandler:
                 "duplicate": True,
                 "order_id": existing_order["id"]
             }
+        
+        # Get payment intent for reference
+        payment_intent_id = session.get("payment_intent")
         
         # Credit tokens to customer
         transaction_id = await self.supabase.credit_tokens(
@@ -132,7 +178,7 @@ class StripeWebhookHandler:
                 "completed_at": datetime.utcnow().isoformat()
             })
         
-        # Create revenue event for tracking
+        # Create revenue event for tracking (async)
         await self.supabase.create_revenue_event({
             "type": "token_purchase",
             "customer_id": customer_id,
@@ -154,7 +200,7 @@ class StripeWebhookHandler:
             "transaction_id": transaction_id
         }
     
-    async def handle_checkout_expired(self, event: Dict) -> Dict:
+    async def _handle_checkout_expired(self, event: Dict) -> Dict:
         """Handle expired checkout session"""
         session = event["data"]["object"]
         session_id = session["id"]
@@ -175,7 +221,7 @@ class StripeWebhookHandler:
     
     # ========== PAYMENT INTENT HANDLERS ==========
     
-    async def handle_payment_intent_succeeded(self, event: Dict) -> Dict:
+    async def _handle_payment_intent_succeeded(self, event: Dict) -> Dict:
         """
         Handle successful payment intent
         Usually redundant with checkout.session.completed but serves as backup
@@ -200,7 +246,7 @@ class StripeWebhookHandler:
             "type": "payment_intent.succeeded"
         }
     
-    async def handle_payment_intent_failed(self, event: Dict) -> Dict:
+    async def _handle_payment_intent_failed(self, event: Dict) -> Dict:
         """Handle failed payment intent"""
         payment_intent = event["data"]["object"]
         
@@ -222,12 +268,12 @@ class StripeWebhookHandler:
     
     # ========== CHARGE HANDLERS ==========
     
-    async def handle_charge_succeeded(self, event: Dict) -> Dict:
+    async def _handle_charge_succeeded(self, event: Dict) -> Dict:
         """Handle successful charge"""
         # Most processing is done in checkout.session.completed
         return {"received": True, "handled": True, "type": "charge.succeeded"}
     
-    async def handle_charge_failed(self, event: Dict) -> Dict:
+    async def _handle_charge_failed(self, event: Dict) -> Dict:
         """Handle failed charge"""
         charge = event["data"]["object"]
         
@@ -241,7 +287,7 @@ class StripeWebhookHandler:
         
         return {"received": True, "handled": True, "type": "charge.failed"}
     
-    async def handle_charge_refunded(self, event: Dict) -> Dict:
+    async def _handle_charge_refunded(self, event: Dict) -> Dict:
         """Handle refunded charge - may need to revoke tokens"""
         charge = event["data"]["object"]
         
@@ -252,7 +298,7 @@ class StripeWebhookHandler:
     
     # ========== REFUND HANDLERS ==========
     
-    async def handle_refund_created(self, event: Dict) -> Dict:
+    async def _handle_refund_created(self, event: Dict) -> Dict:
         """
         Handle refund creation
         May need to deduct tokens if they haven't been used
@@ -273,7 +319,7 @@ class StripeWebhookHandler:
     
     # ========== CUSTOMER HANDLERS ==========
     
-    async def handle_customer_created(self, event: Dict) -> Dict:
+    async def _handle_customer_created(self, event: Dict) -> Dict:
         """Handle new Stripe customer creation"""
         stripe_customer = event["data"]["object"]
         
@@ -282,7 +328,7 @@ class StripeWebhookHandler:
         
         return {"received": True, "handled": True, "type": "customer.created"}
     
-    async def handle_customer_deleted(self, event: Dict) -> Dict:
+    async def _handle_customer_deleted(self, event: Dict) -> Dict:
         """Handle Stripe customer deletion"""
         stripe_customer = event["data"]["object"]
         stripe_id = stripe_customer["id"]
