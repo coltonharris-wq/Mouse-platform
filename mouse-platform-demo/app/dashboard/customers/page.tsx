@@ -7,7 +7,6 @@ import AddCustomerModal from "@/components/AddCustomerModal";
 import CustomerStats from "@/components/CustomerStats";
 
 // Export config to force dynamic rendering
-export const dynamic = 'force-dynamic';
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
