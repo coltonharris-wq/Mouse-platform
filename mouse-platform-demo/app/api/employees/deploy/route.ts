@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // POST /api/employees/deploy - Deploy a new employee VM
 // GET /api/employees/deploy?employeeId=xxx - Check deployment status
 // DELETE /api/employees/deploy?employeeId=xxx - Terminate employee VM

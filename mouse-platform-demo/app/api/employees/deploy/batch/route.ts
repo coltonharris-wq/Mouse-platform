@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // POST /api/employees/deploy/batch - Batch deploy multiple employees
 
 import { NextRequest, NextResponse } from 'next/server';

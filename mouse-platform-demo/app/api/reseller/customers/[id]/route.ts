@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { resellerCustomerManager } from '@/lib/reseller-customer-manager';
 import { createClient } from '@/lib/supabase-client';

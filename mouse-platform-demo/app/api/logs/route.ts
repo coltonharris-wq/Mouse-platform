@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // Admin Logs API Routes
 // Fetches security logs and system logs from the database
 

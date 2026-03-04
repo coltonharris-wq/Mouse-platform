@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // GET /api/employees/deploy/status - Get detailed deployment and VM status
 
 import { NextRequest, NextResponse } from 'next/server';

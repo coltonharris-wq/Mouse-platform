@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import { getTierManager, FEATURE_KEYS } from '@/lib/tier-system';
 import { getLLMProviderManager, LLMMessage } from '@/lib/llm-provider';

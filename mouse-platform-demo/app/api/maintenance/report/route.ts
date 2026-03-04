@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 
 // POST /api/maintenance/report - Receive reports from auto-doctor on VMs

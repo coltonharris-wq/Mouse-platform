@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // GET /api/employees/deploy/logs - Get deployment logs
 
 import { NextRequest, NextResponse } from 'next/server';
