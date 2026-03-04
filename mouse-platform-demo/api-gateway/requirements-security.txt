@@ -1,0 +1,20 @@
+# Security Requirements for Mouse Platform API
+# Add these to your requirements.txt or install with:
+# pip install -r requirements-security.txt
+
+# Authentication & JWT
+PyJWT>=2.8.0
+
+# Rate Limiting
+slowapi>=0.1.9
+redis>=5.0.0
+
+# Input Validation (already included with FastAPI)
+# pydantic - comes with FastAPI
+# email-validator - optional but recommended
+
+# Security Headers
+secure>=0.3.0
+
+# CORS (included with FastAPI)
+# python-multipart - comes with FastAPI

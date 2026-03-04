@@ -1,0 +1,499 @@
+from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect, Request
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Optional, List, Dict
+import asyncio
+import os
+import stripe
+from datetime import datetime
+
+# Import our modules
+from orchestrator import MousePlatform
+from supabase_client import SupabaseClient
+from orgo_client import OrgoClient
+from telegram_bot import TelegramBot
+from token_pricing import TokenPricingConfig
+
+app = FastAPI(title="Mouse Platform API", version="2.0.0")
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Configure for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Initialize services
+platform = MousePlatform()
+supabase = SupabaseClient()
+orgo = OrgoClient(api_key=os.getenv("ORGO_API_KEY"))
+telegram = TelegramBot(token=os.getenv("TELEGRAM_BOT_TOKEN"))
+
+# Stripe setup
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+# Connection managers
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[str, List[WebSocket]] = {}
+
+    async def connect(self, websocket: WebSocket, client_id: str):
+        await websocket.accept()
+        if client_id not in self.active_connections:
+            self.active_connections[client_id] = []
+        self.active_connections[client_id].append(websocket)
+
+    def disconnect(self, websocket: WebSocket, client_id: str):
+        if client_id in self.active_connections:
+            self.active_connections[client_id].remove(websocket)
+
+    async def broadcast(self, message: dict, client_id: str):
+        if client_id in self.active_connections:
+            for connection in self.active_connections[client_id]:
+                await connection.send_json(message)
+
+manager = ConnectionManager()
+
+# Pydantic Models
+class CustomerCreate(BaseModel):
+    company_name: str
+    email: str
+    plan: str = "token_based"  # Deprecated, kept for compatibility
+    reseller_id: Optional[str] = None
+
+class MessageRequest(BaseModel):
+    message: str
+    employee_id: Optional[str] = None
+
+class EmployeeDeployRequest(BaseModel):
+    role: str
+    name: str
+    task_description: str
+
+class TokenPurchaseRequest(BaseModel):
+    package_slug: str
+    success_url: str
+    cancel_url: str
+
+class TokenUseRequest(BaseModel):
+    amount: int
+    description: str
+    reference_id: Optional[str] = None
+    reference_type: Optional[str] = None
+
+# Health Check
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": datetime.utcnow().isoformat(),
+        "services": {
+            "supabase": supabase.health(),
+            "orgo": orgo.health(),
+            "telegram": telegram.health()
+        }
+    }
+
+# ============================================
+# CUSTOMER ROUTES
+# ============================================
+
+@app.post("/api/v1/customers")
+async def create_customer(customer: CustomerCreate):
+    """Create a new customer and set up their King Mouse"""
+    try:
+        result = await platform.onboard_customer(customer.dict())
+        return {
+            "success": True,
+            "customer": result["customer"],
+            "king_mouse": result["king_mouse"],
+            "qr_code_url": result["qr_code_url"],
+            "token_balance": result.get("token_balance", 0)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/customers/{customer_id}")
+async def get_customer(customer_id: str):
+    """Get customer details"""
+    customer = await supabase.get_customer(customer_id)
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    return customer
+
+@app.get("/api/v1/customers/{customer_id}/dashboard")
+async def get_customer_dashboard(customer_id: str):
+    """Get complete dashboard data for customer including tokens, employees, and transactions"""
+    try:
+        dashboard = await platform.get_customer_dashboard(customer_id)
+        return dashboard
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/customers/{customer_id}/king-mouse")
+async def get_king_mouse_status(customer_id: str):
+    """Get King Mouse bot status and QR code"""
+    try:
+        status = await platform.get_king_mouse_status(customer_id)
+        return status
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================
+# MESSAGING ROUTES
+# ============================================
+
+@app.post("/api/v1/customers/{customer_id}/message")
+async def send_message(customer_id: str, request: MessageRequest):
+    """Send message to customer's King Mouse"""
+    try:
+        response = await platform.handle_message(customer_id, request.message)
+        return {
+            "success": True,
+            "response": response["message"],
+            "actions": response.get("actions", []),
+            "employee_deployed": response.get("employee_id"),
+            "token_balance": response.get("token_balance", 0),
+            "needs_tokens": response.get("needs_tokens", False)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================
+# VM/EMPLOYEE ROUTES
+# ============================================
+
+@app.get("/api/v1/customers/{customer_id}/vms")
+async def list_vms(customer_id: str):
+    """List all VMs for a customer"""
+    try:
+        vms = await platform.list_customer_vms(customer_id)
+        return {"vms": vms}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/customers/{customer_id}/vms")
+async def deploy_vm(customer_id: str, request: EmployeeDeployRequest):
+    """Deploy a new AI employee VM"""
+    try:
+        result = await platform.deploy_employee(
+            customer_id=customer_id,
+            role=request.role,
+            name=request.name,
+            task=request.task_description
+        )
+        return {
+            "success": True,
+            "vm": result["vm"],
+            "employee": result["employee"],
+            "estimated_token_cost": result.get("estimated_token_cost", 0)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/customers/{customer_id}/vms/{vm_id}/screenshot")
+async def get_screenshot(customer_id: str, vm_id: str):
+    """Get current VM screenshot"""
+    try:
+        # Verify customer owns this VM
+        employee = await supabase.get_employee_by_vm(vm_id)
+        if not employee or employee["customer_id"] != customer_id:
+            raise HTTPException(status_code=403, detail="Access denied - VM not found or unauthorized")
+        
+        result = await platform.stream_vm(customer_id, vm_id)
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================
+# TOKEN PRICING ROUTES
+# ============================================
+
+@app.get("/api/v1/token-packages")
+async def get_token_packages():
+    """Get all available token packages"""
+    try:
+        packages = TokenPricingConfig.get_all_packages()
+        return {
+            "packages": [
+                {
+                    "slug": p.slug,
+                    "name": p.name,
+                    "price_cents": p.price_cents,
+                    "price": p.display_price,
+                    "token_amount": p.token_amount,
+                    "bonus_tokens": p.bonus_tokens,
+                    "total_tokens": p.total_tokens,
+                    "estimated_hours": p.estimated_hours,
+                    "description": p.description,
+                    "features": p.features,
+                    "popular": p.slug == "growth"
+                }
+                for p in packages
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/customers/{customer_id}/tokens")
+async def get_token_balance(customer_id: str):
+    """Get customer's token balance and stats"""
+    try:
+        balance = await supabase.get_token_balance(customer_id)
+        transactions = await supabase.get_token_transactions(customer_id, limit=10)
+        
+        return {
+            "balance": balance.get("balance", 0) if balance else 0,
+            "lifetime_earned": balance.get("lifetime_earned", 0) if balance else 0,
+            "lifetime_spent": balance.get("lifetime_spent", 0) if balance else 0,
+            "last_updated": balance.get("last_updated") if balance else None,
+            "recent_transactions": transactions
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/customers/{customer_id}/tokens/transactions")
+async def get_token_transactions(customer_id: str, limit: int = 50):
+    """Get customer's token transaction history"""
+    try:
+        transactions = await supabase.get_token_transactions(customer_id, limit=limit)
+        return {"transactions": transactions}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/customers/{customer_id}/tokens/purchase")
+async def create_token_purchase(customer_id: str, request: TokenPurchaseRequest):
+    """Create a Stripe checkout session for token purchase"""
+    try:
+        result = await platform.create_token_checkout_session(
+            customer_id=customer_id,
+            package_slug=request.package_slug,
+            success_url=request.success_url,
+            cancel_url=request.cancel_url
+        )
+        return {
+            "success": True,
+            "checkout_url": result["checkout_url"],
+            "session_id": result["session_id"]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/customers/{customer_id}/tokens/orders")
+async def get_token_orders(customer_id: str):
+    """Get customer's token purchase history"""
+    try:
+        orders = await supabase.get_customer_token_orders(customer_id)
+        return {"orders": orders}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/customers/{customer_id}/tokens/use")
+async def use_tokens(customer_id: str, request: TokenUseRequest):
+    """Use/deduct tokens from customer balance"""
+    try:
+        result = await supabase.debit_tokens(
+            customer_id=customer_id,
+            amount=request.amount,
+            description=request.description,
+            reference_id=request.reference_id,
+            reference_type=request.reference_type
+        )
+        
+        if result and result[0].get("success"):
+            return {
+                "success": True,
+                "transaction_id": result[0].get("transaction_id"),
+                "new_balance": result[0].get("new_balance"),
+                "amount_used": request.amount
+            }
+        else:
+            return {
+                "success": False,
+                "error": "Insufficient tokens",
+                "required": request.amount,
+                "current_balance": result[0].get("new_balance") if result else 0
+            }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/token-rates")
+async def get_token_rates():
+    """Get token usage rates"""
+    try:
+        rates = TokenPricingConfig.get_all_rates()
+        return {
+            "rates": [
+                {
+                    "action_type": r.action_type,
+                    "tokens": r.tokens,
+                    "description": r.description
+                }
+                for r in rates
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================
+# WEBSOCKET FOR LIVE VM STREAMING
+# ============================================
+
+@app.websocket("/ws/vms/{customer_id}/{vm_id}")
+async def vm_websocket(websocket: WebSocket, customer_id: str, vm_id: str):
+    """WebSocket for real-time VM screenshot streaming"""
+    # Verify customer owns this VM before accepting connection
+    employee = await supabase.get_employee_by_vm(vm_id)
+    if not employee or employee["customer_id"] != customer_id:
+        await websocket.close(code=4001, reason="Access denied")
+        return
+    
+    client_id = f"{customer_id}:{vm_id}"
+    await manager.connect(websocket, client_id)
+    
+    try:
+        while True:
+            # Get screenshot every 3 seconds
+            screenshot = await orgo.get_screenshot(vm_id)
+            await manager.broadcast({
+                "type": "screenshot",
+                "data": screenshot,
+                "timestamp": datetime.utcnow().isoformat()
+            }, client_id)
+            await asyncio.sleep(3)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket, client_id)
+    except Exception as e:
+        await websocket.send_json({"type": "error", "message": str(e)})
+        manager.disconnect(websocket, client_id)
+
+# ============================================
+# WEBHOOK ROUTES
+# ============================================
+
+@app.post("/webhooks/telegram")
+async def telegram_webhook(update: dict):
+    """Handle incoming Telegram messages"""
+    try:
+        if "message" in update:
+            message = update["message"]
+            chat_id = message["chat"]["id"]
+            text = message.get("text", "")
+            
+            # Find customer by Telegram chat ID
+            customer = await supabase.get_customer_by_telegram_chat(chat_id)
+            if customer:
+                response = await platform.handle_message(customer["id"], text)
+                await telegram.send_message(chat_id, response["message"])
+        
+        return {"ok": True}
+    except Exception as e:
+        print(f"Telegram webhook error: {e}")
+        return {"ok": False}
+
+@app.post("/webhooks/stripe")
+async def stripe_webhook(request: Request):
+    """Handle Stripe webhooks with signature verification"""
+    try:
+        payload = await request.body()
+        sig_header = request.headers.get('stripe-signature')
+        
+        if not sig_header:
+            raise HTTPException(status_code=400, detail="Missing stripe-signature header")
+        
+        # Verify webhook signature
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, STRIPE_WEBHOOK_SECRET
+            )
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid payload")
+        except stripe.error.SignatureVerificationError:
+            raise HTTPException(status_code=400, detail="Invalid signature")
+        
+        event_type = event["type"]
+        
+        if event_type == "customer.subscription.created":
+            await platform.handle_subscription_created(event)
+        elif event_type == "invoice.payment_succeeded":
+            await platform.handle_payment_success(event)
+        elif event_type == "invoice.payment_failed":
+            await platform.handle_payment_failure(event)
+        elif event_type == "checkout.session.completed":
+            # Handle token purchase completion
+            session = event["data"]["object"]
+            if session.get("metadata", {}).get("type") == "token_purchase" or "package_slug" in session.get("metadata", {}):
+                await platform.handle_token_purchase_completed(session["id"])
+        elif event_type == "payment_intent.succeeded":
+            # Handle payment intent for token purchases
+            payment_intent = event["data"]["object"]
+            metadata = payment_intent.get("metadata", {})
+            if metadata.get("type") == "token_purchase":
+                # Already handled by checkout.session.completed, but backup handler
+                pass
+        
+        return {"received": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Stripe webhook error: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+# ============================================
+# DEMO ROUTES
+# ============================================
+
+@app.post("/api/v1/demo/run")
+async def run_demo():
+    """Run the full Clean Eats demo"""
+    try:
+        result = await platform.run_demo()
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/v1/demo/cleanup")
+async def cleanup_demo():
+    """Remove all demo data"""
+    try:
+        await platform.cleanup_demo()
+        return {"success": True, "message": "Demo data cleaned up"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================
+# ADMIN ROUTES
+# ============================================
+
+@app.get("/admin/vms/status")
+async def get_all_vm_status():
+    """Get status of all VMs (admin only)"""
+    try:
+        status = await orgo.list_all_vms()
+        return {"vms": status}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/admin/tokens/overview")
+async def get_token_overview():
+    """Get platform-wide token stats (admin only)"""
+    try:
+        # This would query aggregate stats in production
+        # For now, return placeholder structure
+        return {
+            "total_tokens_issued": 0,
+            "total_tokens_spent": 0,
+            "active_customers": 0,
+            "recent_purchases": []
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
