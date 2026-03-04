@@ -15,7 +15,7 @@ export default function PortalDashboardPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const { balance, totalHours } = useWorkHours();
+  const { balance, totalPurchased, totalUsed } = useWorkHours();
   const { employees } = useEmployees();
 
   useEffect(() => {
@@ -38,8 +38,8 @@ export default function PortalDashboardPage() {
 
   const activeEmployees = employees?.filter((e: any) => e.status === 'active')?.length || 0;
   const safeBalance = Number.isFinite(balance) ? balance : 0;
-  const safeTotalHours = Number.isFinite(totalHours) ? totalHours : 0;
-  const hoursUsed = safeTotalHours - safeBalance;
+  const safeUsed = Number.isFinite(totalUsed) ? totalUsed : 0;
+  const hoursUsed = safeUsed;
 
   return (
     <div className="min-h-screen bg-mouse-offwhite pb-20">
