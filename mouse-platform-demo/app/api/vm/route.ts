@@ -1,172 +1,301 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getSupabaseServer } from '@/lib/supabase-server';
+import { recordUsage, checkBalance } from '@/lib/usage-tracker';
+import {
+  createComputer,
+  getComputer,
+  startComputer,
+  stopComputer,
+  deleteComputer,
+  takeScreenshot,
+  executeBash,
+  getVncPassword,
+  estimateHourlyCost,
+} from '@/lib/orgo';
 
-const ORGO_API_KEY = process.env.ORGO_API_KEY;
-const ORGO_BASE_URL = process.env.ORGO_BASE_URL || 'https://api.orgo.ai';
+/**
+ * VM API — Full lifecycle for AI employee VMs
+ *
+ * POST actions: spawn, start, stop, terminate, screenshot, bash
+ * GET: status of a VM or list all VMs for a customer
+ *
+ * Table: employee_vms (Supabase)
+ *   id (uuid PK), customer_id, employee_id, employee_name,
+ *   computer_id (Orgo), status, ram, cpu, gpu,
+ *   orgo_url, vnc_password, last_screenshot_at,
+ *   created_at, stopped_at, terminated_at
+ */
 
-// Simple in-memory store for VMs per user (replace with DB in production)
-const userVMs: Record<string, any> = {};
+// ─── POST ───────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, userId, vmConfig } = body;
+    const { action, customerId, employeeId, employeeName, computerId, command, ram, cpu } = body;
 
-    if (!ORGO_API_KEY) {
-      // Fallback: create mock VM for demo
-      console.log('ORGO_API_KEY not set, creating mock VM');
-      const mockVM = {
-        id: `mock-vm-${Date.now()}`,
-        userId,
-        status: 'running',
-        name: vmConfig?.name || 'AI Employee',
-        specs: {
-          ram: vmConfig?.ram || 32,
-          cpu: vmConfig?.cpu || 4,
-          disk: 128
-        },
-        url: 'https://demo.mouseplatform.com/vm',
-        createdAt: new Date().toISOString(),
-        mock: true
-      };
-      userVMs[userId] = mockVM;
-      return NextResponse.json({ success: true, vm: mockVM });
+    const supabase = getSupabaseServer();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
     }
 
-    if (action === 'create') {
-      // Call Orgo API to create VM
-      const response = await fetch(`${ORGO_BASE_URL}/v1/computers`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${ORGO_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: vmConfig?.name || 'AI Employee',
-          os: 'linux',
-          ram: vmConfig?.ram || 32,
-          cpu: vmConfig?.cpu || 4,
-        }),
+    // ── SPAWN: Create a new VM for an employee ──
+    if (action === 'spawn') {
+      if (!customerId || !employeeId) {
+        return NextResponse.json({ error: 'customerId and employeeId required' }, { status: 400 });
+      }
+
+      // Check if employee already has a VM
+      const { data: existing } = await supabase
+        .from('employee_vms')
+        .select('id, computer_id, status')
+        .eq('employee_id', employeeId)
+        .eq('customer_id', customerId)
+        .not('status', 'eq', 'terminated')
+        .single();
+
+      if (existing) {
+        return NextResponse.json({
+          error: 'Employee already has an active VM',
+          vm: existing,
+        }, { status: 409 });
+      }
+
+      // Check customer balance (estimate 1 hour of VM time)
+      const vmRam = ram || 4;
+      const vmCpu = cpu || 2;
+      const hourlyCost = estimateHourlyCost(vmRam, vmCpu);
+      const balanceCheck = await checkBalance(customerId, 'vm_orgo', hourlyCost);
+      if (!balanceCheck.hasBalance) {
+        return NextResponse.json({
+          error: 'Insufficient work hours for VM. Purchase more hours.',
+          balance: balanceCheck.currentBalance,
+        }, { status: 402 });
+      }
+
+      // Create VM on Orgo
+      const vmName = `mouse-${employeeName?.replace(/\s+/g, '-').toLowerCase() || employeeId}-${customerId.substring(0, 8)}`;
+      const computer = await createComputer({ name: vmName, ram: vmRam, cpu: vmCpu });
+
+      // Get VNC password
+      let vncPassword = '';
+      try {
+        vncPassword = await getVncPassword(computer.id);
+      } catch (e) {
+        // VNC password may not be available immediately
+      }
+
+      // Store in Supabase
+      const { data: vmRecord, error: insertErr } = await supabase
+        .from('employee_vms')
+        .insert({
+          customer_id: customerId,
+          employee_id: employeeId,
+          employee_name: employeeName || 'AI Employee',
+          computer_id: computer.id,
+          status: computer.status || 'starting',
+          ram: vmRam,
+          cpu: vmCpu,
+          gpu: 'none',
+          orgo_url: computer.url,
+          vnc_password: vncPassword,
+        })
+        .select()
+        .single();
+
+      if (insertErr) {
+        console.error('Failed to store VM record:', insertErr);
+        // Try to clean up the Orgo VM
+        try { await deleteComputer(computer.id); } catch (e) { /* best effort */ }
+        return NextResponse.json({ error: 'Failed to store VM record' }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        vm: vmRecord,
+        orgo: { id: computer.id, url: computer.url, status: computer.status },
       });
-
-      if (!response.ok) {
-        const error = await response.text();
-        console.error('Orgo API error:', error);
-        
-        // Fallback to mock VM on error
-        const mockVM = {
-          id: `fallback-vm-${Date.now()}`,
-          userId,
-          status: 'running',
-          name: vmConfig?.name || 'AI Employee',
-          specs: { ram: 32, cpu: 4, disk: 128 },
-          url: 'https://demo.mouseplatform.com/vm',
-          createdAt: new Date().toISOString(),
-          mock: true
-        };
-        userVMs[userId] = mockVM;
-        return NextResponse.json({ success: true, vm: mockVM });
-      }
-
-      const vmData = await response.json();
-      userVMs[userId] = vmData;
-      return NextResponse.json({ success: true, vm: vmData });
     }
 
-    if (action === 'get') {
-      const vm = userVMs[userId];
-      if (!vm) {
-        return NextResponse.json({ error: 'No VM found' }, { status: 404 });
-      }
-      return NextResponse.json({ success: true, vm });
+    // ── START: Resume a stopped VM ──
+    if (action === 'start') {
+      const vm = await getVMRecord(supabase, computerId, employeeId, customerId);
+      if (!vm) return NextResponse.json({ error: 'VM not found' }, { status: 404 });
+
+      await startComputer(vm.computer_id);
+
+      await supabase
+        .from('employee_vms')
+        .update({ status: 'running', stopped_at: null })
+        .eq('id', vm.id);
+
+      return NextResponse.json({ success: true, status: 'running' });
     }
 
+    // ── STOP: Pause VM (saves costs) ──
+    if (action === 'stop') {
+      const vm = await getVMRecord(supabase, computerId, employeeId, customerId);
+      if (!vm) return NextResponse.json({ error: 'VM not found' }, { status: 404 });
+
+      await stopComputer(vm.computer_id);
+
+      await supabase
+        .from('employee_vms')
+        .update({ status: 'stopped', stopped_at: new Date().toISOString() })
+        .eq('id', vm.id);
+
+      return NextResponse.json({ success: true, status: 'stopped' });
+    }
+
+    // ── TERMINATE: Delete VM permanently ──
+    if (action === 'terminate') {
+      const vm = await getVMRecord(supabase, computerId, employeeId, customerId);
+      if (!vm) return NextResponse.json({ error: 'VM not found' }, { status: 404 });
+
+      try {
+        await deleteComputer(vm.computer_id);
+      } catch (e) {
+        console.error('Orgo delete failed (may already be gone):', e);
+      }
+
+      await supabase
+        .from('employee_vms')
+        .update({ status: 'terminated', terminated_at: new Date().toISOString() })
+        .eq('id', vm.id);
+
+      return NextResponse.json({ success: true, status: 'terminated' });
+    }
+
+    // ── SCREENSHOT: Capture current screen ──
     if (action === 'screenshot') {
-      const vm = userVMs[userId];
-      if (!vm) {
-        return NextResponse.json({ error: 'No VM found' }, { status: 404 });
-      }
+      const vm = await getVMRecord(supabase, computerId, employeeId, customerId);
+      if (!vm) return NextResponse.json({ error: 'VM not found' }, { status: 404 });
 
-      if (vm.mock) {
-        // Return mock screenshot
-        return NextResponse.json({ 
-          success: true, 
-          screenshot: generateMockScreenshot()
-        });
-      }
+      const image = await takeScreenshot(vm.computer_id);
 
-      // Get real screenshot from Orgo
-      const response = await fetch(`${ORGO_BASE_URL}/v1/computers/${vm.id}/screenshot`, {
-        headers: {
-          'Authorization': `Bearer ${ORGO_API_KEY}`,
-        },
-      });
+      await supabase
+        .from('employee_vms')
+        .update({ last_screenshot_at: new Date().toISOString() })
+        .eq('id', vm.id);
 
-      if (!response.ok) {
-        return NextResponse.json({ 
-          success: true, 
-          screenshot: generateMockScreenshot()
-        });
-      }
-
-      const data = await response.json();
-      return NextResponse.json({ success: true, screenshot: data.screenshot_base64 });
+      return NextResponse.json({ success: true, image });
     }
 
-    return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
+    // ── BASH: Execute command on VM ──
+    if (action === 'bash') {
+      if (!command) return NextResponse.json({ error: 'command required' }, { status: 400 });
 
-  } catch (error) {
+      const vm = await getVMRecord(supabase, computerId, employeeId, customerId);
+      if (!vm) return NextResponse.json({ error: 'VM not found' }, { status: 404 });
+
+      const result = await executeBash(vm.computer_id, command);
+      return NextResponse.json({ success: true, ...result });
+    }
+
+    // ── STATUS: Refresh VM status from Orgo ──
+    if (action === 'status') {
+      const vm = await getVMRecord(supabase, computerId, employeeId, customerId);
+      if (!vm) return NextResponse.json({ error: 'VM not found' }, { status: 404 });
+
+      try {
+        const computer = await getComputer(vm.computer_id);
+        // Sync status to Supabase
+        if (computer.status !== vm.status) {
+          await supabase
+            .from('employee_vms')
+            .update({ status: computer.status })
+            .eq('id', vm.id);
+        }
+        return NextResponse.json({ success: true, vm: { ...vm, status: computer.status }, orgo: computer });
+      } catch (e) {
+        return NextResponse.json({ success: true, vm, orgoError: 'Could not reach Orgo API' });
+      }
+    }
+
+    return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 });
+
+  } catch (error: any) {
     console.error('VM API error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }
 
-// Generate a mock desktop screenshot as base64
-function generateMockScreenshot(): string {
-  // Create a simple canvas with desktop-like content
-  const svg = `
-    <svg width="800" height="500" xmlns="http://www.w3.org/2000/svg">
-      <rect width="800" height="500" fill="#1a1a2e"/>
-      <rect x="0" y="0" width="800" height="30" fill="#252538"/>
-      <text x="10" y="20" fill="#fff" font-family="sans-serif" font-size="12">AI Employee Desktop</text>
-      <text x="650" y="20" fill="#888" font-family="sans-serif" font-size="10">${new Date().toLocaleTimeString()}</text>
-      <rect x="50" y="80" width="200" height="150" fill="#2d2d44" stroke="#00d4ff" stroke-width="2" rx="8"/>
-      <text x="70" y="110" fill="#fff" font-family="sans-serif" font-size="14" font-weight="bold">Chrome</text>
-      <rect x="70" y="130" width="160" height="8" fill="#444" rx="4"/>
-      <rect x="70" y="145" width="120" height="8" fill="#444" rx="4"/>
-      <rect x="70" y="160" width="140" height="8" fill="#444" rx="4"/>
-      <rect x="70" y="175" width="100" height="8" fill="#444" rx="4"/>
-      <rect x="280" y="80" width="200" height="150" fill="#2d2d44" stroke="#7b2cbf" stroke-width="2" rx="8"/>
-      <text x="300" y="110" fill="#fff" font-family="sans-serif" font-size="14" font-weight="bold">Gmail</text>
-      <rect x="300" y="130" width="160" height="8" fill="#444" rx="4"/>
-      <rect x="300" y="145" width="120" height="8" fill="#444" rx="4"/>
-      <rect x="300" y="160" width="140" height="8" fill="#444" rx="4"/>
-      <text x="50" y="280" fill="#00d4ff" font-family="sans-serif" font-size="12">Status: Working...</text>
-      <text x="50" y="300" fill="#888" font-family="sans-serif" font-size="10">Last activity: ${new Date().toLocaleTimeString()}</text>
-    </svg>
-  `;
-  
-  // Convert SVG to base64 (simplified - in production use proper canvas)
-  return btoa(svg);
-}
+// ─── GET ────────────────────────────────────────────────────
 
-// GET - Check if user has a VM
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('userId');
+  try {
+    const { searchParams } = new URL(request.url);
+    const customerId = searchParams.get('customerId');
+    const employeeId = searchParams.get('employeeId');
+    const computerId = searchParams.get('computerId');
 
-  if (!userId) {
-    return NextResponse.json({ error: 'userId required' }, { status: 400 });
+    const supabase = getSupabaseServer();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
+    }
+
+    // Single VM by computerId
+    if (computerId) {
+      const { data } = await supabase
+        .from('employee_vms')
+        .select('*')
+        .eq('computer_id', computerId)
+        .single();
+      return NextResponse.json({ success: true, vm: data || null });
+    }
+
+    // Single VM by employeeId + customerId
+    if (employeeId && customerId) {
+      const { data } = await supabase
+        .from('employee_vms')
+        .select('*')
+        .eq('employee_id', employeeId)
+        .eq('customer_id', customerId)
+        .not('status', 'eq', 'terminated')
+        .single();
+      return NextResponse.json({ success: true, vm: data || null });
+    }
+
+    // All VMs for a customer
+    if (customerId) {
+      const { data } = await supabase
+        .from('employee_vms')
+        .select('*')
+        .eq('customer_id', customerId)
+        .not('status', 'eq', 'terminated')
+        .order('created_at', { ascending: false });
+      return NextResponse.json({ success: true, vms: data || [] });
+    }
+
+    return NextResponse.json({ error: 'customerId required' }, { status: 400 });
+  } catch (error: any) {
+    console.error('VM GET error:', error);
+    return NextResponse.json({ error: error.message || 'Internal error' }, { status: 500 });
   }
+}
 
-  const vm = userVMs[userId];
-  if (!vm) {
-    return NextResponse.json({ hasVM: false });
+// ─── Helpers ────────────────────────────────────────────────
+
+async function getVMRecord(supabase: any, computerId?: string, employeeId?: string, customerId?: string) {
+  if (computerId) {
+    const { data } = await supabase
+      .from('employee_vms')
+      .select('*')
+      .eq('computer_id', computerId)
+      .not('status', 'eq', 'terminated')
+      .single();
+    return data;
   }
-
-  return NextResponse.json({ hasVM: true, vm });
+  if (employeeId && customerId) {
+    const { data } = await supabase
+      .from('employee_vms')
+      .select('*')
+      .eq('employee_id', employeeId)
+      .eq('customer_id', customerId)
+      .not('status', 'eq', 'terminated')
+      .single();
+    return data;
+  }
+  return null;
 }
