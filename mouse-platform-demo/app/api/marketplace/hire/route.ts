@@ -3,8 +3,8 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase-server';
 import { checkBalance } from '@/lib/usage-tracker';
-import { createComputer, getVncPassword, estimateHourlyCost, waitForReady } from '@/lib/orgo';
-import { provisionMouseOS, ProvisionConfig } from '@/lib/mouse-os-provision';
+import { createComputer, getVncPassword, estimateHourlyCost } from '@/lib/orgo';
+import { kickOffProvision, ProvisionConfig } from '@/lib/mouse-os-provision';
 
 /**
  * POST /api/marketplace/hire
@@ -107,8 +107,10 @@ export async function POST(request: NextRequest) {
         .update({ status: 'provisioning', vm_name: vmName })
         .eq('computer_id', computer.id);
 
-      // 🐭 FIRE AND FORGET: Provision Mouse OS in background
-      // This takes ~5 minutes — don't block the response
+      // 🐭 Kick off Mouse OS provisioning on the VM
+      // The script runs ON the VM (nohup), not in Vercel.
+      // Avoids serverless function timeout. VM self-provisions in ~5 min.
+      // Poll /api/vm/provision-status for completion.
       const provisionConfig: ProvisionConfig = {
         customerId,
         employeeType,
@@ -120,61 +122,17 @@ export async function POST(request: NextRequest) {
         supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
       };
 
-      // Don't await — runs in background
-      (async () => {
-        try {
-          // Wait for VM to be fully running first
-          await waitForReady(computer.id, 60_000);
-
-          const result = await provisionMouseOS(computer.id, provisionConfig);
-
-          // Update status based on result
-          const finalStatus = result.success ? 'active' : 'error';
-          await supabase
-            .from('employee_vms')
-            .update({
-              status: finalStatus,
-              last_heartbeat: new Date().toISOString(),
-            })
-            .eq('computer_id', computer.id);
-
-          await supabase
-            .from('hired_employees')
-            .update({ status: finalStatus })
-            .eq('id', employeeId);
-
-          // Send notification
-          await supabase
-            .from('notifications')
-            .insert({
-              customer_id: customerId,
-              agent_type: employeeType,
-              type: result.success ? 'employee_ready' : 'employee_error',
-              message: result.success
-                ? `🐭 ${name} is ready! Mouse Platform installed and King Mouse is operational.`
-                : `⚠️ ${name} provisioning failed: ${result.error}`,
-              priority: result.success ? 'normal' : 'high',
-              read: false,
-            });
-
-          console.log(`[Mouse OS] ${name} provisioning ${finalStatus}:`, result.log.slice(-3));
-        } catch (provisionErr: any) {
-          console.error(`[Mouse OS] ${name} provision error:`, provisionErr);
-          await supabase
-            .from('employee_vms')
-            .update({ status: 'error' })
-            .eq('computer_id', computer.id);
-          await supabase
-            .from('notifications')
-            .insert({
-              customer_id: customerId,
-              type: 'employee_error',
-              message: `⚠️ ${name} failed to provision: ${provisionErr.message}`,
-              priority: 'high',
-              read: false,
-            });
+      try {
+        const provision = await kickOffProvision(computer.id, provisionConfig);
+        if (!provision.started) {
+          console.error(`[Mouse OS] Provision kickoff failed: ${provision.error}`);
+        } else {
+          console.log(`[Mouse OS] ${name} provisioning started on VM ${computer.id}`);
         }
-      })();
+      } catch (provisionErr: any) {
+        // Non-fatal — VM is created, provisioning can be retried
+        console.error(`[Mouse OS] ${name} provision kickoff error:`, provisionErr);
+      }
 
     } catch (e: any) {
       console.error('VM spawn failed:', e);
