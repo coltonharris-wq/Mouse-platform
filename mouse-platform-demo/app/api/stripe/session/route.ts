@@ -1,45 +1,35 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-02-25.clover' as any,
-});
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const sessionId = searchParams.get('session_id');
+  const sessionId = searchParams.get('sessionId');
 
   if (!sessionId) {
-    return NextResponse.json({ error: 'Session ID required' }, { status: 400 });
+    return NextResponse.json({ error: 'sessionId required' }, { status: 400 });
   }
 
   try {
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['customer', 'invoice'],
+    const res = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
+      headers: { 'Authorization': `Bearer ${STRIPE_SECRET_KEY}` },
     });
+    const session = await res.json();
 
-    // Handle invoice URL safely
-    let invoiceUrl = null;
-    if (session.invoice && typeof session.invoice === 'object') {
-      invoiceUrl = session.invoice.hosted_invoice_url;
+    if (!res.ok) {
+      return NextResponse.json({ error: session.error?.message }, { status: 400 });
     }
 
     return NextResponse.json({
-      plan: session.metadata?.plan,
-      amount: session.amount_total,
-      customerEmail: session.customer_details?.email,
-      customerId: session.metadata?.customer_id,
-      invoiceUrl: invoiceUrl,
-      status: session.status,
-      paymentStatus: session.payment_status,
+      plan: session.metadata?.plan || '',
+      workHours: parseFloat(session.metadata?.work_hours || '0'),
+      customerId: session.metadata?.customer_id || '',
+      status: session.payment_status,
+      amount: (session.amount_total || 0) / 100,
     });
-  } catch (error) {
-    console.error('Failed to retrieve session:', error);
-    return NextResponse.json(
-      { error: 'Failed to retrieve session' },
-      { status: 500 }
-    );
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
