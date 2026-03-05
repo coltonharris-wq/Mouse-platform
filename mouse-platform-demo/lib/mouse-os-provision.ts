@@ -23,6 +23,103 @@ export interface ProvisionConfig {
   supabaseUrl: string;
   supabaseAnonKey: string;
   supabaseServiceKey: string;
+  moonshotApiKey: string;
+  orgoApiKey: string;
+  orgoWorkspaceId: string;
+}
+
+// ─── King Mouse Gateway Config ─────────────────────────────
+
+/**
+ * Generate a full OpenClaw config (openclaw.json) for a King Mouse VM.
+ * 
+ * - Model: Moonshot Kimi K2.5 (cost-effective for customer VMs)
+ * - Orgo skill: enabled with API key (so King Mouse can spawn Employee VMs)
+ * - No channels initially — setup interview will configure Telegram/WhatsApp
+ * - Gateway: dev mode, loopback bind (container-safe)
+ * - Workspace: $HOME/mouse-platform/workspace
+ */
+function generateKingMouseConfig(config: ProvisionConfig): object {
+  return {
+    models: {
+      mode: 'merge',
+      providers: {
+        moonshot: {
+          baseUrl: 'https://api.moonshot.ai/v1',
+          apiKey: config.moonshotApiKey,
+          api: 'openai-completions',
+          models: [
+            {
+              id: 'kimi-k2.5',
+              name: 'Kimi K2.5',
+              reasoning: false,
+              input: ['text'],
+              cost: {
+                input: 0.15,
+                output: 0.6,
+                cacheRead: 0,
+                cacheWrite: 0,
+              },
+              contextWindow: 256000,
+              maxTokens: 8192,
+            },
+          ],
+        },
+      },
+    },
+    agents: {
+      defaults: {
+        model: {
+          primary: 'moonshot/kimi-k2.5',
+          fallbacks: [],
+        },
+        models: {
+          'moonshot/kimi-k2.5': {},
+        },
+        contextPruning: {
+          mode: 'cache-ttl',
+          ttl: '30m',
+        },
+        compaction: {
+          mode: 'safeguard',
+          memoryFlush: {
+            enabled: true,
+            softThresholdTokens: 100000,
+            prompt: 'APPEND to memory/YYYY-MM-DD.md: decisions, state changes, customer requests, what you learned about the owner. If nothing important: NO_REPLY',
+            systemPrompt: 'Session nearing compaction. Extract what matters for this business.',
+          },
+        },
+        heartbeat: {
+          every: '30m',
+        },
+        maxConcurrent: 2,
+        subagents: {
+          maxChildrenPerAgent: 5,
+          model: 'moonshot/kimi-k2.5',
+        },
+      },
+    },
+    gateway: {
+      port: 18789,
+      mode: 'local',
+      bind: 'loopback',
+      auth: {
+        mode: 'open',
+      },
+    },
+    skills: {
+      entries: {
+        orgo: {
+          enabled: true,
+          apiKey: config.orgoApiKey,
+        },
+      },
+    },
+    commands: {
+      native: 'auto',
+      restart: true,
+    },
+  };
 }
 
 type StepFn = (computerId: string, config: ProvisionConfig) => Promise<string>;
@@ -132,23 +229,6 @@ async function buildProject(computerId: string, _config: ProvisionConfig): Promi
 }
 
 async function configureWorkspace(computerId: string, config: ProvisionConfig): Promise<string> {
-  // Create workspace with King Mouse SOUL.md and .env
-  const soulMd = `# SOUL.md - King Mouse 🐭
-
-You are **King Mouse**, the AI Operations Manager for ${config.businessName || 'this business'}.
-
-## Core Identity
-- You run operations autonomously for ${config.employeeName} (${config.employeeType})
-- You learn the owner's decision-making style
-- You only escalate what truly needs human approval
-- You get smarter every day
-
-## Rules
-1. Speed > perfection
-2. Only ask for approval on decisions above your confidence threshold
-3. Log everything
-4. Protect customer data absolutely`;
-
   const envContent = [
     `CUSTOMER_ID=${config.customerId}`,
     `EMPLOYEE_TYPE=${config.employeeType}`,
@@ -160,24 +240,65 @@ You are **King Mouse**, the AI Operations Manager for ${config.businessName || '
   ].join('\\n');
 
   await executeBash(computerId,
-    `cd /home/user/mouse-platform && mkdir -p workspace/memory config && printf '${envContent}' > .env`
+    `cd $HOME/mouse-platform && mkdir -p workspace/memory config && printf '${envContent}' > .env`
   );
 
-  // Write SOUL.md via Python to avoid shell escaping issues
-  const writeSoul = `
-with open("/home/user/mouse-platform/workspace/SOUL.md", "w") as f:
-    f.write("""${soulMd.replace(/"/g, '\\"')}""")
-print("SOUL_OK")
-`;
-  await executePython(computerId, writeSoul, 10);
+  // Download SOUL.md, AGENTS.md, and USER.md template from GitHub repo
+  // then write gateway config via Python (avoids shell escaping issues)
+  const writeBrain = `
+import pathlib, json, os, urllib.request
+home = str(pathlib.Path.home())
+mp = home + "/mouse-platform"
+oc = home + "/.openclaw"
+ws = mp + "/workspace"
 
-  return 'Configured';
+# Download brain templates from GitHub
+TEMPLATE_BASE = "https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/templates/king-mouse"
+for fname in ["SOUL.md", "AGENTS.md"]:
+    url = f"{TEMPLATE_BASE}/{fname}"
+    path = os.path.join(ws, fname)
+    try:
+        urllib.request.urlretrieve(url, path)
+    except Exception as e:
+        print(f"WARN: Could not download {fname}: {e}")
+
+# Create initial USER.md placeholder (setup interview will populate this)
+user_md = """# USER.md — Business Profile
+
+_King Mouse will populate this during the setup interview._
+
+- **Business Name:** ${config.businessName || 'Unknown'}
+- **Owner:** ${config.employeeName}
+- **Type:** ${config.employeeType}
+"""
+with open(os.path.join(ws, "USER.md"), "w") as f:
+    f.write(user_md)
+
+# Create empty MEMORY.md
+with open(os.path.join(ws, "MEMORY.md"), "w") as f:
+    f.write("# MEMORY.md — Business Knowledge\\n\\n_King Mouse will build this over time._\\n")
+
+# Write gateway config (openclaw.json)
+os.makedirs(oc, exist_ok=True)
+config = ${JSON.stringify(generateKingMouseConfig(config))}
+config.setdefault("agents", {}).setdefault("defaults", {})["workspace"] = mp + "/workspace"
+with open(oc + "/openclaw.json", "w") as f:
+    json.dump(config, f, indent=2)
+
+print("SOUL_OK AGENTS_OK CONFIG_OK")
+`;
+  const result = await executePython(computerId, writeBrain, 15);
+  if (!result.output?.includes('CONFIG_OK')) {
+    throw new Error(`Config write failed: ${result.output}`);
+  }
+
+  return 'Configured with brain templates + gateway config';
 }
 
 async function launchGateway(computerId: string, _config: ProvisionConfig): Promise<string> {
-  // Start OpenClaw gateway in container mode (no systemd)
+  // Start OpenClaw gateway in container mode (no systemd, config already written)
   await executeBash(computerId,
-    'cd /home/user/mouse-platform && nohup node openclaw.mjs gateway --dev --allow-unconfigured --bind loopback > /var/log/mouse-os-runtime.log 2>&1 & echo $! > /var/run/mouse-os.pid && echo LAUNCHED_PID=$(cat /var/run/mouse-os.pid)'
+    'cd $HOME/mouse-platform && nohup node openclaw.mjs gateway --dev --bind loopback > /var/log/mouse-os-runtime.log 2>&1 & echo $! > /var/run/mouse-os.pid && echo LAUNCHED_PID=$(cat /var/run/mouse-os.pid)'
   );
   return 'Launched';
 }
@@ -314,7 +435,7 @@ log "=== MOUSE OS PROVISIONING START ==="
 log "Strategy: Pre-built runtime tarball (fast provision)"
 
 # 1. Install Node 22 (required by OpenClaw — VMs may have Node 18 pre-installed)
-log "Step 1/6: Installing Node 22..."
+log "Step 1/8: Installing Node 22..."
 mkdir -p /var/lib/apt/lists/partial
 apt-get update -qq > /dev/null 2>&1
 apt-get install -y -qq curl > /dev/null 2>&1
@@ -324,23 +445,25 @@ log "Deps OK: node=$(node -v)"
 
 # 2. Download pre-built runtime
 MOUSE_HOME="$HOME/mouse-platform"
-log "Step 2/6: Downloading Mouse Platform runtime (~496MB)..."
+log "Step 2/8: Downloading Mouse Platform runtime (~496MB)..."
 rm -rf "$MOUSE_HOME"
 cd "$HOME"
 curl -fsSL -o /tmp/mouse-runtime.tar.gz "${RUNTIME_TARBALL_URL}"
 log "Download complete"
 
 # 3. Extract runtime
-log "Step 3/6: Extracting runtime..."
+log "Step 3/8: Extracting runtime..."
 tar -xzf /tmp/mouse-runtime.tar.gz
 mv mouse-runtime mouse-platform
 rm -f /tmp/mouse-runtime.tar.gz
 log "Extracted OK: $(du -sh $MOUSE_HOME | cut -f1)"
 
-# 4. Configure workspace
-log "Step 4/6: Configuring workspace..."
+# 4. Configure workspace + brain templates
+log "Step 4/8: Configuring workspace and brain templates..."
 cd "$MOUSE_HOME"
 mkdir -p workspace/memory config
+OPENCLAW_DIR="$HOME/.openclaw"
+mkdir -p "$OPENCLAW_DIR"
 
 cat > .env << 'ENVEOF'
 CUSTOMER_ID=${config.customerId}
@@ -352,19 +475,79 @@ SUPABASE_ANON_KEY=${config.supabaseAnonKey}
 SUPABASE_SERVICE_KEY=${config.supabaseServiceKey}
 ENVEOF
 
-cat > workspace/SOUL.md << 'SOULEOF'
-# SOUL.md - King Mouse
+# Download King Mouse brain templates from GitHub
+TEMPLATE_BASE="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/templates/king-mouse"
+curl -fsSL "$TEMPLATE_BASE/SOUL.md" -o workspace/SOUL.md 2>/dev/null || log "WARN: SOUL.md download failed"
+curl -fsSL "$TEMPLATE_BASE/AGENTS.md" -o workspace/AGENTS.md 2>/dev/null || log "WARN: AGENTS.md download failed"
 
-You are **King Mouse**, the AI Operations Manager for ${config.businessName || 'this business'}.
-You run operations autonomously. You learn the owner's style.
-Only escalate what truly needs human approval. Get smarter every day.
-Protect customer data absolutely. Speed > perfection.
-SOULEOF
+# Create initial USER.md (setup interview will populate)
+cat > workspace/USER.md << 'USEREOF'
+# USER.md — Business Profile
 
-log "Workspace configured"
+_King Mouse will populate this during the setup interview._
 
-# 5. State sync + Launch gateway + Watchdog
-log "Step 5/6: Setting up state sync..."
+- **Business Name:** ${config.businessName || 'Unknown'}
+- **Owner:** ${config.employeeName}
+- **Type:** ${config.employeeType}
+USEREOF
+
+# Create empty MEMORY.md
+cat > workspace/MEMORY.md << 'MEMEOF'
+# MEMORY.md — Business Knowledge
+
+_King Mouse will build this over time._
+MEMEOF
+
+log "Workspace configured with brain templates"
+
+# 5. Write OpenClaw gateway config (openclaw.json)
+log "Step 5/8: Writing gateway config (Moonshot Kimi K2.5 + Orgo skill)..."
+cat > "$OPENCLAW_DIR/openclaw.json" << 'CONFIGEOF'
+${JSON.stringify(generateKingMouseConfig(config), null, 2)}
+CONFIGEOF
+
+# Point workspace in config
+node -e "
+const fs = require('fs');
+const p = '$OPENCLAW_DIR/openclaw.json';
+const c = JSON.parse(fs.readFileSync(p, 'utf8'));
+c.agents = c.agents || {};
+c.agents.defaults = c.agents.defaults || {};
+c.agents.defaults.workspace = '$MOUSE_HOME/workspace';
+fs.writeFileSync(p, JSON.stringify(c, null, 2));
+console.log('Config written');
+"
+log "Gateway config written"
+
+# 6. Install Orgo skill (so King Mouse can spawn Employee VMs)
+log "Step 6/8: Installing Orgo skill..."
+SKILL_DIR="$OPENCLAW_DIR/skills/orgo"
+mkdir -p "$SKILL_DIR/scripts" "$SKILL_DIR/references"
+
+# Download Orgo skill files from GitHub repo
+SKILL_BASE="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/skills/orgo"
+curl -fsSL "$SKILL_BASE/SKILL.md" -o "$SKILL_DIR/SKILL.md" 2>/dev/null
+curl -fsSL "$SKILL_BASE/scripts/orgo.py" -o "$SKILL_DIR/scripts/orgo.py" 2>/dev/null
+curl -fsSL "$SKILL_BASE/references/api.md" -o "$SKILL_DIR/references/api.md" 2>/dev/null
+chmod +x "$SKILL_DIR/scripts/orgo.py"
+
+# Install requests (needed by orgo.py)
+pip3 install requests -q 2>/dev/null || npm install -g node-fetch 2>/dev/null || true
+
+# Set ORGO_API_KEY + ORGO_WORKSPACE_ID in environment for the skill
+cat >> "$HOME/.bashrc" << 'ENVBASHEOF'
+export ORGO_API_KEY="${config.orgoApiKey}"
+export ORGO_WORKSPACE_ID="${config.orgoWorkspaceId}"
+ENVBASHEOF
+
+# Also export for current session (gateway needs it)
+export ORGO_API_KEY="${config.orgoApiKey}"
+export ORGO_WORKSPACE_ID="${config.orgoWorkspaceId}"
+
+log "Orgo skill installed"
+
+# 7. State sync
+log "Step 7/8: Setting up state sync..."
 cat > /usr/local/bin/mouse-state-sync.sh << 'SYNCEOF'
 #!/bin/bash
 ACTION="\${1:-save}"
@@ -391,10 +574,10 @@ chmod +x /usr/local/bin/mouse-state-sync.sh
 /usr/local/bin/mouse-state-sync.sh load 2>/dev/null || true
 log "State sync configured"
 
-# Launch gateway (container mode — no systemd)
-log "Step 6/6: Launching King Mouse..."
+# Launch gateway (container mode — no systemd, config already written)
+log "Step 8/8: Launching King Mouse..."
 cd "$MOUSE_HOME"
-nohup node openclaw.mjs gateway --dev --allow-unconfigured --bind loopback > /var/log/mouse-os-runtime.log 2>&1 &
+nohup node openclaw.mjs gateway --dev --bind loopback > /var/log/mouse-os-runtime.log 2>&1 &
 echo $! > /var/run/mouse-os.pid
 log "King Mouse launched (PID: $(cat /var/run/mouse-os.pid))"
 
