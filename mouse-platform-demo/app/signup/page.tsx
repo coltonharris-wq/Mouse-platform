@@ -74,6 +74,9 @@ export default function SignupPage() {
         email: formData.email,
         role: 'customer',
         customerId: data.customerId,
+        company: formData.company || '',
+        firstName: formData.firstName || '',
+        lastName: formData.lastName || '',
       }));
 
       // Redirect to checkout or onboarding

@@ -1,8 +1,11 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-const API_URL = process.env.API_URL || 'http://localhost:8000';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,41 +16,62 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+    // Use anon key for sign-in (respects RLS)
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
+    if (error) {
+      console.error('Login error:', error);
       return NextResponse.json(
-        { error: data.detail || data.error || 'Login failed' },
-        { status: response.status }
+        { error: error.message || 'Login failed' },
+        { status: 401 }
       );
     }
 
-    // Determine role from account_type
-    const accountType = data.user?.account_type || 'customer';
+    // Get user metadata for role
+    const accountType = data.user?.user_metadata?.account_type || 'customer';
     let role = accountType;
     if (accountType === 'admin') role = 'platform_owner';
+
+    // Try to get customer data
+    let customerData = null;
+    try {
+      const adminSupabase = createClient(supabaseUrl, supabaseServiceKey, {
+        auth: { autoRefreshToken: false, persistSession: false }
+      });
+      const { data: customer } = await adminSupabase
+        .from('customers')
+        .select('*')
+        .eq('id', data.user?.id)
+        .single();
+      customerData = customer;
+      if (customer?.account_type) {
+        role = customer.account_type;
+        if (role === 'admin') role = 'platform_owner';
+      }
+    } catch (e) {
+      // Non-fatal - continue with auth metadata
+    }
 
     return NextResponse.json({
       success: true,
       userId: data.user?.id,
       email: data.user?.email || email,
-      token: data.access_token,
-      refreshToken: data.refresh_token,
+      token: data.session?.access_token,
+      refreshToken: data.session?.refresh_token,
       role,
       accountType,
       portal: accountType,
-      redirectTo: data.redirect_to || '/portal',
-      canSwitchPortals: data.can_switch_portals || false,
-      availablePortals: data.available_portals || [accountType],
+      redirectTo: accountType === 'admin' ? '/admin' : '/portal',
+      canSwitchPortals: accountType === 'admin',
+      availablePortals: accountType === 'admin' ? ['admin', 'customer', 'reseller'] : [accountType],
     });
   } catch (error: any) {
-    console.error('Login proxy error:', error);
+    console.error('Login error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

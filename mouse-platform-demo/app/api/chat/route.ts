@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase-server';
+import { checkBalance, recordUsage, calculateAnthropicCost } from '@/lib/usage-tracker';
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
 const ANTHROPIC_BASE_URL = 'https://api.anthropic.com/v1';
@@ -31,7 +32,7 @@ Keep responses concise and actionable. No filler.`;
 
 export async function POST(request: NextRequest) {
   try {
-    const { messages, userRole, userId } = await request.json();
+    const { messages, userRole, userId, customerId } = await request.json();
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'Messages array required' }, { status: 400 });
@@ -41,10 +42,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'AI backend not configured. Set ANTHROPIC_API_KEY.' }, { status: 500 });
     }
 
+    // --- BILLING: Check balance before API call (customers only) ---
+    const isCustomer = userRole === 'customer' && customerId;
+    if (isCustomer) {
+      const estimatedCost = 0.01; // ~500 input + 500 output tokens estimated
+      const balanceCheck = await checkBalance(customerId, 'chat_sonnet', estimatedCost);
+      if (!balanceCheck.hasBalance) {
+        return NextResponse.json({
+          reply: "Your work hours have run out. Purchase more hours to continue chatting with King Mouse.",
+          hoursRemaining: 0,
+          depleted: true,
+        });
+      }
+    }
+
     const anthropicMessages = messages.map((m: any) => ({
       role: m.role === 'system' ? 'user' : m.role,
       content: m.content,
     }));
+
+    const model = 'claude-sonnet-4-20250514';
 
     const response = await fetch(`${ANTHROPIC_BASE_URL}/messages`, {
       method: 'POST',
@@ -54,7 +71,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model,
         system: getSystemPrompt(userRole || 'admin'),
         messages: anthropicMessages,
         max_tokens: 2048,
@@ -69,6 +86,28 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
     const reply = data.content?.[0]?.text || 'No response generated.';
+
+    // --- BILLING: Record actual cost and deduct hours ---
+    let usageInfo: { workHoursCharged?: number; newBalance?: number } = {};
+    if (isCustomer) {
+      const inputTokens = data.usage?.input_tokens || 0;
+      const outputTokens = data.usage?.output_tokens || 0;
+      const { vendorCost, eventType } = calculateAnthropicCost(model, inputTokens, outputTokens);
+
+      const usageResult = await recordUsage(customerId, eventType, vendorCost, {
+        model,
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        message_preview: messages[messages.length - 1]?.content?.substring(0, 100),
+      });
+
+      if (usageResult.success) {
+        usageInfo = {
+          workHoursCharged: usageResult.workHoursCharged,
+          newBalance: usageResult.newBalance,
+        };
+      }
+    }
 
     // Store chat in Supabase if userId provided
     if (userId) {
@@ -86,7 +125,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ reply });
+    return NextResponse.json({
+      reply,
+      ...usageInfo,
+    });
   } catch (error: any) {
     console.error('Chat API error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

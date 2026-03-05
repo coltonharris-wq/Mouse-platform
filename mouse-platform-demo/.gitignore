@@ -39,3 +39,4 @@ zero-touch-vms/
 __pycache__/
 *.pyc
 !lib/
+.vercel

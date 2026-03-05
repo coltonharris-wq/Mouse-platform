@@ -79,7 +79,7 @@ export default function PortalDashboardPage() {
             <MenuItem href="/portal" icon={<Zap className="w-6 h-6" />} label="Dashboard" active />
             <MenuItem href="/dashboard/marketplace" icon={<StoreIcon className="w-6 h-6" />} label="AI Marketplace" />
             <MenuItem href="/portal/employees" icon={<Users className="w-6 h-6" />} label="My Employees" />
-            <MenuItem href="/portal/work-hours" icon={<Clock className="w-6 h-6" />} label="Usage" />
+            <MenuItem href="/portal/work-hours" icon={<Clock className="w-6 h-6" />} label="Work Hours" />
             <MenuItem href="/portal/billing" icon={<CreditCard className="w-6 h-6" />} label="Billing" />
             <MenuItem href="/portal/messages" icon={<MessageSquare className="w-6 h-6" />} label="Messages" />
           </nav>
@@ -104,7 +104,7 @@ export default function PortalDashboardPage() {
           <h1 className="text-3xl font-bold text-[#0B1F3B] mb-2">
             Welcome back
           </h1>
-          <p className="text-mouse-slate text-lg">{user?.email}</p>
+          <p className="text-gray-600 text-lg">{user?.email}</p>
         </div>
 
         {/* Quick Actions */}
@@ -115,7 +115,7 @@ export default function PortalDashboardPage() {
             <h3 className="font-semibold text-xl mb-2">King Mouse</h3>
             <p className="text-white/90 text-base leading-relaxed">Your AI orchestrator. Ask questions, give commands, get insights.</p>
           </Link>
-          <Link href="/dashboard/marketplace"
+          <Link href="/portal/marketplace"
             className="bg-gradient-to-br from-mouse-teal to-[#0B1F3B] rounded-2xl p-6 text-white block hover:shadow-lg transition-shadow">
             <Users className="w-8 h-8 mb-4" />
             <h3 className="font-semibold text-xl mb-2">Hire Employee</h3>
@@ -155,7 +155,7 @@ export default function PortalDashboardPage() {
             href="/portal/work-hours"
             className="block w-full py-4 text-center text-orange-500 text-base font-medium border-t border-gray-100 hover:bg-orange-50"
           >
-            View Usage Details
+            View Work Hours
           </Link>
         </div>
 
@@ -213,7 +213,7 @@ function StatCard({ value, label, icon, color }: { value: string | number; label
     <div className="bg-[#0B1F3B] border border-[#1a3358] rounded-2xl p-5">
       <div className={`${color} mb-3`}>{icon}</div>
       <p className="text-3xl md:text-4xl font-bold text-white mb-1">{value}</p>
-      <p className="text-gray-300 text-sm font-medium">{label}</p>
+      <p className="text-gray-300 text-base font-medium">{label}</p>
     </div>
   );
 }

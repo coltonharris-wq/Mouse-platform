@@ -14,7 +14,7 @@ module.exports = {
         'mouse-red': '#DC2626',
         'mouse-green': '#10B981',
         // Updated for better contrast - lighter grays for dark backgrounds
-        'mouse-slate': '#E5E7EB', // Was darker, now light gray for dark backgrounds
+        'mouse-slate': '#6B7280', // Medium gray - visible on white backgrounds
         'mouse-offwhite': '#F8FAFC',
         'mouse-charcoal': '#1F2937',
       },

@@ -69,28 +69,21 @@ interface WorkHoursContextType extends WorkHoursState {
 
 const WorkHoursContext = createContext<WorkHoursContextType | undefined>(undefined);
 
-// Mock initial data with usage breakdown
+// Clean initial state — no mock data
 const INITIAL_STATE: WorkHoursState = {
-  balance: 47.5,
-  totalUsed: 22.5,
-  totalPurchased: 70,
-  transactions: [
-    { id: '1', type: 'purchase', amount: 70, description: 'Growth Plan - 70 hours', timestamp: new Date(Date.now() - 86400000 * 30) },
-    { id: '2', type: 'usage', amount: -5.2, featureType: 'vm_runtime', description: 'VM Runtime - Sales Assistant', timestamp: new Date(Date.now() - 86400000), employeeName: 'Sales Assistant' },
-    { id: '3', type: 'usage', amount: -2.1, featureType: 'voice_chat', description: 'Voice Chat Session', timestamp: new Date(Date.now() - 3600000 * 4) },
-    { id: '4', type: 'usage', amount: -8.5, featureType: 'text_chat', description: 'Text Chat - Multiple Sessions', timestamp: new Date(Date.now() - 86400000 * 2) },
-    { id: '5', type: 'usage', amount: -1.5, featureType: 'image_generation', description: 'Generated 3 images', timestamp: new Date(Date.now() - 1800000) },
-    { id: '6', type: 'usage', amount: -4.0, featureType: 'api_call', description: 'API Calls (400 calls)', timestamp: new Date(Date.now() - 3600000) },
-  ],
+  balance: 0,
+  totalUsed: 0,
+  totalPurchased: 0,
+  transactions: [],
   usageBreakdown: {
-    text_chat: 8.5,
-    voice_chat: 2.1,
-    image_generation: 1.5,
+    text_chat: 0,
+    voice_chat: 0,
+    image_generation: 0,
     video_generation: 0,
     screen_recording: 0,
-    api_call: 4.0,
-    employee_deployment: 1.2,
-    vm_runtime: 5.2,
+    api_call: 0,
+    employee_deployment: 0,
+    vm_runtime: 0,
   },
 };
 

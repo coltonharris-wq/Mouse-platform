@@ -14,8 +14,14 @@ import {
   History,
   Play,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  Crown,
+  Phone,
+  Mail,
+  MessageCircle,
+  ArrowRight,
 } from 'lucide-react';
+import Link from 'next/link';
 
 // Types
 interface DoctorCheck {
@@ -243,6 +249,67 @@ export default function MaintenancePage() {
 
   return (
     <div className="space-y-6">
+      {/* Support Contact Section */}
+      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="p-6">
+          <h1 className="text-2xl font-bold text-[#0B1F3B] mb-1">Support</h1>
+          <p className="text-gray-500 text-sm">Get help with your AI employees and account</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-t border-gray-200">
+          {/* King Mouse Support */}
+          <div className="p-6 border-b md:border-b-0 md:border-r border-gray-200">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#0B1F3B] to-[#0F6B6E] rounded-xl flex items-center justify-center">
+                <Crown className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">AI Support</h3>
+                <p className="text-xs text-gray-500">Instant answers, 24/7</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              For general support, ask your King Mouse — your AI assistant that knows your account inside and out.
+            </p>
+            <Link
+              href="/portal/king-mouse"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0B1F3B] text-white rounded-xl text-sm font-semibold hover:bg-[#1a3358] transition-colors"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Ask King Mouse
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* Human Support */}
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                <Phone className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Human Support</h3>
+                <p className="text-xs text-gray-500">Talk to a real person</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              For human support, contact us directly:
+            </p>
+            <div className="space-y-3">
+              <a href="tel:9105158927" className="flex items-center gap-3 text-sm text-gray-700 hover:text-[#0B1F3B] transition-colors">
+                <Phone className="w-4 h-4 text-gray-400" />
+                <span className="font-medium">(910) 515-8927</span>
+              </a>
+              <a href="mailto:colton.harris@automioapp.com" className="flex items-center gap-3 text-sm text-gray-700 hover:text-[#0B1F3B] transition-colors">
+                <Mail className="w-4 h-4 text-gray-400" />
+                <span className="font-medium">colton.harris@automioapp.com</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Health Monitoring Section */}
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-bold text-mouse-charcoal flex items-center gap-2">

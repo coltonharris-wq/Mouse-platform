@@ -23,29 +23,29 @@ export default function PortalLayout({
               <PortalSwitcher />
 
               <div className="flex items-center gap-2">
-                <span className="text-mouse-slate text-xs">Employees Active:</span>
-                <span className="text-mouse-charcoal text-sm font-semibold">0</span>
+                <span className="text-gray-500 text-sm font-medium">Employees Active:</span>
+                <span className="text-gray-900 text-base font-bold">0</span>
               </div>
 
-              <div className="w-px h-4 bg-gray-200" />
+              <div className="w-px h-5 bg-gray-300" />
 
               <div className="flex items-center gap-2">
-                <span className="text-mouse-slate text-xs">Tasks Today:</span>
-                <span className="text-mouse-charcoal text-sm font-semibold">0</span>
+                <span className="text-gray-500 text-sm font-medium">Tasks Today:</span>
+                <span className="text-gray-900 text-base font-bold">0</span>
               </div>
 
-              <div className="w-px h-4 bg-gray-200" />
+              <div className="w-px h-5 bg-gray-300" />
 
               <div className="flex items-center gap-2">
-                <span className="text-mouse-slate text-xs">Hours Saved:</span>
-                <span className="text-mouse-green text-sm font-semibold">0</span>
+                <span className="text-gray-500 text-sm font-medium">Hours Saved:</span>
+                <span className="text-green-600 text-base font-bold">0</span>
               </div>
 
-              <div className="w-px h-4 bg-gray-200" />
+              <div className="w-px h-5 bg-gray-300" />
 
               <div className="flex items-center gap-2">
-                <span className="text-mouse-slate text-xs">Status:</span>
-                <span className="text-mouse-teal text-sm font-semibold">Ready</span>
+                <span className="text-gray-500 text-sm font-medium">Status:</span>
+                <span className="text-teal-600 text-base font-bold">Ready</span>
               </div>
             </div>
           </div>

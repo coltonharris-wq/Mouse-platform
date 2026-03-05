@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Loader2, Power, Plus, Users } from 'lucide-react';
+import { Send, Bot, User, Loader2, Power, Plus, Users, Clock, AlertTriangle } from 'lucide-react';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  hoursCharged?: number;
 }
 
 interface Employee {
@@ -25,8 +26,16 @@ export default function KingMouseChat() {
   const [instanceStatus, setInstanceStatus] = useState<'loading' | 'active' | 'error'>('loading');
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [deployingEmployee, setDeployingEmployee] = useState(false);
+  const [hoursBalance, setHoursBalance] = useState<number | null>(null);
+  const [depleted, setDepleted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const customerId = 'demo-customer'; // Get from auth
+
+  const getSession = () => {
+    try {
+      const s = localStorage.getItem('mouse_session');
+      return s ? JSON.parse(s) : {};
+    } catch { return {}; }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -34,94 +43,61 @@ export default function KingMouseChat() {
 
   useEffect(() => {
     checkStatus();
-    loadEmployees();
+    fetchBalance();
   }, []);
 
-  async function checkStatus() {
+  async function fetchBalance() {
+    const { customerId, userId } = getSession();
+    const id = customerId || userId;
+    if (!id) return;
     try {
-      const response = await fetch(`/api/vm-orchestrator?customerId=${customerId}`);
+      const res = await fetch(`/api/usage-events?customerId=${id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setHoursBalance(data.balance ?? null);
+        if (data.balance !== undefined && data.balance <= 0) setDepleted(true);
+      }
+    } catch {}
+  }
+
+  async function checkStatus() {
+    const { customerId, userId } = getSession();
+    const id = customerId || userId || 'demo-customer';
+    try {
+      const response = await fetch(`/api/vm-orchestrator?customerId=${id}`);
       const data = await response.json();
-      
+
       if (data.success && data.kingMouse) {
         setInstanceStatus('active');
         setEmployees(data.employees || []);
-        
-        if (messages.length === 0) {
-          setMessages([{
-            id: 'welcome',
-            role: 'assistant',
-            content: `🖱️ Welcome! I'm your King Mouse - your AI workforce orchestrator.\n\nI have OpenClaw installed and can deploy AI employees, each with their own OpenClaw instance.\n\nYour employees can:\n• Work autonomously with their own OpenClaw\n• Execute complex tasks\n• Report back to me\n• Collaborate on projects\n\nTry saying: "Deploy a sales rep"`,
-            timestamp: new Date(),
-          }]);
-        }
       } else {
-        setInstanceStatus(data.kingMouse ? 'active' : 'error');
+        setInstanceStatus('active'); // Fall back to chat-only mode
       }
-    } catch (error) {
-      console.error('Status check failed:', error);
-      setInstanceStatus('error');
-    }
-  }
 
-  async function loadEmployees() {
-    try {
-      const response = await fetch(`/api/vm-orchestrator?customerId=${customerId}`);
-      const data = await response.json();
-      if (data.success) {
-        setEmployees(data.employees || []);
-      }
-    } catch (error) {
-      console.error('Failed to load employees:', error);
-    }
-  }
-
-  async function deployEmployee(type: string) {
-    setDeployingEmployee(true);
-    
-    try {
-      const response = await fetch('/api/vm-orchestrator', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'createEmployee',
-          customerId,
-          employeeType: type,
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        const newEmployee = data.employee;
-        setEmployees(prev => [...prev, newEmployee]);
-        
-        const assistantMessage: Message = {
-          id: Date.now().toString(),
+      if (messages.length === 0) {
+        setMessages([{
+          id: 'welcome',
           role: 'assistant',
-          content: `✅ **${type} employee deployed!**\n\nVM ID: ${newEmployee.vmId}\nStatus: ${newEmployee.status}\nOpenClaw: Installed and running\n\nYour employee now has its own OpenClaw instance and can work autonomously. It will report progress to me.`,
+          content: `🖱️ Welcome! I'm King Mouse — your AI workforce orchestrator.\n\nI can help you manage your AI employees, deploy new ones, check status, and answer questions about your plan.\n\nTry asking me anything!`,
           timestamp: new Date(),
-        };
-        
-        setMessages(prev => [...prev, assistantMessage]);
-      } else {
-        const errorMessage: Message = {
-          id: Date.now().toString(),
-          role: 'assistant',
-          content: `❌ Failed to deploy ${type} employee: ${data.error || 'Unknown error'}`,
-          timestamp: new Date(),
-        };
-        setMessages(prev => [...prev, errorMessage]);
+        }]);
       }
     } catch (error) {
-      console.error('Deploy failed:', error);
-    } finally {
-      setDeployingEmployee(false);
+      setInstanceStatus('active');
+      if (messages.length === 0) {
+        setMessages([{
+          id: 'welcome',
+          role: 'assistant',
+          content: `🖱️ Hey! I'm King Mouse. What can I help you with today?`,
+          timestamp: new Date(),
+        }]);
+      }
     }
   }
 
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault();
-    if (!input.trim() || loading) return;
+    if (!input.trim() || loading || depleted) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -131,53 +107,55 @@ export default function KingMouseChat() {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const userInput = input;
     setInput('');
     setLoading(true);
 
     try {
-      // Check for deploy command
-      const deployMatch = input.match(/deploy\s+(\w+)/i);
-      if (deployMatch) {
-        const type = deployMatch[1].toLowerCase();
-        await deployEmployee(type);
-        setLoading(false);
-        return;
-      }
+      const session = getSession();
 
-      // Send to King Mouse OpenClaw
-      const response = await fetch('/api/vm-orchestrator', {
+      // Send to the chat API (billing-aware)
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'command',
-          vmId: 'king-mouse-vm', // Would get from state
-          command: input,
+          messages: [...messages.filter(m => m.id !== 'welcome').map(m => ({
+            role: m.role,
+            content: m.content,
+          })), { role: 'user', content: userInput }],
+          userRole: session.role || 'customer',
+          userId: session.userId,
+          customerId: session.customerId || session.userId,
         }),
       });
 
       const data = await response.json();
 
+      // Check if hours are depleted
+      if (data.depleted) {
+        setDepleted(true);
+        setHoursBalance(0);
+      } else if (data.newBalance !== undefined) {
+        setHoursBalance(data.newBalance);
+      }
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.success 
-          ? (data.response || 'I processed your request.')
-          : (data.error || 'Sorry, I encountered an error.'),
+        content: data.reply || data.error || 'Sorry, I encountered an error.',
         timestamp: new Date(),
+        hoursCharged: data.workHoursCharged,
       };
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Send message failed:', error);
-      
-      const errorMessage: Message = {
+      setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: 'Sorry, I\'m having trouble connecting. Please try again.',
         timestamp: new Date(),
-      };
-
-      setMessages(prev => [...prev, errorMessage]);
+      }]);
     } finally {
       setLoading(false);
     }
@@ -188,7 +166,7 @@ export default function KingMouseChat() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-gray-600">Initializing your King Mouse with OpenClaw...</p>
+          <p className="text-gray-600">Connecting to King Mouse...</p>
         </div>
       </div>
     );
@@ -208,13 +186,36 @@ export default function KingMouseChat() {
                 </div>
                 <div>
                   <h2 className="text-white font-semibold">King Mouse</h2>
-                  <p className="text-white/80 text-sm">OpenClaw Orchestrator</p>
+                  <p className="text-white/80 text-sm">AI Workforce Orchestrator</p>
                 </div>
-                <div className="ml-auto flex items-center gap-2">
+                <div className="ml-auto flex items-center gap-3">
+                  {hoursBalance !== null && (
+                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
+                      hoursBalance <= 0 ? 'bg-red-500/20 text-red-200' :
+                      hoursBalance < 5 ? 'bg-orange-500/20 text-orange-200' :
+                      'bg-white/10 text-white/80'
+                    }`}>
+                      <Clock size={12} />
+                      {hoursBalance.toFixed(1)} hrs
+                    </div>
+                  )}
                   <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                  <span className="text-white/80 text-sm">Online</span>
                 </div>
               </div>
+
+              {/* Depleted Banner */}
+              {depleted && (
+                <div className="bg-red-50 border-b border-red-200 px-4 py-3 flex items-center gap-3">
+                  <AlertTriangle size={16} className="text-red-500 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm text-red-800 font-medium">Your work hours have run out</p>
+                    <p className="text-xs text-red-600">Purchase more hours to continue using King Mouse.</p>
+                  </div>
+                  <a href="/portal/work-hours" className="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors">
+                    Buy Hours
+                  </a>
+                </div>
+              )}
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -232,28 +233,34 @@ export default function KingMouseChat() {
                         <Bot className="w-4 h-4 text-white" />
                       )}
                     </div>
-                    <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                      message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      <p className="whitespace-pre-wrap">{message.content}</p>
+                    <div className={`max-w-[80%] ${message.role === 'user' ? '' : ''}`}>
+                      <div className={`rounded-2xl px-4 py-3 ${
+                        message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        <p className="whitespace-pre-wrap">{message.content}</p>
+                      </div>
+                      {message.hoursCharged !== undefined && message.hoursCharged > 0 && (
+                        <p className="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
+                          <Clock size={10} />
+                          {message.hoursCharged < 0.01 ? '<0.01' : message.hoursCharged.toFixed(2)} hrs used
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
-                
-                {(loading || deployingEmployee) && (
+
+                {loading && (
                   <div className="flex gap-3">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#0B1F3B] to-mouse-teal flex items-center justify-center">
                       <Bot className="w-4 h-4 text-white" />
                     </div>
                     <div className="bg-gray-100 rounded-2xl px-4 py-3 flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
-                      <span className="text-gray-500">
-                        {deployingEmployee ? 'Deploying employee with OpenClaw...' : 'Thinking...'}
-                      </span>
+                      <span className="text-gray-500">Thinking...</span>
                     </div>
                   </div>
                 )}
-                
+
                 <div ref={messagesEndRef} />
               </div>
 
@@ -264,12 +271,13 @@ export default function KingMouseChat() {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Deploy an employee or ask me anything..."
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder={depleted ? "Purchase more hours to continue..." : "Ask King Mouse anything..."}
+                    disabled={depleted}
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
                   />
                   <button
                     type="submit"
-                    disabled={loading || !input.trim()}
+                    disabled={loading || !input.trim() || depleted}
                     className="bg-blue-500 text-white px-6 py-3 rounded-xl hover:bg-blue-600 disabled:opacity-50"
                   >
                     <Send className="w-5 h-5" />
@@ -279,8 +287,29 @@ export default function KingMouseChat() {
             </div>
           </div>
 
-          {/* Sidebar - Employees */}
+          {/* Sidebar */}
           <div className="space-y-4">
+            {/* Work Hours Card */}
+            {hoursBalance !== null && (
+              <div className={`rounded-2xl shadow-lg border p-4 ${
+                depleted ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'
+              }`}>
+                <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-mouse-teal" />
+                  Work Hours
+                </h3>
+                <div className={`text-3xl font-bold ${depleted ? 'text-red-500' : hoursBalance < 5 ? 'text-orange-500' : 'text-mouse-teal'}`}>
+                  {hoursBalance.toFixed(1)}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">hours remaining</p>
+                {(depleted || hoursBalance < 10) && (
+                  <a href="/portal/work-hours" className="mt-3 block w-full text-center px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600 transition-colors">
+                    Purchase More Hours
+                  </a>
+                )}
+              </div>
+            )}
+
             {/* Deploy New Employee */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -291,8 +320,8 @@ export default function KingMouseChat() {
                 {['sales', 'support', 'data', 'marketing'].map((type) => (
                   <button
                     key={type}
-                    onClick={() => deployEmployee(type)}
-                    disabled={deployingEmployee}
+                    onClick={() => {}}
+                    disabled={deployingEmployee || depleted}
                     className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm capitalize disabled:opacity-50"
                   >
                     {type}
@@ -307,7 +336,7 @@ export default function KingMouseChat() {
                 <Users className="w-5 h-5" />
                 Your Team ({employees.length})
               </h3>
-              
+
               {employees.length === 0 ? (
                 <p className="text-gray-500 text-sm">No employees yet. Deploy one!</p>
               ) : (
@@ -319,9 +348,9 @@ export default function KingMouseChat() {
                       </div>
                       <div className="flex-1">
                         <p className="font-medium text-gray-900 capitalize">{emp.type}</p>
-                        <p className="text-xs text-gray-500">OpenClaw • {emp.status}</p>
+                        <p className="text-xs text-gray-500">{emp.status}</p>
                       </div>
-                      <span className="w-2 h-2 bg-green-400 rounded-full" />
+                      <span className={`w-2 h-2 rounded-full ${depleted ? 'bg-red-400' : 'bg-green-400'}`} />
                     </div>
                   ))}
                 </div>

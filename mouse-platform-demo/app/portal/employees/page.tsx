@@ -224,10 +224,10 @@ export default function PortalEmployeesPage() {
       {/* Header */}
       <div className="mb-6 flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-mouse-charcoal">
+          <h1 className="text-3xl font-bold text-gray-900">
             Your AI Workforce
           </h1>
-          <p className="text-mouse-slate text-sm mt-1">
+          <p className="text-gray-600 text-lg mt-1">
             Manage your digital employees — {activeCount} active, {deployingCount} deploying, {errorCount} need attention
           </p>
         </div>
@@ -276,23 +276,23 @@ export default function PortalEmployeesPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-green-600">{activeCount}</div>
-          <div className="text-gray-500 text-xs">Active Employees</div>
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="text-3xl font-bold text-green-600">{activeCount}</div>
+          <div className="text-gray-600 text-base font-medium">Active Employees</div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-blue-600">{deployingCount}</div>
-          <div className="text-gray-500 text-xs">Deploying</div>
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="text-3xl font-bold text-blue-600">{deployingCount}</div>
+          <div className="text-gray-600 text-base font-medium">Deploying</div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-red-600">{errorCount}</div>
-          <div className="text-gray-500 text-xs">Need Attention</div>
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="text-3xl font-bold text-red-600">{errorCount}</div>
+          <div className="text-gray-600 text-base font-medium">Need Attention</div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-mouse-navy">
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="text-3xl font-bold text-gray-900">
             ${localEmployees.reduce((sum, e) => sum + e.costPerMonth, 0).toLocaleString()}
           </div>
-          <div className="text-gray-500 text-xs">Monthly Cost</div>
+          <div className="text-gray-600 text-base font-medium">Monthly Cost</div>
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -10,6 +11,8 @@ import {
   CreditCard,
   HelpCircle,
   Store,
+  Crown,
+  Handshake,
 } from "lucide-react";
 
 interface NavItem {
@@ -23,43 +26,61 @@ const navItems: NavItem[] = [
   {
     label: "Dashboard",
     href: "/portal",
-    icon: <LayoutDashboard size={20} />,
+    icon: <LayoutDashboard size={22} />,
     exact: true,
   },
   {
     label: "AI Marketplace",
-    href: "/dashboard/marketplace",
-    icon: <Store size={20} />,
+    href: "/portal/marketplace",
+    icon: <Store size={22} />,
+  },
+  {
+    label: "King Mouse",
+    href: "/portal/king-mouse",
+    icon: <Crown size={22} />,
   },
   {
     label: "My Employees",
     href: "/portal/employees",
-    icon: <Users size={20} />,
+    icon: <Users size={22} />,
   },
   {
     label: "Tasks",
     href: "/portal/tasks",
-    icon: <ClipboardList size={20} />,
+    icon: <ClipboardList size={22} />,
   },
   {
-    label: "Usage",
+    label: "Work Hours",
     href: "/portal/work-hours",
-    icon: <Clock size={20} />,
+    icon: <Clock size={22} />,
   },
   {
     label: "Billing",
     href: "/portal/billing",
-    icon: <CreditCard size={20} />,
+    icon: <CreditCard size={22} />,
   },
   {
     label: "Support",
     href: "/portal/maintenance",
-    icon: <HelpCircle size={20} />,
+    icon: <HelpCircle size={22} />,
   },
 ];
 
 export default function PortalSidebar() {
   const pathname = usePathname();
+  const [companyName, setCompanyName] = useState("My Business");
+
+  useEffect(() => {
+    try {
+      const session = localStorage.getItem("mouse_session");
+      if (session) {
+        const parsed = JSON.parse(session);
+        if (parsed.company) setCompanyName(parsed.company);
+        else if (parsed.companyName) setCompanyName(parsed.companyName);
+        else if (parsed.email) setCompanyName(parsed.email.split("@")[0]);
+      }
+    } catch {}
+  }, []);
 
   function isActive(item: NavItem): boolean {
     if (item.exact) {
@@ -72,10 +93,10 @@ export default function PortalSidebar() {
     <aside className="fixed top-0 left-0 h-full w-64 bg-[#0B1F3B] flex flex-col z-30">
       {/* Brand */}
       <div className="px-6 py-6 border-b border-white/20">
-        <div className="text-white font-semibold text-lg leading-tight">
-          Redwood Construction Co.
+        <div className="text-white font-bold text-xl leading-tight">
+          {companyName}
         </div>
-        <div className="text-gray-200 text-sm mt-2 font-medium">Powered by Automio</div>
+        <div className="text-gray-300 text-base mt-2 font-medium">Powered by Automio</div>
       </div>
 
       {/* Navigation */}
@@ -86,10 +107,10 @@ export default function PortalSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3.5 rounded-lg text-base font-medium transition-colors relative min-h-[48px] ${
+              className={`flex items-center gap-3 px-4 py-3.5 rounded-lg text-lg font-semibold transition-colors relative min-h-[52px] ${
                 active
                   ? "text-white bg-white/15"
-                  : "text-white/80 hover:text-white hover:bg-white/10"
+                  : "text-gray-200 hover:text-white hover:bg-white/10"
               }`}
               style={
                 active
@@ -113,9 +134,20 @@ export default function PortalSidebar() {
         })}
       </nav>
 
+      {/* Affiliate CTA */}
+      <div className="px-3 pb-2">
+        <Link
+          href="/signup/reseller"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-teal-300 hover:text-white hover:bg-white/10 transition-colors"
+        >
+          <Handshake size={20} className="flex-shrink-0" />
+          <span>Become an Affiliate</span>
+        </Link>
+      </div>
+
       {/* Bottom badge */}
       <div className="px-6 py-4 border-t border-white/20">
-        <span className="text-white text-sm font-medium">Growth Plan</span>
+        <span className="text-white text-base font-semibold">Growth Plan</span>
       </div>
     </aside>
   );
