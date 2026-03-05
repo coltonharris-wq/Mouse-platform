@@ -37,3 +37,5 @@ ai_task*.png
 package*.json
 node_modules/
 mouse-platform/
+.next/
+node_modules/
