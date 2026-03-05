@@ -50,7 +50,6 @@ export async function POST(request: NextRequest) {
       .insert({
         id: employeeId,
         customer_id: customerId,
-        template_id: employeeType,
         employee_name: name,
         status: 'deploying',
       })
