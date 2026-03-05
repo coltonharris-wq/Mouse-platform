@@ -108,10 +108,10 @@ export async function POST(request: NextRequest) {
         .update({ status: 'provisioning', vm_name: vmName })
         .eq('computer_id', computer.id);
 
-      // 🐭 Kick off Mouse OS provisioning on the VM
-      // The script runs ON the VM (nohup), not in Vercel.
-      // Avoids serverless function timeout. VM self-provisions in ~5 min.
-      // Poll /api/vm/provision-status for completion.
+      // 🐭 Kick off Mouse OS provisioning — fast, non-blocking attempt.
+      // If VM isn't ready yet (boot lag), the dashboard auto-retries via
+      // POST /api/vm/provision-trigger every 15s until it sticks.
+      // Provision downloads pre-built runtime tarball (~1 min total).
       const provisionConfig: ProvisionConfig = {
         customerId,
         employeeType,
@@ -125,13 +125,15 @@ export async function POST(request: NextRequest) {
 
       try {
         const provision = await kickOffProvision(computer.id, provisionConfig);
-        if (!provision.started) {
-          console.error(`[Mouse OS] Provision kickoff failed: ${provision.error}`);
-        } else {
+        if (provision.started) {
           console.log(`[Mouse OS] ${name} provisioning started on VM ${computer.id}`);
+        } else if (provision.retryable) {
+          console.log(`[Mouse OS] ${name} VM not ready yet — dashboard will retry via /api/vm/provision-trigger`);
+        } else {
+          console.error(`[Mouse OS] Provision kickoff failed: ${provision.error}`);
         }
       } catch (provisionErr: any) {
-        // Non-fatal — VM is created, provisioning can be retried
+        // Non-fatal — VM is created, provisioning can be retried via provision-trigger
         console.error(`[Mouse OS] ${name} provision kickoff error:`, provisionErr);
       }
 

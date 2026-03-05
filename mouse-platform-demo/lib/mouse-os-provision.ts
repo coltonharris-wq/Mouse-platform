@@ -1,11 +1,15 @@
 /**
  * Mouse OS Provisioning — Installs branded OpenClaw fork on Orgo VMs
  * 
- * Strategy: Upload a self-contained provision script to the VM and run it
- * with nohup. The VM provisions itself (~5 min). We poll for completion.
- * This avoids Vercel serverless function timeout limits.
+ * Strategy: Download pre-built runtime tarball from GitHub Releases (~496MB),
+ * extract, configure workspace, and launch gateway. Total provision time: ~1 min.
  * 
- * Flow: Install deps → Clone → Rebrand (safe) → Install → Build → Configure → Launch → Watchdog
+ * The tarball contains production-only deps (1.3GB extracted) which fits on
+ * Orgo's 3.9GB disk VMs (1.8GB OS + 1.3GB runtime = 3.1GB, ~0.8GB headroom).
+ * 
+ * Flow: Download tarball → Extract → Configure → Launch → Watchdog
+ * 
+ * Legacy flow (for VMs with 8GB+ disk): Install deps → Clone → Rebrand → Install → Build → Configure → Launch → Watchdog
  */
 
 import { executeBash, executePython, getComputer } from './orgo';
@@ -171,9 +175,9 @@ print("SOUL_OK")
 }
 
 async function launchGateway(computerId: string, _config: ProvisionConfig): Promise<string> {
-  // Start OpenClaw gateway in headless mode
+  // Start OpenClaw gateway in container mode (no systemd)
   await executeBash(computerId,
-    'cd /home/user/mouse-platform && nohup node openclaw.mjs gateway start > /var/log/mouse-os-runtime.log 2>&1 & echo $! > /var/run/mouse-os.pid && echo LAUNCHED_PID=$(cat /var/run/mouse-os.pid)'
+    'cd /home/user/mouse-platform && nohup node openclaw.mjs gateway --dev --allow-unconfigured --bind loopback > /var/log/mouse-os-runtime.log 2>&1 & echo $! > /var/run/mouse-os.pid && echo LAUNCHED_PID=$(cat /var/run/mouse-os.pid)'
   );
   return 'Launched';
 }
@@ -245,7 +249,7 @@ async function setupStateSync(computerId: string, config: ProvisionConfig): Prom
   // State sync script: tar workspace → Supabase Storage
   const syncScript = `#!/bin/bash
 ACTION="\${1:-save}"
-MOUSE_HOME="/home/user/mouse-platform"
+MOUSE_HOME="$HOME/mouse-platform"
 SUPABASE_URL="${config.supabaseUrl}"
 SUPABASE_KEY="${config.supabaseServiceKey}"
 CUSTOMER_ID="${config.customerId}"
@@ -293,6 +297,13 @@ print("SYNC_OK")
  * The VM downloads deps, clones, rebrands, builds, and launches itself.
  * This avoids Vercel function timeouts — we just upload and nohup it.
  */
+/**
+ * Runtime tarball URL — pre-built Mouse Platform with production deps only.
+ * Built from knight-1 (OpenClaw 2026.3.3), 496MB compressed, 1.3GB extracted.
+ * Update this URL when rebuilding the runtime (bump the release tag).
+ */
+const RUNTIME_TARBALL_URL = 'https://github.com/coltonharris-wq/Mouse-platform/releases/download/v12-runtime/mouse-runtime.tar.gz';
+
 function generateProvisionScript(config: ProvisionConfig): string {
   return `#!/bin/bash
 set -euo pipefail
@@ -300,47 +311,35 @@ LOG="/var/log/mouse-os-provision.log"
 log() { echo "[MOUSE-OS] $(date '+%H:%M:%S') $1" | tee -a "$LOG"; }
 
 log "=== MOUSE OS PROVISIONING START ==="
+log "Strategy: Pre-built runtime tarball (fast provision)"
 
-# 1. Install deps
-log "Step 1/9: Installing dependencies..."
-sudo mkdir -p /var/lib/apt/lists/partial
-sudo apt-get update -qq
-sudo apt-get install -y -qq curl git build-essential > /dev/null 2>&1
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - > /dev/null 2>&1
-sudo apt-get install -y -qq nodejs > /dev/null 2>&1
-sudo npm install -g pnpm > /dev/null 2>&1
-log "Deps OK: node=$(node -v) pnpm=$(pnpm -v)"
+# 1. Install Node 22 (required by OpenClaw — VMs may have Node 18 pre-installed)
+log "Step 1/6: Installing Node 22..."
+mkdir -p /var/lib/apt/lists/partial
+apt-get update -qq > /dev/null 2>&1
+apt-get install -y -qq curl > /dev/null 2>&1
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash - > /dev/null 2>&1
+apt-get install -y -qq nodejs > /dev/null 2>&1
+log "Deps OK: node=$(node -v)"
 
-# 2. Clone
-log "Step 2/9: Cloning OpenClaw..."
-rm -rf /home/user/mouse-platform
-git clone --depth 1 https://github.com/openclaw/openclaw.git /home/user/mouse-platform 2>&1 | tail -1
-log "Cloned OK"
+# 2. Download pre-built runtime
+MOUSE_HOME="$HOME/mouse-platform"
+log "Step 2/6: Downloading Mouse Platform runtime (~496MB)..."
+rm -rf "$MOUSE_HOME"
+cd "$HOME"
+curl -fsSL -o /tmp/mouse-runtime.tar.gz "${RUNTIME_TARBALL_URL}"
+log "Download complete"
 
-# 3. Safe rebrand (docs/UI only, NEVER code files)
-log "Step 3/9: Rebranding to Mouse Platform..."
-cd /home/user/mouse-platform
-find . -not -path "./.git/*" -not -path "*/node_modules/*" \\
-  \\( -name "*.md" -o -name "*.html" -o -name "*.css" -o -name "*.yaml" -o -name "*.yml" \\) \\
-  -type f -exec sed -i 's/OpenClaw/Mouse Platform/g' {} + 2>/dev/null || true
-find . -not -path "./.git/*" -not -path "*/node_modules/*" \\
-  \\( -name "*.md" -o -name "*.html" -o -name "*.css" -o -name "*.yaml" -o -name "*.yml" \\) \\
-  -type f -exec sed -i 's/OPENCLAW/MOUSE_PLATFORM/g' {} + 2>/dev/null || true
-log "Rebrand OK"
+# 3. Extract runtime
+log "Step 3/6: Extracting runtime..."
+tar -xzf /tmp/mouse-runtime.tar.gz
+mv mouse-runtime mouse-platform
+rm -f /tmp/mouse-runtime.tar.gz
+log "Extracted OK: $(du -sh $MOUSE_HOME | cut -f1)"
 
-# 4. Install packages
-log "Step 4/9: Installing packages (this takes ~3 min)..."
-cd /home/user/mouse-platform
-pnpm install --no-frozen-lockfile 2>&1 | tail -3
-log "Packages installed"
-
-# 5. Build
-log "Step 5/9: Building Mouse Platform..."
-pnpm build 2>&1 | tail -5
-log "Build OK"
-
-# 6. Configure workspace
-log "Step 6/9: Configuring workspace..."
+# 4. Configure workspace
+log "Step 4/6: Configuring workspace..."
+cd "$MOUSE_HOME"
 mkdir -p workspace/memory config
 
 cat > .env << 'ENVEOF'
@@ -364,13 +363,13 @@ SOULEOF
 
 log "Workspace configured"
 
-# 7. State sync setup
-log "Step 7/9: Setting up state sync..."
+# 5. State sync + Launch gateway + Watchdog
+log "Step 5/6: Setting up state sync..."
 cat > /usr/local/bin/mouse-state-sync.sh << 'SYNCEOF'
 #!/bin/bash
 ACTION="\${1:-save}"
 if [ "$ACTION" = "save" ]; then
-  cd /home/user/mouse-platform
+  cd $MOUSE_HOME
   tar -czf /tmp/mouse-state.tar.gz --exclude='node_modules' --exclude='.git' workspace/ config/ .env 2>/dev/null
   curl -s -X POST "${config.supabaseUrl}/storage/v1/object/vm-state/${config.customerId}/state.tar.gz" \\
     -H "apikey: ${config.supabaseServiceKey}" \\
@@ -383,7 +382,7 @@ elif [ "$ACTION" = "load" ]; then
     -H "apikey: ${config.supabaseServiceKey}" \\
     -H "Authorization: Bearer ${config.supabaseServiceKey}"
   if [ -f /tmp/mouse-state.tar.gz ] && [ -s /tmp/mouse-state.tar.gz ]; then
-    cd /home/user/mouse-platform && tar -xzf /tmp/mouse-state.tar.gz 2>/dev/null
+    cd $MOUSE_HOME && tar -xzf /tmp/mouse-state.tar.gz 2>/dev/null
   fi
 fi
 SYNCEOF
@@ -392,15 +391,15 @@ chmod +x /usr/local/bin/mouse-state-sync.sh
 /usr/local/bin/mouse-state-sync.sh load 2>/dev/null || true
 log "State sync configured"
 
-# 8. Launch gateway
-log "Step 8/9: Launching King Mouse..."
-cd /home/user/mouse-platform
-nohup node openclaw.mjs gateway start > /var/log/mouse-os-runtime.log 2>&1 &
+# Launch gateway (container mode — no systemd)
+log "Step 6/6: Launching King Mouse..."
+cd "$MOUSE_HOME"
+nohup node openclaw.mjs gateway --dev --allow-unconfigured --bind loopback > /var/log/mouse-os-runtime.log 2>&1 &
 echo $! > /var/run/mouse-os.pid
 log "King Mouse launched (PID: $(cat /var/run/mouse-os.pid))"
 
-# 9. Watchdog (5-min idle auto-stop)
-log "Step 9/9: Setting up watchdog..."
+# Watchdog (5-min idle auto-stop)
+log "Setting up watchdog..."
 echo '#!/bin/bash
 echo $(date +%s) > /tmp/mouse-last-activity' > /usr/local/bin/mouse-activity-ping.sh
 chmod +x /usr/local/bin/mouse-activity-ping.sh
@@ -432,26 +431,42 @@ log "=== MOUSE OS READY ==="
  * 
  * This is the function to call from Vercel API routes (fast, no timeout issues).
  */
+/**
+ * Kick off Mouse OS provisioning on a VM.
+ * 
+ * FAST PATH (default): Single VM readiness check (5s), then upload+nohup.
+ * If VM isn't ready yet, returns { started: false, retryable: true }.
+ * The caller (hire route or provision-trigger route) can retry later.
+ * 
+ * This is designed to complete within Vercel's 10s function timeout.
+ */
 export async function kickOffProvision(
   computerId: string,
   config: ProvisionConfig
-): Promise<{ started: boolean; error?: string }> {
+): Promise<{ started: boolean; error?: string; retryable?: boolean }> {
   try {
-    // Wait for VM to be responsive (up to 30s, polling every 5s)
+    // Quick VM readiness check — single attempt, no long polling
     let vmReady = false;
-    for (let i = 0; i < 6; i++) {
-      try {
-        const test = await executeBash(computerId, 'echo VM_READY');
-        if (test.output?.includes('VM_READY')) {
-          vmReady = true;
-          break;
-        }
-      } catch (_) {}
-      await new Promise(r => setTimeout(r, 5000));
-    }
+    try {
+      const test = await executeBash(computerId, 'echo VM_READY');
+      if (test.output?.includes('VM_READY')) {
+        vmReady = true;
+      }
+    } catch (_) {}
+
     if (!vmReady) {
-      return { started: false, error: 'VM not responsive after 30s' };
+      return { started: false, retryable: true, error: 'VM not responsive yet — retry in 10-15s' };
     }
+
+    // Check if already provisioning or provisioned
+    try {
+      const check = await executeBash(computerId, 
+        'test -f /var/log/mouse-os-provision.log && grep -c "PROVISIONING START\\|MOUSE OS READY" /var/log/mouse-os-provision.log 2>/dev/null || echo 0'
+      );
+      if (check.output && parseInt(check.output.trim()) > 0) {
+        return { started: true, error: 'Provision already in progress or complete' };
+      }
+    } catch (_) {}
 
     // Generate the provision script with config baked in
     let script = generateProvisionScript(config);
@@ -462,9 +477,12 @@ export async function kickOffProvision(
     const uploadCode = `
 import base64, os
 script = base64.b64decode("${b64Script}").decode()
-with open("/home/user/provision-mouse-os.sh", "w") as f:
+import pathlib
+home = str(pathlib.Path.home())
+path = home + "/provision-mouse-os.sh"
+with open(path, "w") as f:
     f.write(script)
-os.chmod("/home/user/provision-mouse-os.sh", 0o755)
+os.chmod(path, 0o755)
 print("UPLOADED")
 `;
 
@@ -473,14 +491,14 @@ print("UPLOADED")
       return { started: false, error: `Upload failed: ${uploadResult.output}` };
     }
 
-    // Run in background with nohup
+    // Run in background with nohup (use $HOME since VMs may run as root or user)
     await executeBash(computerId,
-      'nohup /home/user/provision-mouse-os.sh > /var/log/mouse-os-provision.log 2>&1 &'
+      'nohup $HOME/provision-mouse-os.sh > /var/log/mouse-os-provision.log 2>&1 &'
     );
 
     return { started: true };
   } catch (err: any) {
-    return { started: false, error: err.message };
+    return { started: false, retryable: true, error: err.message };
   }
 }
 
