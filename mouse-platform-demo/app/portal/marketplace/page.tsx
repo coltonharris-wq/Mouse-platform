@@ -6,6 +6,7 @@ import {
   ChevronRight, TrendingUp, Award, Clock, Target, DollarSign,
   ArrowRight, X, Heart, Info, MessageCircle, Loader2,
   CheckCircle, Zap, Shield, BarChart3, Building2, BadgeCheck,
+  Magnet, MapPin, Mail, Settings2, Sliders,
 } from "lucide-react";
 
 interface AIEmployee {
@@ -50,6 +51,7 @@ const INDUSTRIES: Record<string, { jobs: string[] }> = {
 // Industry/job type mappings for filtering
 const industriesMap: Record<string, string[]> = {
   "Sales": ["Construction", "Real Estate", "Technology", "Finance", "Home Services"],
+  "Sales & Marketing": ["Construction", "Real Estate", "Technology", "Finance", "Home Services", "Healthcare", "Legal", "Retail"],
   "Support": ["Healthcare", "Retail", "Technology", "Home Services"],
   "Development": ["Technology", "Finance", "Healthcare"],
   "Operations": ["Retail", "Construction", "Legal"],
@@ -61,6 +63,7 @@ const industriesMap: Record<string, string[]> = {
 
 const jobTypesMap: Record<string, string[]> = {
   "Sales": ["Lead Gen", "Appointment Setting", "Follow-up", "CRM Management"],
+  "Sales & Marketing": ["Lead Gen", "Prospect Research", "Email Outreach", "Lead Scoring"],
   "Support": ["Customer Service", "Ticket Resolution", "Live Chat", "Email Support"],
   "Development": ["Code Review", "Testing", "Documentation", "Bug Fixing"],
   "Operations": ["Scheduling", "Dispatching", "Order Processing", "Vendor Coordination"],
@@ -73,6 +76,7 @@ const jobTypesMap: Record<string, string[]> = {
 // Color palette for employee avatars
 const CATEGORY_COLORS: Record<string, string> = {
   "Sales": "bg-blue-600",
+  "Sales & Marketing": "bg-violet-600",
   "Support": "bg-teal-600",
   "Development": "bg-mouse-teal",
   "Operations": "bg-orange-600",
@@ -88,6 +92,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 const CATEGORY_CHIPS = [
   { label: "All", value: "" },
   { label: "Sales", value: "Sales" },
+  { label: "Lead Gen", value: "Sales & Marketing" },
   { label: "Support", value: "Support" },
   { label: "Operations", value: "Operations" },
   { label: "Finance", value: "Finance" },
@@ -118,6 +123,13 @@ const TESTIMONIALS = [
     author: "James Whitfield",
     title: "Owner",
     company: "Whitfield Home Services",
+    rating: 5,
+  },
+  {
+    quote: "Lead Funnel Pro found us 47 qualified leads in the first week. Three of them converted to $15K+ projects. This employee pays for itself in a single day.",
+    author: "David Kowalski",
+    title: "Owner",
+    company: "Kowalski Roofing & Siding",
     rating: 5,
   },
 ];
@@ -172,6 +184,7 @@ const sortOptions = [
 // Interview intros for each employee
 const getInterviewIntro = (emp: AIEmployee) => {
   const intros: Record<string, string> = {
+    "Lead Funnel Pro": "Hey! I'm Lead Funnel Pro, your automated lead generation machine. I find potential customers in your target market, qualify them with a 1-10 score, and deliver warm leads straight to your inbox every day. Tell me — what industry are you in, and what does your ideal customer look like?",
     "SalesMate": "Hi there! I'm SalesMate, your dedicated sales specialist. I'm excited to learn about your business and how I can help you qualify leads, manage your pipeline, and close more deals. What industry are you in?",
     "SupportPro": "Hello! I'm SupportPro, and I'm here to ensure your customers receive exceptional 24/7 support. I can handle tickets, live chat, and build your knowledge base. Tell me about your customer support needs!",
     "CodeAssist": "Hey! I'm CodeAssist, your development partner. I specialize in code review, bug triage, documentation, and API testing. What kind of development work does your team need help with?",
@@ -227,6 +240,16 @@ export default function MarketplacePage() {
   const [interviewMessages, setInterviewMessages] = useState<{role: string; text: string}[]>([]);
   const [interviewInput, setInterviewInput] = useState("");
   const [interviewSessionId, setInterviewSessionId] = useState<string>("");
+  // Lead Funnel Pro config state
+  const [showLeadFunnelConfig, setShowLeadFunnelConfig] = useState(false);
+  const [lfIndustry, setLfIndustry] = useState("");
+  const [lfLocation, setLfLocation] = useState("");
+  const [lfRadius, setLfRadius] = useState(25);
+  const [lfCompanySize, setLfCompanySize] = useState<string[]>([]);
+  const [lfKeywords, setLfKeywords] = useState("");
+  const [lfEmail, setLfEmail] = useState("");
+  const [lfAutoOutreach, setLfAutoOutreach] = useState(false);
+  const [lfSaving, setLfSaving] = useState(false);
 
   // Fetch employees from backend
   useEffect(() => {
@@ -249,6 +272,7 @@ export default function MarketplacePage() {
       // Fallback: built-in employee catalog — all $4.98/hr
       const defaultEmployees: AIEmployee[] = [
         { id: "sales-1", name: "Alex", role: "Sales Development Rep", category: "Sales", description: "Generates leads, qualifies prospects, sends personalized outreach emails, and books meetings on your calendar. Works 24/7 so you never miss an opportunity.", skills: ["Lead Generation", "Cold Outreach", "CRM Management", "Email Sequences", "Meeting Booking"], pricePerMonth: 797, hourlyRate: 4.98, rating: 4.9, tasksCompleted: 2840, avatar: "A", color: "bg-blue-600", available: true, industries: ["Construction", "Real Estate", "Technology", "Finance"], jobTypes: ["Lead Gen", "Appointment Setting", "Follow-up"], hoursSaved: 4200, businessesServed: 156, completionRate: 96, valueGenerated: 340000, matchScore: 95, isPopular: true, timesHired: 28, reviewCount: 142, badge: "bestseller" },
+        { id: "leadgen-1", name: "Lead Funnel Pro", role: "Lead Generation Specialist", category: "Sales & Marketing", description: "Automated lead generation funnel that finds potential customers, qualifies them, and delivers warm leads to your inbox. Set your target industry, location, and customer profile — this employee works 24/7 finding you business.", skills: ["Lead Generation", "Prospect Research", "Lead Scoring", "Email Outreach", "Daily Reports"], pricePerMonth: 797, hourlyRate: 4.98, rating: 4.9, tasksCompleted: 3200, avatar: "🧲", color: "bg-violet-600", available: true, industries: ["Construction", "Real Estate", "Technology", "Finance", "Home Services", "Healthcare", "Legal", "Retail"], jobTypes: ["Lead Gen", "Prospect Research", "Email Outreach", "Lead Scoring"], hoursSaved: 5800, businessesServed: 189, completionRate: 97, valueGenerated: 520000, matchScore: 98, isPopular: true, isTrending: true, timesHired: 31, reviewCount: 156, badge: "bestseller" },
         { id: "support-1", name: "Maya", role: "Customer Support Agent", category: "Support", description: "Handles customer inquiries, resolves tickets, manages live chat, and escalates complex issues to your team. Average response time under 30 seconds.", skills: ["Live Chat", "Email Support", "Ticket Management", "Knowledge Base", "Escalation"], pricePerMonth: 797, hourlyRate: 4.98, rating: 4.8, tasksCompleted: 5120, avatar: "M", color: "bg-teal-600", available: true, industries: ["Technology", "Retail", "Healthcare", "Home Services"], jobTypes: ["Customer Service", "Ticket Resolution", "Live Chat"], hoursSaved: 6800, businessesServed: 203, completionRate: 94, valueGenerated: 280000, matchScore: 92, isPopular: true, timesHired: 24, reviewCount: 118, badge: "top-rated" },
         { id: "admin-1", name: "Jordan", role: "Executive Assistant", category: "Administration", description: "Manages calendars, organizes emails, prepares documents, coordinates meetings, and handles scheduling. Your right hand for everything admin.", skills: ["Calendar Management", "Email Organization", "Document Prep", "Travel Booking", "Meeting Coordination"], pricePerMonth: 797, hourlyRate: 4.98, rating: 4.9, tasksCompleted: 3650, avatar: "J", color: "bg-cyan-600", available: true, industries: ["Legal", "Healthcare", "Construction", "Real Estate", "Finance"], jobTypes: ["Calendar Management", "Data Entry", "Document Management"], hoursSaved: 5100, businessesServed: 178, completionRate: 97, valueGenerated: 310000, matchScore: 93, isPopular: true, timesHired: 22, reviewCount: 96, badge: "top-rated" },
         { id: "marketing-1", name: "Riley", role: "Content & Social Media Manager", category: "Marketing", description: "Creates social media posts, writes blog content, manages publishing schedules, and tracks engagement analytics. Grows your brand while you sleep.", skills: ["Social Media", "Content Writing", "Analytics", "SEO", "Email Marketing"], pricePerMonth: 797, hourlyRate: 4.98, rating: 4.7, tasksCompleted: 1920, avatar: "R", color: "bg-pink-600", available: true, industries: ["Real Estate", "Technology", "Retail", "Home Services"], jobTypes: ["Social Media", "Email Campaigns", "Content Creation", "Analytics"], hoursSaved: 3400, businessesServed: 134, completionRate: 93, valueGenerated: 220000, matchScore: 88, timesHired: 19, reviewCount: 74 },
@@ -677,8 +701,8 @@ export default function MarketplacePage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setShowHireModal(emp)} className="flex-1 px-4 py-2.5 bg-[#1e3a5f] text-white rounded-xl text-sm font-semibold hover:bg-[#2d4a6f] transition-colors flex items-center justify-center gap-2">
-                    <Sparkles className="w-4 h-4" />Hire Now
+                  <button onClick={() => emp.id === "leadgen-1" ? setShowLeadFunnelConfig(true) : setShowHireModal(emp)} className="flex-1 px-4 py-2.5 bg-[#1e3a5f] text-white rounded-xl text-sm font-semibold hover:bg-[#2d4a6f] transition-colors flex items-center justify-center gap-2">
+                    <Sparkles className="w-4 h-4" />{emp.id === "leadgen-1" ? "Set Up Funnel" : "Hire Now"}
                   </button>
                   <button onClick={() => startInterview(emp)} className="flex-1 px-4 py-2.5 bg-white border border-[#1e3a5f] text-[#1e3a5f] rounded-xl text-sm font-semibold hover:bg-[#1e3a5f]/5 transition-colors flex items-center justify-center gap-2">
                     <MessageCircle className="w-4 h-4" />Interview
@@ -802,6 +826,107 @@ export default function MarketplacePage() {
                 <button onClick={() => { toggleCart(showHireModal.id); setShowHireModal(null); }} className="px-6 py-2.5 bg-[#1e3a5f] text-white rounded-lg text-sm font-semibold hover:bg-[#2d4a6f] flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />Start Free Trial
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Lead Funnel Pro Config Modal */}
+        {showLeadFunnelConfig && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+              <div className="bg-gradient-to-r from-violet-600 to-purple-700 rounded-t-2xl p-6 text-white">
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center text-3xl">🧲</div>
+                  <div>
+                    <h3 className="text-xl font-bold">Configure Lead Funnel Pro</h3>
+                    <p className="text-violet-200 text-sm">Tell us who your ideal customers are</p>
+                  </div>
+                  <button onClick={() => setShowLeadFunnelConfig(false)} className="ml-auto p-2 hover:bg-white/10 rounded-full"><X className="w-5 h-5" /></button>
+                </div>
+              </div>
+              <div className="p-6 space-y-5">
+                {/* Target Industry */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"><Target className="w-4 h-4 text-violet-600" />Target Industry</label>
+                  <select value={lfIndustry} onChange={(e) => setLfIndustry(e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500 text-sm">
+                    <option value="">Select an industry...</option>
+                    {["Construction", "Real Estate", "Healthcare", "Legal", "Home Services", "Technology", "Finance", "Retail", "Auto/Repair", "Restaurant"].map(ind => (
+                      <option key={ind} value={ind}>{ind}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* Location & Radius */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"><MapPin className="w-4 h-4 text-violet-600" />Location</label>
+                    <input type="text" placeholder="City, State or ZIP" value={lfLocation} onChange={(e) => setLfLocation(e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"><Sliders className="w-4 h-4 text-violet-600" />Radius: {lfRadius} mi</label>
+                    <input type="range" min={5} max={100} step={5} value={lfRadius} onChange={(e) => setLfRadius(Number(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-600 mt-3" />
+                    <div className="flex justify-between text-xs text-gray-400 mt-1"><span>5 mi</span><span>100 mi</span></div>
+                  </div>
+                </div>
+                {/* Company Size */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"><Building2 className="w-4 h-4 text-violet-600" />Company Size</label>
+                  <div className="flex flex-wrap gap-2">
+                    {["1-10", "11-50", "51-200", "200+"].map(size => (
+                      <button key={size} onClick={() => setLfCompanySize(prev => prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size])}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${lfCompanySize.includes(size) ? "bg-violet-600 text-white shadow-md" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+                        {size} employees
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Keywords */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"><Search className="w-4 h-4 text-violet-600" />Keywords</label>
+                  <input type="text" placeholder="e.g. roofing, emergency repair, commercial" value={lfKeywords} onChange={(e) => setLfKeywords(e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500 text-sm" />
+                  <p className="text-xs text-gray-400 mt-1">Comma-separated. Helps narrow down the best leads.</p>
+                </div>
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"><Mail className="w-4 h-4 text-violet-600" />Daily Report Email</label>
+                  <input type="email" placeholder="you@company.com" value={lfEmail} onChange={(e) => setLfEmail(e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500 text-sm" />
+                </div>
+                {/* Auto Outreach Toggle */}
+                <div className="flex items-center justify-between bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700">Auto-Send Outreach Emails</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Automatically send personalized emails to qualified leads</p>
+                  </div>
+                  <button onClick={() => setLfAutoOutreach(!lfAutoOutreach)} className={`relative w-12 h-6 rounded-full transition-colors ${lfAutoOutreach ? "bg-violet-600" : "bg-gray-300"}`}>
+                    <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${lfAutoOutreach ? "translate-x-6" : "translate-x-0.5"}`} />
+                  </button>
+                </div>
+                {/* Pricing Info */}
+                <div className="bg-violet-50 rounded-xl p-4 border border-violet-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <DollarSign className="w-4 h-4 text-violet-600" />
+                    <span className="text-sm font-semibold text-violet-800">Work Hours Consumption</span>
+                  </div>
+                  <div className="space-y-1 text-xs text-violet-700">
+                    <div className="flex justify-between"><span>Lead search & qualification</span><span className="font-medium">0.05 hrs/search (Kimi rate)</span></div>
+                    <div className="flex justify-between"><span>Web scraping per batch</span><span className="font-medium">0.01 hrs/batch</span></div>
+                    {lfAutoOutreach && <div className="flex justify-between"><span>Outreach email sending</span><span className="font-medium">0.02 hrs/email (Twilio rate)</span></div>}
+                  </div>
+                </div>
+                {/* CTA */}
+                <button onClick={async () => {
+                  setLfSaving(true);
+                  try {
+                    await fetch("/api/leads/funnel", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ industry: lfIndustry, location: lfLocation, radius: lfRadius, company_size: lfCompanySize, keywords: lfKeywords, email: lfEmail, auto_outreach: lfAutoOutreach }) });
+                  } catch {}
+                  setLfSaving(false);
+                  setShowLeadFunnelConfig(false);
+                  window.location.href = "/portal/employees/lead-funnel";
+                }} disabled={!lfIndustry || !lfLocation || !lfEmail} className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-purple-700 text-white rounded-xl text-sm font-bold hover:from-violet-700 hover:to-purple-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg">
+                  {lfSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Magnet className="w-4 h-4" />}
+                  {lfSaving ? "Setting Up..." : "Start Finding Leads"}
+                </button>
+                <p className="text-center text-xs text-gray-400">First 2 hours free • Cancel anytime</p>
               </div>
             </div>
           </div>

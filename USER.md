@@ -1,17 +1,18 @@
 # USER.md - About Your Human
 
-_Learn about the person you're helping. Update this as you go._
-
-- **Name:**
-- **What to call them:**
-- **Pronouns:** _(optional)_
-- **Timezone:**
-- **Notes:**
+- **Name:** Colton Harris
+- **What to call them:** Colton
+- **Pronouns:** he/him
+- **Timezone:** America/New_York (EST)
+- **Account:** Uses Erik Harris Telegram account
+- **Location:** Wilmington, NC
 
 ## Context
 
-_(What do they care about? What projects are they working on? What annoys them? What makes them laugh? Build this over time.)_
-
----
-
-The more you know, the better you can help. But remember — you're learning about a person, not building a dossier. Respect the difference.
+- Founder of Automio / Mouse platform
+- Building AI Workforce-as-a-Service for SMBs
+- Target: $100M in 2026
+- Communication style: Direct, fast, action-first. No fluff.
+- Expects autonomy — don't ask, just do.
+- "yo" means he's waiting on next steps
+- Speed > perfection, always

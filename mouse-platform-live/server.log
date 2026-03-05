@@ -1,0 +1,436 @@
+
+> mouse-platform@1.0.0 dev
+> next dev
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/jewelsharris/.openclaw/workspace/package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /Users/jewelsharris/.openclaw/workspace/mouse-platform-live/package-lock.json
+
+   ▲ Next.js 15.5.12
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.101.123:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1812ms
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 576ms (114 modules)
+ ○ Compiling /login ...
+ ✓ Compiled /login in 6.8s (556 modules)
+ GET /login 200 in 7149ms
+ ○ Compiling /admin/customers ...
+ ✓ Compiled /admin/customers in 925ms (705 modules)
+ GET /admin/customers 200 in 1057ms
+ ✓ Compiled /api/admin/resellers in 454ms (752 modules)
+Supabase credentials not configured or in build phase, using mock data
+ GET /api/admin/resellers 200 in 595ms
+Supabase credentials not configured or in build phase, using mock data
+ GET /api/admin/customers? 200 in 629ms
+Supabase credentials not configured or in build phase, using mock data
+ GET /api/admin/resellers 200 in 23ms
+Supabase credentials not configured or in build phase, using mock data
+ GET /api/admin/customers? 200 in 32ms
+Supabase credentials not configured or in build phase, using mock data
+ GET /api/admin/customers? 200 in 15ms
+ ✓ Compiled /admin/resellers in 206ms (761 modules)
+ GET /admin/resellers 200 in 307ms
+ ✓ Compiled /api/auth in 265ms (767 modules)
+ POST /api/auth 200 in 314ms
+ ✓ Compiled /admin/revenue in 397ms (770 modules)
+ GET /admin/revenue 200 in 545ms
+ ✓ Compiled /admin/usage in 488ms (795 modules)
+ GET /admin/usage 200 in 565ms
+ ✓ Compiled /api/usage in 171ms (798 modules)
+ GET /api/usage?type=daily 200 in 217ms
+ GET /api/usage?type=alerts 200 in 216ms
+ GET /api/usage?type=orgo 200 in 216ms
+ GET /api/usage?type=summary 200 in 226ms
+ GET /api/usage?type=summary 200 in 19ms
+ GET /api/usage?type=daily 200 in 31ms
+ GET /api/usage?type=alerts 200 in 31ms
+ GET /api/usage?type=orgo 200 in 31ms
+ ✓ Compiled /admin in 351ms (813 modules)
+ GET /admin 200 in 611ms
+ ✓ Compiled /admin/security in 434ms (836 modules)
+ GET /admin/security 200 in 533ms
+ ✓ Compiled /admin/logs in 430ms (855 modules)
+ GET /admin/logs 200 in 546ms
+ ✓ Compiled /api/logs in 261ms (857 modules)
+ GET /api/logs?type=security&limit=50&offset=0 200 in 311ms
+ GET /api/logs?type=security&limit=50&offset=0 200 in 11ms
+ GET /admin 200 in 258ms
+ ✓ Compiled /admin/settings in 441ms (874 modules)
+ GET /admin/settings 200 in 536ms
+ ✓ Compiled / in 485ms (899 modules)
+ GET / 200 in 901ms
+ ✓ Compiled /login in 162ms (579 modules)
+ GET /login 200 in 301ms
+ ✓ Compiled /signup in 251ms (911 modules)
+ GET /signup 200 in 400ms
+ GET /admin 200 in 66ms
+ ✓ Compiled /dashboard in 450ms (968 modules)
+ GET /dashboard 200 in 720ms
+ ○ Compiling /dashboard/sales ...
+ ✓ Compiled /dashboard/sales in 1762ms (2009 modules)
+ GET /dashboard/sales 200 in 2577ms
+ ○ Compiling /portal ...
+ ✓ Compiled /portal in 886ms (2042 modules)
+ GET /portal 200 in 1209ms
+ ✓ Compiled /reseller in 458ms (2053 modules)
+ GET /reseller 200 in 634ms
+ ✓ Compiled /dashboard/marketplace in 449ms (2070 modules)
+ GET /dashboard/marketplace 200 in 794ms
+ POST /api/auth 401 in 190ms
+ ○ Compiling /api/stripe/webhooks ...
+ ✓ Compiled /api/stripe/webhooks in 1465ms (2165 modules)
+ GET /api/stripe/webhooks 405 in 1606ms
+ ✓ Compiled /api/vm-orchestrator in 353ms (2169 modules)
+ GET /api/vm-orchestrator?customerId=test 200 in 421ms
+ ✓ Compiled /api/work-hours in 355ms (2171 modules)
+ GET /api/work-hours?customerId=test 404 in 439ms
+ ○ Compiling /portal/work-hours ...
+ ✓ Compiled /portal/work-hours in 806ms (2090 modules)
+ GET /portal/work-hours 200 in 1001ms
+ ✓ Compiled /portal/employees in 484ms (2106 modules)
+ GET /portal/employees 200 in 574ms
+ ✓ Compiled /portal/tasks in 377ms (2122 modules)
+ GET /portal/tasks 200 in 469ms
+ GET /portal/work-hours 200 in 73ms
+ ○ Compiling /portal/billing ...
+ ✓ Compiled /portal/billing in 1317ms (1338 modules)
+ GET /portal/billing 200 in 1477ms
+ ✓ Compiled /portal/maintenance in 423ms (1354 modules)
+ GET /portal/maintenance 200 in 517ms
+ ○ Compiling /dashboard/customers ...
+ ✓ Compiled /dashboard/customers in 1070ms (1331 modules)
+ GET /dashboard/customers 200 in 1335ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 568ms (449 modules)
+ GET /dashboard 200 in 767ms
+ GET /dashboard/customers 200 in 86ms
+ GET /dashboard 200 in 133ms
+ GET /dashboard/customers 200 in 61ms
+ ○ Compiling /dashboard/employees ...
+ ✓ Compiled /dashboard/employees in 1767ms (1334 modules)
+ GET /dashboard/employees 200 in 1986ms
+ ✓ Compiled /dashboard/customers in 261ms (414 modules)
+ GET /dashboard/customers 200 in 383ms
+ GET /dashboard/employees 200 in 71ms
+ ✓ Compiled /dashboard/health in 447ms (1376 modules)
+ GET /dashboard/health 200 in 529ms
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 552ms (1396 modules)
+ GET /api/health?view=dashboard 200 in 746ms
+ GET /api/health?view=dashboard 200 in 10ms
+ ✓ Compiled /dashboard/revenue in 469ms (1399 modules)
+ GET /dashboard/revenue 200 in 583ms
+ ✓ Compiled /dashboard/pipeline in 385ms (1412 modules)
+ GET /dashboard/pipeline 200 in 466ms
+ ✓ Compiled /dashboard/leads in 471ms (1431 modules)
+ GET /dashboard/leads 200 in 560ms
+ ✓ Compiled /api/leads/search in 390ms (1425 modules)
+[Lead Finder] API key validation failed: Invalid API key. Please check your GOOGLE_PLACES_API_KEY.
+ GET /api/leads/search?query=construction&location=wilmington+nc+&radius=40225 200 in 819ms
+ ○ Compiling /dashboard/marketplace ...
+ ✓ Compiled /dashboard/marketplace in 969ms (409 modules)
+ GET /dashboard/marketplace 200 in 1320ms
+ ○ Compiling /dashboard/replays ...
+ ✓ Compiled /dashboard/replays in 1801ms (1360 modules)
+ GET /dashboard/replays 200 in 1897ms
+ ✓ Compiled /api/screen-replay in 250ms (1380 modules)
+ GET /api/screen-replay 200 in 434ms
+ GET /api/screen-replay 200 in 20ms
+ ○ Compiling /dashboard/settings ...
+ ✓ Compiled /dashboard/settings in 1523ms (1356 modules)
+ GET /dashboard/settings 200 in 1801ms
+ ○ Compiling /dashboard/leads ...
+ ✓ Compiled /dashboard/leads in 2.2s (409 modules)
+ GET /dashboard/leads 200 in 2326ms
+ ○ Compiling /api/leads/search ...
+ ✓ Compiled /api/leads/search in 631ms (428 modules)
+[Lead Finder] API key validation failed: Invalid API key. Please check your GOOGLE_PLACES_API_KEY.
+ GET /api/leads/search?query=Finance&radius=40225 200 in 984ms
+ ○ Compiling /dashboard/employees ...
+ ✓ Compiled /dashboard/employees in 1036ms (403 modules)
+ GET /dashboard/employees 200 in 1391ms
+ ○ Compiling /dashboard/marketplace ...
+ ✓ Compiled /dashboard/marketplace in 601ms (420 modules)
+ GET /dashboard/marketplace 200 in 702ms
+ ✓ Compiled /dashboard/leads in 453ms (409 modules)
+ GET /dashboard/leads 200 in 626ms
+ ✓ Compiled /dashboard/employees in 160ms (419 modules)
+ GET /dashboard/employees 200 in 303ms
+ GET /dashboard/leads 200 in 77ms
+ ○ Compiling /dashboard/pipeline ...
+ ✓ Compiled /dashboard/pipeline in 1266ms (429 modules)
+ GET /dashboard/pipeline 200 in 1436ms
+   Reload env: .env.local
+ ✓ Compiled in 6.5s (1083 modules)
+ ✓ Compiled in 680ms (1083 modules)
+ ✓ Compiled in 333ms (969 modules)
+ ✓ Compiled in 498ms (969 modules)
+ ✓ Compiled in 251ms (969 modules)
+ ✓ Compiled in 584ms (1069 modules)
+ ✓ Compiled in 527ms (1069 modules)
+ ✓ Compiled in 358ms (1069 modules)
+ ✓ Compiled in 414ms (1069 modules)
+ ✓ Compiled in 283ms (969 modules)
+ ✓ Compiled in 467ms (969 modules)
+ ○ Compiling /portal ...
+ ✓ Compiled /portal in 2.8s (418 modules)
+ GET /portal 200 in 3148ms
+ ○ Compiling /portal/work-hours ...
+ ✓ Compiled /portal/billing in 925ms (957 modules)
+ ✓ Compiled (964 modules)
+ GET /portal/billing 200 in 624ms
+ GET /portal/work-hours 200 in 1426ms
+ GET /portal/work-hours 200 in 20ms
+ GET /portal 200 in 32ms
+ ○ Compiling /portal/employees ...
+ ✓ Compiled /portal/employees in 1176ms (974 modules)
+ GET /portal/employees 200 in 1310ms
+ GET /portal/employees 200 in 18ms
+ ✓ Compiled /portal/tasks in 267ms (987 modules)
+ GET /portal/tasks 200 in 423ms
+ GET /portal/tasks 200 in 26ms
+ GET /portal/work-hours 200 in 66ms
+ GET /portal/work-hours 200 in 26ms
+ GET /portal/billing 200 in 35ms
+ GET /portal/billing 200 in 26ms
+ ○ Compiling /portal/maintenance ...
+ ✓ Compiled /portal/maintenance in 524ms (997 modules)
+ GET /portal/maintenance 200 in 665ms
+ GET /portal/maintenance 200 in 19ms
+ GET /portal/maintenance 200 in 23ms
+ GET /portal/maintenance 200 in 27ms
+ GET /portal 200 in 48ms
+ GET /portal 200 in 26ms
+ GET /portal/employees 200 in 64ms
+ GET /portal/employees 200 in 27ms
+ ✓ Compiled /dashboard/marketplace in 324ms (1012 modules)
+ GET /dashboard/marketplace 200 in 471ms
+ GET /dashboard/marketplace 200 in 25ms
+ GET /dashboard/marketplace 200 in 20ms
+ GET /portal 200 in 214ms
+ ○ Compiling /dashboard/replays ...
+ ✓ Compiled /dashboard/replays in 909ms (439 modules)
+ GET /dashboard/replays 200 in 1142ms
+ ✓ Compiled /api/screen-replay in 281ms (458 modules)
+ GET /api/screen-replay 400 in 469ms
+ GET /api/screen-replay 400 in 14ms
+ ✓ Compiled /dashboard/marketplace in 140ms (473 modules)
+ GET /dashboard/marketplace 200 in 262ms
+ ○ Compiling /portal/employees ...
+ ✓ Compiled /portal/employees in 1706ms (420 modules)
+ GET /portal/employees 200 in 2329ms
+ ○ Compiling /dashboard/replays ...
+ ✓ Compiled /dashboard/replays in 709ms (409 modules)
+ GET /dashboard/replays 200 in 1560ms
+ ✓ Compiled /api/screen-replay in 155ms (428 modules)
+ GET /api/screen-replay 400 in 664ms
+ GET /api/screen-replay 400 in 32ms
+ ✓ Compiled /dashboard/marketplace in 472ms (409 modules)
+ GET /dashboard/marketplace 200 in 930ms
+ GET /dashboard/marketplace 200 in 31ms
+ GET /dashboard/marketplace 200 in 36ms
+ ○ Compiling /dashboard/employees ...
+ ✓ Compiled /dashboard/employees in 1835ms (420 modules)
+ GET /dashboard/employees 200 in 2102ms
+ GET /dashboard/employees 200 in 57ms
+ GET /dashboard/marketplace 200 in 137ms
+ ○ Compiling /portal/maintenance ...
+ ✓ Compiled /portal/maintenance in 1551ms (421 modules)
+ GET /portal/maintenance 200 in 2187ms
+ ○ Compiling /admin/security ...
+ ✓ Compiled /admin/security in 530ms (448 modules)
+ GET /admin/security 200 in 663ms
+ ○ Compiling /portal/work-hours ...
+ ✓ Compiled /portal/work-hours in 1854ms (949 modules)
+ GET /portal/work-hours 200 in 2319ms
+ ✓ Compiled in 3.8s (969 modules)
+   Reload env: .env.local
+ ✓ Compiled in 2.4s (1083 modules)
+ ✓ Compiled in 509ms (969 modules)
+ ✓ Compiled in 325ms (969 modules)
+ ✓ Compiled in 349ms (969 modules)
+ ✓ Compiled in 344ms (970 modules)
+ ✓ Compiled in 439ms (970 modules)
+ ✓ Compiled in 339ms (970 modules)
+ ⨯ ./app/dashboard/marketplace/page.tsx
+Module parse failed: Identifier 'cartTotalHourly' has already been declared (317:10)
+|     };
+|     // Calculate totals for cart
+>     const cartTotalHourly = useMemo({
+|         "MarketplacePage.useMemo[cartTotalHourly]": ()=>{
+|             return Array.from(cart).reduce({
+
+Import trace for requested module:
+./app/dashboard/marketplace/page.tsx
+ ⨯ ./app/dashboard/marketplace/page.tsx
+Error:   [31mx[0m Expected '</', got '{'
+     ,-[[36;1;4m/Users/jewelsharris/.openclaw/workspace/mouse-platform-live/app/dashboard/marketplace/page.tsx[0m:412:1]
+ [2m409[0m |           </div>
+ [2m410[0m |         </div>
+ [2m411[0m | 
+ [2m412[0m |         {/* Popular Section */}
+     : [35;1m        ^[0m
+ [2m413[0m |         {!searchQuery && !selectedIndustry && (
+ [2m414[0m |           <div className="mb-8">
+ [2m415[0m |             <div className="flex items-center justify-between mb-4">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/dashboard/marketplace/page.tsx
+ ⨯ ./app/dashboard/marketplace/page.tsx
+Error:   [31mx[0m Expected '</', got '{'
+     ,-[[36;1;4m/Users/jewelsharris/.openclaw/workspace/mouse-platform-live/app/dashboard/marketplace/page.tsx[0m:412:1]
+ [2m409[0m |           </div>
+ [2m410[0m |         </div>
+ [2m411[0m | 
+ [2m412[0m |         {/* Popular Section */}
+     : [35;1m        ^[0m
+ [2m413[0m |         {!searchQuery && !selectedIndustry && (
+ [2m414[0m |           <div className="mb-8">
+ [2m415[0m |             <div className="flex items-center justify-between mb-4">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/dashboard/marketplace/page.tsx
+ ○ Compiling /dashboard/marketplace ...
+ ⨯ ./app/dashboard/marketplace/page.tsx
+Error:   [31mx[0m Expected '</', got '{'
+     ,-[[36;1;4m/Users/jewelsharris/.openclaw/workspace/mouse-platform-live/app/dashboard/marketplace/page.tsx[0m:412:1]
+ [2m409[0m |           </div>
+ [2m410[0m |         </div>
+ [2m411[0m | 
+ [2m412[0m |         {/* Popular Section */}
+     : [35;1m        ^[0m
+ [2m413[0m |         {!searchQuery && !selectedIndustry && (
+ [2m414[0m |           <div className="mb-8">
+ [2m415[0m |             <div className="flex items-center justify-between mb-4">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/dashboard/marketplace/page.tsx
+ ⨯ ./app/dashboard/marketplace/page.tsx
+Error:   [31mx[0m Expected '</', got '{'
+     ,-[[36;1;4m/Users/jewelsharris/.openclaw/workspace/mouse-platform-live/app/dashboard/marketplace/page.tsx[0m:412:1]
+ [2m409[0m |           </div>
+ [2m410[0m |         </div>
+ [2m411[0m | 
+ [2m412[0m |         {/* Popular Section */}
+     : [35;1m        ^[0m
+ [2m413[0m |         {!searchQuery && !selectedIndustry && (
+ [2m414[0m |           <div className="mb-8">
+ [2m415[0m |             <div className="flex items-center justify-between mb-4">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/dashboard/marketplace/page.tsx
+ ⨯ ./app/dashboard/marketplace/page.tsx
+Error:   [31mx[0m Expected '</', got '{'
+     ,-[[36;1;4m/Users/jewelsharris/.openclaw/workspace/mouse-platform-live/app/dashboard/marketplace/page.tsx[0m:412:1]
+ [2m409[0m |           </div>
+ [2m410[0m |         </div>
+ [2m411[0m | 
+ [2m412[0m |         {/* Popular Section */}
+     : [35;1m        ^[0m
+ [2m413[0m |         {!searchQuery && !selectedIndustry && (
+ [2m414[0m |           <div className="mb-8">
+ [2m415[0m |             <div className="flex items-center justify-between mb-4">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/dashboard/marketplace/page.tsx
+ GET /dashboard/marketplace 500 in 6398ms
+ ⨯ ./app/dashboard/marketplace/page.tsx
+Error:   [31mx[0m Expected '</', got 'div'
+     ,-[[36;1;4m/Users/jewelsharris/.openclaw/workspace/mouse-platform-live/app/dashboard/marketplace/page.tsx[0m:572:1]
+ [2m569[0m |             </div>
+ [2m570[0m |           </div>
+ [2m571[0m |         )}
+ [2m572[0m |       </div>
+     : [35;1m        ^^^[0m
+ [2m573[0m |       )}
+ [2m574[0m |     </div>
+ [2m575[0m |   );
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/dashboard/marketplace/page.tsx
+ ⨯ ./app/dashboard/marketplace/page.tsx
+Module parse failed: Identifier 'cartTotalHourly' has already been declared (317:10)
+|     };
+|     // Calculate totals for cart
+>     const cartTotalHourly = useMemo({
+|         "MarketplacePage.useMemo[cartTotalHourly]": ()=>{
+|             return Array.from(cart).reduce({
+
+Import trace for requested module:
+./app/dashboard/marketplace/page.tsx
+ GET /dashboard/marketplace 500 in 27ms
+ ⨯ ./app/dashboard/marketplace/page.tsx
+Module parse failed: Identifier 'startInterview' has already been declared (316:10)
+|         }, 1500);
+|     };
+>     const startInterview = (emp)=>{
+|         setShowInterviewModal(emp);
+|         setInterviewMessages([
+
+Import trace for requested module:
+./app/dashboard/marketplace/page.tsx
+ ⨯ ./app/dashboard/marketplace/page.tsx
+Module parse failed: Identifier 'startInterview' has already been declared (317:10)
+|         }, 1500);
+|     };
+>     const startInterview = (emp)=>{
+|         setShowInterviewModal(emp);
+|         setInterviewMessages([
+
+Import trace for requested module:
+./app/dashboard/marketplace/page.tsx
+ GET /dashboard/marketplace 500 in 30ms
+ ✓ Compiled /_error in 976ms (1738 modules)
+ ⨯ Error: useToast must be used within a ToastProvider
+    at useToast (components/ToastProvider.tsx:23:11)
+    at MarketplacePage (app/dashboard/marketplace/page.tsx:72:33)
+  21 |   const context = useContext(ToastContext);
+  22 |   if (!context) {
+> 23 |     throw new Error("useToast must be used within a ToastProvider");
+     |           ^
+  24 |   }
+  25 |   return context;
+  26 | } {
+  digest: '1456086385'
+}
+ GET /dashboard/marketplace 500 in 403ms
+ ✓ Compiled in 458ms (1629 modules)
+ ✓ Compiled in 520ms (1629 modules)
+ ✓ Compiled in 467ms (1629 modules)
+ GET /dashboard/marketplace 200 in 403ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1341ms (1524 modules)
+ GET /api/marketplace/employees 404 in 1579ms
+ GET /api/marketplace/employees 404 in 35ms
+[?25h

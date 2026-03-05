@@ -23,6 +23,7 @@ export default function KingMouseChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const [instanceStatus, setInstanceStatus] = useState<'loading' | 'active' | 'error'>('loading');
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [deployingEmployee, setDeployingEmployee] = useState(false);
@@ -44,7 +45,33 @@ export default function KingMouseChat() {
   useEffect(() => {
     checkStatus();
     fetchBalance();
+    loadConversationHistory();
   }, []);
+
+  async function loadConversationHistory() {
+    const { customerId, userId } = getSession();
+    const id = customerId || userId;
+    if (!id) {
+      setHistoryLoaded(true);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/conversations?userId=${id}&portal=customer&limit=20`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.messages && data.messages.length > 0) {
+          const restored: Message[] = data.messages.map((m: any, i: number) => ({
+            id: `history-${i}`,
+            role: m.role,
+            content: m.content,
+            timestamp: new Date(m.created_at),
+          }));
+          setMessages(restored);
+        }
+      }
+    } catch {}
+    setHistoryLoaded(true);
+  }
 
   async function fetchBalance() {
     const { customerId, userId } = getSession();
@@ -71,27 +98,10 @@ export default function KingMouseChat() {
         setInstanceStatus('active');
         setEmployees(data.employees || []);
       } else {
-        setInstanceStatus('active'); // Fall back to chat-only mode
-      }
-
-      if (messages.length === 0) {
-        setMessages([{
-          id: 'welcome',
-          role: 'assistant',
-          content: `🖱️ Welcome! I'm King Mouse — your AI workforce orchestrator.\n\nI can help you manage your AI employees, deploy new ones, check status, and answer questions about your plan.\n\nTry asking me anything!`,
-          timestamp: new Date(),
-        }]);
+        setInstanceStatus('active');
       }
     } catch (error) {
       setInstanceStatus('active');
-      if (messages.length === 0) {
-        setMessages([{
-          id: 'welcome',
-          role: 'assistant',
-          content: `🖱️ Hey! I'm King Mouse. What can I help you with today?`,
-          timestamp: new Date(),
-        }]);
-      }
     }
   }
 
@@ -114,15 +124,11 @@ export default function KingMouseChat() {
     try {
       const session = getSession();
 
-      // Send to the chat API (billing-aware)
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [...messages.filter(m => m.id !== 'welcome').map(m => ({
-            role: m.role,
-            content: m.content,
-          })), { role: 'user', content: userInput }],
+          message: userInput,
           userRole: session.role || 'customer',
           userId: session.userId,
           customerId: session.customerId || session.userId,
@@ -131,7 +137,6 @@ export default function KingMouseChat() {
 
       const data = await response.json();
 
-      // Check if hours are depleted
       if (data.depleted) {
         setDepleted(true);
         setHoursBalance(0);
@@ -161,7 +166,7 @@ export default function KingMouseChat() {
     }
   }
 
-  if (instanceStatus === 'loading') {
+  if (instanceStatus === 'loading' || !historyLoaded) {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
@@ -186,7 +191,7 @@ export default function KingMouseChat() {
                 </div>
                 <div>
                   <h2 className="text-white font-semibold">King Mouse</h2>
-                  <p className="text-white/80 text-sm">AI Workforce Orchestrator</p>
+                  <p className="text-white/80 text-sm">Your AI Workforce Orchestrator</p>
                 </div>
                 <div className="ml-auto flex items-center gap-3">
                   {hoursBalance !== null && (
@@ -219,6 +224,25 @@ export default function KingMouseChat() {
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.length === 0 && (
+                  <div className="text-center py-12">
+                    <Bot className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-800 font-semibold text-lg">🖱️ Hey! I'm King Mouse</p>
+                    <p className="text-gray-500 text-sm mt-2">I know your account, your team, and your usage. Ask me anything!</p>
+                    <div className="flex flex-wrap gap-2 justify-center mt-4">
+                      {['How many hours do I have left?', 'Show me my employees', 'What plan am I on?'].map(s => (
+                        <button
+                          key={s}
+                          onClick={() => setInput(s)}
+                          className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm rounded-full hover:bg-gray-200"
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {messages.map((message) => (
                   <div
                     key={message.id}
@@ -233,7 +257,7 @@ export default function KingMouseChat() {
                         <Bot className="w-4 h-4 text-white" />
                       )}
                     </div>
-                    <div className={`max-w-[80%] ${message.role === 'user' ? '' : ''}`}>
+                    <div className={`max-w-[80%]`}>
                       <div className={`rounded-2xl px-4 py-3 ${
                         message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'
                       }`}>

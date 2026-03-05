@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -13,25 +14,33 @@ export default function KingMouseChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Load chat history from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('king_mouse_chat');
-    if (saved) {
-      try {
-        setMessages(JSON.parse(saved));
-      } catch {}
-    }
-  }, []);
+  const ADMIN_USER_ID = 'admin';
 
-  // Save chat history
+  // Load conversation history from Supabase on mount
   useEffect(() => {
-    if (messages.length > 0) {
-      localStorage.setItem('king_mouse_chat', JSON.stringify(messages.slice(-100)));
+    async function loadHistory() {
+      try {
+        const res = await fetch(`/api/conversations?userId=${ADMIN_USER_ID}&portal=admin&limit=50`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.messages && data.messages.length > 0) {
+            setMessages(data.messages.map((m: any, i: number) => ({
+              id: `history-${i}`,
+              role: m.role,
+              content: m.content,
+              timestamp: new Date(m.created_at).getTime(),
+            })));
+          }
+        }
+      } catch {}
+      setHistoryLoaded(true);
     }
-  }, [messages]);
+    loadHistory();
+  }, []);
 
   // Auto-scroll
   useEffect(() => {
@@ -49,19 +58,19 @@ export default function KingMouseChatPage() {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const userInput = input;
     setInput('');
     setLoading(true);
 
     try {
-      const apiMessages = [...messages, userMessage].map(m => ({
-        role: m.role,
-        content: m.content,
-      }));
-
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: apiMessages }),
+        body: JSON.stringify({
+          message: userInput,
+          userRole: 'admin',
+          userId: ADMIN_USER_ID,
+        }),
       });
 
       const data = await response.json();
@@ -101,11 +110,18 @@ export default function KingMouseChatPage() {
 
   function clearChat() {
     setMessages([]);
-    localStorage.removeItem('king_mouse_chat');
   }
 
   function formatTime(ts: number) {
     return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  if (!historyLoaded) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
   }
 
   return (
@@ -118,7 +134,7 @@ export default function KingMouseChatPage() {
           </div>
           <div>
             <h1 className="text-lg font-bold text-gray-900">King Mouse</h1>
-            <p className="text-sm text-green-600 font-medium">● Online</p>
+            <p className="text-sm text-green-600 font-medium">● Online — Full Platform Context</p>
           </div>
         </div>
         <button
@@ -134,16 +150,17 @@ export default function KingMouseChatPage() {
         {messages.length === 0 && (
           <div className="text-center py-20">
             <div className="text-5xl mb-4">👑</div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">King Mouse</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">King Mouse — Admin Mode</h2>
             <p className="text-gray-500 text-base max-w-md mx-auto">
-              Your AI orchestrator. Ask about platform ops, sales strategy, customer issues, or anything else.
+              I have full visibility into every customer, reseller, revenue metric, and usage stat on the platform. Ask me anything.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               {[
-                'Platform status report',
-                'Revenue this month',
-                'Draft an outbound email',
-                'Reseller activation ideas',
+                'How many active customers?',
+                'What\'s our MRR?',
+                'Which customers are low on hours?',
+                'Reseller performance summary',
+                'Total hours consumed this week',
               ].map(suggestion => (
                 <button
                   key={suggestion}
@@ -209,7 +226,7 @@ export default function KingMouseChatPage() {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Message King Mouse..."
+            placeholder="Ask about customers, revenue, usage, strategy..."
             rows={1}
             className="flex-1 resize-none border border-gray-300 rounded-xl px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             style={{ maxHeight: '120px' }}

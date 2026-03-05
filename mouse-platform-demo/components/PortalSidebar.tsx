@@ -13,6 +13,7 @@ import {
   Store,
   Crown,
   Handshake,
+  Magnet,
 } from "lucide-react";
 
 interface NavItem {
@@ -43,6 +44,11 @@ const navItems: NavItem[] = [
     label: "My Employees",
     href: "/portal/employees",
     icon: <Users size={22} />,
+  },
+  {
+    label: "Lead Funnel",
+    href: "/portal/employees/lead-funnel",
+    icon: <Magnet size={22} />,
   },
   {
     label: "Tasks",

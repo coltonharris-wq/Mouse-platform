@@ -12,7 +12,9 @@ export type FeatureType =
   | 'screen_recording'
   | 'api_call'
   | 'employee_deployment'
-  | 'vm_runtime';
+  | 'vm_runtime'
+  | 'lead_search'
+  | 'lead_outreach';
 
 // Pricing tier configuration
 export interface PricingTier {
@@ -107,6 +109,22 @@ export const PRICING_TIERS: Record<FeatureType, PricingTier> = {
     unit: 'hour',
     multiplier: 1,
     description: 'Virtual machine running time',
+  },
+  lead_search: {
+    feature: 'lead_search',
+    displayName: 'Lead Search & Qualification',
+    workHoursCost: 0.05, // 0.05 hours per search (~3 minutes, Kimi rate)
+    unit: 'search',
+    multiplier: 0.5,
+    description: 'AI lead search and qualification',
+  },
+  lead_outreach: {
+    feature: 'lead_outreach',
+    displayName: 'Lead Outreach Email',
+    workHoursCost: 0.02, // 0.02 hours per email (~1 minute, Twilio rate)
+    unit: 'email',
+    multiplier: 0.2,
+    description: 'Automated lead outreach email',
   },
 };
 
@@ -244,6 +262,8 @@ export const EMPTY_USAGE_BREAKDOWN: Record<FeatureType, number> = {
   api_call: 0,
   employee_deployment: 0,
   vm_runtime: 0,
+  lead_search: 0,
+  lead_outreach: 0,
 };
 
 // Usage breakdown by feature type
@@ -256,6 +276,8 @@ export interface UsageBreakdown {
   api_call: number;
   employee_deployment: number;
   vm_runtime: number;
+  lead_search: number;
+  lead_outreach: number;
 }
 
 /**
@@ -295,6 +317,12 @@ export function formatUsageBreakdown(breakdown: UsageBreakdown): string {
   }
   if (breakdown.vm_runtime > 0) {
     parts.push(`VM: ${formatWorkHoursCost(breakdown.vm_runtime)}`);
+  }
+  if (breakdown.lead_search > 0) {
+    parts.push(`Lead Search: ${formatWorkHoursCost(breakdown.lead_search)}`);
+  }
+  if (breakdown.lead_outreach > 0) {
+    parts.push(`Lead Outreach: ${formatWorkHoursCost(breakdown.lead_outreach)}`);
   }
   
   return parts.join(', ') || 'No usage yet';

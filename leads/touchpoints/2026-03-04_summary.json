@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-03-04T16:18:08.885653",
+  "new_leads": 0,
+  "auto_replies_sent": 0,
+  "followups_needed": 0,
+  "warm_leads": 0,
+  "cold_leads": 0,
+  "details": {
+    "new_leads_list": [],
+    "warm_leads_list": [],
+    "followup_actions": []
+  }
+}

@@ -1,48 +1,111 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, Crown } from 'lucide-react';
+import { Send, Bot, Crown, Loader2 } from 'lucide-react';
 
 interface Message {
+  id: string;
   role: 'user' | 'assistant';
   content: string;
+  timestamp: Date;
 }
 
 export default function ResellerKingMousePage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const getSession = () => {
+    try {
+      const s = localStorage.getItem('mouse_session');
+      return s ? JSON.parse(s) : {};
+    } catch { return {}; }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  useEffect(() => {
+    loadHistory();
+  }, []);
+
+  async function loadHistory() {
+    const { userId, resellerId } = getSession();
+    const id = resellerId || userId;
+    if (!id) {
+      setHistoryLoaded(true);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/conversations?userId=${id}&portal=reseller&limit=20`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.messages && data.messages.length > 0) {
+          setMessages(data.messages.map((m: any, i: number) => ({
+            id: `history-${i}`,
+            role: m.role,
+            content: m.content,
+            timestamp: new Date(m.created_at),
+          })));
+        }
+      }
+    } catch {}
+    setHistoryLoaded(true);
+  }
+
   async function sendMessage() {
     if (!input.trim() || loading) return;
     
-    const userMessage: Message = { role: 'user', content: input.trim() };
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: input.trim(),
+      timestamp: new Date(),
+    };
+    setMessages(prev => [...prev, userMessage]);
+    const userInput = input;
     setInput('');
     setLoading(true);
 
     try {
+      const session = getSession();
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          messages: newMessages,
+        body: JSON.stringify({
+          message: userInput,
           userRole: 'reseller',
+          userId: session.resellerId || session.userId,
         }),
       });
       const data = await res.json();
-      setMessages([...newMessages, { role: 'assistant', content: data.reply || data.error || 'No response' }]);
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.reply || data.error || 'No response',
+        timestamp: new Date(),
+      }]);
     } catch {
-      setMessages([...newMessages, { role: 'assistant', content: 'Connection error. Please try again.' }]);
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'Connection error. Please try again.',
+        timestamp: new Date(),
+      }]);
     } finally {
       setLoading(false);
     }
+  }
+
+  if (!historyLoaded) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-mouse-teal" />
+      </div>
+    );
   }
 
   return (
@@ -53,7 +116,7 @@ export default function ResellerKingMousePage() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-mouse-navy">King Mouse</h1>
-          <p className="text-sm text-mouse-slate">Sales help, lead research, campaign management</p>
+          <p className="text-sm text-mouse-slate">Knows your customers, revenue, and pipeline</p>
         </div>
       </div>
 
@@ -61,10 +124,15 @@ export default function ResellerKingMousePage() {
         {messages.length === 0 && (
           <div className="text-center py-12">
             <Bot className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 font-medium">Ask King Mouse anything</p>
-            <p className="text-gray-400 text-sm mt-1">Sales strategies, lead research, campaign ideas</p>
+            <p className="text-gray-800 font-semibold">🖱️ Hey! I'm King Mouse</p>
+            <p className="text-gray-500 text-sm mt-1">I know your customers, their usage, and your commissions. Ask me anything!</p>
             <div className="flex flex-wrap gap-2 justify-center mt-4">
-              {['Help me close a deal', 'Research HVAC leads in Raleigh', 'Write a cold email template'].map(s => (
+              {[
+                'How are my customers doing?',
+                'Who has low hours?',
+                'Write a cold email for HVAC companies',
+                'What\'s my total commission?',
+              ].map(s => (
                 <button
                   key={s}
                   onClick={() => { setInput(s); }}
@@ -77,8 +145,8 @@ export default function ResellerKingMousePage() {
           </div>
         )}
         
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[80%] rounded-xl px-4 py-3 ${
               msg.role === 'user' 
                 ? 'bg-orange-500 text-white' 
@@ -109,7 +177,7 @@ export default function ResellerKingMousePage() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-          placeholder="Ask King Mouse..."
+          placeholder="Ask King Mouse about your customers, sales, commissions..."
           className="flex-1 px-4 py-3 border border-mouse-slate/30 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-mouse-teal/30"
           disabled={loading}
         />
