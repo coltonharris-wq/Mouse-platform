@@ -30,8 +30,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Check balance — need at least 1 hour of VM time + chat
-    const vmRam = 4;
-    const vmCpu = 2;
+    // Mouse OS needs 8GB RAM / 4CPU for OpenClaw build (4GB disk fills up)
+    const vmRam = 8;
+    const vmCpu = 4;
     const estimatedCost = estimateHourlyCost(vmRam, vmCpu);
     const balanceCheck = await checkBalance(customerId, 'vm_orgo', estimatedCost);
 

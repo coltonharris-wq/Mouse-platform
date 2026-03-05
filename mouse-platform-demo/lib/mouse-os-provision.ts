@@ -437,23 +437,38 @@ export async function kickOffProvision(
   config: ProvisionConfig
 ): Promise<{ started: boolean; error?: string }> {
   try {
+    // Wait for VM to be responsive (up to 30s, polling every 5s)
+    let vmReady = false;
+    for (let i = 0; i < 6; i++) {
+      try {
+        const test = await executeBash(computerId, 'echo VM_READY');
+        if (test.output?.includes('VM_READY')) {
+          vmReady = true;
+          break;
+        }
+      } catch (_) {}
+      await new Promise(r => setTimeout(r, 5000));
+    }
+    if (!vmReady) {
+      return { started: false, error: 'VM not responsive after 30s' };
+    }
+
     // Generate the provision script with config baked in
     let script = generateProvisionScript(config);
-    // Replace the computer ID placeholder
     script = script.replace('COMPUTER_ID_PLACEHOLDER', computerId);
 
     // Upload via Python exec (avoids shell escaping issues with large scripts)
+    const b64Script = Buffer.from(script).toString('base64');
     const uploadCode = `
-import base64
-script = base64.b64decode("${Buffer.from(script).toString('base64')}").decode()
+import base64, os
+script = base64.b64decode("${b64Script}").decode()
 with open("/home/user/provision-mouse-os.sh", "w") as f:
     f.write(script)
-import os
 os.chmod("/home/user/provision-mouse-os.sh", 0o755)
 print("UPLOADED")
 `;
 
-    const uploadResult = await executePython(computerId, uploadCode, 10);
+    const uploadResult = await executePython(computerId, uploadCode, 15);
     if (!uploadResult.output?.includes('UPLOADED')) {
       return { started: false, error: `Upload failed: ${uploadResult.output}` };
     }
