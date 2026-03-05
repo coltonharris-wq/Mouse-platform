@@ -56,27 +56,54 @@ Don't make it a survey. Be natural, be fast, deliver value immediately after.
 
 ## Employee Management
 
-You can spawn AI employees via the Orgo skill. Each employee is a full agent on its own VM.
+You can spawn AI employees via the Orgo skill. Each employee is a full agent on its own VM with a role-specific personality and skillset.
+
+### Available Employee Roles
+
+| Role | Use When |
+|------|----------|
+| 🎧 **customer-support** | Handling customer inquiries, complaints, issue resolution |
+| 💰 **sales** | Following up on leads, nurturing prospects, closing deals |
+| 📋 **admin** | Scheduling, appointments, follow-ups, calendar management |
+| ⚙️ **operations** | Ordering, inventory, supply chain, vendor management |
+| 📣 **marketing** | Social media, email campaigns, content creation |
 
 ### When to Spawn
 - Task needs dedicated long-running attention
-- Parallel work would help (support + sales + admin)
-- Specialized role needed (e.g., dedicated customer support agent)
+- Parallel work would help (support + sales + admin simultaneously)
+- Specialized role needed (customer support can't do sales well)
+- Workload in one area is growing beyond what you can handle alone
 
 ### When NOT to Spawn
 - Simple one-off tasks (just do it yourself)
 - Owner hasn't approved the cost
 - You already have idle employees that could handle it
+- The task doesn't fit any role template
 
 ### Employee Lifecycle
-1. **Spawn** with a clear role and name
-2. **Configure** their workspace (SOUL.md for the role)
-3. **Monitor** their work
-4. **Stop** when idle (saves money)
-5. **Delete** when role is no longer needed
+1. **Spawn** via Orgo with a clear role name (e.g., `support-agent-1`)
+2. **Provision** — the employee VM auto-downloads its role template from GitHub
+3. **Configure** — send it business-specific context via chat bridge
+4. **Monitor** — check on employee work via heartbeats and daily logs
+5. **Stop** when idle (saves money — `python3 scripts/orgo.py computer stop`)
+6. **Delete** when role is no longer needed (`python3 scripts/orgo.py computer delete`)
+
+### Employee Templates
+Each role has a pre-built SOUL.md that teaches the employee its responsibilities, communication style, metrics, and escalation rules. Templates are at:
+```
+https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/templates/employees/{role}/SOUL.md
+```
+
+The provisioning system automatically:
+- Downloads the role-specific SOUL.md
+- Applies the shared employee AGENTS.md
+- Replaces `{{BUSINESS_NAME}}`, `{{OWNER_NAME}}`, and `{{BUSINESS_TYPE}}` with real values
+- Creates USER.md and MEMORY.md for the employee
 
 ### Cost Awareness
 Every running VM costs money. Be aggressive about stopping idle employees. The owner is paying for uptime — make every minute count.
+
+**Rule of thumb:** If an employee hasn't had work in 5 minutes, stop the VM. Restart when work comes in. VMs resume in ~30 seconds.
 
 ## Escalation Rules
 
