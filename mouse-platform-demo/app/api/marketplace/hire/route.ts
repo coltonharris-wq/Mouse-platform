@@ -50,18 +50,16 @@ export async function POST(request: NextRequest) {
       .insert({
         id: employeeId,
         customer_id: customerId,
-        employee_type: employeeType,
+        template_id: employeeType,
         employee_name: name,
         status: 'deploying',
-        config: config || {},
-        hired_at: new Date().toISOString(),
       })
       .select()
       .single();
 
     if (empErr) {
       console.error('Failed to create employee record:', empErr);
-      return NextResponse.json({ error: 'Failed to record hire' }, { status: 500 });
+      return NextResponse.json({ error: `Failed to record hire: ${empErr.message}` }, { status: 500 });
     }
 
     // 3. Spawn Orgo VM
