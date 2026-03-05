@@ -61,6 +61,9 @@ export async function POST(request: NextRequest) {
       supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
       supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
       supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+      moonshotApiKey: process.env.MOONSHOT_API_KEY || '',
+      orgoApiKey: process.env.ORGO_API_KEY || '',
+      orgoWorkspaceId: process.env.ORGO_WORKSPACE_ID || '',
     };
 
     const result = await kickOffProvision(computerId, provisionConfig);

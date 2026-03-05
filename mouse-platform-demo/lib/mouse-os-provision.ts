@@ -262,6 +262,13 @@ for fname in ["SOUL.md", "AGENTS.md", "SETUP_INTERVIEW.md"]:
     except Exception as e:
         print(f"WARN: Could not download {fname}: {e}")
 
+# Download web chat bridge script
+try:
+    bridge_url = "https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/scripts/chat-bridge.mjs"
+    urllib.request.urlretrieve(bridge_url, home + "/chat-bridge.mjs")
+except Exception as e:
+    print(f"WARN: Could not download chat-bridge.mjs: {e}")
+
 # Create initial USER.md placeholder (setup interview will populate this)
 user_md = """# USER.md — Business Profile
 
@@ -499,7 +506,11 @@ cat > workspace/MEMORY.md << 'MEMEOF'
 _King Mouse will build this over time._
 MEMEOF
 
-log "Workspace configured with brain templates"
+## Download web chat bridge script (for dashboard → King Mouse communication)
+BRIDGE_URL="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/scripts/chat-bridge.mjs"
+curl -fsSL "$BRIDGE_URL" -o "$HOME/chat-bridge.mjs" 2>/dev/null || log "WARN: chat-bridge.mjs download failed"
+
+log "Workspace configured with brain templates + chat bridge"
 
 # 5. Write OpenClaw gateway config (openclaw.json)
 log "Step 5/8: Writing gateway config (Moonshot Kimi K2.5 + Orgo skill)..."
