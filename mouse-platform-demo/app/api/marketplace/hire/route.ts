@@ -3,7 +3,8 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase-server';
 import { checkBalance } from '@/lib/usage-tracker';
-import { createComputer, getVncPassword, estimateHourlyCost } from '@/lib/orgo';
+import { createComputer, getVncPassword, estimateHourlyCost, waitForReady } from '@/lib/orgo';
+import { provisionMouseOS, ProvisionConfig } from '@/lib/mouse-os-provision';
 
 /**
  * POST /api/marketplace/hire
@@ -97,8 +98,83 @@ export async function POST(request: NextRequest) {
       // Update employee with VM ID
       await supabase
         .from('hired_employees')
-        .update({ vm_id: computer.id, status: 'active' })
+        .update({ vm_id: computer.id, status: 'provisioning' })
         .eq('id', employeeId);
+
+      // Update VM status
+      await supabase
+        .from('employee_vms')
+        .update({ status: 'provisioning', vm_name: vmName })
+        .eq('computer_id', computer.id);
+
+      // 🐭 FIRE AND FORGET: Provision Mouse OS in background
+      // This takes ~5 minutes — don't block the response
+      const provisionConfig: ProvisionConfig = {
+        customerId,
+        employeeType,
+        employeeName: name,
+        businessName: config?.businessName,
+        businessType: config?.businessType,
+        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+        supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+        supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+      };
+
+      // Don't await — runs in background
+      (async () => {
+        try {
+          // Wait for VM to be fully running first
+          await waitForReady(computer.id, 60_000);
+
+          const result = await provisionMouseOS(computer.id, provisionConfig);
+
+          // Update status based on result
+          const finalStatus = result.success ? 'active' : 'error';
+          await supabase
+            .from('employee_vms')
+            .update({
+              status: finalStatus,
+              last_heartbeat: new Date().toISOString(),
+            })
+            .eq('computer_id', computer.id);
+
+          await supabase
+            .from('hired_employees')
+            .update({ status: finalStatus })
+            .eq('id', employeeId);
+
+          // Send notification
+          await supabase
+            .from('notifications')
+            .insert({
+              customer_id: customerId,
+              agent_type: employeeType,
+              type: result.success ? 'employee_ready' : 'employee_error',
+              message: result.success
+                ? `🐭 ${name} is ready! Mouse Platform installed and King Mouse is operational.`
+                : `⚠️ ${name} provisioning failed: ${result.error}`,
+              priority: result.success ? 'normal' : 'high',
+              read: false,
+            });
+
+          console.log(`[Mouse OS] ${name} provisioning ${finalStatus}:`, result.log.slice(-3));
+        } catch (provisionErr: any) {
+          console.error(`[Mouse OS] ${name} provision error:`, provisionErr);
+          await supabase
+            .from('employee_vms')
+            .update({ status: 'error' })
+            .eq('computer_id', computer.id);
+          await supabase
+            .from('notifications')
+            .insert({
+              customer_id: customerId,
+              type: 'employee_error',
+              message: `⚠️ ${name} failed to provision: ${provisionErr.message}`,
+              priority: 'high',
+              read: false,
+            });
+        }
+      })();
 
     } catch (e: any) {
       console.error('VM spawn failed:', e);
@@ -121,7 +197,7 @@ export async function POST(request: NextRequest) {
       vm: vmRecord,
       orgoError,
       message: vmRecord
-        ? `${name} hired and VM is spinning up!`
+        ? `${name} hired! 🐭 Mouse Platform is being installed (~5 min). You'll get a notification when ready.`
         : `${name} hired but VM failed to start. You can retry from the employee page.`,
     });
 
