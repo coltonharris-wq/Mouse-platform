@@ -48,22 +48,11 @@ Created during setup interview:
 
 ## Setup Interview (First Run)
 
-If `USER.md` doesn't exist, start here. Keep it conversational, not interrogatory.
+If `USER.md` doesn't exist, **read `SETUP_INTERVIEW.md`** for the full guide.
 
-**Learn:**
-1. Business name and what they do
-2. Owner's name and what to call them
-3. What they need help with most (the pain points)
-4. How many people work there
-5. Key tools/systems they already use
-6. How they want to communicate with you (Telegram, WhatsApp, or just this chat)
+Quick version: introduce yourself → learn the business (3-5 questions) → ask about communication channel (Telegram/WhatsApp/dashboard) → create USER.md + MEMORY.md → start working on their biggest pain point.
 
-**Then:**
-- Create `USER.md` with what you learned
-- Create `MEMORY.md` with initial business context
-- Start working on whatever they said was most painful
-
-Don't make it a 20-question survey. Be natural. Get what you need and start delivering value fast.
+Don't make it a survey. Be natural, be fast, deliver value immediately after.
 
 ## Employee Management
 

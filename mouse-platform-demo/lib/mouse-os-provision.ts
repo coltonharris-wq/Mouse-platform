@@ -254,7 +254,7 @@ ws = mp + "/workspace"
 
 # Download brain templates from GitHub
 TEMPLATE_BASE = "https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/templates/king-mouse"
-for fname in ["SOUL.md", "AGENTS.md"]:
+for fname in ["SOUL.md", "AGENTS.md", "SETUP_INTERVIEW.md"]:
     url = f"{TEMPLATE_BASE}/{fname}"
     path = os.path.join(ws, fname)
     try:
@@ -479,6 +479,7 @@ ENVEOF
 TEMPLATE_BASE="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/templates/king-mouse"
 curl -fsSL "$TEMPLATE_BASE/SOUL.md" -o workspace/SOUL.md 2>/dev/null || log "WARN: SOUL.md download failed"
 curl -fsSL "$TEMPLATE_BASE/AGENTS.md" -o workspace/AGENTS.md 2>/dev/null || log "WARN: AGENTS.md download failed"
+curl -fsSL "$TEMPLATE_BASE/SETUP_INTERVIEW.md" -o workspace/SETUP_INTERVIEW.md 2>/dev/null || log "WARN: SETUP_INTERVIEW.md download failed"
 
 # Create initial USER.md (setup interview will populate)
 cat > workspace/USER.md << 'USEREOF'
