@@ -157,7 +157,8 @@ export default function OnboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           customerId: user?.userId,
-          plan: 'growth', // Default to growth for onboarding
+          plan: 'growth',
+          isOnboarding: true,
           interviewAnswers: answers,
         }),
       });

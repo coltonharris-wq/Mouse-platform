@@ -336,7 +336,7 @@ except Exception as e:
     print(f"WARN: Could not download chat-bridge.mjs: {e}")
 
 # Create USER.md from interview answers
-user_md_content = """${generateUserMd(config).replace(/\/g, '\\').replace(/"/g, '\"').replace(/\n/g, '\\n')}"""
+user_md_content = json.loads(${JSON.stringify(JSON.stringify(generateUserMd(config)))})
 with open(os.path.join(ws, "USER.md"), "w") as f:
     f.write(user_md_content)
 
