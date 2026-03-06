@@ -285,6 +285,76 @@ log "=== EMPLOYEE READY: ${config.employeeName} (${roleDisplayName}) ==="
 `;
 }
 
+// ─── Kick Off Employee Provisioning ─────────────────────────
+
+/**
+ * Kick off employee provisioning on a VM.
+ * Same pattern as King Mouse kickOffProvision — upload script, nohup, return fast.
+ * Designed to complete within Vercel's 10s function timeout.
+ */
+export async function kickOffEmployeeProvision(
+  computerId: string,
+  config: EmployeeProvisionConfig
+): Promise<{ started: boolean; error?: string; retryable?: boolean }> {
+  // Import Orgo functions dynamically to avoid circular deps
+  const { executeBash, executePython } = await import('./orgo');
+
+  try {
+    // Quick VM readiness check
+    let vmReady = false;
+    try {
+      const test = await executeBash(computerId, 'echo VM_READY');
+      if (test.output?.includes('VM_READY')) {
+        vmReady = true;
+      }
+    } catch (_) {}
+
+    if (!vmReady) {
+      return { started: false, retryable: true, error: 'VM not responsive yet — retry in 10-15s' };
+    }
+
+    // Check if already provisioning
+    try {
+      const check = await executeBash(computerId,
+        'test -f /var/log/mouse-os-provision.log && grep -c "PROVISIONING START\\|EMPLOYEE READY" /var/log/mouse-os-provision.log 2>/dev/null || echo 0'
+      );
+      if (check.output && parseInt(check.output.trim()) > 0) {
+        return { started: true, error: 'Provision already in progress or complete' };
+      }
+    } catch (_) {}
+
+    // Generate + upload the provision script
+    let script = generateEmployeeProvisionScript(config);
+    script = script.replace('COMPUTER_ID_PLACEHOLDER', computerId);
+
+    const b64Script = Buffer.from(script).toString('base64');
+    const uploadCode = `
+import base64, os, pathlib
+script = base64.b64decode("${b64Script}").decode()
+home = str(pathlib.Path.home())
+path = home + "/provision-employee.sh"
+with open(path, "w") as f:
+    f.write(script)
+os.chmod(path, 0o755)
+print("UPLOADED")
+`;
+
+    const uploadResult = await executePython(computerId, uploadCode, 15);
+    if (!uploadResult.output?.includes('UPLOADED')) {
+      return { started: false, error: `Upload failed: ${uploadResult.output}` };
+    }
+
+    // Run in background
+    await executeBash(computerId,
+      'nohup $HOME/provision-employee.sh > /var/log/mouse-os-provision.log 2>&1 &'
+    );
+
+    return { started: true };
+  } catch (err: any) {
+    return { started: false, retryable: true, error: err.message };
+  }
+}
+
 /**
  * Validate an employee role string.
  */
