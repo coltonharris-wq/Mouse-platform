@@ -129,12 +129,12 @@ export default function OnboardPage() {
     setUser(JSON.parse(session));
   }, [router]);
 
-  // Auto-deploy when reaching step 2
+  // Auto-deploy when reaching step 2 (but only if user is loaded)
   useEffect(() => {
-    if (currentStep === 2 && !deploying && !vmId) {
+    if (currentStep === 2 && !deploying && !vmId && user) {
       deployKingMouse();
     }
-  }, [currentStep, deploying, vmId]);
+  }, [currentStep, deploying, vmId, user]);
 
   async function deployKingMouse() {
     setDeploying(true);
