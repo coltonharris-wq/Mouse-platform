@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
         first_name: firstName || '',
         last_name: lastName || '',
         company_name: company || '',
-        account_type: 'customer',
       },
     });
 
@@ -41,27 +40,26 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = authData.user?.id;
+    const customerId = `cst_${userId?.substring(0, 8)}`;
 
-    // Create customer record in customers table
-    try {
-      await supabase.from('customers').insert({
-        id: userId,
-        email,
-        company_name: company || null,
-        first_name: firstName || null,
-        last_name: lastName || null,
-        account_type: 'customer',
-        status: 'active',
-        work_hours_balance: 2,
-        created_at: new Date().toISOString(),
-      });
-    } catch (dbError) {
-      console.error('Customer record creation error (non-fatal):', dbError);
-      // Don't fail signup if customer table insert fails - auth account exists
+    // Create customer record — only use columns that exist in the table
+    const { error: customerError } = await supabase.from('customers').insert({
+      id: customerId,
+      email,
+      company_name: company || 'My Business',
+      status: 'active',
+      work_hours_balance: 2,
+      work_hours_purchased: 2,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+
+    if (customerError) {
+      console.error('Customer record creation error:', JSON.stringify(customerError));
     }
 
     // Sign in to get tokens
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+    const { data: signInData } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -69,6 +67,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       userId,
+      customerId,
       email,
       token: signInData?.session?.access_token || null,
       refreshToken: signInData?.session?.refresh_token || null,
