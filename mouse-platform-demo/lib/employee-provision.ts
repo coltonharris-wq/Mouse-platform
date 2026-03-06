@@ -122,7 +122,7 @@ function generateEmployeeConfig(config: EmployeeProvisionConfig): object {
         },
         maxConcurrent: 1,
         subagents: {
-          maxChildrenPerAgent: 0, // Employees don't spawn sub-agents
+          maxChildrenPerAgent: 1, // Employees don't spawn sub-agents (min 1 per schema)
         },
       },
     },
