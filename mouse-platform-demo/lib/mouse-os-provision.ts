@@ -253,7 +253,7 @@ oc = home + "/.openclaw"
 ws = mp + "/workspace"
 
 # Download brain templates from GitHub
-TEMPLATE_BASE = "https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/templates/king-mouse"
+TEMPLATE_BASE = "https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/mouse-platform-demo/templates/king-mouse"
 for fname in ["SOUL.md", "AGENTS.md", "SETUP_INTERVIEW.md"]:
     url = f"{TEMPLATE_BASE}/{fname}"
     path = os.path.join(ws, fname)
@@ -264,7 +264,7 @@ for fname in ["SOUL.md", "AGENTS.md", "SETUP_INTERVIEW.md"]:
 
 # Download web chat bridge script
 try:
-    bridge_url = "https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/scripts/chat-bridge.mjs"
+    bridge_url = "https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/mouse-platform-demo/scripts/chat-bridge.mjs"
     urllib.request.urlretrieve(bridge_url, home + "/chat-bridge.mjs")
 except Exception as e:
     print(f"WARN: Could not download chat-bridge.mjs: {e}")
@@ -483,7 +483,7 @@ SUPABASE_SERVICE_KEY=${config.supabaseServiceKey}
 ENVEOF
 
 # Download King Mouse brain templates from GitHub
-TEMPLATE_BASE="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/templates/king-mouse"
+TEMPLATE_BASE="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/mouse-platform-demo/templates/king-mouse"
 curl -fsSL "$TEMPLATE_BASE/SOUL.md" -o workspace/SOUL.md 2>/dev/null || log "WARN: SOUL.md download failed"
 curl -fsSL "$TEMPLATE_BASE/AGENTS.md" -o workspace/AGENTS.md 2>/dev/null || log "WARN: AGENTS.md download failed"
 curl -fsSL "$TEMPLATE_BASE/SETUP_INTERVIEW.md" -o workspace/SETUP_INTERVIEW.md 2>/dev/null || log "WARN: SETUP_INTERVIEW.md download failed"
@@ -507,7 +507,7 @@ _King Mouse will build this over time._
 MEMEOF
 
 ## Download web chat bridge script (for dashboard → King Mouse communication)
-BRIDGE_URL="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/scripts/chat-bridge.mjs"
+BRIDGE_URL="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/mouse-platform-demo/scripts/chat-bridge.mjs"
 curl -fsSL "$BRIDGE_URL" -o "$HOME/chat-bridge.mjs" 2>/dev/null || log "WARN: chat-bridge.mjs download failed"
 
 log "Workspace configured with brain templates + chat bridge"
@@ -537,7 +537,7 @@ SKILL_DIR="$OPENCLAW_DIR/skills/orgo"
 mkdir -p "$SKILL_DIR/scripts" "$SKILL_DIR/references"
 
 # Download Orgo skill files from GitHub repo
-SKILL_BASE="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/skills/orgo"
+SKILL_BASE="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/mouse-platform-demo/skills/orgo"
 curl -fsSL "$SKILL_BASE/SKILL.md" -o "$SKILL_DIR/SKILL.md" 2>/dev/null
 curl -fsSL "$SKILL_BASE/scripts/orgo.py" -o "$SKILL_DIR/scripts/orgo.py" 2>/dev/null
 curl -fsSL "$SKILL_BASE/references/api.md" -o "$SKILL_DIR/references/api.md" 2>/dev/null

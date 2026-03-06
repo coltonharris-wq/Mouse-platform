@@ -60,7 +60,7 @@ const RUNTIME_TARBALL_URL = 'https://github.com/coltonharris-wq/Mouse-platform/r
 /**
  * GitHub raw URL base for employee templates.
  */
-const TEMPLATE_BASE = 'https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/templates/employees';
+const TEMPLATE_BASE = 'https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/mouse-platform-demo/templates/employees';
 
 /**
  * Generate OpenClaw config for an employee VM.
@@ -236,7 +236,7 @@ _Build this over time with business rules, procedures, and learnings for your ro
 MEMEOF
 
 # Download chat bridge (for communication with King Mouse/dashboard)
-BRIDGE_URL="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/scripts/chat-bridge.mjs"
+BRIDGE_URL="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/mouse-platform-demo/scripts/chat-bridge.mjs"
 curl -fsSL "$BRIDGE_URL" -o "$HOME/chat-bridge.mjs" 2>/dev/null || log "WARN: chat-bridge.mjs download failed"
 
 log "Workspace configured with ${config.employeeRole} role"
