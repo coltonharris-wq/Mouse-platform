@@ -505,13 +505,11 @@ export default function WorkHoursPage() {
             <button
               onClick={() => {
                 const csv = [
-                  ['Date', 'Service', 'Vendor Cost', 'Hours Charged', 'Margin'],
+                  ['Date', 'Service', 'Hours Used'],
                   ...filteredEvents.map(e => [
                     new Date(e.created_at).toISOString(),
                     EVENT_LABELS[e.event_type] || e.event_type,
-                    `$${Number(e.vendor_cost).toFixed(4)}`,
                     Number(e.work_hours_charged).toFixed(4),
-                    `${e.margin_multiplier}x`,
                   ]),
                 ].map(r => r.join(',')).join('\n');
                 const blob = new Blob([csv], { type: 'text/csv' });
@@ -533,15 +531,13 @@ export default function WorkHoursPage() {
               <tr className="bg-gray-50 border-b border-gray-100">
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Date</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Service</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Vendor Cost</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Hours Charged</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Margin</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Hours Used</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filteredEvents.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400">
+                  <td colSpan={3} className="px-6 py-12 text-center text-gray-400">
                     No usage events yet. Send a message to King Mouse to see billing in action.
                   </td>
                 </tr>
@@ -557,11 +553,9 @@ export default function WorkHoursPage() {
                         <span className="text-gray-800 text-xs font-medium">{EVENT_LABELS[event.event_type] || event.event_type}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-500 font-mono text-xs">${Number(event.vendor_cost).toFixed(4)}</td>
                     <td className="px-6 py-4">
                       <span className="font-bold text-orange-500">-{formatHours(Number(event.work_hours_charged))}</span>
                     </td>
-                    <td className="px-6 py-4 text-gray-400 text-xs">{event.margin_multiplier}x</td>
                   </tr>
                 ))
               )}

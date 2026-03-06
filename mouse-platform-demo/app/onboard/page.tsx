@@ -118,6 +118,7 @@ export default function OnboardPage() {
   const [deploying, setDeploying] = useState(false);
   const [deployProgress, setDeployProgress] = useState(0);
   const [vmId, setVmId] = useState<string | null>(null);
+  const [deployError, setDeployError] = useState<string | null>(null);
 
   useEffect(() => {
     const session = localStorage.getItem('mouse_session');
@@ -156,7 +157,7 @@ export default function OnboardPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          customerId: user?.userId,
+          customerId: user?.customerId || user?.userId,
           plan: 'growth',
           isOnboarding: true,
           interviewAnswers: answers,
@@ -168,6 +169,15 @@ export default function OnboardPage() {
       clearInterval(progressInterval);
       setDeployProgress(100);
       
+      if (!response.ok || !data.success) {
+        // API returned an error
+        const errorMsg = data.error || `Failed to deploy: ${response.status}`;
+        console.error('Deployment failed:', errorMsg, data);
+        setDeployError(errorMsg);
+        setDeploying(false);
+        return;
+      }
+      
       if (data.success) {
         setVmId(data.vmId);
       }
@@ -178,16 +188,12 @@ export default function OnboardPage() {
         setDeploying(false);
       }, 1000);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Deployment error:', error);
       clearInterval(progressInterval);
       setDeployProgress(100);
-      
-      // Still move to completion (graceful degradation)
-      setTimeout(() => {
-        setCurrentStep(3);
-        setDeploying(false);
-      }, 1000);
+      setDeployError(error?.message || 'Network error during deployment. Please try again.');
+      setDeploying(false);
     }
   }
 
@@ -333,35 +339,56 @@ export default function OnboardPage() {
           {/* Step 2: Deploying */}
           {currentStep === 2 && (
             <div className="bg-[#1a1a2e] border border-gray-800 rounded-xl p-6 mb-8">
-              <div className="mb-4">
-                <div className="flex justify-between text-sm text-gray-400 mb-2">
-                  <span>Provisioning King Mouse VM...</span>
-                  <span>{Math.round(deployProgress)}%</span>
+              {deployError ? (
+                <div className="text-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 rounded-full text-red-400 text-sm mb-4">
+                    <div className="w-2 h-2 bg-red-400 rounded-full"/>
+                    Deployment Failed
+                  </div>
+                  <p className="text-red-300 text-sm mb-4">{deployError}</p>
+                  <button
+                    onClick={() => {
+                      setDeployError(null);
+                      handleDeploy();
+                    }}
+                    className="bg-mouse-teal text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-mouse-teal/80 transition-colors"
+                  >
+                    Retry Deployment
+                  </button>
                 </div>
-                <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-mouse-teal to-purple-500 transition-all duration-300"
-                    style={{ width: `${deployProgress}%` }}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="bg-[#252538] rounded-lg p-3">
-                  <div className="text-xl font-bold text-mouse-teal">8</div>
-                  <div className="text-xs text-gray-500">GB RAM</div>
-                </div>
-                <div className="bg-[#252538] rounded-lg p-3">
-                  <div className="text-xl font-bold text-mouse-teal">4</div>
-                  <div className="text-xs text-gray-500">vCPUs</div>
-                </div>
-                <div className="bg-[#252538] rounded-lg p-3">
-                  <div className="text-xl font-bold text-mouse-teal">60s</div>
-                  <div className="text-xs text-gray-500">Deploy Time</div>
-                </div>
-              </div>
-              <div className="mt-4 text-center text-sm text-gray-400">
-                Installing OpenClaw, configuring your business profile, and starting your AI Operations Manager...
-              </div>
+              ) : (
+                <>
+                  <div className="mb-4">
+                    <div className="flex justify-between text-sm text-gray-400 mb-2">
+                      <span>Provisioning King Mouse VM...</span>
+                      <span>{Math.round(deployProgress)}%</span>
+                    </div>
+                    <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-mouse-teal to-purple-500 transition-all duration-300"
+                        style={{ width: `${deployProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 text-center">
+                    <div className="bg-[#252538] rounded-lg p-3">
+                      <div className="text-xl font-bold text-mouse-teal">8</div>
+                      <div className="text-xs text-gray-500">GB RAM</div>
+                    </div>
+                    <div className="bg-[#252538] rounded-lg p-3">
+                      <div className="text-xl font-bold text-mouse-teal">4</div>
+                      <div className="text-xs text-gray-500">vCPUs</div>
+                    </div>
+                    <div className="bg-[#252538] rounded-lg p-3">
+                      <div className="text-xl font-bold text-mouse-teal">60s</div>
+                      <div className="text-xs text-gray-500">Deploy Time</div>
+                    </div>
+                  </div>
+                  <div className="mt-4 text-center text-sm text-gray-400">
+                    Installing OpenClaw, configuring your business profile, and starting your AI Operations Manager...
+                  </div>
+                </>
+              )}
             </div>
           )}
 

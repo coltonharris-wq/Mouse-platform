@@ -75,19 +75,23 @@
   - Ed25519 chat-bridge, auth:none, reference templates, non-fatal Orgo skill install
 - **Active test VMs:** King Mouse `50c90436`, Employee Sage `0e8cb7c9` (delete after testing)
 
-### V14 PRIORITIES (Current Sprint)
-1. 🔲 Customer-facing E2E test (validate live site works for real users)
-2. 🔲 Reseller landing page (separate from customer page) + commission calculator
-3. 🔲 Reseller invite link system (custom Stripe pricing, $8.98/hr cap)
-4. 🔲 Reseller E2E test
-5. 🔲 Connect domain + launch
-- **Stripe Connect** for reseller instant payouts — deferred to Opus session (architecture decision)
-- **King Mouse autonomous employee spawning** — deferred to V15
-- **Model:** Using Kimi K2.5 for build work, Opus for architecture/debugging only
+### V14 PRIORITIES (Current Sprint — Updated March 6)
+1. 🔲 **Auto-provision Orgo VM on customer signup** (after payment/signup → create VM → store computer_id)
+2. 🔲 **Auto-install OpenClaw on VM** (Mouse OS tarball, generate SOUL.md/USER.md from signup answers, configure Kimi K2.5)
+3. 🔲 **Wire dashboard chat → VM** (route already exists, just needs active VMs)
+4. 🔲 **Employees = sub-agents on King Mouse VM** (NOT separate VMs — cheaper, simpler)
+5. 🔲 **Customer-facing E2E test** (signup → VM provisions → chat works → must pass before demos)
+6. 🔲 Reseller landing page + commission calculator
+7. 🔲 Reseller invite link system
+8. 🔲 Connect domain + launch
+- **Stripe Connect** for reseller instant payouts — deferred to Opus session
+- **Cloud mode** stays as temporary fallback but is NOT the real product
+- **CRITICAL:** Colton demoing to customers ASAP — items 1-5 are blocking
 
 ## LLM FOR CUSTOMER VMs
-- **Model:** Moonshot Kimi K2.5
-- **API Key:** `sk-mrls9bQceHL59emlGtK8FNoIHjkFh3RLJKE1LyaDDqEwo06v`
+- **Model:** Moonshot Kimi K2.5 (`kimi-k2.5` — reasoning model, NO custom temperature)
+- **API Key:** `sk-fNNLY6aNRewMuDTKqvoIUPLcPyNJ9VEbDYNRuhgKdDjiT9SP` (named "mouse customer api key")
+- **Base URL:** `https://api.moonshot.ai/v1` (NOT api.moonshot.cn — that's dead)
 - **Why:** Cost-effective for customer VMs, Colton's choice
 
 ## THE REAL PRODUCT (confirmed March 5)
