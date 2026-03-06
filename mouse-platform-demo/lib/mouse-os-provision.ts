@@ -644,7 +644,8 @@ elif [ "$ACTION" = "load" ]; then
 fi
 SYNCEOF
 chmod +x /usr/local/bin/mouse-state-sync.sh
-(crontab -l 2>/dev/null; echo "* * * * * /usr/local/bin/mouse-state-sync.sh save >> /var/log/mouse-state-sync.log 2>&1") | crontab -
+# Try to set up crontab, but don't fail if crontab isn't available
+(crontab -l 2>/dev/null; echo "* * * * * /usr/local/bin/mouse-state-sync.sh save >> /var/log/mouse-state-sync.log 2>&1") | crontab - 2>/dev/null || log "WARN: crontab not available, state sync will be manual"
 /usr/local/bin/mouse-state-sync.sh load 2>/dev/null || true
 log "State sync configured"
 
