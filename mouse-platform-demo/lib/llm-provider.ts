@@ -376,7 +376,7 @@ export class LLMProviderManager {
       body: JSON.stringify({
         model,
         messages: request.messages,
-        temperature: request.temperature ?? 0.7,
+        // kimi-k2.5 is a reasoning model — only temperature=1 allowed
         max_tokens: request.maxTokens ?? 1024,
       }),
     });
@@ -424,7 +424,7 @@ export class LLMProviderManager {
       body: JSON.stringify({
         model,
         messages: request.messages,
-        temperature: request.temperature ?? 0.7,
+        // kimi-k2.5 is a reasoning model — only temperature=1 allowed
         max_tokens: request.maxTokens ?? 1024,
         stream: true,
       }),

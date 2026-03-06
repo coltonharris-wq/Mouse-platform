@@ -124,7 +124,6 @@ export async function POST(request: NextRequest) {
             ...chatMessages,
           ],
           max_tokens: 2048,
-          temperature: 0.7,
         }),
       });
     }
