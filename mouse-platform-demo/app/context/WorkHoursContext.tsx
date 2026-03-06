@@ -102,36 +102,17 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
         const userId = session ? JSON.parse(session).userId : null;
         if (!userId) return;
 
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const [statusRes, historyRes] = await Promise.allSettled([
-          fetch(`${API_URL}/work-hours/status/${userId}`),
-          fetch(`${API_URL}/work-hours/usage-history/${userId}`),
-        ]);
+        // Fetch balance from Next.js API (reads customers.work_hours_balance)
+        const statusRes = await fetch(`/api/work-hours?customerId=${userId}`);
 
-        if (statusRes.status === 'fulfilled' && statusRes.value.ok) {
-          const statusData = await statusRes.value.json();
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
           setState(prev => ({
             ...prev,
-            balance: statusData.remaining_hours ?? statusData.balance ?? prev.balance,
-            totalUsed: statusData.used_hours ?? statusData.total_used ?? prev.totalUsed,
-            totalPurchased: statusData.total_hours ?? statusData.total_purchased ?? prev.totalPurchased,
+            balance: statusData.balance ?? prev.balance,
+            totalUsed: statusData.monthlyUsage?.total_hours_consumed ?? prev.totalUsed,
+            totalPurchased: (statusData.balance ?? 0) + (statusData.monthlyUsage?.total_hours_consumed ?? 0),
           }));
-        }
-
-        if (historyRes.status === 'fulfilled' && historyRes.value.ok) {
-          const historyData = await historyRes.value.json();
-          if (historyData.usage_history && Array.isArray(historyData.usage_history)) {
-            const transactions: WorkHoursTransaction[] = historyData.usage_history.map((h: any) => ({
-              id: h.id || `tx-${Date.now()}-${Math.random()}`,
-              type: h.type || 'usage',
-              amount: h.hours || h.amount || 0,
-              featureType: h.feature_type as FeatureType,
-              description: h.description || '',
-              timestamp: new Date(h.created_at || h.timestamp || Date.now()),
-              employeeName: h.employee_name,
-            }));
-            setState(prev => ({ ...prev, transactions: transactions.length > 0 ? transactions : prev.transactions }));
-          }
         }
       } catch (err) {
         console.log('[WorkHoursContext] Backend fetch failed, using defaults');
