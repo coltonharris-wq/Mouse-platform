@@ -20,12 +20,65 @@ export interface ProvisionConfig {
   employeeName: string;
   businessName?: string;
   businessType?: string;
+  interviewAnswers?: Record<string, string>; // Onboarding interview answers
   supabaseUrl: string;
   supabaseAnonKey: string;
   supabaseServiceKey: string;
   moonshotApiKey: string;
   orgoApiKey: string;
   orgoWorkspaceId: string;
+}
+
+/**
+ * Generate USER.md content from interview answers
+ */
+function generateUserMd(config: ProvisionConfig): string {
+  const a = config.interviewAnswers || {};
+  
+  return `# USER.md — Business Profile
+
+## Business Information
+- **Business Name:** ${config.businessName || 'To be configured'}
+- **Owner:** ${config.employeeName || 'Business Owner'}
+- **Type:** ${config.employeeType || 'AI Operations'}
+
+## 1. The Digital Job Description
+
+### Primary Role & Outcomes
+${a['primary-role'] || '_Not specified during onboarding_'}
+
+### The Playbook
+${a['playbook'] || '_Not specified during onboarding_'}
+
+### The Red Lines
+${a['red-lines'] || '_Not specified during onboarding_'}
+
+## 2. Corporate Culture & Decision Logic
+
+### The Voice
+${a['voice'] || '_Not specified during onboarding_'}
+
+### Authority Level
+${a['authority'] || '_Not specified during onboarding_'}
+
+### The Heartbeat (Reporting)
+${a['heartbeat'] || '_Not specified during onboarding_'}
+
+## 3. Sovereign Access & System Keys
+
+### Active Access
+${a['active-access'] || '_Not specified during onboarding_'}
+
+### The Hand-Off Preference
+${a['hand-off'] || '_Not specified during onboarding_'}
+
+### Restricted Zones
+${a['restricted-zones'] || '_Not specified during onboarding_'}
+
+---
+
+*Profile created during onboarding. King Mouse will refine this as it learns your business.*
+`;
 }
 
 // ─── King Mouse Gateway Config ─────────────────────────────
@@ -282,17 +335,10 @@ try:
 except Exception as e:
     print(f"WARN: Could not download chat-bridge.mjs: {e}")
 
-# Create initial USER.md placeholder (setup interview will populate this)
-user_md = """# USER.md — Business Profile
-
-_King Mouse will populate this during the setup interview._
-
-- **Business Name:** ${config.businessName || 'Unknown'}
-- **Owner:** ${config.employeeName}
-- **Type:** ${config.employeeType}
-"""
+# Create USER.md from interview answers
+user_md_content = """${generateUserMd(config).replace(/\/g, '\\').replace(/"/g, '\"').replace(/\n/g, '\\n')}"""
 with open(os.path.join(ws, "USER.md"), "w") as f:
-    f.write(user_md)
+    f.write(user_md_content)
 
 # Create empty MEMORY.md
 with open(os.path.join(ws, "MEMORY.md"), "w") as f:
@@ -501,15 +547,9 @@ curl -fsSL "$TEMPLATE_BASE/SOUL.md" -o workspace/SOUL.md 2>/dev/null || log "WAR
 curl -fsSL "$TEMPLATE_BASE/AGENTS.md" -o workspace/AGENTS.md 2>/dev/null || log "WARN: AGENTS.md download failed"
 curl -fsSL "$TEMPLATE_BASE/SETUP_INTERVIEW.md" -o workspace/SETUP_INTERVIEW.md 2>/dev/null || log "WARN: SETUP_INTERVIEW.md download failed"
 
-# Create initial USER.md (setup interview will populate)
+# Create USER.md from interview answers
 cat > workspace/USER.md << 'USEREOF'
-# USER.md — Business Profile
-
-_King Mouse will populate this during the setup interview._
-
-- **Business Name:** ${config.businessName || 'Unknown'}
-- **Owner:** ${config.employeeName}
-- **Type:** ${config.employeeType}
+${generateUserMd(config)}
 USEREOF
 
 # Create empty MEMORY.md

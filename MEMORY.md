@@ -65,14 +65,48 @@
 - **Repo:** github.com/coltonharris-wq/Mouse-platform (main branch)
 - **DB:** Supabase `dgfnpllysgmszmfifnnk`
 - Stripe checkout live (6 prices, webhook active)
-- V8 deployed: Lead Funnel Pro, billing engine, marketplace with 8 AI employees
-- Render abandoned → Vercel (webpack alias bug, $125+ wasted)
+- V11: Orgo VM integration (real VMs spawn on hire)
+- **V12 DONE:** Mouse OS — Pre-built runtime tarball (496MB), provisions in 60s, gateway runs on 3.9GB disk VMs. All 4 blockers fixed. Commit `8acd772d`.
+- **V13 COMPLETE:** King Mouse as full OpenClaw instance. All 6 items done.
+- **E2E COMPLETE** (commit `d2ab6a81`) — All API tests pass:
+  - Hire King Mouse → VM provisions → chat works (setup interview)
+  - Dashboard `/api/vm/chat` GET + POST both work
+  - Hire Employee → role-specific VM provisions → chat works
+  - Ed25519 chat-bridge, auth:none, reference templates, non-fatal Orgo skill install
+- **Active test VMs:** King Mouse `50c90436`, Employee Sage `0e8cb7c9` (delete after testing)
+
+### V14 PRIORITIES (Current Sprint)
+1. 🔲 Customer-facing E2E test (validate live site works for real users)
+2. 🔲 Reseller landing page (separate from customer page) + commission calculator
+3. 🔲 Reseller invite link system (custom Stripe pricing, $8.98/hr cap)
+4. 🔲 Reseller E2E test
+5. 🔲 Connect domain + launch
+- **Stripe Connect** for reseller instant payouts — deferred to Opus session (architecture decision)
+- **King Mouse autonomous employee spawning** — deferred to V15
+- **Model:** Using Kimi K2.5 for build work, Opus for architecture/debugging only
+
+## LLM FOR CUSTOMER VMs
+- **Model:** Moonshot Kimi K2.5
+- **API Key:** `sk-mrls9bQceHL59emlGtK8FNoIHjkFh3RLJKE1LyaDDqEwo06v`
+- **Why:** Cost-effective for customer VMs, Colton's choice
+
+## THE REAL PRODUCT (confirmed March 5)
+NOT a chatbot platform. It's **OpenClaw-as-a-Service**:
+- Each customer gets a full OpenClaw instance (King Mouse) on their own VM
+- King Mouse has Orgo skill → can spawn Employee VMs (sub-agents)
+- Each employee = another OpenClaw instance managed by King Mouse
+- Customer communicates via Telegram, WhatsApp, or web chat
+- **This is selling clones of Mouse** — each customer gets their own AI CEO
+- The moat is the memory/learning system (Owner Logic Engine)
 
 ## KEY DECISIONS LOG
 - Render → Vercel (webpack bug, 20+ failed deploys)
 - Stripe SDK → raw fetch (SDK fails in Vercel serverless)
 - Token-based pricing → hourly pricing at $4.98/hr with margins
 - Separate LLC "Keyboard" for resellers
+- Web chat bridge: WS relay via Orgo bash (not direct HTTP — gateway needs full agent pipeline)
+- OpenClaw WS protocol: type=req JSON-RPC, connect challenge handshake, chat events (delta/final)
+- Dual-mode dashboard chat: auto-detect VM → Live VM mode, fallback → Cloud Mode (direct LLM)
 
 ## THE MAIN THING (CRITICAL)
 

@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase-server';
-import { checkBalance } from '@/lib/usage-tracker';
+import { checkBalance, creditHours } from '@/lib/usage-tracker';
 import { createComputer, getVncPassword, estimateHourlyCost } from '@/lib/orgo';
 import { kickOffProvision, ProvisionConfig } from '@/lib/mouse-os-provision';
 
@@ -18,10 +18,24 @@ import { kickOffProvision, ProvisionConfig } from '@/lib/mouse-os-provision';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { customerId, employeeType, employeeName, config } = body;
+    const { customerId, employeeType, employeeName, config, interviewAnswers, isOnboarding } = body;
 
-    if (!customerId || !employeeType) {
-      return NextResponse.json({ error: 'customerId and employeeType required' }, { status: 400 });
+    if (!customerId) {
+      return NextResponse.json({ error: 'customerId required' }, { status: 400 });
+    }
+
+    // If this is onboarding (new customer), employeeType defaults to 'king-mouse'
+    const actualEmployeeType = employeeType || 'king-mouse';
+
+    // Credit 2 free hours for new customers during onboarding
+    if (isOnboarding) {
+      const creditResult = await creditHours(customerId, 2, 'onboarding_bonus');
+      if (!creditResult.success) {
+        console.error('Failed to credit onboarding hours:', creditResult.error);
+        // Non-fatal — continue with hire
+      } else {
+        console.log(`Credited 2 free hours to ${customerId}, new balance: ${creditResult.newBalance}`);
+      }
     }
 
     const supabase = getSupabaseServer();
@@ -114,10 +128,11 @@ export async function POST(request: NextRequest) {
       // Provision downloads pre-built runtime tarball (~1 min total).
       const provisionConfig: ProvisionConfig = {
         customerId,
-        employeeType,
+        employeeType: actualEmployeeType,
         employeeName: name,
         businessName: config?.businessName,
         businessType: config?.businessType,
+        interviewAnswers, // Pass interview answers to provision script
         supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
         supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
         supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
