@@ -17,7 +17,7 @@ const steps = [
   },
   {
     title: "Deploying Your King Mouse",
-    description: "We're provisioning your dedicated AI Operations Manager. This takes about 60 seconds.",
+    description: "We're provisioning your dedicated AI Operations Manager. This takes 5-10 minutes.",
     icon: <Loader2 className="w-12 h-12 text-mouse-teal animate-spin" />,
   },
   {
@@ -138,21 +138,10 @@ export default function OnboardPage() {
 
   async function deployKingMouse() {
     setDeploying(true);
-    setDeployProgress(0);
-    
-    // Simulate progress
-    const progressInterval = setInterval(() => {
-      setDeployProgress(prev => {
-        if (prev >= 90) {
-          clearInterval(progressInterval);
-          return 90;
-        }
-        return prev + Math.random() * 10;
-      });
-    }, 1000);
+    setDeployProgress(10);
     
     try {
-      // Call API to create King Mouse VM with interview answers
+      // Step 1: Call API to create King Mouse VM
       const response = await fetch('/api/marketplace/hire', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -166,11 +155,7 @@ export default function OnboardPage() {
       
       const data = await response.json();
       
-      clearInterval(progressInterval);
-      setDeployProgress(100);
-      
       if (!response.ok || !data.success) {
-        // API returned an error
         const errorMsg = data.error || `Failed to deploy: ${response.status}`;
         console.error('Deployment failed:', errorMsg, data);
         setDeployError(errorMsg);
@@ -178,20 +163,69 @@ export default function OnboardPage() {
         return;
       }
       
-      if (data.success) {
-        setVmId(data.vm?.computer_id || data.vm?.id || null);
+      const computerId = data.vm?.computer_id || data.vm?.id;
+      if (!computerId) {
+        setDeployError('VM created but no computer ID returned');
+        setDeploying(false);
+        return;
       }
       
-      // Move to completion step after a brief pause
-      setTimeout(() => {
-        setCurrentStep(3);
+      setVmId(computerId);
+      setDeployProgress(30);
+      
+      // Step 2: Trigger provision
+      const triggerResponse = await fetch('/api/vm/provision-trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ computerId }),
+      });
+      
+      if (!triggerResponse.ok) {
+        console.error('Provision trigger failed:', await triggerResponse.text());
+        setDeployError('Failed to start VM provisioning');
         setDeploying(false);
-      }, 1000);
+        return;
+      }
+      
+      setDeployProgress(50);
+      
+      // Step 3: Poll for provision status (up to 5 minutes)
+      const maxAttempts = 60; // 60 * 5 seconds = 5 minutes
+      let attempts = 0;
+      
+      while (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+        
+        const statusResponse = await fetch(`/api/vm/provision-status?computer_id=${computerId}`);
+        const statusData = await statusResponse.json();
+        
+        console.log('Provision status:', statusData);
+        
+        if (statusData.status === 'ready') {
+          setDeployProgress(100);
+          // Only move to completion when actually ready
+          setTimeout(() => {
+            setCurrentStep(3);
+            setDeploying(false);
+          }, 1000);
+          return;
+        } else if (statusData.status === 'error') {
+          setDeployError('VM provisioning failed. Please try again.');
+          setDeploying(false);
+          return;
+        }
+        
+        // Update progress (50-90% while waiting)
+        attempts++;
+        setDeployProgress(50 + Math.min((attempts / maxAttempts) * 40, 40));
+      }
+      
+      // Timeout
+      setDeployError('Provisioning is taking longer than expected. Your VM is still being set up — you can check your portal in a few minutes.');
+      setDeploying(false);
       
     } catch (error: any) {
       console.error('Deployment error:', error);
-      clearInterval(progressInterval);
-      setDeployProgress(100);
       setDeployError(error?.message || 'Network error during deployment. Please try again.');
       setDeploying(false);
     }
@@ -384,8 +418,17 @@ export default function OnboardPage() {
                       <div className="text-xs text-gray-500">Deploy Time</div>
                     </div>
                   </div>
-                  <div className="mt-4 text-center text-sm text-gray-400">
-                    Installing OpenClaw, configuring your business profile, and starting your AI Operations Manager...
+                  <div className="mt-4 text-center">
+                    <p className="text-sm text-gray-400 mb-2">
+                      Installing OpenClaw, configuring your business profile, and starting your AI Operations Manager...
+                    </p>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/10 rounded-lg text-yellow-400 text-xs font-medium">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Do not leave this page or refresh your browser
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      This typically takes 5-10 minutes depending on your network connection
+                    </p>
                   </div>
                 </>
               )}
