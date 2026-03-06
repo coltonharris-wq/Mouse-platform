@@ -8,7 +8,7 @@ import type { UsageEventType } from '@/lib/usage-tracker';
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
 const ANTHROPIC_BASE_URL = 'https://api.anthropic.com/v1';
 const MOONSHOT_API_KEY = process.env.MOONSHOT_API_KEY || '';
-const MOONSHOT_BASE_URL = 'https://api.moonshot.cn/v1';
+const MOONSHOT_BASE_URL = 'https://api.moonshot.ai/v1';
 
 // --- MODEL ROUTING ---
 // Admin (Colton) → Anthropic Opus (full power, no billing)
@@ -26,7 +26,7 @@ function getModelConfig(portal: 'customer' | 'reseller' | 'admin') {
   // Customers and resellers use Kimi K2.5
   return {
     provider: 'moonshot' as const,
-    model: 'kimi-k2-0711',
+    model: 'kimi-k2.5',
     apiKey: MOONSHOT_API_KEY,
     baseUrl: MOONSHOT_BASE_URL,
     eventType: 'chat_kimi' as UsageEventType,

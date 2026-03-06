@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
     // --- BILLING: Record usage (flat rate per message for now) ---
     const vendorCost = 0.001; // Kimi K2.5 is cheap, estimate per message
     await recordUsage(customerId, 'chat_kimi' as UsageEventType, vendorCost, {
-      model: 'kimi-k2-0711',
+      model: 'kimi-k2.5',
       provider: 'moonshot',
       via: 'vm-chat-bridge',
       vm_id: vm.computer_id,

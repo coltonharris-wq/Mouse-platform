@@ -77,7 +77,7 @@ export class LLMProviderManager {
     this.tierManager = getTierManager();
     this.ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
     this.moonshotApiKey = process.env.MOONSHOT_API_KEY || '';
-    this.moonshotBaseUrl = process.env.MOONSHOT_BASE_URL || 'https://api.moonshot.cn/v1';
+    this.moonshotBaseUrl = process.env.MOONSHOT_BASE_URL || 'https://api.moonshot.ai/v1';
   }
 
   /**
