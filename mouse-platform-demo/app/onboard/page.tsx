@@ -179,7 +179,7 @@ export default function OnboardPage() {
       }
       
       if (data.success) {
-        setVmId(data.vmId);
+        setVmId(data.vm?.computer_id || data.vm?.id || null);
       }
       
       // Move to completion step after a brief pause
