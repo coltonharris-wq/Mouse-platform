@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
         last_name: lastName || null,
         account_type: 'customer',
         status: 'active',
+        work_hours_balance: 2,
         created_at: new Date().toISOString(),
       });
     } catch (dbError) {
