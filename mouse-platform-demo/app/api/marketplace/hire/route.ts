@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
       .insert({
         id: employeeId,
         customer_id: customerId,
+        employee_type: actualEmployeeType,
         employee_name: name,
         status: 'deploying',
       })
@@ -119,7 +120,7 @@ export async function POST(request: NextRequest) {
       // Update VM status
       await supabase
         .from('employee_vms')
-        .update({ status: 'provisioning', vm_name: vmName })
+        .update({ status: 'provisioning' })
         .eq('computer_id', computer.id);
 
       // 🐭 Kick off Mouse OS provisioning — fast, non-blocking attempt.

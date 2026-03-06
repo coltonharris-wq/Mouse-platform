@@ -39,3 +39,4 @@ node_modules/
 mouse-platform/
 .next/
 node_modules/
+.vercel
