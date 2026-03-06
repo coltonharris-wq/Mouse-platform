@@ -131,7 +131,10 @@ function generateEmployeeConfig(config: EmployeeProvisionConfig): object {
       mode: 'local',
       bind: 'loopback',
       auth: {
-        mode: 'open',
+        mode: 'none',
+      },
+      controlUi: {
+        allowedOrigins: ['*'],
       },
     },
     commands: {
@@ -234,6 +237,15 @@ cat > workspace/MEMORY.md << 'MEMEOF'
 
 _Build this over time with business rules, procedures, and learnings for your role._
 MEMEOF
+
+# Download OpenClaw reference templates (required by runtime for fallback)
+TEMPLATE_DIR="$MOUSE_HOME/docs/reference/templates"
+mkdir -p "$TEMPLATE_DIR"
+OC_TEMPLATE_BASE="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/reference/templates"
+for tpl in AGENTS.md AGENTS.dev.md BOOT.md BOOTSTRAP.md HEARTBEAT.md IDENTITY.md IDENTITY.dev.md SOUL.md SOUL.dev.md TOOLS.md TOOLS.dev.md USER.md USER.dev.md; do
+  curl -fsSL "$OC_TEMPLATE_BASE/$tpl" -o "$TEMPLATE_DIR/$tpl" 2>/dev/null || true
+done
+log "Reference templates downloaded"
 
 # Download chat bridge (for communication with King Mouse/dashboard)
 BRIDGE_URL="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/mouse-platform-demo/scripts/chat-bridge.mjs"

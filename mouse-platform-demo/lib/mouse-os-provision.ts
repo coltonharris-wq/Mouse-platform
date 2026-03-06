@@ -104,7 +104,10 @@ function generateKingMouseConfig(config: ProvisionConfig): object {
       mode: 'local',
       bind: 'loopback',
       auth: {
-        mode: 'open',
+        mode: 'none',
+      },
+      controlUi: {
+        allowedOrigins: ['*'],
       },
     },
     skills: {
@@ -251,6 +254,16 @@ home = str(pathlib.Path.home())
 mp = home + "/mouse-platform"
 oc = home + "/.openclaw"
 ws = mp + "/workspace"
+
+# Download OpenClaw reference templates (required by runtime)
+tmpl_dir = mp + "/docs/reference/templates"
+os.makedirs(tmpl_dir, exist_ok=True)
+oc_base = "https://raw.githubusercontent.com/openclaw/openclaw/main/docs/reference/templates"
+for tpl in ["AGENTS.md","AGENTS.dev.md","BOOT.md","BOOTSTRAP.md","HEARTBEAT.md","IDENTITY.md","IDENTITY.dev.md","SOUL.md","SOUL.dev.md","TOOLS.md","TOOLS.dev.md","USER.md","USER.dev.md"]:
+    try:
+        urllib.request.urlretrieve(f"{oc_base}/{tpl}", os.path.join(tmpl_dir, tpl))
+    except:
+        pass
 
 # Download brain templates from GitHub
 TEMPLATE_BASE = "https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/mouse-platform-demo/templates/king-mouse"
@@ -506,6 +519,15 @@ cat > workspace/MEMORY.md << 'MEMEOF'
 _King Mouse will build this over time._
 MEMEOF
 
+# Download OpenClaw reference templates (required by runtime for fallback)
+TEMPLATE_DIR="$MOUSE_HOME/docs/reference/templates"
+mkdir -p "$TEMPLATE_DIR"
+OC_TEMPLATE_BASE="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/reference/templates"
+for tpl in AGENTS.md AGENTS.dev.md BOOT.md BOOTSTRAP.md HEARTBEAT.md IDENTITY.md IDENTITY.dev.md SOUL.md SOUL.dev.md TOOLS.md TOOLS.dev.md USER.md USER.dev.md; do
+  curl -fsSL "$OC_TEMPLATE_BASE/$tpl" -o "$TEMPLATE_DIR/$tpl" 2>/dev/null || true
+done
+log "Reference templates downloaded"
+
 ## Download web chat bridge script (for dashboard → King Mouse communication)
 BRIDGE_URL="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/mouse-platform-demo/scripts/chat-bridge.mjs"
 curl -fsSL "$BRIDGE_URL" -o "$HOME/chat-bridge.mjs" 2>/dev/null || log "WARN: chat-bridge.mjs download failed"
@@ -536,11 +558,11 @@ log "Step 6/8: Installing Orgo skill..."
 SKILL_DIR="$OPENCLAW_DIR/skills/orgo"
 mkdir -p "$SKILL_DIR/scripts" "$SKILL_DIR/references"
 
-# Download Orgo skill files from GitHub repo
+# Download Orgo skill files from GitHub repo (non-fatal — skill is optional)
 SKILL_BASE="https://raw.githubusercontent.com/coltonharris-wq/Mouse-platform/main/mouse-platform-demo/skills/orgo"
-curl -fsSL "$SKILL_BASE/SKILL.md" -o "$SKILL_DIR/SKILL.md" 2>/dev/null
-curl -fsSL "$SKILL_BASE/scripts/orgo.py" -o "$SKILL_DIR/scripts/orgo.py" 2>/dev/null
-curl -fsSL "$SKILL_BASE/references/api.md" -o "$SKILL_DIR/references/api.md" 2>/dev/null
+curl -fsSL "$SKILL_BASE/SKILL.md" -o "$SKILL_DIR/SKILL.md" 2>/dev/null || log "WARN: Orgo SKILL.md download failed"
+curl -fsSL "$SKILL_BASE/scripts/orgo.py" -o "$SKILL_DIR/scripts/orgo.py" 2>/dev/null || log "WARN: Orgo orgo.py download failed"
+curl -fsSL "$SKILL_BASE/references/api.md" -o "$SKILL_DIR/references/api.md" 2>/dev/null || log "WARN: Orgo api.md download failed"
 chmod +x "$SKILL_DIR/scripts/orgo.py"
 
 # Install requests (needed by orgo.py)
