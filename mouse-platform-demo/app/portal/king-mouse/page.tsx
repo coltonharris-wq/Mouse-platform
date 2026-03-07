@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Loader2, Power, Plus, Users, Clock, AlertTriangle } from 'lucide-react';
+import { Send, Bot, User, Loader2, Power, Plus, Users, Clock, AlertTriangle, RotateCcw, Stethoscope } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -19,6 +19,9 @@ interface Employee {
   createdAt: string;
 }
 
+const SOFT_TOKEN_LIMIT = 80000;
+const HARD_TOKEN_LIMIT = 100000;
+
 export default function KingMouseChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -29,6 +32,10 @@ export default function KingMouseChat() {
   const [deployingEmployee, setDeployingEmployee] = useState(false);
   const [hoursBalance, setHoursBalance] = useState<number | null>(null);
   const [depleted, setDepleted] = useState(false);
+  const [tokenCount, setTokenCount] = useState(0);
+  const [chatPaused, setChatPaused] = useState(false);
+  const [pauseReason, setPauseReason] = useState<'limit' | 'doctor' | null>(null);
+  const [showPauseModal, setShowPauseModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const getSession = () => {
@@ -37,6 +44,37 @@ export default function KingMouseChat() {
       return s ? JSON.parse(s) : {};
     } catch { return {}; }
   };
+
+  // Estimate tokens from messages
+  const estimateTokens = (msgs: Message[]) => {
+    const totalChars = msgs.reduce((sum, msg) => sum + msg.content.length, 0);
+    return Math.ceil(totalChars / 4);
+  };
+
+  // Update token count whenever messages change
+  useEffect(() => {
+    const estimated = estimateTokens(messages);
+    setTokenCount(estimated);
+    localStorage.setItem('king_mouse_token_count', estimated.toString());
+
+    // Check for hard limit
+    if (estimated >= HARD_TOKEN_LIMIT && !chatPaused) {
+      setChatPaused(true);
+      setPauseReason('limit');
+      setShowPauseModal(true);
+    }
+  }, [messages]);
+
+  // Load token count from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('king_mouse_token_count');
+    if (saved) {
+      const count = parseInt(saved, 10);
+      if (!isNaN(count)) {
+        setTokenCount(count);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -73,6 +111,30 @@ export default function KingMouseChat() {
     setHistoryLoaded(true);
   }
 
+  async function saveConversationHistory() {
+    const { customerId, userId } = getSession();
+    const id = customerId || userId;
+    if (!id || messages.length === 0) return;
+
+    try {
+      await fetch('/api/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: id,
+          portal: 'customer',
+          messages: messages.map(m => ({
+            role: m.role,
+            content: m.content,
+            timestamp: m.timestamp,
+          })),
+        }),
+      });
+    } catch (error) {
+      console.error('Failed to save conversation:', error);
+    }
+  }
+
   async function fetchBalance() {
     const { customerId, userId } = getSession();
     const id = customerId || userId;
@@ -105,9 +167,34 @@ export default function KingMouseChat() {
     }
   }
 
+  async function handleNewSession() {
+    // Save current conversation before clearing
+    await saveConversationHistory();
+    
+    // Clear messages and reset token count
+    setMessages([]);
+    setTokenCount(0);
+    localStorage.setItem('king_mouse_token_count', '0');
+    
+    // Unpause chat
+    setChatPaused(false);
+    setPauseReason(null);
+    setShowPauseModal(false);
+  }
+
+  async function handleDoctorVisit() {
+    // Save current conversation
+    await saveConversationHistory();
+    
+    // Pause chat
+    setChatPaused(true);
+    setPauseReason('doctor');
+    setShowPauseModal(true);
+  }
+
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault();
-    if (!input.trim() || loading || depleted) return;
+    if (!input.trim() || loading || depleted || chatPaused) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -166,6 +253,9 @@ export default function KingMouseChat() {
     }
   }
 
+  const tokenPercentage = (tokenCount / HARD_TOKEN_LIMIT) * 100;
+  const showSoftWarning = tokenCount >= SOFT_TOKEN_LIMIT && tokenCount < HARD_TOKEN_LIMIT;
+
   if (instanceStatus === 'loading' || !historyLoaded) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -179,6 +269,42 @@ export default function KingMouseChat() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Pause Modal */}
+      {showPauseModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              {pauseReason === 'doctor' ? (
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                  <Stethoscope className="w-6 h-6 text-purple-600" />
+                </div>
+              ) : (
+                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-6 h-6 text-orange-600" />
+                </div>
+              )}
+              <div>
+                <h3 className="font-bold text-gray-900 text-lg">
+                  {pauseReason === 'doctor' ? 'Session Paused for Doctor Visit' : 'Session Paused'}
+                </h3>
+              </div>
+            </div>
+            <p className="text-gray-600 mb-6">
+              {pauseReason === 'doctor' 
+                ? 'Your conversation has been saved. Click "New Session" when ready to continue.'
+                : 'Session limit reached. Click "New Session" to continue with a fresh conversation.'}
+            </p>
+            <button
+              onClick={handleNewSession}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2"
+            >
+              <RotateCcw className="w-5 h-5" />
+              New Session
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-6xl mx-auto p-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Main Chat */}
@@ -189,11 +315,24 @@ export default function KingMouseChat() {
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                   <Bot className="w-6 h-6 text-white" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h2 className="text-white font-semibold">King Mouse</h2>
                   <p className="text-white/80 text-sm">Your AI Workforce Orchestrator</p>
                 </div>
-                <div className="ml-auto flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  {/* Token Counter */}
+                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/10 text-white/80">
+                    {(tokenCount / 1000).toFixed(1)}k / 100k tokens
+                  </div>
+                  {/* New Session Button */}
+                  <button
+                    onClick={handleNewSession}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-medium text-white transition-colors"
+                    title="Start a new session"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    New Session
+                  </button>
                   {hoursBalance !== null && (
                     <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
                       hoursBalance <= 0 ? 'bg-red-500/20 text-red-200' :
@@ -207,6 +346,29 @@ export default function KingMouseChat() {
                   <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 </div>
               </div>
+
+              {/* Token Progress Bar */}
+              <div className="h-1 bg-gray-100">
+                <div 
+                  className={`h-full transition-all duration-300 ${
+                    tokenPercentage >= 100 ? 'bg-red-500' :
+                    tokenPercentage >= 80 ? 'bg-orange-500' :
+                    'bg-blue-500'
+                  }`}
+                  style={{ width: `${Math.min(tokenPercentage, 100)}%` }}
+                />
+              </div>
+
+              {/* Soft Warning Banner */}
+              {showSoftWarning && (
+                <div className="bg-orange-50 border-b border-orange-200 px-4 py-3 flex items-center gap-3">
+                  <AlertTriangle size={16} className="text-orange-500 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm text-orange-800 font-medium">Session approaching limit</p>
+                    <p className="text-xs text-orange-600">Starting new session soon to maintain performance.</p>
+                  </div>
+                </div>
+              )}
 
               {/* Depleted Banner */}
               {depleted && (
@@ -295,13 +457,17 @@ export default function KingMouseChat() {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={depleted ? "Purchase more hours to continue..." : "Ask King Mouse anything..."}
-                    disabled={depleted}
+                    placeholder={
+                      chatPaused ? "Session paused — click New Session to continue" :
+                      depleted ? "Purchase more hours to continue..." : 
+                      "Ask King Mouse anything..."
+                    }
+                    disabled={depleted || chatPaused}
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
                   />
                   <button
                     type="submit"
-                    disabled={loading || !input.trim() || depleted}
+                    disabled={loading || !input.trim() || depleted || chatPaused}
                     className="bg-blue-500 text-white px-6 py-3 rounded-xl hover:bg-blue-600 disabled:opacity-50"
                   >
                     <Send className="w-5 h-5" />
@@ -313,6 +479,16 @@ export default function KingMouseChat() {
 
           {/* Sidebar */}
           <div className="space-y-4">
+            {/* Doctor Visit Button */}
+            <button
+              onClick={handleDoctorVisit}
+              disabled={chatPaused}
+              className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium py-3 px-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <Stethoscope className="w-5 h-5" />
+              Doctor Visit
+            </button>
+
             {/* Work Hours Card */}
             {hoursBalance !== null && (
               <div className={`rounded-2xl shadow-lg border p-4 ${
