@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
       employeeName: vm.employee_name || employee?.employee_name || 'King Mouse',
       businessName: employee?.config?.businessName,
       businessType: employee?.config?.businessType,
+      interviewAnswers: employee?.config?.interviewAnswers,
       supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
       supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
       supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',

@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase-server';
-import { checkBalance, creditHours } from '@/lib/usage-tracker';
+import { checkBalance } from '@/lib/usage-tracker';
 import { createComputer, getVncPassword, estimateHourlyCost } from '@/lib/orgo';
 import { kickOffProvision, ProvisionConfig } from '@/lib/mouse-os-provision';
 
@@ -27,16 +27,7 @@ export async function POST(request: NextRequest) {
     // If this is onboarding (new customer), employeeType defaults to 'king-mouse'
     const actualEmployeeType = employeeType || 'king-mouse';
 
-    // Credit 2 free hours for new customers during onboarding
-    if (isOnboarding) {
-      const creditResult = await creditHours(customerId, 2, 'onboarding_bonus');
-      if (!creditResult.success) {
-        console.error('Failed to credit onboarding hours:', creditResult.error);
-        // Non-fatal — continue with hire
-      } else {
-        console.log(`Credited 2 free hours to ${customerId}, new balance: ${creditResult.newBalance}`);
-      }
-    }
+    // Note: 2 free hours are already credited at signup. Do NOT credit again here (would double to 4).
 
     const supabase = getSupabaseServer();
     if (!supabase) {
@@ -69,6 +60,11 @@ export async function POST(request: NextRequest) {
         employee_type: actualEmployeeType,
         employee_name: name,
         status: 'deploying',
+        config: {
+          businessName: config?.businessName,
+          businessType: config?.businessType,
+          interviewAnswers: interviewAnswers || undefined,
+        },
       })
       .select()
       .single();

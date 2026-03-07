@@ -155,8 +155,10 @@ export default function OnboardPage() {
       
       const data = await response.json();
       
-      if (!response.ok || !data.success) {
-        const errorMsg = data.error || `Failed to deploy: ${response.status}`;
+      // Check for actual VM creation, not just success flag
+      // The API returns success:true even when VM fails (orgoError is set instead)
+      if (!response.ok || !data.success || !data.vm || data.orgoError) {
+        const errorMsg = data.error || data.orgoError || `Failed to deploy: ${response.status}`;
         console.error('Deployment failed:', errorMsg, data);
         setDeployError(errorMsg);
         setDeploying(false);
@@ -282,7 +284,9 @@ export default function OnboardPage() {
               Subject {currentSubject + 1} of {interviewSubjects.length}
             </span>
           )}
-          <button onClick={handleSkip} className="text-mouse-teal">Skip</button>
+          {currentStep !== 2 && (
+            <button onClick={handleSkip} className="text-mouse-teal">Skip</button>
+          )}
         </div>
         <div className="h-1 bg-gray-800 rounded-full overflow-hidden">
           <div 

@@ -100,6 +100,18 @@ async function handleCheckoutCompleted(session: any, supabase: any) {
     return;
   }
 
+  // Idempotency: if we already processed this session, skip (Stripe may retry)
+  const { data: existing } = await supabase
+    .from('payments')
+    .select('id')
+    .eq('stripe_session_id', session.id)
+    .maybeSingle();
+
+  if (existing) {
+    console.log('[webhook] Already processed session', session.id);
+    return;
+  }
+
   // 1. Credit work hours
   if (workHours > 0) {
     const { data: current } = await supabase
@@ -121,19 +133,18 @@ async function handleCheckoutCompleted(session: any, supabase: any) {
     }
   }
 
-  // 2. Update plan
+  // 2. Update plan (customers table uses plan_tier; tier column may not exist)
   await supabase
     .from('customers')
     .update({
-      tier: plan,
-      plan_tier: plan,
+      plan_tier: plan || 'free',
       stripe_customer_id: session.customer || undefined,
-      payment_status: 'active',
+      stripe_subscription_id: session.subscription || undefined,
       updated_at: new Date().toISOString(),
     })
     .eq('id', customerId);
 
-  // 3. Store payment record
+  // 3. Store payment record (so we can skip on retry)
   await supabase.from('payments').insert({
     customer_id: customerId,
     stripe_session_id: session.id,
@@ -191,8 +202,7 @@ async function handleSubscriptionCanceled(subscription: any, supabase: any) {
   await supabase
     .from('customers')
     .update({
-      payment_status: 'canceled',
-      tier: 'free',
+      stripe_subscription_status: 'canceled',
       plan_tier: 'free',
       updated_at: new Date().toISOString(),
     })

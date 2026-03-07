@@ -1,8 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
+// Separate component for the redirect logic to handle suspense
+function ResellerRedirect() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const refCode = searchParams.get('ref');
+    if (refCode) {
+      router.replace(`/signup/reseller-customer?ref=${refCode}`);
+    }
+  }, [searchParams, router]);
+
+  return null;
+}
 
 export default function SignupPage() {
   const router = useRouter();
@@ -305,6 +320,11 @@ export default function SignupPage() {
           </span>
         </div>
       </div>
+
+      {/* Reseller redirect - wrapped in Suspense */}
+      <Suspense fallback={null}>
+        <ResellerRedirect />
+      </Suspense>
     </div>
   );
 }

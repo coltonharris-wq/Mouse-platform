@@ -813,25 +813,52 @@ export async function provisionMouseOS(
 
 /**
  * Check if provisioning is complete on a VM.
+ * 
+ * Checks if OpenClaw gateway is actually listening on port 18789
+ * instead of just looking for a log message (which may fail to write).
  */
 export async function checkProvisionStatus(computerId: string): Promise<{
   status: 'pending' | 'provisioning' | 'ready' | 'error';
   log?: string;
 }> {
   try {
+    // Primary check: Is OpenClaw gateway listening on port 18789?
+    const portCheck = await executeBash(computerId,
+      'ss -tlnp 2>/dev/null | grep "127.0.0.1:18789" || netstat -tlnp 2>/dev/null | grep "127.0.0.1:18789" || echo "PORT_NOT_LISTENING"'
+    );
+    
+    if (portCheck.output?.includes('127.0.0.1:18789') || portCheck.output?.includes(':18789')) {
+      // Gateway is listening - verify it's actually OpenClaw
+      const psCheck = await executeBash(computerId, 
+        'ps aux | grep -E "openclaw-gateway|openclaw.mjs" | grep -v grep | head -1'
+      );
+      if (psCheck.output?.includes('openclaw')) {
+        return { status: 'ready', log: 'OpenClaw gateway running on port 18789' };
+      }
+    }
+    
+    // Fallback: Check log file for legacy compatibility
     const result = await executeBash(computerId,
       'grep "MOUSE OS READY" /var/log/mouse-os-provision.log 2>/dev/null && echo STATUS_READY || echo STATUS_PENDING'
     );
     if (result.output?.includes('STATUS_READY')) {
       return { status: 'ready' };
     }
-    // Check if provisioning is actively running
-    const ps = await executeBash(computerId, 'ps aux | grep -v grep | grep "pnpm\\|node.*openclaw" | head -1');
+    
+    // Check if provisioning script is still running
+    const ps = await executeBash(computerId, 'ps aux | grep -v grep | grep "provision-mouse-os" | head -1');
     if (ps.output?.trim()) {
       return { status: 'provisioning', log: ps.output.trim() };
     }
+    
+    // Check if OpenClaw processes exist but port isn't ready yet
+    const ocPs = await executeBash(computerId, 'ps aux | grep -v grep | grep "openclaw" | head -1');
+    if (ocPs.output?.trim()) {
+      return { status: 'provisioning', log: 'OpenClaw starting up...' };
+    }
+    
     return { status: 'pending' };
-  } catch {
-    return { status: 'error' };
+  } catch (err: any) {
+    return { status: 'error', log: err.message };
   }
 }
