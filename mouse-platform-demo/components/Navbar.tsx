@@ -33,6 +33,12 @@ export default function Navbar() {
               Pricing
             </Link>
             <Link
+              href="/for-resellers"
+              className="text-white text-sm font-medium hover:text-mouse-slate transition-colors"
+            >
+              For Resellers
+            </Link>
+            <Link
               href="/#about"
               className="text-white text-sm font-medium hover:text-mouse-slate transition-colors"
             >
@@ -86,6 +92,13 @@ export default function Navbar() {
               onClick={() => setMobileOpen(false)}
             >
               Pricing
+            </Link>
+            <Link
+              href="/for-resellers"
+              className="block text-white text-sm font-medium py-2 hover:text-mouse-slate transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
+              For Resellers
             </Link>
             <Link
               href="/#about"

@@ -61,9 +61,14 @@ export async function POST(request: NextRequest) {
     }
 
     // --- SEND MESSAGE VIA ORGO BASH ---
-    // Escape the message for bash (single-quote safe)
-    const escapedMessage = message.replace(/'/g, "'\\''");
-    const sessArg = sessionKey ? ` '${sessionKey.replace(/'/g, "'\\''")}'` : '';
+    // Limit length to avoid Orgo command line / bash limits (~128k typical); keep last chars so user sees truncation note
+    const MAX_MESSAGE_LENGTH = 28000;
+    const truncatedMessage =
+      message.length > MAX_MESSAGE_LENGTH
+        ? message.slice(0, MAX_MESSAGE_LENGTH - 80) + '\n\n[Message truncated for delivery. Full text not sent.]'
+        : message;
+    const escapedMessage = truncatedMessage.replace(/'/g, "'\\''");
+    const sessArg = sessionKey ? ` '${(sessionKey || '').replace(/'/g, "'\\''")}'` : '';
 
     // Run chat-bridge.mjs on the VM via Orgo
     const command = `cd $HOME && node chat-bridge.mjs '${escapedMessage}'${sessArg}`;
@@ -114,9 +119,9 @@ export async function POST(request: NextRequest) {
       }, { status: 502 });
     }
 
-    // --- BILLING: Record usage (flat rate per message for now) ---
+    // --- BILLING: Record usage only when we successfully return a reply (no charge on error/timeout) ---
     const vendorCost = 0.001; // Kimi K2.5 is cheap, estimate per message
-    await recordUsage(customerId, 'chat_kimi' as UsageEventType, vendorCost, {
+    const usageResult = await recordUsage(customerId, 'chat_kimi' as UsageEventType, vendorCost, {
       model: 'kimi-k2.5',
       provider: 'moonshot',
       via: 'vm-chat-bridge',
@@ -128,6 +133,8 @@ export async function POST(request: NextRequest) {
       reply: parsed.reply,
       via: 'king-mouse-vm',
       vmId: vm.computer_id,
+      ...(usageResult.newBalance !== undefined && { newBalance: usageResult.newBalance }),
+      ...(usageResult.workHoursCharged !== undefined && { workHoursCharged: usageResult.workHoursCharged }),
     });
 
   } catch (error: any) {

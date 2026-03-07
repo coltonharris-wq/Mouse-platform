@@ -32,29 +32,56 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user metadata for role
-    const accountType = data.user?.user_metadata?.account_type || 'customer';
-    let role = accountType;
-    if (accountType === 'admin') role = 'platform_owner';
+    const adminSupabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
 
-    // Try to get customer data
-    let customerData = null;
-    try {
-      const adminSupabase = createClient(supabaseUrl, supabaseServiceKey, {
-        auth: { autoRefreshToken: false, persistSession: false }
-      });
-      const { data: customer } = await adminSupabase
+    let role = data.user?.user_metadata?.account_type || 'customer';
+    let customerId: string | null = null;
+    let accountType = role;
+
+    // 1. Check resellers by user_id
+    const { data: reseller } = await adminSupabase
+      .from('resellers')
+      .select('id')
+      .eq('user_id', data.user?.id)
+      .single();
+
+    if (reseller) {
+      role = 'reseller';
+      accountType = 'reseller';
+      // Resellers also have a customer record (for billing)
+      const { data: cust } = await adminSupabase
         .from('customers')
-        .select('*')
-        .eq('id', data.user?.id)
+        .select('id')
+        .eq('user_id', data.user?.id)
         .single();
-      customerData = customer;
-      if (customer?.account_type) {
-        role = customer.account_type;
-        if (role === 'admin') role = 'platform_owner';
+      customerId = cust?.id || null;
+    } else {
+      // 2. Check customers by user_id first, then by email (legacy)
+      let customer: { id: string; account_type?: string } | null = null;
+      const { data: byUserId } = await adminSupabase
+        .from('customers')
+        .select('id, account_type')
+        .eq('user_id', data.user?.id)
+        .single();
+      if (byUserId) {
+        customer = byUserId;
+      } else {
+        const { data: byEmail } = await adminSupabase
+          .from('customers')
+          .select('id, account_type')
+          .eq('email', email)
+          .single();
+        customer = byEmail;
       }
-    } catch (e) {
-      // Non-fatal - continue with auth metadata
+      if (customer) {
+        customerId = customer.id;
+        if (customer.account_type) {
+          role = customer.account_type === 'admin' ? 'platform_owner' : customer.account_type;
+          accountType = role;
+        }
+      }
     }
 
     return NextResponse.json({
@@ -65,10 +92,11 @@ export async function POST(request: NextRequest) {
       refreshToken: data.session?.refresh_token,
       role,
       accountType,
-      portal: accountType,
-      redirectTo: accountType === 'admin' ? '/admin' : '/portal',
-      canSwitchPortals: accountType === 'admin',
-      availablePortals: accountType === 'admin' ? ['admin', 'customer', 'reseller'] : [accountType],
+      customerId,
+      portal: accountType === 'admin' ? 'admin' : accountType === 'reseller' ? 'reseller' : 'customer',
+      redirectTo: role === 'platform_owner' || role === 'admin' ? '/admin' : role === 'reseller' ? '/dashboard' : '/portal',
+      canSwitchPortals: role === 'platform_owner' || role === 'admin',
+      availablePortals: role === 'platform_owner' || role === 'admin' ? ['admin', 'customer', 'reseller'] : [accountType],
     });
   } catch (error: any) {
     console.error('Login error:', error);

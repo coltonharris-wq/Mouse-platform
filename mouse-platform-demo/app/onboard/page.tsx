@@ -426,13 +426,16 @@ export default function OnboardPage() {
                     <p className="text-sm text-gray-400 mb-2">
                       Installing OpenClaw, configuring your business profile, and starting your AI Operations Manager...
                     </p>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/10 rounded-lg text-yellow-400 text-xs font-medium">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-mouse-teal/10 rounded-lg text-mouse-teal text-xs font-medium">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Do not leave this page or refresh your browser
+                      This typically takes 5–10 minutes
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
-                      This typically takes 5-10 minutes depending on your network connection
+                      You can leave this page — we’ll keep provisioning in the background. Check your portal or we’ll notify you when King Mouse is ready.
                     </p>
+                    <a href="/portal" className="inline-block mt-3 text-mouse-teal text-sm font-medium hover:underline">
+                      Go to portal →
+                    </a>
                   </div>
                 </>
               )}

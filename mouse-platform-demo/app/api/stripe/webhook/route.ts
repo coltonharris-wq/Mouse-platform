@@ -100,15 +100,26 @@ async function handleCheckoutCompleted(session: any, supabase: any) {
     return;
   }
 
-  // Idempotency: if we already processed this session, skip (Stripe may retry)
-  const { data: existing } = await supabase
-    .from('payments')
-    .select('id')
-    .eq('stripe_session_id', session.id)
-    .maybeSingle();
+  // Idempotency: insert payment first. If duplicate (Stripe retry or race), skip. Only credit when we are the one who inserted.
+  const { error: insertErr } = await supabase.from('payments').insert({
+    customer_id: customerId,
+    stripe_session_id: session.id,
+    stripe_payment_intent_id: session.payment_intent,
+    stripe_customer_id: session.customer,
+    plan: plan,
+    amount: session.amount_total || 0,
+    currency: session.currency || 'usd',
+    status: 'completed',
+    metadata: { work_hours: workHours, plan },
+    created_at: new Date().toISOString(),
+  });
 
-  if (existing) {
-    console.log('[webhook] Already processed session', session.id);
+  if (insertErr) {
+    if (insertErr.code === '23505') {
+      console.log('[webhook] Already processed session', session.id);
+    } else {
+      console.warn('[webhook] Payment insert:', insertErr.message);
+    }
     return;
   }
 
@@ -133,7 +144,7 @@ async function handleCheckoutCompleted(session: any, supabase: any) {
     }
   }
 
-  // 2. Update plan (customers table uses plan_tier; tier column may not exist)
+  // 2. Update plan
   await supabase
     .from('customers')
     .update({
@@ -143,20 +154,6 @@ async function handleCheckoutCompleted(session: any, supabase: any) {
       updated_at: new Date().toISOString(),
     })
     .eq('id', customerId);
-
-  // 3. Store payment record (so we can skip on retry)
-  await supabase.from('payments').insert({
-    customer_id: customerId,
-    stripe_session_id: session.id,
-    stripe_payment_intent_id: session.payment_intent,
-    stripe_customer_id: session.customer,
-    plan: plan,
-    amount: session.amount_total || 0,
-    currency: session.currency || 'usd',
-    status: 'completed',
-    metadata: { work_hours: workHours, plan },
-    created_at: new Date().toISOString(),
-  }).catch((e: any) => console.warn('[webhook] Payment insert:', e.message));
 
   console.log(`[webhook] ✅ ${customerId} → ${plan} (${workHours} hrs)`);
 }

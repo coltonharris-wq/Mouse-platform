@@ -36,6 +36,8 @@ export default function KingMouseChat() {
   const [chatPaused, setChatPaused] = useState(false);
   const [pauseReason, setPauseReason] = useState<'limit' | 'doctor' | null>(null);
   const [showPauseModal, setShowPauseModal] = useState(false);
+  const [chatMode, setChatMode] = useState<'checking' | 'vm' | 'fallback'>('checking');
+  const [vmId, setVmId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const getSession = () => {
@@ -84,7 +86,33 @@ export default function KingMouseChat() {
     checkStatus();
     fetchBalance();
     loadConversationHistory();
+    checkVmAvailability();
   }, []);
+
+  async function checkVmAvailability() {
+    const { customerId, userId } = getSession();
+    const id = customerId || userId;
+    if (!id) {
+      setChatMode('fallback');
+      return;
+    }
+    try {
+      const res = await fetch(`/api/vm/chat?customerId=${id}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.available) {
+          setChatMode('vm');
+          setVmId(data.vmId || null);
+        } else {
+          setChatMode('fallback');
+        }
+      } else {
+        setChatMode('fallback');
+      }
+    } catch {
+      setChatMode('fallback');
+    }
+  }
 
   async function loadConversationHistory() {
     const { customerId, userId } = getSession();
@@ -208,21 +236,46 @@ export default function KingMouseChat() {
     setInput('');
     setLoading(true);
 
+    const session = getSession();
+    const customerId = session.customerId || session.userId;
+
     try {
-      const session = getSession();
+      let data: any;
 
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: userInput,
-          userRole: session.role || 'customer',
-          userId: session.userId,
-          customerId: session.customerId || session.userId,
-        }),
-      });
-
-      const data = await response.json();
+      if (chatMode === 'vm' && customerId) {
+        const vmRes = await fetch('/api/vm/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: userInput, customerId }),
+        });
+        data = await vmRes.json();
+        if (data.fallback) {
+          setChatMode('fallback');
+          const fallbackRes = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: userInput,
+              userRole: session.role || 'customer',
+              userId: session.userId,
+              customerId,
+            }),
+          });
+          data = await fallbackRes.json();
+        }
+      } else {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: userInput,
+            userRole: session.role || 'customer',
+            userId: session.userId,
+            customerId,
+          }),
+        });
+        data = await response.json();
+      }
 
       if (data.depleted) {
         setDepleted(true);

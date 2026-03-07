@@ -9,7 +9,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, company, firstName, lastName } = body;
+    const { email, password, company, firstName, lastName, role } = body;
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
         first_name: firstName || '',
         last_name: lastName || '',
         company_name: company || '',
+        account_type: role === 'reseller' ? 'reseller' : 'customer',
       },
     });
 
@@ -42,9 +43,10 @@ export async function POST(request: NextRequest) {
     const userId = authData.user?.id;
     const customerId = `cst_${userId?.substring(0, 8)}`;
 
-    // Create customer record — only use columns that exist in the table
+    // Create customer record (always — used for billing/portal for own usage)
     const { error: customerError } = await supabase.from('customers').insert({
       id: customerId,
+      user_id: userId,
       email,
       company_name: company || 'My Business',
       status: 'active',
@@ -56,6 +58,21 @@ export async function POST(request: NextRequest) {
 
     if (customerError) {
       console.error('Customer record creation error:', JSON.stringify(customerError));
+    }
+
+    // If reseller, create resellers record (existing table has id UUID, name, email, etc.)
+    if (role === 'reseller') {
+      const { error: resellerError } = await supabase.from('resellers').insert({
+        id: crypto.randomUUID(),
+        user_id: userId,
+        name: company || 'My Agency',
+        company_name: company || '',
+        email,
+        status: 'active',
+      });
+      if (resellerError) {
+        console.error('Reseller record creation error:', JSON.stringify(resellerError));
+      }
     }
 
     // Sign in to get tokens
