@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     const stripe = await import('stripe').then(m => new m.default(STRIPE_SECRET_KEY, {
-      apiVersion: '2024-12-18.acacia',
+      apiVersion: '2026-02-25.clover' as any,
     }));
 
     let accountId: string;
@@ -189,7 +189,7 @@ export async function GET(request: NextRequest) {
 
     // Check Stripe account status
     const stripe = await import('stripe').then(m => new m.default(STRIPE_SECRET_KEY, {
-      apiVersion: '2024-12-18.acacia',
+      apiVersion: '2026-02-25.clover' as any,
     }));
 
     const account = await stripe.accounts.retrieve(reseller.stripe_account_id);

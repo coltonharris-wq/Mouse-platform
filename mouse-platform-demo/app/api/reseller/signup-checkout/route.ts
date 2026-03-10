@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     const stripe = await import("stripe").then(
-      (m) => new m.default(STRIPE_SECRET_KEY, { apiVersion: "2024-12-18.acacia" })
+      (m) => new m.default(STRIPE_SECRET_KEY, { apiVersion: "2026-02-25.clover" as any })
     );
 
     const session = await stripe.checkout.sessions.create({

@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
 
     // Create Stripe checkout session with Connect
     const stripe = await import('stripe').then(m => new m.default(STRIPE_SECRET_KEY, {
-      apiVersion: '2024-12-18.acacia',
+      apiVersion: '2026-02-25.clover' as any,
     }));
 
     // Calculate application fee (platform keeps this, reseller gets rest)
