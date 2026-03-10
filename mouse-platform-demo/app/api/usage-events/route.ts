@@ -66,22 +66,33 @@ export async function GET(request: NextRequest) {
 
     // Customer usage
     if (customerId) {
+      // Resolve UUID to cst_* format if needed
+      let resolvedId = customerId;
+      if (!customerId.startsWith('cst_')) {
+        const { data: lookup } = await supabase
+          .from('customers')
+          .select('id')
+          .eq('user_id', customerId)
+          .single();
+        if (lookup) resolvedId = lookup.id;
+      }
+
       const [summaryRes, eventsRes, balanceRes] = await Promise.all([
         supabase.rpc('get_customer_usage_summary', {
-          p_customer_id: customerId,
+          p_customer_id: resolvedId,
           p_year: year,
           p_month: month,
         }),
         supabase
           .from('usage_events')
           .select('*')
-          .eq('customer_id', customerId)
+          .eq('customer_id', resolvedId)
           .order('created_at', { ascending: false })
           .limit(100),
         supabase
           .from('customers')
           .select('work_hours_balance, work_hours_purchased')
-          .eq('id', customerId)
+          .eq('id', resolvedId)
           .single(),
       ]);
 
