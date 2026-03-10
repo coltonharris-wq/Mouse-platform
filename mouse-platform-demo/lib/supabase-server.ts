@@ -5,14 +5,14 @@ let serverInstance: any = null;
 
 export function getSupabaseServer() {
   if (!serverInstance) {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-    
+    const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
+    const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+
     if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('mock')) {
       console.warn('[supabase-server] No valid Supabase credentials');
       return null;
     }
-    
+
     serverInstance = createClient(supabaseUrl, supabaseKey, {
       auth: { persistSession: false },
     });
@@ -32,8 +32,8 @@ export async function supabaseQuery(
   body?: Record<string, any>,
   queryString?: string
 ): Promise<any> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
+  const serviceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
   if (!supabaseUrl || !serviceKey) {
     throw new Error('Supabase credentials not configured');
@@ -71,8 +71,8 @@ export async function supabaseRpc(
   functionName: string,
   params: Record<string, any>
 ): Promise<any> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
+  const serviceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
   if (!supabaseUrl || !serviceKey) {
     throw new Error('Supabase credentials not configured');
