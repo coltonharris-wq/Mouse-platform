@@ -6,15 +6,15 @@ import { createClient } from '@supabase/supabase-js';
 import { kingMouseService } from '@/lib/king-mouse-service';
 
 function getStripe() {
-  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  return new Stripe((process.env.STRIPE_SECRET_KEY || '').trim(), {
     apiVersion: '2026-02-25.clover' as any,
   });
 }
 
 function getSupabase() {
   return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    (process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim(),
+    (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim()
   );
 }
 
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   try {
     const stripe = getStripe();
     const supabase = getSupabase();
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+    const webhookSecret = (process.env.STRIPE_WEBHOOK_SECRET || '').trim();
     
     const payload = await request.text();
     const signature = request.headers.get('stripe-signature')!;

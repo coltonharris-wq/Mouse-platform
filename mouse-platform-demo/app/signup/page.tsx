@@ -119,15 +119,19 @@ export default function SignupPage() {
         return;
       }
 
-      // Store session
+      // Store session + token so PortalGuard works after deploying → portal redirect
       localStorage.setItem('mouse_session', JSON.stringify({
         userId: data.userId,
         email: formData.email,
         role: 'customer',
+        accountType: 'customer',
         customerId: data.customerId,
         name: formData.fullName,
         companyName: formData.companyName,
       }));
+      if (data.token) {
+        localStorage.setItem('mouse_token', data.token);
+      }
 
       // Redirect to checkout
       window.location.href = `/checkout/starter?customerId=${data.customerId}&email=${encodeURIComponent(formData.email)}`;
