@@ -11,23 +11,35 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Show message if redirected due to session expiry
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("expired") === "1") {
+        setError("Your session has expired. Please sign in again.");
+        window.history.replaceState({}, "", "/login");
+      }
+    }
+  }, []);
+
   // Check if already logged in
   useEffect(() => {
     const checkSession = async () => {
       try {
         const session = localStorage.getItem('mouse_session');
-        if (session) {
-          const parsed = JSON.parse(session);
-          if (parsed.role === 'admin' || parsed.role === 'platform_owner') {
-            router.push('/admin');
-          } else if (parsed.role === 'reseller') {
-            router.push('/dashboard');
-          } else {
-            router.push('/portal');
-          }
+        const token = localStorage.getItem('mouse_token');
+        if (!session || !token) return;
+        const parsed = JSON.parse(session);
+        // Admin access: role or canSwitchPortals (Colton as reseller can switch to admin)
+        if (parsed.role === 'admin' || parsed.role === 'platform_owner' || parsed.canSwitchPortals) {
+          router.push('/admin');
+        } else if (parsed.role === 'reseller') {
+          router.push('/dashboard');
+        } else {
+          router.push('/portal');
         }
       } catch {
-        // No session, stay on login
+        // Malformed session, stay on login
       }
     };
     checkSession();
@@ -66,6 +78,7 @@ export default function LoginPage() {
         role: data.role,
         accountType: data.accountType,
         customerId: data.customerId,
+        resellerId: data.resellerId,
         canSwitchPortals: data.canSwitchPortals,
         availablePortals: data.availablePortals,
       }));

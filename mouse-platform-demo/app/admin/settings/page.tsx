@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getAuthHeaders } from "@/lib/admin-auth";
 import {
   Settings,
   Mail,
@@ -75,7 +76,7 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     async function loadSettings() {
       try {
-        const res = await fetch("/api/admin/settings");
+        const res = await fetch("/api/admin/settings", { headers: getAuthHeaders() });
         if (!res.ok) return;
         const data = await res.json();
         const s = data.settings || {};
@@ -95,7 +96,7 @@ export default function AdminSettingsPage() {
     try {
       const res = await fetch("/api/admin/settings", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify({
           settings: {
             platform: platformConfig,

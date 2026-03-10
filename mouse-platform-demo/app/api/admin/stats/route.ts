@@ -1,10 +1,14 @@
 export const dynamic = 'force-dynamic';
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/admin-auth';
 
 const API_URL = process.env.API_URL || 'http://localhost:8000';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
   try {
     // Aggregate from multiple backend endpoints
     const [healthRes, salesRes] = await Promise.allSettled([

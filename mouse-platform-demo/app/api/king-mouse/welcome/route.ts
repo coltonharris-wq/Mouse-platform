@@ -72,9 +72,9 @@ function generateKingMouseWelcomeEmail(params: {
   const planFeatures: Record<string, string[]> = {
     free: ['1 AI Employee', '20 work hours/month', 'Basic chat support'],
     starter: ['1 AI Employee', '160 work hours/month', 'Email & CRM automation', 'ROI dashboard'],
-    growth: ['3 AI Employees', '500 work hours/month', 'Priority support', 'Voice/video calls'],
+    growth: ['3 AI Employees', '500 work hours/month', 'Priority support', 'Request phone/voice in dashboard'],
     pro: ['5 AI Employees', 'Unlimited work hours', 'Custom workflows', 'API access'],
-    enterprise: ['10+ AI Employees', 'Unlimited everything', 'White label options', 'Dedicated infrastructure'],
+    enterprise: ['10+ AI Employees', 'Unlimited everything', 'Dedicated infrastructure'],
   };
 
   const features = planFeatures[params.planTier] || planFeatures.starter;

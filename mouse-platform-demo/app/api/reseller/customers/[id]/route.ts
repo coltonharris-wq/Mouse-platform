@@ -2,7 +2,31 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { resellerCustomerManager } from '@/lib/reseller-customer-manager';
-import { createClient } from '@/lib/supabase-client';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+async function getResellerIdFromToken(request: NextRequest): Promise<{ resellerId: string } | { error: string; status: number }> {
+  const authHeader = request.headers.get('authorization');
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (!token) return { error: 'Unauthorized', status: 401 };
+
+  const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+  if (userError || !user) return { error: 'Invalid token', status: 401 };
+
+  const { data: reseller } = await supabase
+    .from('resellers')
+    .select('id')
+    .eq('user_id', user.id)
+    .single();
+
+  if (!reseller) return { error: 'Reseller account required', status: 403 };
+  return { resellerId: reseller.id };
+}
 
 /**
  * GET /api/reseller/customers/[id]
@@ -14,39 +38,14 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    
-    // Get the current session
-    const supabase = createClient();
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized - Please sign in' },
-        { status: 401 }
-      );
+    const auth = await getResellerIdFromToken(request);
+    if ('error' in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    // Get the user's profile to find their reseller_id
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('reseller_id, role')
-      .eq('id', session.user.id)
-      .single();
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    let resellerId = profile?.reseller_id;
-    
-    if (!resellerId) {
-      if (profile?.role === 'platform_owner' || profile?.role === 'admin') {
-        resellerId = 'res-001';
-      } else {
-        return NextResponse.json(
-          { error: 'Not authorized' },
-          { status: 403 }
-        );
-      }
-    }
-
-    // Fetch customer from database
+    // Fetch customer — must belong to this reseller
     const { data: customer, error } = await supabase
       .from('customers')
       .select(`
@@ -59,7 +58,7 @@ export async function GET(
         )
       `)
       .eq('id', id)
-      .eq('reseller_id', resellerId)
+      .eq('reseller_id', auth.resellerId)
       .single();
 
     if (error || !customer) {
@@ -120,16 +119,9 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    
-    // Get the current session
-    const supabase = createClient();
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized - Please sign in' },
-        { status: 401 }
-      );
+    const auth = await getResellerIdFromToken(request);
+    if ('error' in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     // Parse action from body

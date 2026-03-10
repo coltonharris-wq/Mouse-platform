@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { getAuthHeaders } from "@/lib/admin-auth";
 import {
   Activity,
   AlertTriangle,
@@ -78,7 +79,7 @@ export default function AdminUsagePage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch('/api/usage-events?admin=true');
+      const res = await fetch('/api/usage-events?admin=true', { headers: getAuthHeaders() });
       if (res.ok) {
         const data = await res.json();
         setOverview(data.overview || []);

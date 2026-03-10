@@ -213,13 +213,16 @@ def python_exec(computer_id: str, code: str, timeout: int = 10):
 def file_upload(workspace_id: str, file_path: str, computer_id: Optional[str] = None):
     """Upload a file."""
     api_key = get_api_key()
-    headers = {"Authorization": f"Bearer {api_key}"}
-    
+    headers = {
+        "apikey": api_key,
+        "Authorization": f"Bearer {api_key}"
+    }
+
     files = {"file": open(file_path, "rb")}
     data = {"projectId": workspace_id}
     if computer_id:
         data["desktopId"] = computer_id
-    
+
     response = requests.post(
         f"{BASE_URL}/files/upload",
         headers=headers,

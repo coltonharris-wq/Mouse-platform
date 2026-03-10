@@ -607,8 +607,11 @@ print("Generic task initialized")
         """Execute Python code on the VM via Orgo API"""
         async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(
-                f"https://api.orgo.ai/v1/computers/{self.vm_id}/exec",
-                headers={"Authorization": f"Bearer {self.orgo_api_key}"},
+                f"https://www.orgo.ai/api/computers/{self.vm_id}/exec",
+                headers={
+                    "Authorization": f"Bearer {self.orgo_api_key}",
+                    "Content-Type": "application/json"
+                },
                 json={"code": code, "timeout": 60}
             )
             return response.json()

@@ -15,6 +15,7 @@ import {
   Handshake,
   Magnet,
   Monitor,
+  CalendarClock,
 } from "lucide-react";
 
 interface NavItem {
@@ -55,6 +56,11 @@ const navItems: NavItem[] = [
     label: "Work History",
     href: "/portal/work-history",
     icon: <Monitor size={22} />,
+  },
+  {
+    label: "Scheduled Actions",
+    href: "/portal/scheduled-actions",
+    icon: <CalendarClock size={22} />,
   },
   {
     label: "Tasks",
@@ -145,6 +151,17 @@ export default function PortalSidebar() {
           );
         })}
       </nav>
+
+      {/* Help: Restart Onboarding */}
+      <div className="px-3 pb-2">
+        <Link
+          href="/portal/onboarding"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-teal-300 hover:text-white hover:bg-white/10 transition-colors"
+        >
+          <HelpCircle size={20} className="flex-shrink-0" />
+          <span>Restart Onboarding</span>
+        </Link>
+      </div>
 
       {/* Affiliate CTA */}
       <div className="px-3 pb-2">

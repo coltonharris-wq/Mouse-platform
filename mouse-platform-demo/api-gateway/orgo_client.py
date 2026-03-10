@@ -15,7 +15,7 @@ HEALTH_TIMEOUT = 5.0  # seconds
 class OrgoClient:
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.base_url = "https://api.orgo.ai"
+        self.base_url = "https://www.orgo.ai/api"
         self.headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
@@ -25,7 +25,7 @@ class OrgoClient:
         """Check Orgo API health with short timeout"""
         try:
             response = httpx.get(
-                f"{self.base_url}/health", 
+                f"{self.base_url}/health",
                 headers=self.headers,
                 timeout=HEALTH_TIMEOUT
             )
@@ -37,7 +37,7 @@ class OrgoClient:
         """Create a new VM with timeout"""
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
             response = await client.post(
-                f"{self.base_url}/v1/workspaces/{workspace_id}/computers",
+                f"{self.base_url}/workspaces/{workspace_id}/computers",
                 headers=self.headers,
                 json={
                     "name": config["name"],
@@ -59,7 +59,7 @@ class OrgoClient:
         """Get VM details with timeout"""
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
             response = await client.get(
-                f"{self.base_url}/v1/computers/{computer_id}",
+                f"{self.base_url}/computers/{computer_id}",
                 headers=self.headers
             )
             response.raise_for_status()
@@ -81,7 +81,7 @@ class OrgoClient:
         """Stop a VM with timeout"""
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
             response = await client.post(
-                f"{self.base_url}/v1/computers/{computer_id}/stop",
+                f"{self.base_url}/computers/{computer_id}/stop",
                 headers=self.headers
             )
             return response.json()
@@ -90,7 +90,7 @@ class OrgoClient:
         """Start a VM with timeout"""
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
             response = await client.post(
-                f"{self.base_url}/v1/computers/{computer_id}/start",
+                f"{self.base_url}/computers/{computer_id}/start",
                 headers=self.headers
             )
             return response.json()
@@ -99,7 +99,7 @@ class OrgoClient:
         """Delete a VM with timeout"""
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
             response = await client.delete(
-                f"{self.base_url}/v1/computers/{computer_id}",
+                f"{self.base_url}/computers/{computer_id}",
                 headers=self.headers
             )
             return response.json()
@@ -108,7 +108,7 @@ class OrgoClient:
         """Get VM screenshot as base64 with shorter timeout"""
         async with httpx.AsyncClient(timeout=SCREENSHOT_TIMEOUT) as client:
             response = await client.get(
-                f"{self.base_url}/v1/computers/{computer_id}/screenshot",
+                f"{self.base_url}/computers/{computer_id}/screenshot",
                 headers=self.headers
             )
             response.raise_for_status()
@@ -119,7 +119,7 @@ class OrgoClient:
         """Execute Python code on VM with configurable timeout"""
         async with httpx.AsyncClient(timeout=timeout + 5) as client:  # Add buffer for network
             response = await client.post(
-                f"{self.base_url}/v1/computers/{computer_id}/exec",
+                f"{self.base_url}/computers/{computer_id}/exec",
                 headers=self.headers,
                 json={"code": code, "timeout": timeout}
             )
@@ -130,7 +130,7 @@ class OrgoClient:
         """Execute bash command on VM with configurable timeout"""
         async with httpx.AsyncClient(timeout=timeout + 5) as client:
             response = await client.post(
-                f"{self.base_url}/v1/computers/{computer_id}/bash",
+                f"{self.base_url}/computers/{computer_id}/bash",
                 headers=self.headers,
                 json={"command": command, "timeout": timeout}
             )
@@ -141,7 +141,7 @@ class OrgoClient:
         """Send mouse click with timeout"""
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
             response = await client.post(
-                f"{self.base_url}/v1/computers/{computer_id}/click",
+                f"{self.base_url}/computers/{computer_id}/click",
                 headers=self.headers,
                 json={"x": x, "y": y, "double": double}
             )
@@ -151,7 +151,7 @@ class OrgoClient:
         """Type text with timeout"""
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
             response = await client.post(
-                f"{self.base_url}/v1/computers/{computer_id}/type",
+                f"{self.base_url}/computers/{computer_id}/type",
                 headers=self.headers,
                 json={"text": text}
             )
@@ -161,7 +161,7 @@ class OrgoClient:
         """Press a key with timeout"""
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
             response = await client.post(
-                f"{self.base_url}/v1/computers/{computer_id}/key",
+                f"{self.base_url}/computers/{computer_id}/key",
                 headers=self.headers,
                 json={"key": key}
             )
@@ -171,7 +171,7 @@ class OrgoClient:
         """List all VMs with timeout"""
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
             response = await client.get(
-                f"{self.base_url}/v1/computers",
+                f"{self.base_url}/computers",
                 headers=self.headers
             )
             response.raise_for_status()

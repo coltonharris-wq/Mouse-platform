@@ -57,7 +57,6 @@ const plans = [
       'Full analytics suite',
       'Dedicated support',
       'Custom AI training',
-      'White-label option',
       'API access',
     ],
     icon: Building2,

@@ -3,6 +3,7 @@
 import ResellerSidebar from "@/components/ResellerSidebar";
 import KingMouseAvatar from "@/app/components/KingMouseAvatar";
 import PortalSwitcher from "@/components/PortalSwitcher";
+import ResellerGuard from "@/components/ResellerGuard";
 
 export default function DashboardLayout({
   children,
@@ -18,6 +19,7 @@ export default function DashboardLayout({
   };
 
   return (
+    <ResellerGuard>
     <div className="min-h-screen bg-mouse-offwhite">
       <ResellerSidebar />
       <div className="ml-64 flex flex-col min-h-screen">
@@ -35,9 +37,9 @@ export default function DashboardLayout({
             </button>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-mouse-navy flex items-center justify-center">
-                <span className="text-white text-xs font-semibold">A</span>
+                <span className="text-white text-xs font-semibold">R</span>
               </div>
-              <span className="text-sm text-mouse-charcoal font-medium">Admin</span>
+              <span className="text-sm text-mouse-charcoal font-medium">Reseller</span>
             </div>
           </div>
         </header>
@@ -46,5 +48,6 @@ export default function DashboardLayout({
       
       <KingMouseAvatar />
     </div>
+    </ResellerGuard>
   );
 }

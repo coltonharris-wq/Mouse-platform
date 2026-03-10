@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
   Users, CheckCircle, Clock, DollarSign, Menu, X,
-  CreditCard, MessageSquare, Zap, Bot, ArrowRight,
+  CreditCard, MessageSquare, Zap, Bot, ArrowRight, Phone,
 } from 'lucide-react';
 import { useWorkHours } from '@/app/context/WorkHoursContext';
 import { useEmployees } from '@/app/context/EmployeeContext';
@@ -107,6 +107,25 @@ export default function PortalDashboardPage() {
           <p className="text-gray-600 text-lg">{user?.email}</p>
         </div>
 
+        {/* Empty State: Complete Setup CTA */}
+        {activeEmployees === 0 && (
+          <div className="mb-8 bg-mouse-teal/10 border border-mouse-teal/30 rounded-2xl p-6">
+            <h3 className="text-[#0B1F3B] font-semibold text-lg mb-2">
+              Your AI employees are waiting...
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Complete setup to activate them.
+            </p>
+            <Link
+              href="/portal/onboarding"
+              className="inline-flex items-center gap-2 bg-mouse-teal text-white font-semibold px-5 py-2.5 rounded-lg hover:bg-mouse-teal/90 transition-colors"
+            >
+              Finish Setup
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
+
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <Link href="/portal/king-mouse"
@@ -121,6 +140,28 @@ export default function PortalDashboardPage() {
             <h3 className="font-semibold text-xl mb-2">Hire Employee</h3>
             <p className="text-white/90 text-base leading-relaxed">Browse 30 AI employees. Sales, admin, support, and more.</p>
           </Link>
+        </div>
+
+        {/* Request Phone/Voice */}
+        <div className="mb-8 bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-mouse-teal/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Phone className="w-6 h-6 text-mouse-teal" />
+              </div>
+              <div>
+                <h3 className="text-[#0B1F3B] font-semibold text-lg">Request Phone/Voice Calls</h3>
+                <p className="text-gray-600 text-sm mt-1">Get AI receptionist, voice calls, or port your business number. We&apos;ll set you up within 15 minutes.</p>
+              </div>
+            </div>
+            <a
+              href="mailto:support@mouseplatform.com?subject=Request%20Phone%2FVoice%20Setup"
+              className="inline-flex items-center gap-2 bg-mouse-teal text-white font-semibold px-5 py-2.5 rounded-lg text-sm hover:bg-mouse-teal/90 transition-colors whitespace-nowrap"
+            >
+              <Phone className="w-4 h-4" />
+              Request Setup
+            </a>
+          </div>
         </div>
 
         {/* Stats Grid */}

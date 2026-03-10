@@ -4,6 +4,7 @@ import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Loader2, ArrowLeft, Users, FileText } from "lucide-react";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
@@ -61,7 +62,7 @@ export default function CustomerDetailPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`/api/reseller/customers/${id}`);
+        const res = await fetchWithAuth(`/api/reseller/customers/${id}`);
         if (res.ok) {
           const data = await res.json();
           const c = data.customer;

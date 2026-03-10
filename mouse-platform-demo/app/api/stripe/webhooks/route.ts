@@ -90,13 +90,19 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session, supabas
 
   console.log('Processing checkout completion:', { customer_id, plan, work_hours, employees });
 
-  // 1. Activate account and upgrade tier
+  // 1. Activate account, upgrade tier, and credit work hours balance
+  const workHoursNum = parseInt(work_hours || '0');
   const { error: tierError } = await supabase
     .from('customers')
     .update({
       tier: plan,
+      plan_tier: plan,
       stripe_customer_id: session.customer as string,
+      stripe_subscription_id: session.subscription as string || undefined,
       payment_status: 'active',
+      status: 'active',
+      work_hours_balance: workHoursNum > 0 ? workHoursNum : 2,
+      work_hours_purchased: workHoursNum > 0 ? workHoursNum : 2,
       updated_at: new Date().toISOString(),
     })
     .eq('id', customer_id);
@@ -105,8 +111,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session, supabas
     console.error('Error updating customer tier:', tierError);
   }
 
-  // 2. Grant work hours
-  const workHoursNum = parseInt(work_hours || '0');
+  // 2. Grant work hours (workHoursNum already computed above)
   if (workHoursNum > 0) {
     const { error: hoursError } = await supabase
       .from('work_hours')

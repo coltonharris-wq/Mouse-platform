@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Upload, Globe, Building2, CheckCircle, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Upload, Globe, Building2, CheckCircle, Loader2, Link2, Copy } from "lucide-react";
+import { getAuthHeaders } from "@/lib/admin-auth";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 export default function SettingsPage() {
   const [companyName, setCompanyName] = useState("Automio");
@@ -9,6 +11,124 @@ export default function SettingsPage() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [inviteUrl, setInviteUrl] = useState<string | null>(null);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [inviteMessage, setInviteMessage] = useState<string>("");
+  const [inviteCopied, setInviteCopied] = useState(false);
+  const [stripeConnected, setStripeConnected] = useState<boolean | null>(null);
+  const [stripeStatus, setStripeStatus] = useState<string>("");
+  const [stripeAccountId, setStripeAccountId] = useState<string>("");
+  const [stripeLoading, setStripeLoading] = useState(false);
+  const [stripeLinking, setStripeLinking] = useState(false);
+  const [stripeSuccessMessage, setStripeSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchWithAuth("/api/reseller/invite-link")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          setInviteUrl(data.inviteUrl);
+          setInviteCode(data.inviteCode);
+          setInviteMessage(data.message || "");
+          if (data.companyName) setCompanyName(data.companyName);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const refetchStripeStatus = () => {
+    const session = typeof window !== "undefined" ? localStorage.getItem("mouse_session") : null;
+    if (!session) return;
+    try {
+      const parsed = JSON.parse(session);
+      const resellerId = parsed.resellerId;
+      if (!resellerId) return;
+      setStripeLoading(true);
+      fetchWithAuth(`/api/reseller/stripe/connect?resellerId=${resellerId}`)
+        .then((r) => r.json())
+        .then((data) => {
+          setStripeConnected(data.connected ?? false);
+          setStripeStatus(data.status || "not_started");
+          setStripeAccountId(data.accountId ? `${data.accountId.slice(0, 12)}****${data.accountId.slice(-4)}` : "");
+        })
+        .catch(() => setStripeConnected(false))
+        .finally(() => setStripeLoading(false));
+    } catch {
+      setStripeLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const session = typeof window !== "undefined" ? localStorage.getItem("mouse_session") : null;
+    if (!session) return;
+    try {
+      const parsed = JSON.parse(session);
+      const resellerId = parsed.resellerId;
+      if (!resellerId) return;
+      setStripeLoading(true);
+      fetchWithAuth(`/api/reseller/stripe/connect?resellerId=${resellerId}`)
+        .then((r) => r.json())
+        .then((data) => {
+          setStripeConnected(data.connected ?? false);
+          setStripeStatus(data.status || "not_started");
+          setStripeAccountId(data.accountId ? `${data.accountId.slice(0, 12)}****${data.accountId.slice(-4)}` : "");
+        })
+        .catch(() => setStripeConnected(false))
+        .finally(() => setStripeLoading(false));
+    } catch {
+      setStripeLoading(false);
+    }
+  }, []);
+
+  // Handle return from Stripe OAuth (success or refresh)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const stripeParam = params.get("stripe");
+    if (stripeParam === "success" || stripeParam === "refresh") {
+      params.delete("stripe");
+      const newUrl = window.location.pathname + (params.toString() ? `?${params}` : "");
+      window.history.replaceState({}, "", newUrl);
+      refetchStripeStatus();
+      if (stripeParam === "success") {
+        setStripeSuccessMessage("Stripe connected! Your bank account is linked and you're ready to receive payouts.");
+        setTimeout(() => setStripeSuccessMessage(null), 5000);
+      }
+    }
+  }, []);
+
+  const handleStripeConnect = async () => {
+    const session = typeof window !== "undefined" ? localStorage.getItem("mouse_session") : null;
+    if (!session) return;
+    try {
+      const parsed = JSON.parse(session);
+      const resellerId = parsed.resellerId;
+      const email = parsed.email;
+      if (!resellerId || !email) {
+        alert("Session missing reseller or email");
+        return;
+      }
+      setStripeLinking(true);
+      const res = await fetchWithAuth("/api/reseller/stripe/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resellerId, email, businessName: companyName }),
+      });
+      const data = await res.json();
+      if (data.success && data.onboardingUrl) {
+        window.location.href = data.onboardingUrl;
+      } else if (data.alreadyConnected) {
+        setStripeConnected(true);
+        setStripeStatus("active");
+      } else {
+        alert(data.error || "Failed to start Stripe Connect");
+      }
+    } catch (err) {
+      alert("Failed to connect Stripe");
+    } finally {
+      setStripeLinking(false);
+    }
+  };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -121,6 +241,50 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {/* Your Invite Link */}
+        <div className="bg-white rounded-xl border border-mouse-slate/20 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-mouse-slate/20">
+            <h2 className="text-base font-semibold text-mouse-charcoal">
+              <Link2 className="w-4 h-4 inline mr-1" />
+              Your Invite Link
+            </h2>
+            <p className="text-sm text-mouse-slate mt-0.5">
+              Share this link with customers to sign up under your reseller account.
+            </p>
+          </div>
+          <div className="px-6 py-6">
+            {inviteUrl ? (
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    readOnly
+                    value={inviteUrl}
+                    className="flex-1 px-3 py-2 text-sm border border-mouse-slate/30 rounded-lg bg-mouse-offwhite text-mouse-charcoal"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(inviteUrl);
+                      setInviteCopied(true);
+                      setTimeout(() => setInviteCopied(false), 2000);
+                    }}
+                    className="px-4 py-2 bg-mouse-teal text-white rounded-lg text-sm font-medium hover:bg-mouse-teal/90 flex items-center gap-1.5"
+                  >
+                    <Copy className="w-4 h-4" />
+                    {inviteCopied ? "Copied!" : "Copy"}
+                  </button>
+                </div>
+                {inviteCode && (
+                  <p className="text-xs text-mouse-slate">Invite code: {inviteCode}</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-mouse-slate">
+                {inviteMessage || "Ask an admin to generate an invite code for you."}
+              </p>
+            )}
+          </div>
+        </div>
+
         {/* Stripe Connect */}
         <div className="bg-white rounded-xl border border-mouse-slate/20 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-mouse-slate/20">
@@ -128,27 +292,52 @@ export default function SettingsPage() {
               Stripe Connect
             </h2>
             <p className="text-sm text-mouse-slate mt-0.5">
-              Connect your Stripe account to receive payouts.
+              Connect your Stripe account to receive payouts. OAuth flow and bank account linking are handled by Stripe.
             </p>
           </div>
           <div className="px-6 py-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div>
-                  <p className="text-sm font-medium text-mouse-charcoal">
-                    Stripe Account
-                  </p>
-                  <p className="text-xs text-mouse-slate mt-0.5">acct_1234****5678</p>
-                </div>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                  Connected
-                </span>
+            {stripeSuccessMessage && (
+              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
+                {stripeSuccessMessage}
               </div>
-              <button className="bg-mouse-orange text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors">
-                Complete Stripe Onboarding
-              </button>
-            </div>
+            )}
+            {stripeLoading ? (
+              <div className="flex items-center gap-2 text-mouse-slate">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">Checking status...</span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-mouse-charcoal">
+                      Stripe Account
+                    </p>
+                    <p className="text-xs text-mouse-slate mt-0.5">
+                      {stripeAccountId || "Not connected"}
+                    </p>
+                  </div>
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    stripeConnected ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${
+                      stripeConnected ? "bg-green-500" : "bg-yellow-500"
+                    }`} />
+                    {stripeConnected ? "Connected" : stripeStatus === "pending" ? "Pending" : "Not connected"}
+                  </span>
+                </div>
+                <button
+                  onClick={handleStripeConnect}
+                  disabled={stripeLinking || stripeConnected}
+                  className="bg-mouse-orange text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {stripeLinking ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : null}
+                  {stripeConnected ? "Connected" : stripeStatus === "pending" ? "Complete Onboarding" : "Connect Stripe"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

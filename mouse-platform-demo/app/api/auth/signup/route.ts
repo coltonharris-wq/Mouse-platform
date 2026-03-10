@@ -9,7 +9,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, company, firstName, lastName, role } = body;
+    const { email, password, company, firstName, lastName, role, industry, needs, customInstructions } = body;
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
@@ -48,8 +48,12 @@ export async function POST(request: NextRequest) {
       id: customerId,
       user_id: userId,
       email,
+      name: `${firstName || ''} ${lastName || ''}`.trim() || undefined,
       company_name: company || 'My Business',
-      status: 'active',
+      industry: industry || undefined,
+      needs: needs?.length ? needs : undefined,
+      custom_instructions: customInstructions || undefined,
+      status: 'pending_payment',
       work_hours_balance: 2,
       work_hours_purchased: 2,
       created_at: new Date().toISOString(),

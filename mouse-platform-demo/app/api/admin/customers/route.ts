@@ -1,15 +1,20 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase-client';
+import { getSupabaseServer } from '@/lib/supabase-server';
+import { requireAdmin } from '@/lib/admin-auth';
 
 /**
  * GET /api/admin/customers
  * Get all customers with optional filtering
  */
 export async function GET(request: NextRequest) {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
   try {
-    const supabase = createClient();
+    const supabase = getSupabaseServer();
+    if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
     const { searchParams } = new URL(request.url);
     
     // Get query parameters
@@ -90,8 +95,12 @@ export async function GET(request: NextRequest) {
  * Create a new customer
  */
 export async function POST(request: NextRequest) {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
   try {
-    const supabase = createClient();
+    const supabase = getSupabaseServer();
+    if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
     const body = await request.json();
     
     const { company_name, email, plan_tier = 'starter', reseller_id, status = 'active' } = body;

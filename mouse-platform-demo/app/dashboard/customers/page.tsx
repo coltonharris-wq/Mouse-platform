@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase-client";
 import { OnboardedCustomer } from "@/lib/reseller-customer-manager";
 import AddCustomerModal from "@/components/AddCustomerModal";
 import CustomerStats from "@/components/CustomerStats";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 // Export config to force dynamic rendering
 
@@ -73,22 +73,9 @@ export default function CustomersPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const supabase = createClient();
-
   const fetchCustomers = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        console.error("No session found");
-        return;
-      }
-
-      const response = await fetch("/api/reseller/customers", {
-        headers: {
-          "Authorization": `Bearer ${session.access_token}`,
-        },
-      });
+      const response = await fetchWithAuth("/api/reseller/customers");
 
       if (!response.ok) {
         throw new Error("Failed to fetch customers");
@@ -111,14 +98,9 @@ export default function CustomersPage() {
   const handleResendInvite = async (customerId: string) => {
     setActionLoading(customerId);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const response = await fetch(`/api/reseller/customers/${customerId}`, {
+      const response = await fetchWithAuth(`/api/reseller/customers/${customerId}`, {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${session?.access_token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "resend-invite" }),
       });
 

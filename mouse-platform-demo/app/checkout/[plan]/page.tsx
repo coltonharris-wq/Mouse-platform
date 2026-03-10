@@ -58,10 +58,10 @@ const PLAN_CONFIG = {
   reseller: {
     name: 'Reseller',
     price: '$97',
-    description: '20 work hours/month + 40% commission on referrals',
+    description: '20 work hours/month + set your price on referrals',
     features: [
       '20 work hours per month',
-      '40% recurring commission on all referrals',
+      'Set your price, keep the margin on referrals',
       'White-label reseller dashboard',
       'Custom invite links & tracking',
       'Dedicated partner support',
@@ -79,15 +79,16 @@ export default function CheckoutPage({ params }: { params: Promise<{ plan: strin
   const [error, setError] = useState('');
   const [customerId, setCustomerId] = useState('');
   const [email, setEmail] = useState('');
-  const [plan, setPlan] = useState<string>('');
+  const [planSlug, setPlanSlug] = useState<string>('');
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
+  const [autoRedirecting, setAutoRedirecting] = useState(false);
 
   useEffect(() => {
-    params.then(p => setPlan(p.plan));
+    params.then(p => setPlanSlug(p.plan));
   }, [params]);
 
-  const planConfig = PLAN_CONFIG[plan as keyof typeof PLAN_CONFIG];
+  const planConfig = PLAN_CONFIG[planSlug as keyof typeof PLAN_CONFIG];
 
   useEffect(() => {
     // Get customer info from URL params or localStorage
@@ -95,19 +96,22 @@ export default function CheckoutPage({ params }: { params: Promise<{ plan: strin
     const userEmail = searchParams.get('email') || localStorage.getItem('userEmail') || '';
     setCustomerId(cid);
     setEmail(userEmail);
-  }, [searchParams]);
 
-  if (!plan || !planConfig) {
+    // Auto-redirect to Stripe if we have customer info from signup
+    if (cid && userEmail && searchParams.get('customerId') && planSlug && planConfig && !loading) {
+      setAutoRedirecting(true);
+      handleCheckout(cid, userEmail);
+    }
+  }, [searchParams, planSlug, planConfig]);
+
+  if (!planSlug || !planConfig) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-mouse-navy">Invalid Plan</h1>
-            <p className="mt-2 text-mouse-charcoal">The plan you selected does not exist.</p>
-            <Link href="/pricing" className="mt-4 inline-block text-mouse-teal hover:underline">
-              View Pricing Plans
-            </Link>
+            <Loader2 className="w-12 h-12 animate-spin text-mouse-teal mx-auto mb-4" />
+            <p className="text-mouse-charcoal">Loading...</p>
           </div>
         </main>
         <Footer />
@@ -115,9 +119,41 @@ export default function CheckoutPage({ params }: { params: Promise<{ plan: strin
     );
   }
 
-  const handleCheckout = async () => {
-    if (!email) {
+  // Show loading screen during auto-redirect
+  if (autoRedirecting) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center max-w-md mx-auto px-4">
+            <Loader2 className="w-16 h-16 animate-spin text-mouse-teal mx-auto mb-6" />
+            <h1 className="text-2xl font-bold text-mouse-navy mb-3">Connecting to Stripe...</h1>
+            <p className="text-mouse-charcoal">You&apos;ll be redirected to complete your payment securely.</p>
+            {error && (
+              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-700 text-sm">{error}</p>
+                <button
+                  onClick={() => setAutoRedirecting(false)}
+                  className="mt-3 text-mouse-teal hover:underline text-sm"
+                >
+                  Show checkout page →
+                </button>
+              </div>
+            )}
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const handleCheckout = async (autoCid?: string, autoEmail?: string) => {
+    const checkoutCid = autoCid || customerId;
+    const checkoutEmail = autoEmail || email;
+
+    if (!checkoutEmail) {
       setError('Please enter your email address');
+      setAutoRedirecting(false);
       return;
     }
 
@@ -129,9 +165,9 @@ export default function CheckoutPage({ params }: { params: Promise<{ plan: strin
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          plan: plan,
-          customerId: customerId,
-          email: email,
+          plan: planSlug,
+          customerId: checkoutCid,
+          email: checkoutEmail,
           promo_code: promoCode || undefined,
         }),
       });
@@ -151,6 +187,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ plan: strin
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
       setLoading(false);
+      setAutoRedirecting(false);
     }
   };
 
@@ -292,7 +329,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ plan: strin
                 </div>
 
                 <button
-                  onClick={handleCheckout}
+                  onClick={() => handleCheckout()}
                   disabled={loading}
                   className="w-full bg-orange-500 text-white font-semibold py-4 rounded hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >

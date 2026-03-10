@@ -98,7 +98,7 @@ function getPortalInstructions(portal: string): string {
 - Analyze customer usage and identify upsell opportunities
 - Track their commission and revenue
 - Research leads and target markets
-They earn 40% recurring commission on all referred customers.`;
+They set their price ($4.98–$8.98/hr) and keep the margin on all referred customers.`;
 
     case 'admin':
       return `You are speaking to the PLATFORM ADMIN/CEO. You have full visibility into:

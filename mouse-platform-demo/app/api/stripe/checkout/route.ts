@@ -5,15 +5,70 @@ import { NextRequest, NextResponse } from 'next/server';
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mouse-platform-demo.vercel.app';
 
-// Plan → Stripe Price mapping
-const PLAN_PRICES: Record<string, { priceId: string; hours: number; mode: 'subscription' | 'payment' }> = {
-  pro:        { priceId: process.env.STRIPE_PRO_PRICE_ID!, hours: 20, mode: 'subscription' },
-  growth:     { priceId: process.env.STRIPE_GROWTH_PRICE_ID!, hours: 125, mode: 'subscription' },
-  enterprise: { priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID!, hours: 300, mode: 'subscription' },
-  reseller:   { priceId: process.env.STRIPE_RESELLER_PRICE_ID!, hours: 0, mode: 'subscription' },
-  topup_10:   { priceId: process.env.STRIPE_TOPUP_10_PRICE_ID!, hours: 10, mode: 'payment' },
-  topup_25:   { priceId: process.env.STRIPE_TOPUP_25_PRICE_ID!, hours: 25, mode: 'payment' },
-  topup_50:   { priceId: process.env.STRIPE_TOPUP_50_PRICE_ID!, hours: 50, mode: 'payment' },
+// Plan config with inline pricing — no env price IDs needed
+const PLAN_CONFIG: Record<string, {
+  name: string;
+  unitAmount: number; // cents
+  hours: number;
+  mode: 'subscription' | 'payment';
+  description: string;
+}> = {
+  starter: {
+    name: 'Mouse Pro Plan',
+    unitAmount: 9700, // $97/month
+    hours: 20,
+    mode: 'subscription',
+    description: '20 work hours/month — AI Operations Manager',
+  },
+  pro: {
+    name: 'Mouse Pro Plan',
+    unitAmount: 9700, // $97/month
+    hours: 20,
+    mode: 'subscription',
+    description: '20 work hours/month — AI Operations Manager',
+  },
+  growth: {
+    name: 'Mouse Growth Plan',
+    unitAmount: 49700, // $497/month
+    hours: 125,
+    mode: 'subscription',
+    description: '125 work hours/month — AI Operations Manager + Team',
+  },
+  enterprise: {
+    name: 'Mouse Enterprise Plan',
+    unitAmount: 99700, // $997/month
+    hours: 300,
+    mode: 'subscription',
+    description: '300 work hours/month — Full AI Workforce',
+  },
+  reseller: {
+    name: 'Mouse Reseller Plan',
+    unitAmount: 9700, // $97/month
+    hours: 20,
+    mode: 'subscription',
+    description: 'Reseller plan — 20 work hours + resell margin',
+  },
+  topup_10: {
+    name: '10 Work Hours Top-Up',
+    unitAmount: 4900, // $49
+    hours: 10,
+    mode: 'payment',
+    description: '10 additional work hours',
+  },
+  topup_25: {
+    name: '25 Work Hours Top-Up',
+    unitAmount: 9900, // $99
+    hours: 25,
+    mode: 'payment',
+    description: '25 additional work hours',
+  },
+  topup_50: {
+    name: '50 Work Hours Top-Up',
+    unitAmount: 17900, // $179
+    hours: 50,
+    mode: 'payment',
+    description: '50 additional work hours',
+  },
 };
 
 async function stripePost(endpoint: string, params: Record<string, string>) {
@@ -45,40 +100,42 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { plan, customerId, customerEmail, promoCode, successUrl, cancelUrl } = body;
 
-    const planConfig = PLAN_PRICES[plan];
+    const planConfig = PLAN_CONFIG[plan];
     if (!planConfig) {
       return NextResponse.json(
-        { error: `Unknown plan: ${plan}. Valid: ${Object.keys(PLAN_PRICES).join(', ')}` },
+        { error: `Unknown plan: ${plan}. Valid: ${Object.keys(PLAN_CONFIG).join(', ')}` },
         { status: 400 }
       );
     }
 
-    if (!planConfig.priceId) {
-      return NextResponse.json({ error: `Price not configured for plan: ${plan}` }, { status: 500 });
-    }
-
-    // Build Stripe checkout session params (form-encoded)
+    // Build Stripe checkout session params using inline price_data
     const params: Record<string, string> = {
       'mode': planConfig.mode,
       'payment_method_types[0]': 'card',
-      'line_items[0][price]': planConfig.priceId,
+      'line_items[0][price_data][currency]': 'usd',
+      'line_items[0][price_data][unit_amount]': String(planConfig.unitAmount),
+      'line_items[0][price_data][product_data][name]': planConfig.name,
+      'line_items[0][price_data][product_data][description]': planConfig.description,
       'line_items[0][quantity]': '1',
       'success_url': successUrl || `${APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      'cancel_url': cancelUrl || `${APP_URL}/checkout/cancel`,
+      'cancel_url': cancelUrl || `${APP_URL}/signup?canceled=true`,
+      'client_reference_id': customerId || '',
       'metadata[customer_id]': customerId || '',
       'metadata[plan]': plan,
       'metadata[work_hours]': String(planConfig.hours),
       'allow_promotion_codes': 'true',
     };
 
-    if (customerEmail) {
-      params['customer_email'] = customerEmail;
-    }
-
+    // Add recurring interval for subscriptions
     if (planConfig.mode === 'subscription') {
+      params['line_items[0][price_data][recurring][interval]'] = 'month';
       params['subscription_data[metadata][customer_id]'] = customerId || '';
       params['subscription_data[metadata][plan]'] = plan;
       params['subscription_data[metadata][work_hours]'] = String(planConfig.hours);
+    }
+
+    if (customerEmail) {
+      params['customer_email'] = customerEmail;
     }
 
     // Handle promo code
@@ -94,6 +151,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log(`💳 Creating Stripe checkout: plan=${plan}, amount=$${planConfig.unitAmount / 100}, customer=${customerId}`);
     const session = await stripePost('checkout/sessions', params);
 
     return NextResponse.json({

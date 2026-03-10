@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { TrendingUp, Users, Target, BarChart3, Loader2 } from "lucide-react";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 interface PipelineStage {
   stage: string;
@@ -18,7 +19,7 @@ export default function SalesPipelineWidget() {
     async function loadPipeline() {
       try {
         // Try to load real pipeline data from Supabase
-        const res = await fetch("/api/reseller/customers");
+        const res = await fetchWithAuth("/api/reseller/customers");
         if (res.ok) {
           const data = await res.json();
           const customers = data.customers || [];

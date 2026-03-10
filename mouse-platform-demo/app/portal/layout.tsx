@@ -1,16 +1,32 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import PortalSidebar from "@/components/PortalSidebar";
 import KingMouseAvatar from "@/app/components/KingMouseAvatar";
 import PortalSwitcher from "@/components/PortalSwitcher";
 import { ToastProvider } from "@/components/ToastProvider";
+import PortalGuard from "@/components/PortalGuard";
 
 export default function PortalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isOnboarding = pathname === "/portal/onboarding";
+
+  if (isOnboarding) {
+    return (
+      <PortalGuard>
+        <ToastProvider>
+          <div className="min-h-screen bg-mouse-offwhite">{children}</div>
+        </ToastProvider>
+      </PortalGuard>
+    );
+  }
+
   return (
+    <PortalGuard>
     <ToastProvider>
       <div className="min-h-screen bg-mouse-offwhite">
         <PortalSidebar />
@@ -56,5 +72,6 @@ export default function PortalLayout({
         <KingMouseAvatar />
       </div>
     </ToastProvider>
+    </PortalGuard>
   );
 }

@@ -65,7 +65,7 @@ function ResellerLandingContent() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-mouse-teal/10 border border-mouse-teal/30 rounded-full px-4 py-2 mb-6">
             <span className="w-2 h-2 bg-mouse-teal rounded-full animate-pulse"></span>
-            <span className="text-mouse-teal text-sm font-medium">Reseller Program — 40% Margins</span>
+            <span className="text-mouse-teal text-sm font-medium">Reseller Program — Set Your Price</span>
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
@@ -78,7 +78,7 @@ function ResellerLandingContent() {
           <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-8">
             Buy AI employees at <strong className="text-white">$4.98/hr</strong>. 
             Resell at up to <strong className="text-white">$8.98/hr</strong>. 
-            Keep the difference. We handle the VMs, OpenClaw, and support.
+            Keep the difference. We handle the VMs, Mouse, and support.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -105,7 +105,7 @@ function ResellerLandingContent() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-mouse-teal">40%</div>
+              <div className="text-3xl md:text-4xl font-bold text-mouse-teal">You Set Price</div>
               <div className="text-gray-500 text-sm mt-1">Max Margin</div>
             </div>
             <div className="text-center">
@@ -267,7 +267,7 @@ function ResellerLandingContent() {
               {
                 icon: <Zap className="w-8 h-8" />,
                 title: "3. Auto-Provision",
-                desc: "Customer signs up → VM spins up → OpenClaw installs → King Mouse ready."
+                desc: "Customer signs up → VM spins up → Mouse installs → King Mouse ready."
               },
               {
                 icon: <TrendingUp className="w-8 h-8" />,
@@ -297,7 +297,7 @@ function ResellerLandingContent() {
               </div>
               <h3 className="text-white font-semibold text-lg mb-2">We Handle Everything</h3>
               <p className="text-gray-400 text-sm">
-                VM provisioning, OpenClaw installation, SSL, updates, monitoring. 
+                VM provisioning, Mouse installation, SSL, updates, monitoring.
                 You just sell.
               </p>
             </div>
@@ -334,7 +334,7 @@ function ResellerLandingContent() {
             Ready to start reselling?
           </h2>
           <p className="text-gray-400 mb-8">
-            Get your custom invite link. Start earning 40% margins today.
+            Get your custom invite link. Set your price, keep the margin.
           </p>
           <Link 
             href={refCode ? `/signup/reseller-customer?ref=${refCode}` : "/signup"}

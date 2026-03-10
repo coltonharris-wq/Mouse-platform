@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const ORGO_API_KEY = process.env.ORGO_API_KEY;
-const ORGO_BASE_URL = process.env.ORGO_BASE_URL || 'https://api.orgo.ai';
+const ORGO_BASE_URL = 'https://www.orgo.ai/api';
 
 /**
  * OpenClaw Installation Service
@@ -111,15 +111,17 @@ export class OpenClawProvisioner {
 
     try {
       // Step 1: Create workspace directory structure
+      // Install script URL: https://raw.githubusercontent.com/coltonharris-wq/mouse-platform-demo/main/public/install-mouse.sh
+      // Fallback: https://raw.githubusercontent.com/coltonharris-wq/mouse/main/install.sh
       await this.execOnVM(config.vmId, `
-        mkdir -p /opt/mouse/{config,workspace,logs}
-        mkdir -p /opt/mouse/workspace/{memory,skills,agents}
-        cd /opt/mouse && git clone https://github.com/openclaw/openclaw.git . 2>/dev/null || true
+        mkdir -p /opt/king-mouse/{config,workspace,logs}
+        mkdir -p /opt/king-mouse/workspace/{memory,skills,agents}
+        cd /opt/king-mouse && git clone https://github.com/coltonharris-wq/mouse.git . 2>/dev/null || true
       `);
 
       // Step 2: Create SOUL.md (Mouse identity)
       await this.execOnVM(config.vmId, `
-        cat > /opt/mouse/workspace/SOUL.md << 'EOF'
+        cat > /opt/king-mouse/workspace/SOUL.md << 'EOF'
 # SOUL.md - King Mouse Identity
 
 ## Core Identity
@@ -149,7 +151,7 @@ EOF
 
       // Step 3: Create USER.md (Customer context)
       await this.execOnVM(config.vmId, `
-        cat > /opt/mouse/workspace/USER.md << 'EOF'
+        cat > /opt/king-mouse/workspace/USER.md << 'EOF'
 # USER.md - Customer Profile
 
 ## Company
@@ -174,7 +176,7 @@ EOF
 
       // Step 4: Create Mouse-branded config
       await this.execOnVM(config.vmId, `
-        cat > /opt/mouse/config/mouse.json << 'EOF'
+        cat > /opt/king-mouse/config/mouse.json << 'EOF'
 {
   "brand": {
     "name": "Mouse",
@@ -202,28 +204,29 @@ EOF
 
       // Step 5: Install Node.js and dependencies
       await this.execOnVM(config.vmId, `
-        cd /opt/mouse && \
-        curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+        cd /opt/king-mouse && \
+        curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
         apt-get install -y nodejs && \
-        npm install && \
-        npm run build 2>&1 | tail -20
+        npm install -g pnpm && \
+        pnpm install && \
+        pnpm build 2>&1 | tail -20
       `);
 
       // Step 6: Create systemd service
       await this.execOnVM(config.vmId, `
-        cat > /etc/systemd/system/mouse-king.service << 'EOF'
+        cat > /etc/systemd/system/king-mouse.service << 'EOF'
 [Unit]
-Description=Mouse King (OpenClaw)
+Description=King Mouse AI Agent
 After=network.target
 
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/opt/mouse
+WorkingDirectory=/opt/king-mouse
 Environment=NODE_ENV=production
 Environment=MOUSE_CUSTOMER_ID=${config.customerId}
 Environment=MOUSE_VM_ID=${config.vmId}
-ExecStart=/usr/bin/node /opt/mouse/dist/server.js
+ExecStart=/usr/bin/node /opt/king-mouse/dist/server.js
 Restart=always
 RestartSec=10
 
@@ -235,10 +238,10 @@ EOF
       // Step 7: Start the service
       await this.execOnVM(config.vmId, `
         systemctl daemon-reload && \
-        systemctl enable mouse-king && \
-        systemctl start mouse-king && \
+        systemctl enable king-mouse && \
+        systemctl start king-mouse && \
         sleep 5 && \
-        systemctl status mouse-king --no-pager
+        systemctl status king-mouse --no-pager
       `);
 
       // Update status to active
@@ -256,7 +259,7 @@ EOF
    * Execute commands on a VM via Orgo API
    */
   private async execOnVM(vmId: string, command: string): Promise<string> {
-    const response = await fetch(`${ORGO_BASE_URL}/v1/computers/${vmId}/exec`, {
+    const response = await fetch(`${ORGO_BASE_URL}/computers/${vmId}/bash`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${ORGO_API_KEY}`,
@@ -264,7 +267,6 @@ EOF
       },
       body: JSON.stringify({
         command: command,
-        timeout: 300000, // 5 minutes
       }),
     });
 
@@ -334,7 +336,7 @@ EOF
     }
 
     try {
-      const output = await this.execOnVM(instance.vmId, 'systemctl is-active mouse-king');
+      const output = await this.execOnVM(instance.vmId, 'systemctl is-active king-mouse');
       return { running: output.includes('active'), status: instance.status };
     } catch {
       return { running: false, status: instance.status };

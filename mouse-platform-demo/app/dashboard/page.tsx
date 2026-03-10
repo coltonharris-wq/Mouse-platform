@@ -6,7 +6,8 @@ import WorkHoursWidget from "@/components/WorkHoursWidget";
 import { SecurityDashboardWidget } from "@/components/SecurityBadge";
 import EmployeeHealthWidget from "@/components/EmployeeHealthWidget";
 import SalesPipelineWidget from "@/components/SalesPipelineWidget";
-import { Plus, Store, ArrowRight, Users, Loader2 } from "lucide-react";
+import { Plus, Store, ArrowRight, Users, Loader2, CreditCard } from "lucide-react";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 function StatCard({
   label,
@@ -103,12 +104,24 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stripeConnected, setStripeConnected] = useState<boolean | null>(null);
+  const [stripeLoading, setStripeLoading] = useState(true);
+
+  useEffect(() => {
+    fetchWithAuth("/api/reseller/stripe/connect")
+      .then((r) => r.json())
+      .then((data) => {
+        setStripeConnected(data.connected ?? false);
+      })
+      .catch(() => setStripeConnected(false))
+      .finally(() => setStripeLoading(false));
+  }, []);
 
   useEffect(() => {
     async function loadData() {
       try {
         // Fetch real customer data from Supabase via API
-        const res = await fetch("/api/reseller/customers");
+        const res = await fetchWithAuth("/api/reseller/customers");
         if (res.ok) {
           const data = await res.json();
           const custs: Customer[] = (data.customers || []).map((c: any) => ({
@@ -140,9 +153,37 @@ export default function DashboardPage() {
 
   const hasCustomers = customers.length > 0;
 
+  const showStripeBanner = !stripeLoading && stripeConnected === false;
+
   return (
     <div>
       <h1 className="text-xl font-bold text-mouse-navy mb-6">Overview</h1>
+
+      {/* Stripe Connect onboarding banner */}
+      {showStripeBanner && (
+        <div className="bg-gradient-to-r from-mouse-teal/10 to-mouse-teal/5 border border-mouse-teal/30 rounded-xl p-6 mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-mouse-teal/20 rounded-xl flex items-center justify-center">
+                <CreditCard className="w-6 h-6 text-mouse-teal" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-mouse-navy">Connect Stripe to receive payouts</h2>
+                <p className="text-mouse-slate text-sm mt-0.5">
+                  Link your bank account to get paid when customers sign up through your invite link.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/dashboard/settings"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-mouse-teal text-white rounded-lg text-sm font-medium hover:bg-mouse-teal/90 transition-colors whitespace-nowrap"
+            >
+              Connect Stripe
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Empty State CTA */}
       {!loading && !hasCustomers && (

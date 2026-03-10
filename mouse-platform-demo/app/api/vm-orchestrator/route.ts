@@ -3,12 +3,12 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 
 const ORGO_API_KEY = process.env.ORGO_API_KEY;
-const ORGO_BASE_URL = process.env.ORGO_BASE_URL || 'https://api.orgo.ai';
+const ORGO_BASE_URL = 'https://www.orgo.ai/api';
 
 /**
  * Mouse Platform VM Provisioner
- * Every VM gets full OpenClaw installation
- * King Mouse creates employees, each with their own OpenClaw
+ * Every VM gets full Mouse installation
+ * King Mouse creates employees, each with their own Mouse instance
  */
 
 // In-memory stores
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Action: Create King Mouse VM (primary OpenClaw)
+    // Action: Create King Mouse VM (primary Mouse instance)
     if (action === 'createKingMouse') {
       const vm = await createVM({
         name: `mouse-king-${customerId}`,
@@ -38,8 +38,8 @@ export async function POST(request: NextRequest) {
         isKing: true
       });
 
-      // Install OpenClaw with King Mouse identity
-      await installOpenClaw(vm.id, {
+      // Install Mouse with King Mouse identity
+      await installMouse(vm.id, {
         role: 'King Mouse - AI Workforce Orchestrator',
         identity: `You are King Mouse, the primary AI orchestrator. You manage AI employees and help deploy them.`,
         capabilities: ['deploy_employees', 'monitor_vms', 'manage_workforce'],
@@ -47,15 +47,15 @@ export async function POST(request: NextRequest) {
       });
 
       vmStore.set(customerId, vm);
-      
-      return NextResponse.json({ 
-        success: true, 
+
+      return NextResponse.json({
+        success: true,
         vm,
-        message: 'King Mouse VM created with OpenClaw installed'
+        message: 'King Mouse VM created with Mouse installed'
       });
     }
 
-    // Action: Create Employee VM (also gets OpenClaw)
+    // Action: Create Employee VM (also gets Mouse)
     if (action === 'createEmployee') {
       const kingVM = vmStore.get(customerId);
       if (!kingVM) {
@@ -73,8 +73,8 @@ export async function POST(request: NextRequest) {
         kingVMId: kingVM.id
       });
 
-      // Install OpenClaw with Employee identity
-      await installOpenClaw(employeeVM.id, {
+      // Install Mouse with Employee identity
+      await installMouse(employeeVM.id, {
         role: `${employeeType} Employee - AI Worker`,
         identity: `You are a ${employeeType} employee working for the customer. You execute tasks and report to King Mouse.`,
         capabilities: ['execute_tasks', 'use_browser', 'report_status'],
@@ -94,21 +94,21 @@ export async function POST(request: NextRequest) {
       });
       employeeStore.set(customerId, employees);
 
-      return NextResponse.json({ 
-        success: true, 
+      return NextResponse.json({
+        success: true,
         employee: {
           id: employeeId,
           vmId: employeeVM.id,
           type: employeeType
         },
-        message: `${employeeType} employee created with OpenClaw installed`
+        message: `${employeeType} employee created with Mouse installed`
       });
     }
 
-    // Action: Send command to VM's OpenClaw
+    // Action: Send command to VM's Mouse instance
     if (action === 'command') {
       const { vmId, command } = body;
-      const result = await sendCommandToOpenClaw(vmId, command);
+      const result = await sendCommandToMouse(vmId, command);
       return NextResponse.json(result);
     }
 
@@ -179,7 +179,7 @@ async function createVM(config: any): Promise<any> {
   console.log(`🖥️ Creating VM: ${config.name}`);
   
   try {
-    const response = await fetch(`${ORGO_BASE_URL}/v1/computers`, {
+    const response = await fetch(`${ORGO_BASE_URL}/computers`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${ORGO_API_KEY}`,
@@ -225,27 +225,30 @@ async function createVM(config: any): Promise<any> {
   }
 }
 
-// Install OpenClaw on VM
-async function installOpenClaw(vmId: string, identity: any): Promise<boolean> {
-  console.log(`🔧 Installing OpenClaw on VM ${vmId}`);
-  
+// Install Mouse on VM using published install script
+// Install script URL: https://raw.githubusercontent.com/coltonharris-wq/mouse-platform-demo/main/public/install-mouse.sh
+// Fallback: https://raw.githubusercontent.com/coltonharris-wq/mouse/main/install.sh
+async function installMouse(vmId: string, identity: any): Promise<boolean> {
+  console.log(`🔧 Installing Mouse on VM ${vmId}`);
+
+  const MOONSHOT_API_KEY = process.env.MOONSHOT_API_KEY || '';
+  const preset = identity.employeeType || 'king-mouse';
+
   const installScript = `
-    mkdir -p /opt/openclaw/{workspace,config,logs}
-    cd /opt/openclaw
-    
-    # Clone OpenClaw
-    git clone https://github.com/openclaw/openclaw.git . 2>/dev/null || true
-    
-    # Install Node.js
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-    apt-get install -y nodejs
-    
-    # Install dependencies
-    npm install
-    npm run build
-    
+    curl -fsSL https://raw.githubusercontent.com/coltonharris-wq/mouse-platform-demo/main/public/install-mouse.sh | bash -s -- \
+      --silent \
+      --preset=${preset} \
+      --api-key=${MOONSHOT_API_KEY} \
+      --port=3100 \
+      --bind=0.0.0.0 \
+      --user-id=${identity.customerId} \
+      --customer-id=${identity.customerId} \
+      --auto-skills \
+      --install-daemon
+
     # Create SOUL.md
-    cat > /opt/openclaw/workspace/SOUL.md << 'SOUL'
+    mkdir -p /opt/king-mouse/workspace
+    cat > /opt/king-mouse/workspace/SOUL.md << 'SOUL'
 # SOUL.md - ${identity.role}
 
 ## Core Identity
@@ -269,7 +272,7 @@ ${identity.reportsTo ? `**Reports To:** ${identity.reportsTo}` : ''}
 SOUL
 
     # Create USER.md
-    cat > /opt/openclaw/workspace/USER.md << 'USER'
+    cat > /opt/king-mouse/workspace/USER.md << 'USER'
 # USER.md - Customer Context
 
 **Customer ID:** ${identity.customerId}
@@ -278,7 +281,8 @@ SOUL
 USER
 
     # Create config
-    cat > /opt/openclaw/config/mouse.json << 'CONFIG'
+    mkdir -p /opt/king-mouse/config
+    cat > /opt/king-mouse/config/mouse.json << 'CONFIG'
 {
   "role": "${identity.role}",
   "type": "${identity.employeeType || 'kingmouse'}",
@@ -288,18 +292,15 @@ USER
 }
 CONFIG
 
-    # Start OpenClaw
-    nohup npm start > /var/log/openclaw.log 2>&1 &
-    echo "OpenClaw started on VM ${vmId}"
+    echo "Mouse installed on VM ${vmId}"
   `;
-  
+
   try {
-    // Execute installation on VM
     await execOnVM(vmId, installScript);
-    console.log(`✅ OpenClaw installed on VM ${vmId}`);
+    console.log(`✅ Mouse installed on VM ${vmId}`);
     return true;
   } catch (error) {
-    console.error(`❌ OpenClaw installation failed:`, error);
+    console.error(`❌ Mouse installation failed:`, error);
     return false;
   }
 }
@@ -307,13 +308,13 @@ CONFIG
 // Execute command on VM
 async function execOnVM(vmId: string, command: string): Promise<any> {
   try {
-    const response = await fetch(`${ORGO_BASE_URL}/v1/computers/${vmId}/exec`, {
+    const response = await fetch(`${ORGO_BASE_URL}/computers/${vmId}/bash`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${ORGO_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ command, timeout: 300000 }),
+      body: JSON.stringify({ command }),
     });
     
     if (!response.ok) {
@@ -328,15 +329,14 @@ async function execOnVM(vmId: string, command: string): Promise<any> {
   }
 }
 
-// Send command to OpenClaw instance
-async function sendCommandToOpenClaw(vmId: string, command: string): Promise<any> {
-  console.log(`📤 Sending command to OpenClaw on ${vmId}: ${command}`);
-  
-  // In production, this would call the OpenClaw API on the VM
-  // For now, return mock response
+// Send command to Mouse instance
+async function sendCommandToMouse(vmId: string, command: string): Promise<any> {
+  console.log(`📤 Sending command to Mouse on ${vmId}: ${command}`);
+
+  // FIXME: In production, call the Mouse API on the VM at port 3100
   const responses: Record<string, string> = {
-    'deploy sales': '🚀 Deploying sales employee with OpenClaw...',
-    'deploy support': '💬 Deploying support employee with OpenClaw...',
+    'deploy sales': '🚀 Deploying sales employee...',
+    'deploy support': '💬 Deploying support employee...',
     'status': '✅ All systems operational. King Mouse and 0 employees active.',
     'help': 'Available commands: deploy <type>, status, list, help'
   };

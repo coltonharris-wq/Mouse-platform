@@ -35,8 +35,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Check balance — need at least 1 hour of VM time + chat
-    // Mouse OS needs 8GB RAM / 4CPU for OpenClaw build (4GB disk fills up)
-    const vmRam = 8;
+    // 32GB RAM for King Mouse (customer workloads need headroom)
+    const vmRam = 32;
     const vmCpu = 4;
     const estimatedCost = estimateHourlyCost(vmRam, vmCpu);
     const balanceCheck = await checkBalance(customerId, 'vm_orgo', estimatedCost);
@@ -48,7 +48,37 @@ export async function POST(request: NextRequest) {
       }, { status: 402 });
     }
 
-    // 2. Create employee record
+    // 2. Check plan employee limit (Starter: 1, Growth: 3, Enterprise: 10+)
+    const { data: customer } = await supabase
+      .from('customers')
+      .select('plan_tier')
+      .eq('id', customerId)
+      .single();
+
+    const planTier = (customer?.plan_tier || 'starter').toLowerCase();
+    const maxEmployeesByPlan: Record<string, number> = {
+      free: 1,
+      starter: 1,
+      growth: 3,
+      pro: 5,
+      enterprise: 10,
+    };
+    const maxEmployees = maxEmployeesByPlan[planTier] ?? 1;
+
+    const { count } = await supabase
+      .from('hired_employees')
+      .select('*', { count: 'exact', head: true })
+      .eq('customer_id', customerId);
+
+    if ((count ?? 0) >= maxEmployees) {
+      return NextResponse.json({
+        error: `Your ${planTier} plan allows up to ${maxEmployees} AI employee${maxEmployees === 1 ? '' : 's'}. Upgrade your plan to add more.`,
+        maxEmployees,
+        currentCount: count ?? 0,
+      }, { status: 403 });
+    }
+
+    // 3. Create employee record
     const employeeId = `emp-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
     const name = employeeName || generateEmployeeName(employeeType);
 
@@ -74,7 +104,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Failed to record hire: ${empErr.message}` }, { status: 500 });
     }
 
-    // 3. Spawn Orgo VM
+    // 4. Spawn Orgo VM
     let vmRecord = null;
     let orgoError = null;
 

@@ -13,11 +13,12 @@ export type VMStatus = 'starting' | 'running' | 'stopped' | 'error';
 export interface OrgoComputer {
   id: string;
   name: string;
-  workspace_id: string;
+  workspace_id?: string;
+  project_id?: string;
   os: string;
   ram: number;
   cpu: number;
-  gpu: string;
+  gpu?: string;
   status: VMStatus;
   url: string;
   created_at: string;

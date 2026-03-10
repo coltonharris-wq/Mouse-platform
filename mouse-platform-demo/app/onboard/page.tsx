@@ -387,7 +387,7 @@ export default function OnboardPage() {
                   <button
                     onClick={() => {
                       setDeployError(null);
-                      handleDeploy();
+                      deployKingMouse();
                     }}
                     className="bg-mouse-teal text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-mouse-teal/80 transition-colors"
                   >
@@ -410,7 +410,7 @@ export default function OnboardPage() {
                   </div>
                   <div className="grid grid-cols-3 gap-3 text-center">
                     <div className="bg-[#252538] rounded-lg p-3">
-                      <div className="text-xl font-bold text-mouse-teal">8</div>
+                      <div className="text-xl font-bold text-mouse-teal">32</div>
                       <div className="text-xs text-gray-500">GB RAM</div>
                     </div>
                     <div className="bg-[#252538] rounded-lg p-3">
@@ -424,7 +424,7 @@ export default function OnboardPage() {
                   </div>
                   <div className="mt-4 text-center">
                     <p className="text-sm text-gray-400 mb-2">
-                      Installing OpenClaw, configuring your business profile, and starting your AI Operations Manager...
+                      Installing King Mouse, configuring your business profile, and starting your AI Operations Manager...
                     </p>
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-mouse-teal/10 rounded-lg text-mouse-teal text-xs font-medium">
                       <Loader2 className="w-4 h-4 animate-spin" />

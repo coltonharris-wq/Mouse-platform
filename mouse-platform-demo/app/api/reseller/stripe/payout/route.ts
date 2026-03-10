@@ -15,16 +15,33 @@ const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { resellerId, amount } = body;
-
-    if (!resellerId) {
-      return NextResponse.json({ 
-        error: 'Reseller ID required' 
-      }, { status: 400 });
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    if (userError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+
+    const { data: resellerCheck } = await supabase
+      .from('resellers')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!resellerCheck) {
+      return NextResponse.json({ error: 'Reseller account required' }, { status: 403 });
+    }
+
+    const { data: body } = await import('@/lib/safe-json').then(m => m.safeParseJson<{ amount?: number }>(request));
+    const { amount } = body || {};
+    const resellerId = resellerCheck.id;
 
     // Get reseller's Stripe account
     const { data: reseller } = await supabase
@@ -95,14 +112,31 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const resellerId = searchParams.get('resellerId');
-
-    if (!resellerId) {
-      return NextResponse.json({ error: 'Reseller ID required' }, { status: 400 });
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    if (userError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+
+    const { data: resellerByUser } = await supabase
+      .from('resellers')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!resellerByUser) {
+      return NextResponse.json({ error: 'Reseller account required' }, { status: 403 });
+    }
+
+    const resellerId = resellerByUser.id;
 
     const { data: reseller } = await supabase
       .from('resellers')

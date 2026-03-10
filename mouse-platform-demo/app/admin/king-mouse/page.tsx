@@ -142,7 +142,7 @@ export default function KingMouseAdminPage() {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">King Mouse Admin</h1>
               <p className="mt-1 text-sm text-gray-500">
-                Manage OpenClaw instances and Telegram bots for customers
+                Manage Mouse instances and Telegram bots for customers
               </p>
             </div>
             <div className="flex items-center gap-4">
@@ -303,7 +303,7 @@ export default function KingMouseAdminPage() {
                             {instance.status}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">OpenClaw: {instance.openclawStatus}</p>
+                        <p className="text-xs text-gray-500 mt-1">Mouse: {instance.openclawStatus}</p>
                       </td>
                       <td className="px-6 py-4">
                         <span className="px-2 py-1 text-xs font-medium bg-mouse-teal/10 text-mouse-teal rounded-full capitalize">

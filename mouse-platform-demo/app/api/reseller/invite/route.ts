@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '@/lib/admin-auth';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -55,9 +56,12 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/reseller/invite
  * 
- * Generate a new invite code for a reseller (admin/reseller only)
+ * Generate a new invite code for a reseller (admin only)
  */
 export async function POST(request: NextRequest) {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
   try {
     const body = await request.json();
     const { resellerId, pricingConfig } = body;

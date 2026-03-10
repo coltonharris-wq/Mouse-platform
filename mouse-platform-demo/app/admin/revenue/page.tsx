@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getAuthHeaders } from "@/lib/admin-auth";
 import { DollarSign, TrendingUp, CreditCard, AlertCircle } from "lucide-react";
 
 interface RevenueData {
@@ -18,7 +19,7 @@ export default function AdminRevenuePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin/revenue")
+    fetch("/api/admin/revenue", { headers: getAuthHeaders() })
       .then((r) => r.json())
       .then((res) => setData(res.data))
       .catch(console.error)

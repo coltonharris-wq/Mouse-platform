@@ -27,3 +27,5 @@ services:
         sync: false
       - key: ORGO_API_KEY
         sync: false
+      - key: ADMIN_EMAILS
+        value: colton.harris@automioapp.com

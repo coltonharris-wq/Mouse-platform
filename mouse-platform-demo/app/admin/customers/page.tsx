@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { getAuthHeaders } from "@/lib/admin-auth";
 import { useState, useEffect, useCallback } from "react";
 import { 
   Search, 
@@ -363,7 +364,7 @@ export default function AdminCustomersPage() {
       if (statusFilter !== 'all') params.append('status', statusFilter);
       if (resellerFilter !== 'all') params.append('reseller', resellerFilter);
       
-      const response = await fetch(`/api/admin/customers?${params.toString()}`);
+      const response = await fetch(`/api/admin/customers?${params.toString()}`, { headers: getAuthHeaders() });
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to fetch customers');
@@ -381,7 +382,7 @@ export default function AdminCustomersPage() {
   // Fetch resellers
   const fetchResellers = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/resellers');
+      const response = await fetch('/api/admin/resellers', { headers: getAuthHeaders() });
       if (response.ok) {
         const data = await response.json();
         setResellers(data.resellers || []);
@@ -409,7 +410,7 @@ export default function AdminCustomersPage() {
   const handleUpdateCustomer = async (id: string, data: any) => {
     const response = await fetch(`/api/admin/customers/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -425,7 +426,7 @@ export default function AdminCustomersPage() {
     try {
       const response = await fetch(`/api/admin/customers/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({ action }),
       });
       if (!response.ok) {
@@ -449,6 +450,7 @@ export default function AdminCustomersPage() {
     try {
       const response = await fetch(`/api/admin/customers/${id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       });
       if (!response.ok) {
         const errorData = await response.json();

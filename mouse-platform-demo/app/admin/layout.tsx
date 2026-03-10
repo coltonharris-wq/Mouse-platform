@@ -1,6 +1,7 @@
 "use client";
 
 import AdminSidebar from "@/components/AdminSidebar";
+import AdminGuard from "@/components/AdminGuard";
 import KingMouseAvatar from "@/app/components/KingMouseAvatar";
 import PortalSwitcher from "@/components/PortalSwitcher";
 
@@ -10,6 +11,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
+    <AdminGuard>
     <div className="min-h-screen bg-mouse-offwhite">
       <AdminSidebar />
       <div className="ml-64 flex flex-col min-h-screen">
@@ -30,5 +32,6 @@ export default function AdminLayout({
       {/* King Mouse Avatar - Floating */}
       <KingMouseAvatar />
     </div>
+    </AdminGuard>
   );
 }

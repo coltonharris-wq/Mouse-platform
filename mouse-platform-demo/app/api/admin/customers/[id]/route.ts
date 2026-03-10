@@ -1,7 +1,8 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase-client';
+import { getSupabaseServer } from '@/lib/supabase-server';
+import { requireAdmin } from '@/lib/admin-auth';
 
 /**
  * GET /api/admin/customers/[id]
@@ -11,8 +12,12 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
   try {
-    const supabase = createClient();
+    const supabase = getSupabaseServer();
+    if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
     const { id } = await params;
     
     const { data: customer, error } = await supabase
@@ -75,8 +80,12 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
   try {
-    const supabase = createClient();
+    const supabase = getSupabaseServer();
+    if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
     const { id } = await params;
     const body = await request.json();
     
@@ -128,8 +137,12 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
   try {
-    const supabase = createClient();
+    const supabase = getSupabaseServer();
+    if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
     const { id } = await params;
     const body = await request.json();
     
@@ -227,8 +240,12 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
   try {
-    const supabase = createClient();
+    const supabase = getSupabaseServer();
+    if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
     const { id } = await params;
     
     const { error } = await supabase

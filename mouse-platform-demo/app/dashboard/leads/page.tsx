@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
+import Link from "next/link";
 import {
   Search,
   MapPin,
@@ -8,143 +9,184 @@ import {
   Star,
   Phone,
   Globe,
-  Users,
-  DollarSign,
-  Download,
-  Filter,
-  Bookmark,
-  Target,
   Loader2,
   AlertCircle,
+  Download,
+  Target,
+  MessageSquare,
+  Workflow,
 } from "lucide-react";
+import OutreachGeneratorModal from "@/components/lead-finder/OutreachGeneratorModal";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
+import type { Vertical, LeadBusiness } from "@/types/lead-finder";
 
-interface Lead {
-  id: string;
-  name: string;
-  industry: string;
-  location: string;
-  rating: number;
-  reviews: number;
-  phone: string;
-  website: string;
-  score: number;
-  employees: string;
-  revenue: string;
-  saved: boolean;
-  placeId?: string;
-  types?: string[];
-  status?: string;
-}
-
-const industries = [
-  "All Industries",
-  "Technology",
-  "Manufacturing",
-  "Finance",
-  "Healthcare",
-  "Construction",
-  "Energy",
-  "Retail",
-  "Education",
-  "Real Estate",
-  "Business Services",
+const VERTICALS: { value: Vertical; label: string }[] = [
+  { value: "plumbing", label: "Plumbing" },
+  { value: "dental", label: "Dental" },
+  { value: "hvac", label: "HVAC" },
+  { value: "electrical", label: "Electrical" },
+  { value: "roofing", label: "Roofing" },
+  { value: "landscaping", label: "Landscaping" },
+  { value: "cleaning", label: "Cleaning" },
+  { value: "real_estate", label: "Real Estate" },
+  { value: "legal", label: "Legal" },
+  { value: "accounting", label: "Accounting" },
+  { value: "auto_repair", label: "Auto Repair" },
+  { value: "restaurant", label: "Restaurant" },
+  { value: "other", label: "Other" },
 ];
 
-export default function LeadsPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [locationQuery, setLocationQuery] = useState("");
-  const [selectedIndustry, setSelectedIndustry] = useState("All Industries");
+const RADIUS_OPTIONS = [5, 10, 25, 50];
+
+const PAIN_SIGNAL_LABELS: Record<string, string> = {
+  no_callback: "No callback",
+  no_answer: "No answer",
+  rude_staff: "Rude staff",
+  poor_work: "Poor work",
+  late_arrival: "Late/no-show",
+  overpriced: "Overpriced",
+  hidden_fees: "Hidden fees",
+  no_website: "No website",
+};
+
+export default function LeadFinderPage() {
+  const [vertical, setVertical] = useState<Vertical>("plumbing");
+  const [location, setLocation] = useState("");
   const [radius, setRadius] = useState(25);
-  const [savedLeads, setSavedLeads] = useState<Set<string>>(new Set());
-  const [showFilters, setShowFilters] = useState(false);
-  const [minScore, setMinScore] = useState(0);
-  
-  // API integration states
-  const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [hasSearched, setHasSearched] = useState(false);
-  const [apiWarning, setApiWarning] = useState("");
-  const [demoMode, setDemoMode] = useState(false);
+  const [scanResult, setScanResult] = useState<{
+    id: string;
+    status: string;
+    vertical?: string;
+    total_found: number;
+    high_priority_count: number;
+    businesses: LeadBusiness[];
+  } | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showOutreachModal, setShowOutreachModal] = useState(false);
 
-  // Search function
-  const searchLeads = useCallback(async () => {
-    if (!searchQuery.trim() && !locationQuery.trim()) {
-      setError("Please enter a search query or location");
+  const runScan = useCallback(async () => {
+    if (!location.trim()) {
+      setError("Please enter a location");
       return;
     }
 
     setIsLoading(true);
     setError("");
-    setApiWarning("");
-    setDemoMode(false);
-    setHasSearched(true);
+    setScanResult(null);
 
     try {
-      const params = new URLSearchParams();
-      if (searchQuery) params.append("query", searchQuery);
-      if (locationQuery) params.append("location", locationQuery);
-      params.append("radius", (radius * 1609).toString()); // Convert miles to meters
+      const res = await fetchWithAuth("/api/reseller/lead-finder/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vertical,
+          location: location.trim(),
+          radius,
+        }),
+      });
 
-      const response = await fetch(`/api/leads/search?${params.toString()}`);
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok && !data.leads) {
-        throw new Error(data.error || "Failed to search leads");
+      if (!res.ok) {
+        throw new Error(data.error || data.detail || "Scan failed");
       }
 
-      if (data.warning) {
-        setApiWarning(data.warning);
+      const scanId = data.scan_id;
+      if (!scanId) {
+        throw new Error("No scan ID returned");
       }
 
-      if (data.demoMode) {
-        setDemoMode(true);
+      const getRes = await fetchWithAuth(
+        `/api/reseller/lead-finder/scans/${scanId}`
+      );
+      const getData = await getRes.json();
+
+      if (!getRes.ok) {
+        throw new Error(getData.error || "Failed to load results");
       }
 
-      setLeads(data.leads || []);
-    } catch (err: any) {
-      setError(err.message || "An error occurred while searching");
-      setLeads([]);
+      setScanResult({
+        id: getData.id,
+        status: getData.status,
+        vertical: getData.vertical ?? vertical,
+        total_found: getData.total_found ?? 0,
+        high_priority_count: getData.high_priority_count ?? 0,
+        businesses: (getData.businesses ?? []).map((b: LeadBusiness) => ({
+          ...b,
+          vertical: getData.vertical ?? vertical,
+        })),
+      });
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+      setScanResult(null);
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery, locationQuery, radius]);
+  }, [vertical, location, radius]);
 
-  // Initial load - show empty state
-  useEffect(() => {
-    // Don't auto-search on mount - wait for user input
-  }, []);
+  const getPainScoreColor = (score: number) => {
+    if (score >= 7) return "bg-red-100 text-red-700";
+    if (score >= 4) return "bg-amber-100 text-amber-700";
+    return "bg-mouse-teal/10 text-mouse-teal";
+  };
 
-  const filteredLeads = useMemo(() => {
-    return leads.filter((lead) => {
-      const matchesIndustry =
-        selectedIndustry === "All Industries" ||
-        lead.industry === selectedIndustry;
-      const matchesScore = lead.score >= minScore;
-      return matchesIndustry && matchesScore;
-    });
-  }, [leads, selectedIndustry, minScore]);
-
-  const toggleSave = (leadId: string) => {
-    setSavedLeads((prev) => {
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(leadId)) {
-        next.delete(leadId);
-      } else {
-        next.add(leadId);
-      }
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
 
+  const toggleSelectAll = () => {
+    if (!scanResult?.businesses.length) return;
+    if (selectedIds.size === scanResult.businesses.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(scanResult.businesses.map((b) => b.id)));
+    }
+  };
+
+  const updatePipelineStatus = async (businessId: string, status: string) => {
+    try {
+      await fetchWithAuth(
+        `/api/reseller/lead-finder/pipeline/${businessId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        }
+      );
+      setScanResult((prev) =>
+        prev
+          ? {
+              ...prev,
+              businesses: prev.businesses.map((b) =>
+                b.id === businessId ? { ...b, pipeline_status: status } : b
+              ),
+            }
+          : null
+      );
+    } catch {
+      // ignore
+    }
+  };
+
   const exportLeads = () => {
-    const data = filteredLeads.map((l) => ({
-      name: l.name,
-      industry: l.industry,
-      location: l.location,
-      phone: l.phone,
-      website: l.website,
-      score: l.score,
+    if (!scanResult?.businesses.length) return;
+    const data = scanResult.businesses.map((b) => ({
+      name: b.name,
+      phone: b.phone,
+      website: b.website,
+      address: b.address,
+      rating: b.google_rating,
+      reviews: b.google_review_count,
+      pain_signals: b.pain_signals,
+      pain_score: b.pain_score,
+      estimated_lost_revenue: b.estimated_lost_revenue,
     }));
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: "application/json",
@@ -156,225 +198,117 @@ export default function LeadsPage() {
     a.click();
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return "text-green-600 bg-green-50";
-    if (score >= 80) return "text-blue-600 bg-blue-50";
-    if (score >= 70) return "text-yellow-600 bg-yellow-50";
-    return "text-orange-600 bg-orange-50";
-  };
-
-  const getScoreLabel = (score: number) => {
-    if (score >= 90) return "Hot";
-    if (score >= 80) return "Warm";
-    if (score >= 70) return "Qualified";
-    return "Cold";
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      searchLeads();
-    }
-  };
-
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-mouse-navy">Lead Finder</h1>
           <p className="text-sm text-mouse-slate mt-1">
-            Discover and qualify new business opportunities
+            Find SMBs with pain signals — ready for AI employee outreach
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={exportLeads}
-            disabled={filteredLeads.length === 0}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-mouse-slate/20 text-mouse-charcoal rounded-lg text-sm font-medium hover:bg-mouse-offwhite transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Download className="w-4 h-4" />
-            Export
-          </button>
-        </div>
-      </div>
-
-      {/* Search Bar */}
-      <div className="bg-white rounded-xl border border-mouse-slate/20 p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-          <div className="md:col-span-5 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mouse-slate" />
-            <input
-              type="text"
-              placeholder="Search businesses (e.g., 'construction companies')..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="w-full pl-10 pr-4 py-2.5 bg-mouse-offwhite border border-mouse-slate/20 rounded-lg text-sm focus:outline-none focus:border-mouse-teal"
-            />
-          </div>
-          <div className="md:col-span-4 relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mouse-slate" />
-            <input
-              type="text"
-              placeholder="Location (city, state, or zip)"
-              value={locationQuery}
-              onChange={(e) => setLocationQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="w-full pl-10 pr-4 py-2.5 bg-mouse-offwhite border border-mouse-slate/20 rounded-lg text-sm focus:outline-none focus:border-mouse-teal"
-            />
-          </div>
-          <div className="md:col-span-2">
-            <select
-              value={selectedIndustry}
-              onChange={(e) => setSelectedIndustry(e.target.value)}
-              className="w-full px-3 py-2.5 bg-mouse-offwhite border border-mouse-slate/20 rounded-lg text-sm focus:outline-none focus:border-mouse-teal"
+        {scanResult && scanResult.businesses.length > 0 && (
+          <div className="flex items-center gap-2">
+            <Link
+              href="/dashboard/leads/pipeline"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-mouse-slate/20 text-mouse-charcoal rounded-lg text-sm font-medium hover:bg-mouse-offwhite transition-colors"
             >
-              {industries.map((ind) => (
-                <option key={ind} value={ind}>
-                  {ind}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="md:col-span-1">
+              <Workflow className="w-4 h-4" />
+              Pipeline
+            </Link>
             <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`w-full h-full flex items-center justify-center border rounded-lg transition-colors ${
-                showFilters
-                  ? "bg-orange-500 text-white border-mouse-teal"
-                  : "bg-white text-mouse-slate border-mouse-slate/20 hover:bg-mouse-offwhite"
-              }`}
+              onClick={() => setShowOutreachModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
             >
-              <Filter className="w-4 h-4" />
+              <MessageSquare className="w-4 h-4" />
+              Generate Outreach
             </button>
-          </div>
-        </div>
-
-        {/* Search Button */}
-        <div className="mt-4 flex gap-3">
-          <button
-            onClick={searchLeads}
-            disabled={isLoading}
-            className="flex items-center gap-2 px-6 py-2.5 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors disabled:opacity-50"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Searching...
-              </>
-            ) : (
-              <>
-                <Search className="w-4 h-4" />
-                Search Leads
-              </>
-            )}
-          </button>
-          {(searchQuery || locationQuery) && (
             <button
-              onClick={() => {
-                setSearchQuery("");
-                setLocationQuery("");
-                setLeads([]);
-                setHasSearched(false);
-                setError("");
-                setApiWarning("");
-                setDemoMode(false);
-              }}
-              className="px-4 py-2.5 text-sm text-mouse-slate hover:text-mouse-charcoal transition-colors"
+              onClick={exportLeads}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-mouse-slate/20 text-mouse-charcoal rounded-lg text-sm font-medium hover:bg-mouse-offwhite transition-colors"
             >
-              Clear
+              <Download className="w-4 h-4" />
+              Export
             </button>
-          )}
-        </div>
-
-        {/* Advanced Filters */}
-        {showFilters && (
-          <div className="mt-4 pt-4 border-t border-mouse-slate/20 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-mouse-charcoal mb-2">
-                Search Radius: {radius} miles
-              </label>
-              <input
-                type="range"
-                min="5"
-                max="100"
-                value={radius}
-                onChange={(e) => setRadius(Number(e.target.value))}
-                className="w-full accent-mouse-teal"
-              />
-              <div className="flex justify-between text-xs text-mouse-slate mt-1">
-                <span>5 mi</span>
-                <span>100 mi</span>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-mouse-charcoal mb-2">
-                Min Lead Score: {minScore}
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={minScore}
-                onChange={(e) => setMinScore(Number(e.target.value))}
-                className="w-full accent-mouse-teal"
-              />
-              <div className="flex justify-between text-xs text-mouse-slate mt-1">
-                <span>0</span>
-                <span>100</span>
-              </div>
-            </div>
-            <div className="flex items-end">
-              <button
-                onClick={() => {
-                  setRadius(25);
-                  setMinScore(0);
-                  setSelectedIndustry("All Industries");
-                }}
-                className="text-sm text-mouse-teal hover:underline"
-              >
-                Reset filters
-              </button>
-            </div>
           </div>
         )}
       </div>
 
-      {/* API Warning / Demo Mode Banner */}
-      {apiWarning && (
-        <div className={`mb-6 p-4 border rounded-lg flex items-start gap-3 ${
-          demoMode 
-            ? "bg-amber-50 border-amber-200" 
-            : "bg-yellow-50 border-yellow-200"
-        }`}>
-          <AlertCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
-            demoMode ? "text-amber-600" : "text-yellow-600"
-          }`} />
-          <div className="flex-1">
-            <p className={`text-sm font-medium ${
-              demoMode ? "text-amber-800" : "text-yellow-800"
-            }`}>
-              {demoMode ? "🎯 Demo Mode Active" : "⚠️ Notice"}
-            </p>
-            <p className={`text-sm mt-1 ${
-              demoMode ? "text-amber-700" : "text-yellow-700"
-            }`}>
-              {apiWarning}
-            </p>
-            {demoMode && (
-              <div className="mt-3 text-xs text-amber-600 bg-amber-100/50 p-2 rounded">
-                <strong>To get real business data:</strong>
-                <ol className="list-decimal ml-4 mt-1 space-y-0.5">
-                  <li>Get a Google Places API key from <a href="https://developers.google.com/maps/documentation/places/web-service/get-api-key" target="_blank" rel="noopener noreferrer" className="underline">Google Cloud Console</a></li>
-                  <li>Add it to <code className="bg-amber-200/50 px-1 rounded">.env.local</code> as <code className="bg-amber-200/50 px-1 rounded">GOOGLE_PLACES_API_KEY=your_key</code></li>
-                  <li>Restart the development server</li>
-                </ol>
-              </div>
-            )}
+      {/* Scan Form */}
+      <div className="bg-white rounded-xl border border-mouse-slate/20 p-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="md:col-span-3">
+            <label className="block text-xs font-medium text-mouse-slate mb-1.5">
+              Vertical
+            </label>
+            <select
+              value={vertical}
+              onChange={(e) => setVertical(e.target.value as Vertical)}
+              className="w-full px-3 py-2.5 bg-mouse-offwhite border border-mouse-slate/20 rounded-lg text-sm focus:outline-none focus:border-mouse-teal"
+            >
+              {VERTICALS.map((v) => (
+                <option key={v.value} value={v.value}>
+                  {v.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="md:col-span-4 relative">
+            <label className="block text-xs font-medium text-mouse-slate mb-1.5">
+              Location
+            </label>
+            <MapPin className="absolute left-3 top-9 w-4 h-4 text-mouse-slate" />
+            <input
+              type="text"
+              placeholder="City, state, or zip (e.g. Wilmington, NC)"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && runScan()}
+              className="w-full pl-10 pr-4 py-2.5 bg-mouse-offwhite border border-mouse-slate/20 rounded-lg text-sm focus:outline-none focus:border-mouse-teal"
+            />
+          </div>
+          <div className="md:col-span-3">
+            <label className="block text-xs font-medium text-mouse-slate mb-1.5">
+              Radius: {radius} miles
+            </label>
+            <div className="flex gap-2">
+              {RADIUS_OPTIONS.map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setRadius(r)}
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    radius === r
+                      ? "bg-mouse-teal text-white"
+                      : "bg-mouse-offwhite text-mouse-slate hover:bg-mouse-slate/20"
+                  }`}
+                >
+                  {r} mi
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="md:col-span-2 flex items-end">
+            <button
+              onClick={runScan}
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors disabled:opacity-50"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Scanning...
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4" />
+                  Scan
+                </>
+              )}
+            </button>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Error Message */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -383,230 +317,310 @@ export default function LeadsPage() {
       )}
 
       {/* Stats */}
-      {hasSearched && !isLoading && (
+      {scanResult && !isLoading && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-xl border border-mouse-slate/20 p-4">
-            <p className="text-xs text-mouse-slate font-medium uppercase">Total Leads</p>
+            <p className="text-xs text-mouse-slate font-medium uppercase">
+              Total Found
+            </p>
             <p className="text-xl font-bold text-mouse-charcoal mt-1">
-              {filteredLeads.length}
+              {scanResult.total_found}
             </p>
           </div>
           <div className="bg-white rounded-xl border border-mouse-slate/20 p-4">
-            <p className="text-xs text-mouse-slate font-medium uppercase">Saved</p>
+            <p className="text-xs text-mouse-slate font-medium uppercase">
+              High Priority
+            </p>
+            <p className="text-xl font-bold text-orange-600 mt-1">
+              {scanResult.high_priority_count}
+            </p>
+          </div>
+          <div className="bg-white rounded-xl border border-mouse-slate/20 p-4">
+            <p className="text-xs text-mouse-slate font-medium uppercase">
+              Avg Pain Score
+            </p>
             <p className="text-xl font-bold text-mouse-teal mt-1">
-              {savedLeads.size}
+              {scanResult.businesses.length
+                ? (
+                    scanResult.businesses.reduce((s, b) => s + (b.pain_score ?? 0), 0) /
+                    scanResult.businesses.length
+                  ).toFixed(1)
+                : "—"}
             </p>
           </div>
           <div className="bg-white rounded-xl border border-mouse-slate/20 p-4">
-            <p className="text-xs text-mouse-slate font-medium uppercase">Avg Score</p>
+            <p className="text-xs text-mouse-slate font-medium uppercase">
+              Est. Lost Revenue
+            </p>
             <p className="text-xl font-bold text-mouse-green mt-1">
-              {filteredLeads.length
-                ? Math.round(
-                    filteredLeads.reduce((sum, l) => sum + l.score, 0) /
-                      filteredLeads.length
-                  )
-                : 0}
-            </p>
-          </div>
-          <div className="bg-white rounded-xl border border-mouse-slate/20 p-4">
-            <p className="text-xs text-mouse-slate font-medium uppercase">Hot Leads</p>
-            <p className="text-xl font-bold text-mouse-orange mt-1">
-              {filteredLeads.filter((l) => l.score >= 90).length}
+              $
+              {scanResult.businesses.length
+                ? scanResult.businesses
+                    .reduce((s, b) => s + (b.estimated_lost_revenue ?? 0), 0)
+                    .toLocaleString()
+                : "0"}
             </p>
           </div>
         </div>
       )}
 
-      {/* Empty State - Before Search */}
-      {!hasSearched && !isLoading && (
+      {/* Empty State */}
+      {!scanResult && !isLoading && (
         <div className="text-center py-16 bg-white rounded-xl border border-mouse-slate/20">
           <div className="w-16 h-16 bg-mouse-offwhite rounded-full flex items-center justify-center mx-auto mb-4">
-            <Search className="w-8 h-8 text-mouse-slate" />
+            <Target className="w-8 h-8 text-mouse-slate" />
           </div>
           <h3 className="text-lg font-medium text-mouse-charcoal mb-2">
             Find Your Next Customer
           </h3>
           <p className="text-sm text-mouse-slate max-w-md mx-auto mb-6">
-            Search for businesses by keyword and location. We&apos;ll fetch real business data from Google Places to help you find qualified leads.
+            Select a vertical, enter a location, and scan for businesses with pain
+            signals. We analyze Google reviews to surface leads ready for outreach.
           </p>
           <div className="flex flex-wrap justify-center gap-2">
-            {["Construction", "Real Estate", "Healthcare", "Technology", "Finance"].map((industry) => (
-              <button
-                key={industry}
-                onClick={() => {
-                  setSearchQuery(industry);
-                  setSelectedIndustry(industry);
-                }}
-                className="px-3 py-1.5 bg-mouse-offwhite text-mouse-slate rounded-full text-sm hover:bg-mouse-slate/20 transition-colors"
-              >
-                {industry}
-              </button>
-            ))}
+            {["Wilmington, NC", "Charlotte, NC", "Raleigh, NC", "Atlanta, GA"].map(
+              (loc) => (
+                <button
+                  key={loc}
+                  onClick={() => setLocation(loc)}
+                  className="px-3 py-1.5 bg-mouse-offwhite text-mouse-slate rounded-full text-sm hover:bg-mouse-slate/20 transition-colors"
+                >
+                  {loc}
+                </button>
+              )
+            )}
           </div>
         </div>
       )}
 
-      {/* Loading State */}
+      {/* Loading */}
       {isLoading && (
         <div className="text-center py-16">
           <Loader2 className="w-12 h-12 text-mouse-teal animate-spin mx-auto mb-4" />
           <h3 className="text-lg font-medium text-mouse-charcoal mb-2">
-            Searching for leads...
+            Scanning for leads...
           </h3>
           <p className="text-sm text-mouse-slate">
-            Fetching business data from Google Places
-          </p>
-          <p className="text-xs text-mouse-slate/60 mt-2">
-            (Falls back to demo data if API is unavailable)
+            Fetching businesses from Google Places and analyzing reviews
           </p>
         </div>
       )}
 
-      {/* Leads Grid */}
-      {!isLoading && filteredLeads.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filteredLeads.map((lead) => (
-            <div
-              key={lead.id}
-              className="bg-white rounded-xl border border-mouse-slate/20 p-5 hover:shadow-md transition-shadow"
-            >
-              {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-mouse-navy/5 flex items-center justify-center">
-                    <Building2 className="w-6 h-6 text-mouse-navy" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-mouse-charcoal">
-                      {lead.name}
-                    </h3>
-                    <div className="flex items-center gap-2 text-xs text-mouse-slate">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {lead.location.split(",").slice(0, 2).join(",")}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => toggleSave(lead.id)}
-                  className={`p-2 rounded-lg transition-colors ${
-                    savedLeads.has(lead.id)
-                      ? "bg-mouse-teal/10 text-mouse-teal"
-                      : "bg-mouse-offwhite text-mouse-slate hover:text-mouse-teal"
-                  }`}
-                >
-                  <Bookmark
-                    className={`w-4 h-4 ${
-                      savedLeads.has(lead.id) ? "fill-current" : ""
-                    }`}
-                  />
-                </button>
-              </div>
-
-              {/* Score Badge */}
-              <div className="flex items-center gap-2 mb-4">
-                <span
-                  className={`px-2.5 py-1 rounded-full text-xs font-semibold ${getScoreColor(
-                    lead.score
-                  )}`}
-                >
-                  {lead.score} - {getScoreLabel(lead.score)}
-                </span>
-                <span className="text-xs text-mouse-slate bg-mouse-offwhite px-2.5 py-1 rounded-full">
-                  {lead.industry}
-                </span>
-              </div>
-
-              {/* Rating */}
-              {lead.rating > 0 && (
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${
-                          i < Math.floor(lead.rating)
-                            ? "text-yellow-400 fill-yellow-400"
-                            : "text-gray-200"
-                        }`}
+      {/* Results Table */}
+      {scanResult && scanResult.businesses.length > 0 && !isLoading && (
+        <div className="bg-white rounded-xl border border-mouse-slate/20 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-mouse-slate/20 bg-mouse-offwhite/50">
+                  <th className="text-left px-4 py-3 w-10">
+                    <input
+                      type="checkbox"
+                      checked={
+                        scanResult.businesses.length > 0 &&
+                        selectedIds.size === scanResult.businesses.length
+                      }
+                      onChange={toggleSelectAll}
+                      className="rounded border-mouse-slate/30"
+                    />
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-mouse-charcoal">
+                    Business
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-mouse-charcoal">
+                    Rating
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-mouse-charcoal">
+                    Pain Signals
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-mouse-charcoal">
+                    Pain Score
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-mouse-charcoal">
+                    Est. Lost Revenue
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-mouse-charcoal">
+                    Pipeline
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-mouse-charcoal">
+                    Contact
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {scanResult.businesses.map((b) => (
+                  <tr
+                    key={b.id}
+                    className="border-b border-mouse-slate/10 hover:bg-mouse-offwhite/30"
+                  >
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(b.id)}
+                        onChange={() => toggleSelect(b.id)}
+                        className="rounded border-mouse-slate/30"
                       />
-                    ))}
-                  </div>
-                  <span className="text-sm font-medium text-mouse-charcoal">
-                    {lead.rating}
-                  </span>
-                  {lead.reviews > 0 && (
-                    <span className="text-xs text-mouse-slate">
-                      ({lead.reviews} reviews)
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {/* Details */}
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center gap-2 text-sm text-mouse-slate">
-                  <Users className="w-4 h-4" />
-                  <span>{lead.employees} employees</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-mouse-slate">
-                  <DollarSign className="w-4 h-4" />
-                  <span>{lead.revenue} revenue</span>
-                </div>
-                {lead.phone !== "N/A" && (
-                  <div className="flex items-center gap-2 text-sm text-mouse-slate">
-                    <Phone className="w-4 h-4" />
-                    <span>{lead.phone}</span>
-                  </div>
-                )}
-                {lead.website !== "N/A" && (
-                  <div className="flex items-center gap-2 text-sm text-mouse-slate">
-                    <Globe className="w-4 h-4" />
-                    <span className="text-mouse-teal truncate">{lead.website}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-2 pt-4 border-t border-mouse-slate/10">
-                <button className="flex-1 px-3 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors">
-                  Add to Pipeline
-                </button>
-                <button className="px-3 py-2 bg-mouse-offwhite text-mouse-charcoal rounded-lg text-sm font-medium hover:bg-mouse-slate/20 transition-colors">
-                  View Details
-                </button>
-              </div>
-            </div>
-          ))}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-lg bg-mouse-navy/5 flex items-center justify-center">
+                          <Building2 className="w-5 h-5 text-mouse-navy" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-mouse-charcoal">
+                            {b.name}
+                          </p>
+                          {b.address && (
+                            <p className="text-xs text-mouse-slate truncate max-w-[200px]">
+                              {b.address}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1">
+                        {b.google_rating != null && (
+                          <>
+                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                            <span>{b.google_rating}</span>
+                            {b.google_review_count != null && (
+                              <span className="text-mouse-slate">
+                                ({b.google_review_count})
+                              </span>
+                            )}
+                          </>
+                        )}
+                        {b.google_rating == null && (
+                          <span className="text-mouse-slate">—</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap gap-1">
+                        {(b.pain_signals ?? []).map((s) => (
+                          <span
+                            key={s}
+                            className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800"
+                          >
+                            {PAIN_SIGNAL_LABELS[s] ?? s}
+                          </span>
+                        ))}
+                        {(b.pain_signals ?? []).length === 0 && (
+                          <span className="text-mouse-slate">—</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold ${getPainScoreColor(
+                          b.pain_score ?? 0
+                        )}`}
+                      >
+                        {b.pain_score ?? 0}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {b.estimated_lost_revenue != null ? (
+                        <span className="font-medium text-mouse-green">
+                          $
+                          {b.estimated_lost_revenue.toLocaleString()}
+                          <span className="text-mouse-slate font-normal text-xs">
+                            /mo
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-mouse-slate">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <select
+                        value={b.pipeline_status ?? "new"}
+                        onChange={(e) =>
+                          updatePipelineStatus(b.id, e.target.value)
+                        }
+                        className="px-2 py-1 text-xs border border-mouse-slate/20 rounded-lg focus:outline-none focus:border-mouse-teal"
+                      >
+                        <option value="new">New</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="pitched">Pitched</option>
+                        <option value="demo">Demo</option>
+                        <option value="negotiation">Negotiation</option>
+                        <option value="closed">Closed</option>
+                        <option value="lost">Lost</option>
+                      </select>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col gap-0.5">
+                        {b.phone && (
+                          <a
+                            href={`tel:${b.phone}`}
+                            className="flex items-center gap-1 text-mouse-teal hover:underline"
+                          >
+                            <Phone className="w-3 h-3" />
+                            {b.phone}
+                          </a>
+                        )}
+                        {b.website && (
+                          <a
+                            href={b.website.startsWith("http") ? b.website : `https://${b.website}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-mouse-teal hover:underline truncate max-w-[180px]"
+                          >
+                            <Globe className="w-3 h-3 flex-shrink-0" />
+                            {b.website.replace(/^https?:\/\//, "")}
+                          </a>
+                        )}
+                        {!b.phone && !b.website && (
+                          <span className="text-mouse-slate">—</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {/* No Results */}
-      {hasSearched && !isLoading && filteredLeads.length === 0 && (
-        <div className="text-center py-16">
+      {scanResult && scanResult.businesses.length === 0 && !isLoading && (
+        <div className="text-center py-16 bg-white rounded-xl border border-mouse-slate/20">
           <Building2 className="w-12 h-12 text-mouse-slate mx-auto mb-4" />
           <h3 className="text-lg font-medium text-mouse-charcoal mb-2">
-            No leads found
+            No businesses found
           </h3>
           <p className="text-sm text-mouse-slate mb-4">
-            Try adjusting your search terms, location, or filters
+            Try a different location or radius. Ensure GOOGLE_PLACES_API_KEY is set.
           </p>
-          <button
-            onClick={() => {
-              setSearchQuery("");
-              setLocationQuery("");
-              setSelectedIndustry("All Industries");
-              setMinScore(0);
-              setRadius(25);
-              setApiWarning("");
-              setDemoMode(false);
-            }}
-            className="text-sm text-mouse-teal hover:underline"
-          >
-            Clear all filters
-          </button>
         </div>
+      )}
+
+      {showOutreachModal && scanResult && (
+        <OutreachGeneratorModal
+          businesses={scanResult.businesses}
+          selectedIds={
+            selectedIds.size > 0
+              ? Array.from(selectedIds)
+              : scanResult.businesses.map((b) => b.id)
+          }
+          onClose={() => setShowOutreachModal(false)}
+          onSent={() => {
+            setScanResult((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    businesses: prev.businesses.map((b) => ({
+                      ...b,
+                      outreach_count: (b.outreach_count ?? 0) + 1,
+                    })),
+                  }
+                : null
+            );
+          }}
+        />
       )}
     </div>
   );

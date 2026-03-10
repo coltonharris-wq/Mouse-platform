@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, Loader2, CheckCircle, Mail, Building2, User, Phone, ExternalLink } from "lucide-react";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 interface AddCustomerModalProps {
   isOpen: boolean;
@@ -31,11 +32,9 @@ export default function AddCustomerModal({ isOpen, onClose, onSuccess }: AddCust
     setError(null);
 
     try {
-      const response = await fetch("/api/reseller/customers", {
+      const response = await fetchWithAuth("/api/reseller/customers", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 

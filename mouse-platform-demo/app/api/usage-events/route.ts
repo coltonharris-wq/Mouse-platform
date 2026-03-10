@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase-server';
+import { requireAdmin } from '@/lib/admin-auth';
 
 /**
  * GET /api/usage-events?customerId=X — customer usage history
@@ -15,6 +16,11 @@ export async function GET(request: NextRequest) {
   const resellerId = searchParams.get('resellerId');
   const year = parseInt(searchParams.get('year') || String(new Date().getFullYear()));
   const month = parseInt(searchParams.get('month') || String(new Date().getMonth() + 1));
+
+  if (admin === 'true') {
+    const auth = await requireAdmin(request);
+    if (!auth.ok) return auth.response;
+  }
 
   const supabase = getSupabaseServer();
   if (!supabase) {

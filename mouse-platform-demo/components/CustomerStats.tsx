@@ -72,7 +72,7 @@ export default function CustomerStats({ stats }: CustomerStatsProps) {
           </div>
         </div>
         <div className="mt-3 text-xs text-mouse-slate">
-          40% commission rate
+          Custom commission (you set price)
         </div>
       </div>
 

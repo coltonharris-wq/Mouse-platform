@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { kingMouseService } from '@/lib/king-mouse-service';
+import { requireAdmin } from '@/lib/admin-auth';
 
 /**
  * King Mouse Provision API
@@ -10,11 +11,8 @@ import { kingMouseService } from '@/lib/king-mouse-service';
 
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Add admin authentication check
-    // const authHeader = request.headers.get('authorization');
-    // if (!authHeader || !verifyAdminToken(authHeader)) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
+    const auth = await requireAdmin(request);
+    if (!auth.ok) return auth.response;
 
     const body = await request.json();
     const { customerId, customerEmail, companyName, planTier, resellerId } = body;

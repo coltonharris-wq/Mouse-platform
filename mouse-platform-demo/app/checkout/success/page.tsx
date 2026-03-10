@@ -8,6 +8,7 @@ export default function CheckoutSuccessPage() {
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState('');
   const [hours, setHours] = useState(0);
+  const [customerId, setCustomerId] = useState('');
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -20,9 +21,17 @@ export default function CheckoutSuccessPage() {
         .then(data => {
           setPlan(data.plan || 'pro');
           setHours(data.workHours || 0);
+          setCustomerId(data.customerId || '');
+
+          // Redirect to onboard page after 2 seconds
+          // Onboard handles the interview + VM deployment
+          setTimeout(() => {
+            window.location.href = `/onboard?customerId=${data.customerId || ''}`;
+          }, 2000);
         })
-        .catch(() => {})
-        .finally(() => setLoading(false));
+        .catch(() => {
+          setLoading(false);
+        });
     } else {
       setLoading(false);
     }

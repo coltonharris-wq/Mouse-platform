@@ -373,9 +373,9 @@ export default function KingMouseChat() {
                   <p className="text-white/80 text-sm">Your AI Workforce Orchestrator</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* Token Counter */}
+                  {/* Brain Space */}
                   <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/10 text-white/80">
-                    {(tokenCount / 1000).toFixed(1)}k / 100k tokens
+                    Brain Space: {Math.min(Math.round(tokenPercentage), 100)}%
                   </div>
                   {/* New Session Button */}
                   <button

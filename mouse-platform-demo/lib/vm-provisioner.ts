@@ -2,7 +2,7 @@
 // Manages VM creation, provisioning, and OpenClaw installation
 
 const ORGO_API_KEY = process.env.ORGO_API_KEY || '';
-const ORGO_API_BASE = 'https://api.orgo.ai/v1';
+const ORGO_API_BASE = 'https://www.orgo.ai/api';
 const ORGO_WORKSPACE_ID = process.env.ORGO_WORKSPACE_ID || '';
 
 export interface VMSpecs {
@@ -51,17 +51,17 @@ export class VMProvisioner {
    * Create a new VM via Orgo API
    */
   async createVM(specs: VMSpecs): Promise<VMCreateResult> {
-    const response = await fetch(`${ORGO_API_BASE}/workspaces/${this.workspaceId}/computers`, {
+    const response = await fetch(`${ORGO_API_BASE}/computers`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        project_id: this.workspaceId,
         name: specs.name,
-        ram_gb: specs.ram || 8,
-        cpu_cores: specs.cpu || 4,
-        gpu: specs.gpu || 'none',
+        ram: specs.ram || 8,
+        cpu: specs.cpu || 4,
         os: specs.os || 'linux',
       }),
     });
@@ -176,7 +176,7 @@ export class VMProvisioner {
     });
 
     // Write to VM
-    const command = `cat > /opt/openclaw/.env << 'EOF'\n${envContent}\nEOF`;
+    const command = `cat > /opt/king-mouse/.env << 'EOF'\n${envContent}\nEOF`;
     const result = await this.executeBash(vmId, command);
 
     if (!result.success) {
@@ -184,7 +184,7 @@ export class VMProvisioner {
     }
 
     // Restart service
-    const restartResult = await this.executeBash(vmId, 'cd /opt/openclaw && npm restart');
+    const restartResult = await this.executeBash(vmId, 'cd /opt/king-mouse && pm2 restart king-mouse');
     
     if (!restartResult.success) {
       throw new Error(`Failed to restart service: ${restartResult.error}`);
@@ -250,6 +250,7 @@ export class VMProvisioner {
       const response = await fetch(`${ORGO_API_BASE}/computers/${vmId}/screenshot`, {
         method: 'POST',
         headers: {
+          'apikey': this.apiKey,
           'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
         },
@@ -280,6 +281,7 @@ export class VMProvisioner {
     try {
       const response = await fetch(`${ORGO_API_BASE}/computers/${vmId}/activity?limit=${limit}`, {
         headers: {
+          'apikey': this.apiKey,
           'Authorization': `Bearer ${this.apiKey}`,
         },
       });
@@ -342,7 +344,7 @@ export class VMProvisioner {
 
   private getNodeInstallCommand(): string {
     return `
-      curl -fsSL https://deb.nodesource.com/setup_20.x | bash - &&
+      curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &&
       apt-get install -y nodejs
     `.trim().replace(/\s+/g, ' ');
   }
@@ -352,33 +354,32 @@ export class VMProvisioner {
   }
 
   private getCloneCommand(): string {
-    const repoUrl = process.env.OPENCLAW_REPO_URL || 'https://github.com/openclaw/openclaw.git';
     return `
-      mkdir -p /opt &&
-      cd /opt &&
-      git clone ${repoUrl} openclaw
+      mkdir -p /opt/king-mouse &&
+      cd /opt/king-mouse &&
+      git clone https://github.com/coltonharris-wq/mouse.git .
     `.trim().replace(/\s+/g, ' ');
   }
 
   private getInstallCommand(): string {
-    return 'cd /opt/openclaw && npm install';
+    return 'cd /opt/king-mouse && npm install -g pnpm && pnpm install';
   }
 
   private getBuildCommand(): string {
-    return 'cd /opt/openclaw && npm run build';
+    return 'cd /opt/king-mouse && pnpm build';
   }
 
   private getEnvCommand(config: ProvisionConfig): string {
     const envContent = this.generateEnvContent(config);
-    
-    return `cat > /opt/openclaw/.env << 'EOF'\n${envContent}\nEOF`;
+
+    return `cat > /opt/king-mouse/.env << 'EOF'\n${envContent}\nEOF`;
   }
 
   private getStartCommand(): string {
     return `
-      cd /opt/openclaw &&
+      cd /opt/king-mouse &&
       npm install -g pm2 &&
-      pm2 start npm --name "openclaw" -- start &&
+      pm2 start npm --name "king-mouse" -- start &&
       pm2 save &&
       pm2 startup
     `.trim().replace(/\s+/g, ' ');

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { getAuthHeaders } from '@/lib/admin-auth';
 import Link from 'next/link';
 import { Activity, Users, Store, DollarSign, Cpu, Shield, AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -70,7 +71,7 @@ export default function AdminOverviewPage() {
 
   async function fetchStats() {
     try {
-      const res = await fetch('/api/admin/overview');
+      const res = await fetch('/api/admin/overview', { headers: getAuthHeaders() });
       const data = await res.json();
       if (data.success) {
         setStats(data.stats);
@@ -221,9 +222,9 @@ export default function AdminOverviewPage() {
                         <td className="py-3 text-gray-600">{r.email}</td>
                         <td className="py-3">
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
-                            r.stripe_onboarding_status === 'complete' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                            r.stripe_account_status === 'active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
                           }`}>
-                            {r.stripe_onboarding_status}
+                            {r.stripe_account_status || (r.stripe_account_id ? 'pending' : '—')}
                           </span>
                         </td>
                         <td className="py-3">
