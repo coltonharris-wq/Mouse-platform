@@ -1,14 +1,23 @@
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { createComputer, estimateHourlyCost } from '@/lib/orgo';
+import { createComputer, getComputer } from '@/lib/orgo';
 import { kickOffProvision, ProvisionConfig } from '@/lib/mouse-os-provision';
 
 /**
  * POST /api/provision/start
  * Triggers King Mouse VM provisioning for a customer.
  * Called from the deploying page after Stripe payment succeeds.
+ *
+ * ARCHITECTURE: This endpoint waits synchronously for the VM to become
+ * responsive (up to 45s), then kicks off provisioning BEFORE returning.
+ * This is required because Vercel kills serverless functions after the
+ * response is sent — fire-and-forget async blocks never execute.
+ *
+ * If called again with an existing VM still in "creating" status,
+ * it retries kickOffProvision (idempotent — won't re-provision).
  */
 export async function POST(request: NextRequest) {
   try {
@@ -39,7 +48,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
     }
 
-    // Check if already provisioned
+    // Build provision config (used for both new and retry paths)
+    const provisionConfig: ProvisionConfig = {
+      customerId,
+      employeeType: 'king-mouse',
+      employeeName: 'King Mouse',
+      businessName: customer.company_name,
+      businessType: customer.industry,
+      supabaseUrl,
+      supabaseAnonKey: (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim(),
+      supabaseServiceKey: supabaseKey,
+      moonshotApiKey: (process.env.MOONSHOT_API_KEY || '').trim(),
+      orgoApiKey: (process.env.ORGO_API_KEY || '').trim(),
+      orgoWorkspaceId: (process.env.ORGO_WORKSPACE_ID || '').trim(),
+    };
+
+    // Check if VM already exists for this customer
     const { data: existingVMs } = await supabase
       .from('employee_vms')
       .select('computer_id, status')
@@ -48,20 +72,36 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (existingVMs?.[0]) {
+      const existing = existingVMs[0];
+
+      // If VM exists but stuck in "creating", retry provisioning
+      if (existing.status === 'creating') {
+        console.log(`[provision/start] Retrying provision for existing VM ${existing.computer_id}`);
+        const result = await waitAndProvision(existing.computer_id, provisionConfig, supabase);
+        return NextResponse.json({
+          success: true,
+          computerId: existing.computer_id,
+          status: result.started ? 'provisioning' : 'creating',
+          message: result.started ? 'Provisioning started' : `Waiting for VM: ${result.error}`,
+        });
+      }
+
+      // Already provisioning or active — return current state
       return NextResponse.json({
         success: true,
-        computerId: existingVMs[0].computer_id,
-        status: existingVMs[0].status,
-        message: 'Provisioning already in progress',
+        computerId: existing.computer_id,
+        status: existing.status,
+        message: existing.status === 'active' ? 'King Mouse is ready' : 'Provisioning in progress',
       });
     }
 
-    // Create VM
+    // Create new VM
     const vmName = `king-mouse-${customerId.substring(0, 8)}`;
     const vmRam = 32;
     const vmCpu = 4;
 
     const computer = await createComputer({ name: vmName, ram: vmRam, cpu: vmCpu });
+    console.log(`[provision/start] Created VM ${computer.id} for customer ${customerId}`);
 
     // Store VM record
     const employeeId = `emp-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
@@ -86,46 +126,16 @@ export async function POST(request: NextRequest) {
       orgo_url: computer.url,
     });
 
-    // Kick off Mouse OS provisioning (non-blocking)
-    // Note: The VM may not be responsive immediately after creation.
-    // If this initial attempt fails, /api/provision/status will retry
-    // automatically on subsequent polls (self-healing, see Fix 3).
-    const provisionConfig: ProvisionConfig = {
-      customerId,
-      employeeType: 'king-mouse',
-      employeeName: 'King Mouse',
-      businessName: customer.company_name,
-      businessType: customer.industry,
-      supabaseUrl: supabaseUrl,
-      supabaseAnonKey: (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim(),
-      supabaseServiceKey: supabaseKey || '',
-      moonshotApiKey: (process.env.MOONSHOT_API_KEY || '').trim(),
-      orgoApiKey: (process.env.ORGO_API_KEY || '').trim(),
-      orgoWorkspaceId: (process.env.ORGO_WORKSPACE_ID || '').trim(),
-    };
-
-    // Wait 5s before first attempt — gives VM time to boot
-    (async () => {
-      await new Promise(r => setTimeout(r, 5000));
-      const result = await kickOffProvision(computer.id, provisionConfig);
-      if (result.started) {
-        console.log(`[provision/start] Provision started for ${computer.id}`);
-        await supabase
-          .from('employee_vms')
-          .update({ status: 'provisioning' })
-          .eq('computer_id', computer.id);
-      } else {
-        console.log(`[provision/start] Initial provision attempt: ${result.error} — status endpoint will retry`);
-      }
-    })().catch(err => {
-      console.error('[provision/start] Provision kickoff error:', err);
-    });
+    // Wait for VM to boot and kick off provisioning SYNCHRONOUSLY
+    // This must happen before returning — Vercel kills the function after response
+    const result = await waitAndProvision(computer.id, provisionConfig, supabase);
 
     return NextResponse.json({
       success: true,
       computerId: computer.id,
       employeeId,
-      message: 'VM provisioning started',
+      status: result.started ? 'provisioning' : 'creating',
+      message: result.started ? 'VM provisioning started' : `VM created, provisioning pending: ${result.error}`,
     });
   } catch (error: any) {
     console.error('Provision start error:', error);
@@ -134,4 +144,42 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+/**
+ * Wait for VM to become responsive, then kick off provisioning.
+ * Polls every 5s for up to 45s. Returns the kickOffProvision result.
+ */
+async function waitAndProvision(
+  computerId: string,
+  config: ProvisionConfig,
+  supabase: ReturnType<typeof createClient>
+): Promise<{ started: boolean; error?: string }> {
+  const maxWaitMs = 45_000;
+  const pollIntervalMs = 5_000;
+  const start = Date.now();
+
+  while (Date.now() - start < maxWaitMs) {
+    const result = await kickOffProvision(computerId, config);
+
+    if (result.started) {
+      console.log(`[provision/start] Provision started for ${computerId} after ${Date.now() - start}ms`);
+      await supabase
+        .from('employee_vms')
+        .update({ status: 'provisioning' })
+        .eq('computer_id', computerId);
+      return { started: true };
+    }
+
+    if (!result.retryable) {
+      console.error(`[provision/start] Non-retryable error for ${computerId}: ${result.error}`);
+      return { started: false, error: result.error };
+    }
+
+    console.log(`[provision/start] VM ${computerId} not ready yet (${Math.round((Date.now() - start) / 1000)}s): ${result.error}`);
+    await new Promise(r => setTimeout(r, pollIntervalMs));
+  }
+
+  console.log(`[provision/start] Timed out waiting for VM ${computerId} after ${maxWaitMs}ms`);
+  return { started: false, error: 'VM boot timeout — status endpoint will retry' };
 }

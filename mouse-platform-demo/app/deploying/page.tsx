@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, CheckCircle, Server, Cpu, Database } from "lucide-react";
 
@@ -13,6 +13,7 @@ function DeployingContent() {
   const [status, setStatus] = useState('Initializing...');
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
+  const retriedRef = useRef(false);
 
   useEffect(() => {
     if (!customerId) {
@@ -20,38 +21,40 @@ function DeployingContent() {
       return;
     }
 
-    // Start provisioning
     startProvisioning();
   }, [customerId]);
 
-  async function startProvisioning() {
-    try {
-      // Step 1: Trigger VM provision
-      setStatus('Provisioning your King Mouse VM...');
-      setProgress(20);
+  async function callProvisionStart() {
+    const res = await fetch('/api/provision/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerId }),
+    });
 
-      // Try dedicated provision endpoint first (no balance check — runs post-payment)
-      let provisionRes = await fetch('/api/provision/start', {
+    if (!res.ok) {
+      // Fall back to marketplace hire if provision/start fails
+      const fallback = await fetch('/api/marketplace/hire', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerId }),
+        body: JSON.stringify({ customerId, employeeType: 'king-mouse', isOnboarding: true }),
       });
-
-      // Fall back to marketplace hire if provision/start fails
-      if (!provisionRes.ok) {
-        provisionRes = await fetch('/api/marketplace/hire', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ customerId, employeeType: 'king-mouse', isOnboarding: true }),
-        });
-      }
-
-      if (!provisionRes.ok) {
-        const errData = await provisionRes.json().catch(() => ({}));
+      if (!fallback.ok) {
+        const errData = await fallback.json().catch(() => ({}));
         throw new Error(errData.error || 'Failed to start provisioning');
       }
+      return fallback.json();
+    }
 
-      const provisionData = await provisionRes.json();
+    return res.json();
+  }
+
+  async function startProvisioning() {
+    try {
+      // Step 1: Trigger VM provision (this now waits up to 45s for VM to boot)
+      setStatus('Creating your dedicated server...');
+      setProgress(20);
+
+      const provisionData = await callProvisionStart();
       const computerId = provisionData.computerId || provisionData.vm?.computer_id || provisionData.vmId;
 
       if (!computerId) {
@@ -63,7 +66,8 @@ function DeployingContent() {
       setProgress(40);
 
       let attempts = 0;
-      const maxAttempts = 120; // 10 minutes
+      const maxAttempts = 120; // 10 minutes at 5s intervals
+      let creatingCount = 0; // Track how many times we see "creating"
 
       const pollInterval = setInterval(async () => {
         attempts++;
@@ -89,11 +93,30 @@ function DeployingContent() {
             return;
           }
 
+          // If still "creating" after 30s of polling, retry provision/start
+          // provision/start is idempotent — it will find the existing VM
+          // and retry kickOffProvision
+          if (statusData.progress <= 30) {
+            creatingCount++;
+          } else {
+            creatingCount = 0; // Reset if we see progress
+          }
+
+          if (creatingCount >= 6 && !retriedRef.current) {
+            // 6 polls at 5s = 30s stuck in "creating"
+            retriedRef.current = true;
+            console.log('[deploying] Status stuck in creating — retrying provision/start');
+            setStatus('Retrying server setup...');
+            callProvisionStart().catch(e => {
+              console.error('[deploying] Retry provision/start failed:', e);
+            });
+          }
+
           // Update progress
-          const newProgress = 40 + Math.min((attempts / maxAttempts) * 50, 50);
+          const newProgress = Math.min(40 + Math.round((attempts / maxAttempts) * 50), 90);
           setProgress(newProgress);
 
-          // Rotate status messages to show progress
+          // Rotate status messages
           const messages = [
             'Installing Mouse...',
             'Configuring your AI workforce...',
@@ -124,7 +147,7 @@ function DeployingContent() {
       <div className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#12121f] to-[#0a0a0f] flex items-center justify-center p-6">
         <div className="max-w-md w-full text-center">
           <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-4xl">⚠️</span>
+            <span className="text-4xl">!</span>
           </div>
           <h1 className="text-2xl font-bold text-white mb-3">Something went wrong</h1>
           <p className="text-gray-400 mb-6">{error}</p>
@@ -152,7 +175,7 @@ function DeployingContent() {
             onClick={() => router.push('/portal')}
             className="w-full bg-mouse-teal text-white font-semibold py-3 rounded-xl hover:bg-mouse-teal/90"
           >
-            Go to Dashboard →
+            Go to Dashboard
           </button>
         </div>
       </div>
@@ -179,7 +202,7 @@ function DeployingContent() {
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="text-center text-mouse-teal mt-3 font-medium">{progress}%</p>
+          <p className="text-center text-mouse-teal mt-3 font-medium">{Math.round(progress)}%</p>
         </div>
 
         {/* Status Steps */}
