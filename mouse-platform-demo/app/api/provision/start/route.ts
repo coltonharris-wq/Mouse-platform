@@ -87,6 +87,9 @@ export async function POST(request: NextRequest) {
     });
 
     // Kick off Mouse OS provisioning (non-blocking)
+    // Note: The VM may not be responsive immediately after creation.
+    // If this initial attempt fails, /api/provision/status will retry
+    // automatically on subsequent polls (self-healing, see Fix 3).
     const provisionConfig: ProvisionConfig = {
       customerId,
       employeeType: 'king-mouse',
@@ -101,7 +104,20 @@ export async function POST(request: NextRequest) {
       orgoWorkspaceId: process.env.ORGO_WORKSPACE_ID || '',
     };
 
-    kickOffProvision(computer.id, provisionConfig).catch(err => {
+    // Wait 5s before first attempt — gives VM time to boot
+    (async () => {
+      await new Promise(r => setTimeout(r, 5000));
+      const result = await kickOffProvision(computer.id, provisionConfig);
+      if (result.started) {
+        console.log(`[provision/start] Provision started for ${computer.id}`);
+        await supabase
+          .from('employee_vms')
+          .update({ status: 'provisioning' })
+          .eq('computer_id', computer.id);
+      } else {
+        console.log(`[provision/start] Initial provision attempt: ${result.error} — status endpoint will retry`);
+      }
+    })().catch(err => {
       console.error('[provision/start] Provision kickoff error:', err);
     });
 
