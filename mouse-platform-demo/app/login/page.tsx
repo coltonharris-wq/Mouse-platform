@@ -10,6 +10,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isResellerDomain, setIsResellerDomain] = useState(false);
+
+  // Detect mice.ink domain for branding
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsResellerDomain(window.location.hostname.includes('mice.ink'));
+    }
+  }, []);
 
   // Show message if redirected due to session expiry
   useEffect(() => {
@@ -111,9 +119,11 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-10">
             <Link href="/" className="text-white font-bold text-2xl tracking-tight">
-              Mouse
+              {isResellerDomain ? 'Mice' : 'Mouse'}
             </Link>
-            <p className="text-mouse-slate mt-1.5 text-sm">AI Workforce Operating System</p>
+            <p className="text-mouse-slate mt-1.5 text-sm">
+              {isResellerDomain ? 'AI Workforce Reseller Portal' : 'AI Workforce Operating System'}
+            </p>
           </div>
 
           {/* Card */}

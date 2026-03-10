@@ -38,7 +38,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Reseller not found' }, { status: 403 });
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mouse.is';
+    // Use request origin so resellers on mice.ink get mice.ink invite links
+    const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://mouse.is';
+    const baseUrl = origin.startsWith('http') ? origin : `https://${origin}`;
     const inviteUrl = reseller.invite_code
       ? `${baseUrl}/signup?ref=${reseller.invite_code}`
       : null;

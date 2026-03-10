@@ -139,6 +139,30 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Trigger VM provisioning for the reseller (same flow as customer checkout)
+    try {
+      const provisionRes = await fetch(
+        `${process.env.NEXT_PUBLIC_APP_URL || 'https://mouse.is'}/api/provision/start`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerId: `cst_${userId?.substring(0, 8)}`,
+            employeeType: 'king-mouse',
+            employeeName: 'King Mouse',
+            businessName: pending.company || 'My Agency',
+            accountType: 'reseller',
+          }),
+        }
+      );
+      if (!provisionRes.ok) {
+        console.error('Reseller VM provision trigger failed:', await provisionRes.text());
+      }
+    } catch (provisionErr) {
+      // Non-fatal — reseller account is created, VM can be provisioned later
+      console.error('Reseller VM provision error (non-fatal):', provisionErr);
+    }
+
     return NextResponse.json({
       success: true,
       userId,

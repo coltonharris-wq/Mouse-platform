@@ -22,7 +22,7 @@ import { kickOffProvision, ProvisionConfig } from '@/lib/mouse-os-provision';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { customerId } = body;
+    const { customerId, accountType } = body;
 
     if (!customerId) {
       return NextResponse.json({ error: 'customerId required' }, { status: 400 });
@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
       moonshotApiKey: (process.env.MOONSHOT_API_KEY || '').trim(),
       orgoApiKey: (process.env.ORGO_API_KEY || '').trim(),
       orgoWorkspaceId: (process.env.ORGO_WORKSPACE_ID || '').trim(),
+      accountType: accountType === 'reseller' ? 'reseller' : 'customer',
     };
 
     // Check if VM already exists for this customer

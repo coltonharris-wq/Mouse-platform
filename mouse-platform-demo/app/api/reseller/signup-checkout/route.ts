@@ -6,8 +6,6 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-
 const RESELLER_ONBOARDING_AMOUNT = 9700; // $97.00
 
 /**
@@ -16,6 +14,10 @@ const RESELLER_ONBOARDING_AMOUNT = 9700; // $97.00
  */
 export async function POST(request: NextRequest) {
   try {
+    // Use request origin so mice.ink users return to mice.ink after Stripe
+    const origin = request.headers.get('origin') || request.headers.get('referer')?.replace(/\/$/, '') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const APP_URL = origin.startsWith('http') ? origin : `https://${origin}`;
+
     const body = await request.json();
     const { pendingToken } = body;
 

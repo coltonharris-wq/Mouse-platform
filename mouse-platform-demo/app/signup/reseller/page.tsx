@@ -210,9 +210,9 @@ function ResellerSignupContent() {
           🖱️ Mouse
         </Link>
         <div className="flex items-center gap-4">
-          <Link href="/signup" className="text-gray-400 text-sm font-medium hover:text-white">
+          <a href="https://mouse.is/signup" className="text-gray-400 text-sm font-medium hover:text-white">
             Customer Sign Up
-          </Link>
+          </a>
           <Link href="/login" className="text-mouse-teal text-sm font-medium">
             Sign In
           </Link>
