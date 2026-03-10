@@ -92,19 +92,21 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session, supabas
 
   // 1. Activate account, upgrade tier, and credit work hours balance
   const workHoursNum = parseInt(work_hours || '0');
-  const { error: tierError } = await supabase
+  const updateData: Record<string, any> = {
+    plan_tier: plan,
+    stripe_customer_id: session.customer as string,
+    status: 'active',
+    work_hours_balance: workHoursNum > 0 ? workHoursNum : 2,
+    work_hours_purchased: workHoursNum > 0 ? workHoursNum : 2,
+    updated_at: new Date().toISOString(),
+  };
+  if (session.subscription) {
+    updateData.stripe_subscription_id = session.subscription as string;
+  }
+
+  let { error: tierError } = await supabase
     .from('customers')
-    .update({
-      tier: plan,
-      plan_tier: plan,
-      stripe_customer_id: session.customer as string,
-      stripe_subscription_id: session.subscription as string || undefined,
-      payment_status: 'active',
-      status: 'active',
-      work_hours_balance: workHoursNum > 0 ? workHoursNum : 2,
-      work_hours_purchased: workHoursNum > 0 ? workHoursNum : 2,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq('id', customer_id);
 
   if (tierError) {

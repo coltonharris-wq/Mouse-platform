@@ -44,24 +44,35 @@ export async function POST(request: NextRequest) {
     const customerId = `cst_${userId?.substring(0, 8)}`;
 
     // Create customer record (always — used for billing/portal for own usage)
-    const { error: customerError } = await supabase.from('customers').insert({
+    const fullName = `${firstName || ''} ${lastName || ''}`.trim();
+    const coreRecord: Record<string, any> = {
       id: customerId,
       user_id: userId,
       email,
-      name: `${firstName || ''} ${lastName || ''}`.trim() || undefined,
       company_name: company || 'My Business',
-      industry: industry || undefined,
-      needs: needs?.length ? needs : undefined,
-      custom_instructions: customInstructions || undefined,
       status: 'pending_payment',
       work_hours_balance: 2,
       work_hours_purchased: 2,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-    });
+    };
+
+    // Try with optional columns first, fall back to core-only if columns don't exist
+    const extendedRecord = { ...coreRecord };
+    if (fullName) extendedRecord.name = fullName;
+    if (industry) extendedRecord.industry = industry;
+    if (needs?.length) extendedRecord.needs = needs;
+    if (customInstructions) extendedRecord.custom_instructions = customInstructions;
+
+    let { error: customerError } = await supabase.from('customers').insert(extendedRecord);
 
     if (customerError) {
-      console.error('Customer record creation error:', JSON.stringify(customerError));
+      console.error('Customer insert with extended fields failed, retrying core-only:', JSON.stringify(customerError));
+      const retryResult = await supabase.from('customers').insert(coreRecord);
+      customerError = retryResult.error;
+      if (customerError) {
+        console.error('Customer record creation error:', JSON.stringify(customerError));
+      }
     }
 
     // If reseller, create resellers record (existing table has id UUID, name, email, etc.)
