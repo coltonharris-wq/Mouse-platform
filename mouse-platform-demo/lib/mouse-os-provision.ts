@@ -491,7 +491,13 @@ print("SYNC_OK")
  */
 const RUNTIME_TARBALL_URL = 'https://github.com/coltonharris-wq/Mouse-platform/releases/download/v12-runtime/mouse-runtime.tar.gz';
 
-function generateProvisionScript(config: ProvisionConfig): string {
+function generateProvisionScript(rawConfig: ProvisionConfig): string {
+  // Sanitize all config values — Vercel env vars may have trailing newlines
+  // which break URLs and API keys when embedded in bash scripts
+  const config = Object.fromEntries(
+    Object.entries(rawConfig).map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v])
+  ) as ProvisionConfig;
+
   return `#!/bin/bash
 set -euo pipefail
 LOG="/var/log/mouse-os-provision.log"

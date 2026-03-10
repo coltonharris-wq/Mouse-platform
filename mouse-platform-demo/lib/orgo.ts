@@ -4,9 +4,9 @@
  * Auth: Bearer token
  */
 
-const ORGO_API_KEY = process.env.ORGO_API_KEY || '';
+const ORGO_API_KEY = (process.env.ORGO_API_KEY || '').trim();
 const ORGO_BASE = 'https://www.orgo.ai/api';
-const ORGO_WORKSPACE_ID = process.env.ORGO_WORKSPACE_ID || '';
+const ORGO_WORKSPACE_ID = (process.env.ORGO_WORKSPACE_ID || '').trim();
 
 export type VMStatus = 'starting' | 'running' | 'stopped' | 'error';
 

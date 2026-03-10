@@ -63,7 +63,7 @@ function DeployingContent() {
       setProgress(40);
 
       let attempts = 0;
-      const maxAttempts = 60; // 5 minutes
+      const maxAttempts = 120; // 10 minutes
 
       const pollInterval = setInterval(async () => {
         attempts++;
@@ -93,15 +93,17 @@ function DeployingContent() {
           const newProgress = 40 + Math.min((attempts / maxAttempts) * 50, 50);
           setProgress(newProgress);
 
-          if (attempts % 3 === 0) {
-            setStatus('Installing Mouse...');
-          } else if (attempts % 3 === 1) {
-            setStatus('Configuring your AI workforce...');
-          } else {
-            setStatus('Almost there...');
-          }
+          // Rotate status messages to show progress
+          const messages = [
+            'Installing Mouse...',
+            'Configuring your AI workforce...',
+            'Setting up your dedicated server...',
+            'Downloading runtime packages...',
+            'Almost there...',
+          ];
+          setStatus(messages[attempts % messages.length]);
 
-          // Timeout
+          // Timeout after 10 minutes
           if (attempts >= maxAttempts) {
             clearInterval(pollInterval);
             setError('Provisioning is taking longer than expected. Check your dashboard in a few minutes.');
@@ -165,7 +167,8 @@ function DeployingContent() {
             <Loader2 className="w-10 h-10 text-mouse-teal animate-spin" />
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">Setting up your King Mouse</h1>
-          <p className="text-gray-400">This takes 3-5 minutes. Don't close this page.</p>
+          <p className="text-gray-400">This usually takes 3-5 minutes. Please don't leave this page.</p>
+          <p className="text-gray-500 text-sm mt-1">May take longer depending on server availability.</p>
         </div>
 
         {/* Progress Bar */}

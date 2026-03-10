@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'customerId required' }, { status: 400 });
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
     if (!supabaseUrl || !supabaseKey) {
       return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
@@ -97,11 +97,11 @@ export async function POST(request: NextRequest) {
       businessName: customer.company_name,
       businessType: customer.industry,
       supabaseUrl: supabaseUrl,
-      supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-      supabaseServiceKey: supabaseKey,
-      moonshotApiKey: process.env.MOONSHOT_API_KEY || '',
-      orgoApiKey: process.env.ORGO_API_KEY || '',
-      orgoWorkspaceId: process.env.ORGO_WORKSPACE_ID || '',
+      supabaseAnonKey: (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim(),
+      supabaseServiceKey: supabaseKey || '',
+      moonshotApiKey: (process.env.MOONSHOT_API_KEY || '').trim(),
+      orgoApiKey: (process.env.ORGO_API_KEY || '').trim(),
+      orgoWorkspaceId: (process.env.ORGO_WORKSPACE_ID || '').trim(),
     };
 
     // Wait 5s before first attempt — gives VM time to boot
