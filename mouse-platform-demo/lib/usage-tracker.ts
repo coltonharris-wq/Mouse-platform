@@ -37,6 +37,17 @@ const MARGINS: Record<UsageEventType, number> = {
 
 const HOURLY_RATE = 4.98;
 
+/** Resolve a UUID (Supabase auth ID) to cst_* customer ID */
+async function resolveCustomerId(supabase: any, id: string): Promise<string> {
+  if (id.startsWith('cst_')) return id;
+  const { data } = await supabase
+    .from('customers')
+    .select('id')
+    .eq('user_id', id)
+    .single();
+  return data?.id || id;
+}
+
 export interface UsageResult {
   success: boolean;
   eventId?: string;
@@ -64,13 +75,14 @@ export async function checkBalance(
     return { hasBalance: false, currentBalance: 0, error: 'No database connection' } as any;
   }
 
+  const resolvedId = await resolveCustomerId(supabase, customerId);
   const margin = MARGINS[eventType] || 5;
   const requiredHours = (estimatedVendorCost * margin) / HOURLY_RATE;
 
   const { data, error } = await supabase
     .from('customers')
     .select('work_hours_balance')
-    .eq('id', customerId)
+    .eq('id', resolvedId)
     .single();
 
   if (error || !data) {
@@ -100,8 +112,9 @@ export async function recordUsage(
   }
 
   try {
+    const resolvedId = await resolveCustomerId(supabase, customerId);
     const { data, error } = await supabase.rpc('record_usage_event', {
-      p_customer_id: customerId,
+      p_customer_id: resolvedId,
       p_employee_id: employeeId || null,
       p_event_type: eventType,
       p_vendor_cost: vendorCost,
