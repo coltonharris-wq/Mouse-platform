@@ -99,11 +99,13 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
     async function loadWorkHours() {
       try {
         const session = localStorage.getItem('mouse_session');
-        const userId = session ? JSON.parse(session).userId : null;
-        if (!userId) return;
+        const parsed = session ? JSON.parse(session) : null;
+        // customerId is the cst_* format the API expects; userId is the Supabase auth UUID
+        const customerId = parsed?.customerId || parsed?.userId;
+        if (!customerId) return;
 
         // Fetch balance from Next.js API (reads customers.work_hours_balance)
-        const statusRes = await fetch(`/api/work-hours?customerId=${userId}`);
+        const statusRes = await fetch(`/api/work-hours?customerId=${customerId}`);
 
         if (statusRes.ok) {
           const statusData = await statusRes.json();
