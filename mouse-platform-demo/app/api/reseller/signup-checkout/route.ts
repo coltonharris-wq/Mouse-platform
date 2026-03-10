@@ -9,8 +9,8 @@ const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
 const RESELLER_ONBOARDING_AMOUNT = 9700; // $97.00
 
 /**
- * Create Stripe checkout for reseller $97 onboarding.
- * Requires pending signup token from POST /api/reseller/pending-signup.
+ * Create Stripe checkout for reseller onboarding.
+ * Promo codes (e.g. FOUNDERS100) can be entered on the Stripe checkout page.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -53,14 +53,14 @@ export async function POST(request: NextRequest) {
       mode: "payment",
       payment_method_types: ["card"],
       customer_email: pending.email,
+      allow_promotion_codes: true,
       line_items: [
         {
           price_data: {
             currency: "usd",
             product_data: {
               name: "Reseller Program — Get Started",
-              description: "One-time fee to join the Mouse AI Reseller Program. Includes white-label dashboard, 40% commission, and Lead Finder.",
-              images: undefined,
+              description: "Join the Mouse AI Reseller Program. Includes white-label dashboard, 40% commission, and Lead Finder.",
             },
             unit_amount: RESELLER_ONBOARDING_AMOUNT,
           },
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         },
       ],
       success_url: `${APP_URL}/signup/reseller/complete?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${APP_URL}/signup/reseller?step=3&canceled=1`,
+      cancel_url: `${APP_URL}/signup/reseller?canceled=1`,
       metadata: {
         type: "reseller_onboarding",
         pending_token: pendingToken,

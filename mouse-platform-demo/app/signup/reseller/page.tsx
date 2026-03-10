@@ -2,13 +2,12 @@
 
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Users, DollarSign, TrendingUp, CheckCircle, CreditCard, Tag } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Users, TrendingUp, CheckCircle } from "lucide-react";
 
 const STORAGE_KEY = "reseller_signup_draft";
 
 function ResellerSignupContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: "",
@@ -19,17 +18,15 @@ function ResellerSignupContent() {
     lastName: "",
     website: "",
     referralSource: "",
-    promoCode: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
-  const [promoValid, setPromoValid] = useState<boolean | null>(null);
 
+  // Restore draft if returning from canceled checkout
   useEffect(() => {
-    const stepParam = searchParams.get("step");
     const canceled = searchParams.get("canceled");
-    if (stepParam === "3" || canceled === "1") {
+    if (canceled === "1") {
       try {
         const saved = typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY);
         if (saved) {
@@ -37,32 +34,13 @@ function ResellerSignupContent() {
           setFormData((prev) => ({ ...prev, ...parsed }));
         }
       } catch {}
-      setStep(3);
+      setStep(2);
     }
   }, [searchParams]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError("");
-  }
-
-  async function validatePromo() {
-    if (!formData.promoCode.trim()) return;
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch("/api/reseller/validate-promo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ promoCode: formData.promoCode }),
-      });
-      const data = await res.json();
-      setPromoValid(data.valid === true);
-    } catch {
-      setPromoValid(false);
-    } finally {
-      setLoading(false);
-    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -87,74 +65,31 @@ function ResellerSignupContent() {
     }
 
     if (step === 2) {
-      setStep(3);
-      return;
-    }
-
-    if (step === 3) {
-      if (promoValid) {
-        await doSignup();
-      } else {
-        setError("Please pay $97 or enter a valid promo code to continue.");
-      }
+      // Go straight to Stripe checkout
+      await redirectToCheckout();
       return;
     }
   }
 
-  async function doSignup() {
-    setLoading(true);
+  async function redirectToCheckout() {
     setError("");
+    setLoading(true);
     try {
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      // Save draft in case checkout is canceled
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
           email: formData.email,
           password: formData.password,
+          confirmPassword: formData.confirmPassword,
           company: formData.company,
           firstName: formData.firstName,
           lastName: formData.lastName,
-          role: "reseller",
           website: formData.website,
           referralSource: formData.referralSource,
-        }),
-      });
+        }));
+      } catch {}
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || "Signup failed. Please try again.");
-        setLoading(false);
-        return;
-      }
-
-      localStorage.setItem(
-        "mouse_session",
-        JSON.stringify({
-          userId: data.userId,
-          email: formData.email,
-          role: "reseller",
-          customerId: data.customerId,
-          company: formData.company || "",
-          firstName: formData.firstName || "",
-          lastName: formData.lastName || "",
-        })
-      );
-      if (typeof window !== "undefined") {
-        localStorage.setItem("mouse_token", data.token || "");
-      }
-      router.push("/dashboard");
-    } catch (err) {
-      console.error("Signup error:", err);
-      setError("An unexpected error occurred. Please try again.");
-      setLoading(false);
-    }
-  }
-
-  async function handlePay() {
-    setError("");
-    setLoading(true);
-    try {
+      // Create pending signup
       const pendingRes = await fetch("/api/reseller/pending-signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -172,6 +107,7 @@ function ResellerSignupContent() {
         throw new Error(pendingData.error || "Failed to create signup session");
       }
 
+      // Create Stripe checkout
       const checkoutRes = await fetch("/api/reseller/signup-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -182,16 +118,6 @@ function ResellerSignupContent() {
         throw new Error(checkoutData.error || "Failed to create checkout");
       }
       if (checkoutData.url) {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            email: formData.email,
-            company: formData.company,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            website: formData.website,
-            referralSource: formData.referralSource,
-          }));
-        } catch {}
         window.location.href = checkoutData.url;
       } else {
         throw new Error("No checkout URL");
@@ -207,7 +133,7 @@ function ResellerSignupContent() {
       {/* Header */}
       <div className="px-4 py-4 flex items-center justify-between">
         <Link href="/" className="text-white font-bold text-xl">
-          🖱️ Mouse
+          Mouse
         </Link>
         <div className="flex items-center gap-4">
           <a href="https://mouse.is/signup" className="text-gray-400 text-sm font-medium hover:text-white">
@@ -249,12 +175,11 @@ function ResellerSignupContent() {
           <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
             <span>Account</span>
             <span>Business</span>
-            <span>Pay</span>
           </div>
           <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-300"
-              style={{ width: step === 1 ? "33%" : step === 2 ? "66%" : "100%" }}
+              style={{ width: step === 1 ? "50%" : "100%" }}
             />
           </div>
         </div>
@@ -345,6 +270,12 @@ function ResellerSignupContent() {
                 Help us set up your affiliate account
               </p>
 
+              {searchParams.get("canceled") === "1" && (
+                <div className="bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm rounded-lg px-4 py-3 mb-4">
+                  Checkout was canceled. You can try again below.
+                </div>
+              )}
+
               {error && (
                 <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-4 py-3 mb-4">
                   {error}
@@ -434,7 +365,17 @@ function ResellerSignupContent() {
                   disabled={loading}
                   className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-semibold py-4 rounded-xl mt-6 hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  Continue
+                  {loading ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Redirecting to checkout...
+                    </>
+                  ) : (
+                    "Continue"
+                  )}
                 </button>
 
                 <button
@@ -447,141 +388,12 @@ function ResellerSignupContent() {
               </form>
             </>
           )}
-
-          {step === 3 && (
-            <>
-              <h1 className="text-2xl font-bold text-white mb-2">
-                Get started for $97
-              </h1>
-              <p className="text-gray-400 text-sm mb-6">
-                One-time fee to join the Reseller Program. Or enter a promo code for free access.
-              </p>
-
-              {searchParams.get("canceled") === "1" && (
-                <div className="bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm rounded-lg px-4 py-3 mb-4">
-                  Checkout was canceled. You can try again below.
-                </div>
-              )}
-
-              {error && (
-                <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-4 py-3 mb-4">
-                  {error}
-                </div>
-              )}
-
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center gap-2">
-                  <Tag className="w-5 h-5 text-teal-400" />
-                  <label className="block text-gray-300 text-sm font-medium">
-                    Promo code
-                  </label>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={formData.promoCode}
-                    onChange={(e) => {
-                      setFormData({ ...formData, promoCode: e.target.value.toUpperCase() });
-                      setPromoValid(null);
-                    }}
-                    placeholder="Enter code"
-                    className="flex-1 bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-3.5 text-white text-base placeholder:text-gray-500 focus:outline-none focus:border-teal-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={validatePromo}
-                    disabled={loading || !formData.promoCode.trim()}
-                    className="px-4 py-3.5 bg-gray-700 text-white rounded-xl font-medium hover:bg-gray-600 disabled:opacity-50"
-                  >
-                    {loading ? "..." : "Apply"}
-                  </button>
-                </div>
-                {promoValid === true && (
-                  <p className="text-green-400 text-sm">✓ Promo code applied. You can create your account for free.</p>
-                )}
-                {promoValid === false && formData.promoCode && (
-                  <p className="text-red-400 text-sm">Invalid promo code.</p>
-                )}
-              </div>
-
-              <div className="border-t border-gray-700 pt-6">
-                <p className="text-gray-400 text-sm mb-4">Or pay $97 to get started:</p>
-                <button
-                  type="button"
-                  onClick={handlePay}
-                  disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-semibold py-4 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50"
-                >
-                  {loading ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
-                      Redirecting to checkout...
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="w-5 h-5" />
-                      Pay $97 — Get Started
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {promoValid && (
-                <div className="mt-6 space-y-4">
-                  <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">Password</label>
-                    <input
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      placeholder="Min 8 characters"
-                      className="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-3.5 text-white text-base placeholder:text-gray-500 focus:outline-none focus:border-teal-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">Confirm Password</label>
-                    <input
-                      type="password"
-                      value={formData.confirmPassword}
-                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                      placeholder="Repeat password"
-                      className="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-3.5 text-white text-base placeholder:text-gray-500 focus:outline-none focus:border-teal-500"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="mt-6">
-                <button
-                  type="submit"
-                  disabled={loading || !promoValid || (promoValid && (!formData.password || formData.password.length < 8 || formData.password !== formData.confirmPassword))}
-                  className="w-full bg-gray-700 text-white font-semibold py-4 rounded-xl hover:bg-gray-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {promoValid ? "Create Account (Free with promo)" : "Create Account"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  className="w-full text-gray-400 text-sm py-2 hover:text-white transition-colors mt-2"
-                >
-                  Back
-                </button>
-              </form>
-            </>
-          )}
         </div>
       </div>
 
       {/* Trust badges */}
       <div className="px-4 py-6 border-t border-gray-800">
         <div className="flex items-center justify-center gap-6 text-gray-500 text-xs">
-          <span className="flex items-center gap-1">
-            <DollarSign className="w-4 h-4" />
-            20% Commission
-          </span>
           <span className="flex items-center gap-1">
             <Users className="w-4 h-4" />
             847+ Businesses

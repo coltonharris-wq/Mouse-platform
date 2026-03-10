@@ -8,8 +8,9 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
 
 /**
- * Complete reseller signup after $97 payment.
+ * Complete reseller signup after Stripe checkout.
  * Verifies Stripe session, creates user + reseller, sends set-password email.
+ * If FOUNDERS100 promo was used, grants 20 free work hours.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -28,15 +29,22 @@ export async function POST(request: NextRequest) {
     );
 
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["payment_intent"],
+      expand: ["payment_intent", "total_details.breakdown"],
     });
 
-    if (session.payment_status !== "paid" || session.metadata?.type !== "reseller_onboarding") {
+    // Accept "paid" (normal) or "no_payment_required" (100% promo code)
+    const validPayment = session.payment_status === "paid" || session.payment_status === "no_payment_required";
+    if (!validPayment || session.metadata?.type !== "reseller_onboarding") {
       return NextResponse.json(
         { error: "Payment not completed or invalid session" },
         { status: 400 }
       );
     }
+
+    // Check if a promo code was used (e.g. FOUNDERS100)
+    const usedPromo = session.total_details?.breakdown?.discounts?.[0]?.discount?.promotion_code;
+    const discountAmount = session.total_details?.amount_discount || 0;
+    const isFoundersPromo = discountAmount > 0; // Any promo that gives a discount
 
     const pendingToken = session.metadata?.pending_token;
     if (!pendingToken) {
@@ -86,14 +94,17 @@ export async function POST(request: NextRequest) {
 
     const userId = authData.user?.id;
 
+    // FOUNDERS100 promo → 20 free hours, otherwise 2 hours
+    const bonusHours = isFoundersPromo ? 20 : 2;
+
     await supabase.from("customers").insert({
       id: `cst_${userId?.substring(0, 8)}`,
       user_id: userId,
       email: pending.email,
       company_name: pending.company || "My Business",
       status: "active",
-      work_hours_balance: 2,
-      work_hours_purchased: 2,
+      work_hours_balance: bonusHours,
+      work_hours_purchased: bonusHours,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     });
