@@ -15,7 +15,7 @@ export default function PortalDashboardPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const { balance, totalPurchased, totalUsed } = useWorkHours();
+  const { balance, totalPurchased, totalUsed, refreshBalance } = useWorkHours();
   const { employees } = useEmployees();
 
   useEffect(() => {
@@ -26,7 +26,9 @@ export default function PortalDashboardPage() {
     }
     setUser(JSON.parse(session));
     setLoading(false);
-  }, [router]);
+    // Re-fetch work hours in case context mounted before login
+    refreshBalance();
+  }, [router, refreshBalance]);
 
   if (loading) {
     return (

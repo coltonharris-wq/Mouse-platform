@@ -65,6 +65,9 @@ interface WorkHoursContextType extends WorkHoursState {
   // Balance warnings
   isLowBalance: () => boolean;
   getBalanceStatus: () => 'healthy' | 'warning' | 'critical';
+
+  // Re-fetch balance from backend
+  refreshBalance: () => void;
 }
 
 const WorkHoursContext = createContext<WorkHoursContextType | undefined>(undefined);
@@ -94,43 +97,34 @@ const CRITICAL_BALANCE_THRESHOLD = 5;
 export function WorkHoursProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<WorkHoursState>(INITIAL_STATE);
 
-  // Fetch real balance from backend on mount
-  useEffect(() => {
-    async function loadWorkHours() {
-      try {
-        const session = localStorage.getItem('mouse_session');
-        const parsed = session ? JSON.parse(session) : null;
-        // Use customerId (cst_*) if available, fall back to userId (UUID) — API handles both
-        const customerId = parsed?.customerId || parsed?.userId;
-        console.log('[WorkHoursContext] session:', { customerId: parsed?.customerId, userId: parsed?.userId, using: customerId });
-        if (!customerId) {
-          console.warn('[WorkHoursContext] No customerId or userId in session');
-          return;
-        }
+  // Fetch balance from backend — callable on mount and after login
+  const loadWorkHours = useCallback(async () => {
+    try {
+      const session = localStorage.getItem('mouse_session');
+      const parsed = session ? JSON.parse(session) : null;
+      const customerId = parsed?.customerId || parsed?.userId;
+      if (!customerId) return;
 
-        // Fetch balance from Next.js API (reads customers.work_hours_balance)
-        const url = `/api/work-hours?customerId=${customerId}`;
-        console.log('[WorkHoursContext] Fetching:', url);
-        const statusRes = await fetch(url);
+      const statusRes = await fetch(`/api/work-hours?customerId=${customerId}`);
 
-        if (statusRes.ok) {
-          const statusData = await statusRes.json();
-          console.log('[WorkHoursContext] API response:', statusData);
-          setState(prev => ({
-            ...prev,
-            balance: statusData.balance ?? prev.balance,
-            totalUsed: statusData.monthlyUsage?.total_hours_consumed ?? prev.totalUsed,
-            totalPurchased: (statusData.balance ?? 0) + (statusData.monthlyUsage?.total_hours_consumed ?? 0),
-          }));
-        } else {
-          console.error('[WorkHoursContext] API failed:', statusRes.status, await statusRes.text());
-        }
-      } catch (err) {
-        console.error('[WorkHoursContext] Backend fetch failed:', err);
+      if (statusRes.ok) {
+        const statusData = await statusRes.json();
+        setState(prev => ({
+          ...prev,
+          balance: statusData.balance ?? prev.balance,
+          totalUsed: statusData.monthlyUsage?.total_hours_consumed ?? prev.totalUsed,
+          totalPurchased: (statusData.balance ?? 0) + (statusData.monthlyUsage?.total_hours_consumed ?? 0),
+        }));
       }
+    } catch (err) {
+      console.log('[WorkHoursContext] Backend fetch failed, using defaults');
     }
-    loadWorkHours();
   }, []);
+
+  // Fetch on mount
+  useEffect(() => {
+    loadWorkHours();
+  }, [loadWorkHours]);
 
   // Purchase additional hours
   const purchaseHours = useCallback((hours: number, cost: number) => {
@@ -298,6 +292,7 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
     getFormattedBreakdown,
     isLowBalance,
     getBalanceStatus,
+    refreshBalance: loadWorkHours,
   };
 
   return (
