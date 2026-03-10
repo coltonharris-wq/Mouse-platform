@@ -100,11 +100,11 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
       try {
         const session = localStorage.getItem('mouse_session');
         const parsed = session ? JSON.parse(session) : null;
-        // customerId is the cst_* format the API expects; userId is the Supabase auth UUID
-        const customerId = parsed?.customerId;
-        console.log('[WorkHoursContext] session parsed:', { customerId: parsed?.customerId, userId: parsed?.userId });
+        // Use customerId (cst_*) if available, fall back to userId (UUID) — API handles both
+        const customerId = parsed?.customerId || parsed?.userId;
+        console.log('[WorkHoursContext] session:', { customerId: parsed?.customerId, userId: parsed?.userId, using: customerId });
         if (!customerId) {
-          console.warn('[WorkHoursContext] No customerId in session, cannot fetch work hours');
+          console.warn('[WorkHoursContext] No customerId or userId in session');
           return;
         }
 

@@ -22,14 +22,29 @@ export async function GET(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Resolve customer — accept both cst_* ID and Supabase auth UUID
+    let resolvedCustomerId = customerId;
+    if (!customerId.startsWith('cst_')) {
+      // Looks like a Supabase auth UUID — look up by user_id
+      const { data: lookup } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('user_id', customerId)
+        .single();
+      if (lookup) {
+        resolvedCustomerId = lookup.id;
+      }
+    }
+
     // Get customer's work hours balance
     const { data: customer, error: customerError } = await supabase
       .from('customers')
       .select('work_hours_balance')
-      .eq('id', customerId)
+      .eq('id', resolvedCustomerId)
       .single();
 
     if (customerError) {
+      console.error('[work-hours] Customer lookup failed:', { customerId, resolvedCustomerId, error: customerError });
       return NextResponse.json(
         { error: 'Failed to fetch customer balance' },
         { status: 500 }
@@ -43,7 +58,7 @@ export async function GET(request: Request) {
     const { data: monthlyUsage, error: usageError } = await supabase
       .from('feature_usage_monthly')
       .select('*')
-      .eq('customer_id', customerId)
+      .eq('customer_id', resolvedCustomerId)
       .eq('year', year)
       .eq('month', month)
       .single();
@@ -55,7 +70,7 @@ export async function GET(request: Request) {
     // Get feature breakdown using the function
     const { data: breakdown, error: breakdownError } = await supabase
       .rpc('get_feature_usage_breakdown', {
-        p_customer_id: customerId,
+        p_customer_id: resolvedCustomerId,
         p_year: year,
         p_month: month,
       });
