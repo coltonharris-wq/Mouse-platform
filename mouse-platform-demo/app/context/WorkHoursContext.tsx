@@ -101,23 +101,32 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
         const session = localStorage.getItem('mouse_session');
         const parsed = session ? JSON.parse(session) : null;
         // customerId is the cst_* format the API expects; userId is the Supabase auth UUID
-        const customerId = parsed?.customerId || parsed?.userId;
-        if (!customerId) return;
+        const customerId = parsed?.customerId;
+        console.log('[WorkHoursContext] session parsed:', { customerId: parsed?.customerId, userId: parsed?.userId });
+        if (!customerId) {
+          console.warn('[WorkHoursContext] No customerId in session, cannot fetch work hours');
+          return;
+        }
 
         // Fetch balance from Next.js API (reads customers.work_hours_balance)
-        const statusRes = await fetch(`/api/work-hours?customerId=${customerId}`);
+        const url = `/api/work-hours?customerId=${customerId}`;
+        console.log('[WorkHoursContext] Fetching:', url);
+        const statusRes = await fetch(url);
 
         if (statusRes.ok) {
           const statusData = await statusRes.json();
+          console.log('[WorkHoursContext] API response:', statusData);
           setState(prev => ({
             ...prev,
             balance: statusData.balance ?? prev.balance,
             totalUsed: statusData.monthlyUsage?.total_hours_consumed ?? prev.totalUsed,
             totalPurchased: (statusData.balance ?? 0) + (statusData.monthlyUsage?.total_hours_consumed ?? 0),
           }));
+        } else {
+          console.error('[WorkHoursContext] API failed:', statusRes.status, await statusRes.text());
         }
       } catch (err) {
-        console.log('[WorkHoursContext] Backend fetch failed, using defaults');
+        console.error('[WorkHoursContext] Backend fetch failed:', err);
       }
     }
     loadWorkHours();
