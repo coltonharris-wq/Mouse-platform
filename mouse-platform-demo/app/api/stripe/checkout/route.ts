@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
+const STRIPE_SECRET_KEY = (process.env.STRIPE_SECRET_KEY || '').trim();
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mouse-platform-demo.vercel.app';
 
 // Plan config with inline pricing — no env price IDs needed
@@ -97,8 +97,14 @@ async function stripeGet(endpoint: string, params?: Record<string, string>) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Use request origin so mice.ink users return to mice.ink after Stripe
+    const origin = request.headers.get('origin') || request.headers.get('referer')?.replace(/\/$/, '') || APP_URL;
+    const dynamicUrl = origin.startsWith('http') ? origin : `https://${origin}`;
+
     const body = await request.json();
-    const { plan, customerId, customerEmail, promoCode, successUrl, cancelUrl } = body;
+    const { plan, customerId, customerEmail, email, promoCode, promo_code, successUrl, cancelUrl } = body;
+    const finalEmail = customerEmail || email;
+    const finalPromo = promoCode || promo_code;
 
     const planConfig = PLAN_CONFIG[plan];
     if (!planConfig) {
@@ -117,13 +123,14 @@ export async function POST(request: NextRequest) {
       'line_items[0][price_data][product_data][name]': planConfig.name,
       'line_items[0][price_data][product_data][description]': planConfig.description,
       'line_items[0][quantity]': '1',
-      'success_url': successUrl || `${APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      'cancel_url': cancelUrl || `${APP_URL}/signup?canceled=true`,
+      'success_url': successUrl || `${dynamicUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      'cancel_url': cancelUrl || `${dynamicUrl}/signup?canceled=true`,
       'client_reference_id': customerId || '',
       'metadata[customer_id]': customerId || '',
       'metadata[plan]': plan,
       'metadata[work_hours]': String(planConfig.hours),
       'allow_promotion_codes': 'true',
+      'payment_method_collection': 'always',
     };
 
     // Add recurring interval for subscriptions
@@ -134,14 +141,14 @@ export async function POST(request: NextRequest) {
       params['subscription_data[metadata][work_hours]'] = String(planConfig.hours);
     }
 
-    if (customerEmail) {
-      params['customer_email'] = customerEmail;
+    if (finalEmail) {
+      params['customer_email'] = finalEmail;
     }
 
     // Handle promo code
-    if (promoCode) {
+    if (finalPromo) {
       try {
-        const promos = await stripeGet('promotion_codes', { code: promoCode, limit: '1' });
+        const promos = await stripeGet('promotion_codes', { code: finalPromo, limit: '1' });
         if (promos.data?.length > 0 && promos.data[0].active) {
           delete params['allow_promotion_codes'];
           params['discounts[0][promotion_code]'] = promos.data[0].id;

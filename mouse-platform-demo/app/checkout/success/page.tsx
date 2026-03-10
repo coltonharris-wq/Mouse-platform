@@ -15,7 +15,7 @@ export default function CheckoutSuccessPage() {
     const sessionId = params.get('session_id');
 
     if (sessionId) {
-      // Fetch session details to show what was purchased
+      // Fetch session details to get customerId, then redirect to deploying page
       fetch(`/api/stripe/session?sessionId=${sessionId}`)
         .then(r => r.json())
         .then(data => {
@@ -23,13 +23,14 @@ export default function CheckoutSuccessPage() {
           setHours(data.workHours || 0);
           setCustomerId(data.customerId || '');
 
-          // Redirect to onboard page after 2 seconds
-          // Onboard handles the interview + VM deployment
+          // Redirect to deploying page to provision King Mouse
           setTimeout(() => {
-            window.location.href = `/onboard?customerId=${data.customerId || ''}`;
+            window.location.href = `/deploying?customerId=${data.customerId || ''}`;
           }, 2000);
         })
         .catch(() => {
+          // Even if session fetch fails, try to redirect to deploying
+          // The customerId might be in the URL or localStorage
           setLoading(false);
         });
     } else {
@@ -71,24 +72,17 @@ export default function CheckoutSuccessPage() {
 
             <div className="space-y-3">
               <Link
-                href="/portal/work-hours"
+                href={customerId ? `/deploying?customerId=${customerId}` : '/deploying'}
                 className="flex items-center justify-center gap-2 w-full py-3 bg-mouse-teal text-white rounded-xl font-semibold hover:bg-mouse-teal/90 transition-colors"
               >
-                View Your Hours <ArrowRight size={18} />
+                Deploy King Mouse <ArrowRight size={18} />
               </Link>
 
               <Link
-                href="/portal/king-mouse"
-                className="flex items-center justify-center gap-2 w-full py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:border-mouse-teal hover:text-mouse-teal transition-colors"
-              >
-                Talk to King Mouse
-              </Link>
-
-              <Link
-                href="/portal"
+                href="/login"
                 className="block text-gray-400 text-sm hover:text-gray-600 mt-4"
               >
-                Go to Dashboard →
+                Go to Login →
               </Link>
             </div>
           </>

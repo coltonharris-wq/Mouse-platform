@@ -83,8 +83,11 @@ function DeployingContent() {
             setReady(true);
 
             // Redirect to dashboard after 2 seconds
+            // Resellers go to /dashboard, customers go to /portal
+            const session = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('mouse_session') || '{}') : {};
+            const dest = (session.role === 'reseller' || session.accountType === 'reseller') ? '/dashboard' : '/portal';
             setTimeout(() => {
-              router.push('/portal');
+              router.push(dest);
             }, 2000);
             return;
           } else if (statusData.status === 'error') {
@@ -142,6 +145,13 @@ function DeployingContent() {
     }
   }
 
+  const dashboardDest = (() => {
+    try {
+      const session = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('mouse_session') || '{}') : {};
+      return (session.role === 'reseller' || session.accountType === 'reseller') ? '/dashboard' : '/portal';
+    } catch { return '/portal'; }
+  })();
+
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#12121f] to-[#0a0a0f] flex items-center justify-center p-6">
@@ -152,7 +162,7 @@ function DeployingContent() {
           <h1 className="text-2xl font-bold text-white mb-3">Something went wrong</h1>
           <p className="text-gray-400 mb-6">{error}</p>
           <button
-            onClick={() => router.push('/portal')}
+            onClick={() => router.push(dashboardDest)}
             className="w-full bg-mouse-teal text-white font-semibold py-3 rounded-xl hover:bg-mouse-teal/90"
           >
             Go to Dashboard
@@ -172,7 +182,7 @@ function DeployingContent() {
           <h1 className="text-2xl font-bold text-white mb-3">King Mouse is Ready!</h1>
           <p className="text-gray-400 mb-6">Your AI workforce is online and ready to work.</p>
           <button
-            onClick={() => router.push('/portal')}
+            onClick={() => router.push(dashboardDest)}
             className="w-full bg-mouse-teal text-white font-semibold py-3 rounded-xl hover:bg-mouse-teal/90"
           >
             Go to Dashboard

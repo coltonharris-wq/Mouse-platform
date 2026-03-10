@@ -47,5 +47,5 @@ function getResellerRewrite(request: NextRequest, pathname: string): NextRespons
 }
 
 export const config = {
-  matcher: ['/', '/signup', '/login', '/dashboard/:path*', '/portal/:path*'],
+  matcher: ['/', '/signup', '/login', '/dashboard/:path*', '/portal/:path*', '/checkout/:path*', '/deploying'],
 };
