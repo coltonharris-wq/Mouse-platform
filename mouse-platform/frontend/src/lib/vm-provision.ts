@@ -5,6 +5,7 @@
 
 import { createComputer, bashExec, getComputer } from '@/lib/orgo';
 import { supabaseQuery } from '@/lib/supabase-server';
+import { KMI_PROMPT_ADDITIONS } from '@/config/kmi-prompts';
 
 interface ProvisionParams {
   customer_id: string;
@@ -118,7 +119,7 @@ export async function provisionVM(params: ProvisionParams): Promise<ProvisionRes
     location: location || 'Not specified',
   });
 
-  const soulMd = `# SOUL.md\n${soulContent}\n\n## Onboarding Context\n${JSON.stringify(onboarding_answers, null, 2)}`;
+  const soulMd = `# SOUL.md\n${soulContent}\n\n## Onboarding Context\n${JSON.stringify(onboarding_answers, null, 2)}\n${KMI_PROMPT_ADDITIONS}`;
 
   // Generate user.md
   const userMd = `# USER.md
