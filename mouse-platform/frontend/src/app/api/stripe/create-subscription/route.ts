@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { getStripe } from '@/lib/stripe';
 import { supabaseQuery } from '@/lib/supabase-server';
 
 export async function POST(request: NextRequest) {
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     let priceId = plan.stripe_price_id;
 
     if (!priceId) {
-      const price = await stripe.prices.create({
+      const price = await getStripe().prices.create({
         currency: 'usd',
         unit_amount: plan.price_cents,
         recurring: { interval: 'month' },
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     const defaultCancelUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://mouse-platform-demo.vercel.app'}/onboarding/cancel`;
 
     // Create Stripe Checkout session in subscription mode
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
       customer_email: email,

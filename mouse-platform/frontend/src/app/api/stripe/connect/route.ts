@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { getStripe } from '@/lib/stripe';
 import { supabaseQuery } from '@/lib/supabase-server';
 
 export async function POST(request: NextRequest) {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     let accountId = reseller.stripe_account_id;
 
     if (!accountId) {
-      const account = await stripe.accounts.create({
+      const account = await getStripe().accounts.create({
         type: 'express',
         email: reseller.email,
         metadata: { reseller_id },
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     // Create account onboarding link
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mouse-platform-demo.vercel.app';
-    const accountLink = await stripe.accountLinks.create({
+    const accountLink = await getStripe().accountLinks.create({
       account: accountId,
       refresh_url: `${siteUrl}/admin/resellers?refresh=true`,
       return_url: `${siteUrl}/admin/resellers?connected=true`,
@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
 
     // Check actual Stripe status if account exists
     if (reseller.stripe_account_id) {
-      const account = await stripe.accounts.retrieve(reseller.stripe_account_id);
+      const account = await getStripe().accounts.retrieve(reseller.stripe_account_id);
 
       const chargesEnabled = account.charges_enabled || false;
       const payoutsEnabled = account.payouts_enabled || false;

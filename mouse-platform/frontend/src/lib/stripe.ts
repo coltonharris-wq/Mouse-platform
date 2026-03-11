@@ -1,10 +1,17 @@
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
-});
+let _stripe: Stripe | null = null;
 
-export { stripe };
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    const key = (process.env.STRIPE_SECRET_KEY || '').trim();
+    _stripe = new Stripe(key, {
+      apiVersion: '2024-12-18.acacia',
+      timeout: 20000,
+    });
+  }
+  return _stripe;
+}
 
 // Re-export client-safe plan data for server-side usage
 export { SUBSCRIPTION_PLANS, formatPrice } from '@/lib/plans';
@@ -20,7 +27,7 @@ export async function createSubscriptionCheckout(
   const plan = SUBSCRIPTION_PLANS[planSlug as keyof typeof SUBSCRIPTION_PLANS];
   if (!plan) throw new Error('Invalid plan');
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     mode: 'subscription',
     payment_method_types: ['card'],
     customer_email: email,
@@ -56,7 +63,7 @@ export async function createSubscriptionCheckout(
 }
 
 export async function createCustomerPortalSession(stripeCustomerId: string) {
-  const session = await stripe.billingPortal.sessions.create({
+  const session = await getStripe().billingPortal.sessions.create({
     customer: stripeCustomerId,
     return_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://mouse-platform-demo.vercel.app'}/dashboard/billing`,
   });

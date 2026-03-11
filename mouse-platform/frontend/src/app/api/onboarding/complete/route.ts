@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { getStripe } from '@/lib/stripe';
 import { supabaseQuery } from '@/lib/supabase-server';
 import { provisionVM } from '@/lib/vm-provision';
 
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify Stripe session completed
-    const session = await stripe.checkout.sessions.retrieve(stripe_session_id);
+    const session = await getStripe().checkout.sessions.retrieve(stripe_session_id);
 
     if (session.payment_status !== 'paid') {
       return NextResponse.json(
