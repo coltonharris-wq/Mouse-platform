@@ -1,0 +1,334 @@
+{
+  "name": "Appointment Scheduler Workflow",
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "name": "New Appointment Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 400],
+      "parameters": {
+        "path": "appointment-request",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "responseData": "allEntries"
+      },
+      "webhookId": "appointment-request-webhook"
+    },
+    {
+      "id": "check-availability",
+      "name": "Check Availability",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 400],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/appointments?select=id,start_time,end_time&date=eq.{{ $json.body.requested_date }}&status=eq.confirmed",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_ANON_KEY }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "is-available",
+      "name": "Time Slot Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [750, 400],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.length === 0 || !$json.some(appt => appt.start_time <= $input.first().json.body.requested_time && appt.end_time > $input.first().json.body.requested_time) }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "confirm-appointment",
+      "name": "Confirm Appointment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1000, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/appointments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client_name",
+              "value": "={{ $input.first().json.body.client_name }}"
+            },
+            {
+              "name": "client_email",
+              "value": "={{ $input.first().json.body.client_email }}"
+            },
+            {
+              "name": "date",
+              "value": "={{ $input.first().json.body.requested_date }}"
+            },
+            {
+              "name": "start_time",
+              "value": "={{ $input.first().json.body.requested_time }}"
+            },
+            {
+              "name": "service",
+              "value": "={{ $input.first().json.body.service }}"
+            },
+            {
+              "name": "status",
+              "value": "confirmed"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "slot-unavailable",
+      "name": "Slot Unavailable Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1000, 500],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "status",
+              "name": "status",
+              "value": "unavailable",
+              "type": "string"
+            },
+            {
+              "id": "message",
+              "name": "message",
+              "value": "The requested time slot is not available. Please choose another time.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "schedule-reminder",
+      "name": "Schedule 24h Reminder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1250, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.NOTIFICATION_WEBHOOK_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "appointment_reminder"
+            },
+            {
+              "name": "client_name",
+              "value": "={{ $json[0].client_name }}"
+            },
+            {
+              "name": "client_email",
+              "value": "={{ $json[0].client_email }}"
+            },
+            {
+              "name": "appointment_date",
+              "value": "={{ $json[0].date }}"
+            },
+            {
+              "name": "appointment_time",
+              "value": "={{ $json[0].start_time }}"
+            },
+            {
+              "name": "service",
+              "value": "={{ $json[0].service }}"
+            },
+            {
+              "name": "send_at",
+              "value": "={{ DateTime.fromISO($json[0].date + 'T' + $json[0].start_time).minus({ hours: 24 }).toISO() }}"
+            },
+            {
+              "name": "message",
+              "value": "=Reminder: You have an appointment for {{ $json[0].service }} tomorrow at {{ $json[0].start_time }}."
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "log-activity",
+      "name": "Log to Activity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1500, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/activity_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "appointment_confirmed"
+            },
+            {
+              "name": "details",
+              "value": "=Appointment confirmed for {{ $input.first().json.body.client_name }} on {{ $input.first().json.body.requested_date }} at {{ $input.first().json.body.requested_time }}. Service: {{ $input.first().json.body.service }}. 24h reminder scheduled."
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "New Appointment Request": {
+      "main": [
+        [
+          {
+            "node": "Check Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Availability": {
+      "main": [
+        [
+          {
+            "node": "Time Slot Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Time Slot Available?": {
+      "main": [
+        [
+          {
+            "node": "Confirm Appointment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slot Unavailable Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Appointment": {
+      "main": [
+        [
+          {
+            "node": "Schedule 24h Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule 24h Reminder": {
+      "main": [
+        [
+          {
+            "node": "Log to Activity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "appointments"
+    },
+    {
+      "name": "scheduling"
+    }
+  ]
+}

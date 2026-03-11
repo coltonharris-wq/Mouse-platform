@@ -1,0 +1,429 @@
+{
+  "name": "Call Receptionist Workflow",
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "name": "Incoming Call",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 400],
+      "parameters": {
+        "path": "incoming-call",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "responseData": "allEntries"
+      },
+      "webhookId": "incoming-call-webhook"
+    },
+    {
+      "id": "route-to-kingmouse",
+      "name": "Route to KingMouse AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 400],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.KINGMOUSE_API_URL }}/handle-call",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "caller_number",
+              "value": "={{ $json.body.caller_number }}"
+            },
+            {
+              "name": "caller_name",
+              "value": "={{ $json.body.caller_name }}"
+            },
+            {
+              "name": "call_reason",
+              "value": "={{ $json.body.call_reason }}"
+            },
+            {
+              "name": "business_id",
+              "value": "={{ $json.body.business_id }}"
+            },
+            {
+              "name": "call_id",
+              "value": "={{ $json.body.call_id }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "check-resolution",
+      "name": "Call Resolved by AI?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [750, 400],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.resolution_status }}",
+              "operation": "equals",
+              "value2": "resolved"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "log-resolved-call",
+      "name": "Log Resolved Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1000, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/call_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "call_id",
+              "value": "={{ $json.call_id }}"
+            },
+            {
+              "name": "caller_number",
+              "value": "={{ $json.caller_number }}"
+            },
+            {
+              "name": "caller_name",
+              "value": "={{ $json.caller_name }}"
+            },
+            {
+              "name": "call_reason",
+              "value": "={{ $json.call_reason }}"
+            },
+            {
+              "name": "resolution_status",
+              "value": "resolved"
+            },
+            {
+              "name": "handled_by",
+              "value": "kingmouse_ai"
+            },
+            {
+              "name": "ai_response_summary",
+              "value": "={{ $json.response_summary }}"
+            },
+            {
+              "name": "duration_seconds",
+              "value": "={{ $json.duration_seconds }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "transfer-to-human",
+      "name": "Transfer or Voicemail",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1000, 500],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.PHONE_SYSTEM_URL }}/transfer",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "call_id",
+              "value": "={{ $json.call_id }}"
+            },
+            {
+              "name": "caller_number",
+              "value": "={{ $json.caller_number }}"
+            },
+            {
+              "name": "caller_name",
+              "value": "={{ $json.caller_name }}"
+            },
+            {
+              "name": "reason",
+              "value": "={{ $json.call_reason }}"
+            },
+            {
+              "name": "ai_notes",
+              "value": "={{ $json.response_summary }}"
+            },
+            {
+              "name": "transfer_to",
+              "value": "={{ $json.recommended_transfer_to || 'voicemail' }}"
+            },
+            {
+              "name": "priority",
+              "value": "={{ $json.priority || 'normal' }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "log-transferred-call",
+      "name": "Log Transferred Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1250, 500],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/call_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "call_id",
+              "value": "={{ $json.call_id }}"
+            },
+            {
+              "name": "caller_number",
+              "value": "={{ $json.caller_number }}"
+            },
+            {
+              "name": "caller_name",
+              "value": "={{ $json.caller_name }}"
+            },
+            {
+              "name": "call_reason",
+              "value": "={{ $json.reason }}"
+            },
+            {
+              "name": "resolution_status",
+              "value": "transferred"
+            },
+            {
+              "name": "handled_by",
+              "value": "kingmouse_ai"
+            },
+            {
+              "name": "transferred_to",
+              "value": "={{ $json.transfer_to }}"
+            },
+            {
+              "name": "ai_notes",
+              "value": "={{ $json.ai_notes }}"
+            },
+            {
+              "name": "duration_seconds",
+              "value": "={{ $json.duration_seconds }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "resolved-response",
+      "name": "Resolved Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1250, 300],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "status",
+              "name": "status",
+              "value": "resolved",
+              "type": "string"
+            },
+            {
+              "id": "message",
+              "name": "message",
+              "value": "Call handled successfully by AI receptionist.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "transferred-response",
+      "name": "Transferred Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1500, 500],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "status",
+              "name": "status",
+              "value": "transferred",
+              "type": "string"
+            },
+            {
+              "id": "message",
+              "name": "message",
+              "value": "=Call transferred to {{ $json.transfer_to }}. AI notes attached.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Incoming Call": {
+      "main": [
+        [
+          {
+            "node": "Route to KingMouse AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route to KingMouse AI": {
+      "main": [
+        [
+          {
+            "node": "Call Resolved by AI?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Resolved by AI?": {
+      "main": [
+        [
+          {
+            "node": "Log Resolved Call",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Transfer or Voicemail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Resolved Call": {
+      "main": [
+        [
+          {
+            "node": "Resolved Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transfer or Voicemail": {
+      "main": [
+        [
+          {
+            "node": "Log Transferred Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Transferred Call": {
+      "main": [
+        [
+          {
+            "node": "Transferred Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "receptionist"
+    },
+    {
+      "name": "calls"
+    },
+    {
+      "name": "kingmouse"
+    }
+  ]
+}
