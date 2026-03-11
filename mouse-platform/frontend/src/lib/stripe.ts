@@ -6,107 +6,59 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export { stripe };
 
-// Token package definitions matching the backend
-export const TOKEN_PACKAGES = {
-  starter: {
-    id: 'starter',
-    name: 'Starter',
-    slug: 'starter',
-    priceCents: 1900,
-    tokenAmount: 4000,
-    description: 'Perfect for small teams getting started',
-    features: [
-      '4,000 tokens',
-      'Message with King Mouse',
-      'Deploy AI employees',
-      'Email support'
-    ]
-  },
-  growth: {
-    id: 'growth',
-    name: 'Growth',
-    slug: 'growth',
-    priceCents: 4900,
-    tokenAmount: 12000,
-    description: 'Best value for growing teams',
-    features: [
-      '12,000 tokens',
-      'Everything in Starter',
-      'Priority support',
-      'API access'
-    ]
-  },
-  pro: {
-    id: 'pro',
-    name: 'Pro',
-    slug: 'pro',
-    priceCents: 9900,
-    tokenAmount: 30000,
-    description: 'Maximum value for power users',
-    features: [
-      '30,000 tokens',
-      'Everything in Growth',
-      'Dedicated support',
-      'Custom integrations'
-    ]
-  }
-};
+// Re-export client-safe plan data for server-side usage
+export { SUBSCRIPTION_PLANS, formatPrice } from '@/lib/plans';
 
-// Token costs for actions
-export const TOKEN_COSTS = {
-  messageKingMouse: { tokens: 10, description: 'Send a message to King Mouse' },
-  deployAiEmployee: { tokens: 100, description: 'Deploy a new AI employee' },
-  vmRuntime1h: { tokens: 500, description: '1 hour of VM runtime' },
-  processEmail: { tokens: 5, description: 'Process 1 email' },
-  apiCall: { tokens: 1, description: 'API call' }
-};
-
-// Low balance threshold
-export const LOW_BALANCE_THRESHOLD = 500;
-
-export function formatPrice(cents: number): string {
-  return `$${(cents / 100).toFixed(0)}`;
-}
-
-export function formatTokens(tokens: number): string {
-  return tokens.toLocaleString();
-}
-
-export function isLowBalance(balance: number): boolean {
-  return balance < LOW_BALANCE_THRESHOLD;
-}
-
-export async function createCheckoutSession(
-  customerId: string,
-  packageSlug: string,
+export async function createSubscriptionCheckout(
+  email: string,
+  planSlug: string,
+  proSlug: string,
   successUrl: string,
   cancelUrl: string
 ) {
-  const pkg = TOKEN_PACKAGES[packageSlug as keyof typeof TOKEN_PACKAGES];
-  if (!pkg) throw new Error('Invalid package');
+  const { SUBSCRIPTION_PLANS } = await import('@/lib/plans');
+  const plan = SUBSCRIPTION_PLANS[planSlug as keyof typeof SUBSCRIPTION_PLANS];
+  if (!plan) throw new Error('Invalid plan');
 
   const session = await stripe.checkout.sessions.create({
+    mode: 'subscription',
+    payment_method_types: ['card'],
+    customer_email: email,
     line_items: [
       {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: pkg.name,
-            description: `${pkg.tokenAmount.toLocaleString()} tokens - ${pkg.description}`
+            name: `KingMouse ${plan.name} Plan`,
+            description: `${plan.hoursIncluded} hours/month of AI employee time`,
           },
-          unit_amount: pkg.priceCents
+          unit_amount: plan.priceCents,
+          recurring: { interval: 'month' },
         },
-        quantity: 1
-      }
+        quantity: 1,
+      },
     ],
-    mode: 'payment',
+    metadata: {
+      pro_slug: proSlug,
+      plan_slug: planSlug,
+    },
+    subscription_data: {
+      metadata: {
+        pro_slug: proSlug,
+        plan_slug: planSlug,
+      },
+    },
     success_url: successUrl,
     cancel_url: cancelUrl,
-    metadata: {
-      customerId,
-      packageSlug,
-      tokenAmount: pkg.tokenAmount.toString()
-    }
+  });
+
+  return session;
+}
+
+export async function createCustomerPortalSession(stripeCustomerId: string) {
+  const session = await stripe.billingPortal.sessions.create({
+    customer: stripeCustomerId,
+    return_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://mouse-platform-demo.vercel.app'}/dashboard/billing`,
   });
 
   return session;

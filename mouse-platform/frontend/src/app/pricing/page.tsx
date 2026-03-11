@@ -1,76 +1,60 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { TOKEN_PACKAGES, TOKEN_COSTS, formatPrice, formatTokens } from '@/lib/stripe';
-import { Check, Coins, MessageSquare, Bot, Clock, Mail, Zap, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+import { Check, Clock, Users, Zap } from 'lucide-react';
+import { SUBSCRIPTION_PLANS, formatPrice } from '@/lib/plans';
 
 export default function PricingPage() {
-  const customerId: string | undefined = undefined; // Will be replaced with auth in Phase 5
-  const router = useRouter();
-  const [loading, setLoading] = useState<string | null>(null);
-
-  const handlePurchase = async (packageSlug: string) => {
-    if (!customerId) {
-      router.push('/login');
-      return;
-    }
-
-    setLoading(packageSlug);
-    try {
-      const response = await fetch('/api/tokens/purchase', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          customerId,
-          packageSlug,
-          successUrl: `${window.location.origin}/dashboard?purchase=success`,
-          cancelUrl: `${window.location.origin}/pricing?purchase=cancelled`
-        })
-      });
-
-      const data = await response.json();
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      }
-    } catch (error) {
-      console.error('Purchase error:', error);
-      alert('Failed to start checkout. Please try again.');
-    } finally {
-      setLoading(null);
-    }
-  };
-
-  const packages = Object.values(TOKEN_PACKAGES);
+  const plans = Object.values(SUBSCRIPTION_PLANS);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-6">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Token Pricing
+            AI Employees at $4.98/hr
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Pay only for what you use. Purchase tokens and spend them on AI employees, 
-            VM runtime, and more.
+            Subscription plans with included hours. Your KingMouse AI employee works around the clock for a fraction of human cost.
           </p>
         </div>
 
-        {/* Token Packages */}
+        {/* Comparison banner */}
+        <div className="max-w-md mx-auto mb-12 bg-gray-900 rounded-2xl p-6 text-center">
+          <div className="flex items-center justify-center gap-8">
+            <div>
+              <p className="text-gray-400 text-sm">Human Employee</p>
+              <p className="text-2xl font-bold text-red-400 line-through">$35/hr</p>
+            </div>
+            <div className="text-gray-500 text-2xl">vs</div>
+            <div>
+              <p className="text-teal-400 text-sm">KingMouse AI</p>
+              <p className="text-2xl font-bold text-teal-400">$4.98/hr</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Free trial banner */}
+        <div className="text-center mb-10">
+          <span className="inline-flex items-center gap-2 bg-teal-100 text-teal-800 px-4 py-2 rounded-full text-sm font-semibold">
+            <Zap className="w-4 h-4" />
+            First 2 hours free on every plan
+          </span>
+        </div>
+
+        {/* Plans */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          {packages.map((pkg) => (
+          {plans.map((plan) => (
             <div
-              key={pkg.slug}
+              key={plan.slug}
               className={`relative rounded-2xl bg-white p-8 shadow-lg border-2 ${
-                pkg.slug === 'growth' 
-                  ? 'border-teal-500 ring-4 ring-teal-100' 
+                plan.slug === 'growth'
+                  ? 'border-teal-500 ring-4 ring-teal-100'
                   : 'border-gray-200'
               }`}
             >
-              {pkg.slug === 'growth' && (
+              {plan.slug === 'growth' && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <span className="bg-teal-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
                     Most Popular
@@ -79,161 +63,89 @@ export default function PricingPage() {
               )}
 
               <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900">{pkg.name}</h3>
-                <p className="text-gray-500 mt-2">{pkg.description}</p>
+                <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
+              </div>
+
+              <div className="text-center mb-2">
+                <span className="text-5xl font-bold text-gray-900">
+                  {formatPrice(plan.priceCents)}
+                </span>
+                <span className="text-gray-500">/mo</span>
               </div>
 
               <div className="text-center mb-8">
-                <span className="text-5xl font-bold text-gray-900">
-                  {formatPrice(pkg.priceCents)}
-                </span>
                 <div className="flex items-center justify-center gap-2 mt-2 text-teal-600">
-                  <Coins className="w-5 h-5" />
-                  <span className="font-semibold">
-                    {formatTokens(pkg.tokenAmount)} tokens
-                  </span>
+                  <Clock className="w-5 h-5" />
+                  <span className="font-semibold">{plan.hoursIncluded} hours included</span>
                 </div>
                 <p className="text-sm text-gray-500 mt-1">
-                  ${((pkg.priceCents / 100) / (pkg.tokenAmount / 1000)).toFixed(2)} per 1,000 tokens
+                  ${(plan.priceCents / 100 / plan.hoursIncluded).toFixed(2)}/hr effective rate
                 </p>
               </div>
 
               <ul className="space-y-3 mb-8">
-                {pkg.features.map((feature, idx) => (
+                {plan.features.map((feature, idx) => (
                   <li key={idx} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
                     <span className="text-gray-600">{feature}</span>
                   </li>
                 ))}
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-600">${(plan.overageRateCents / 100).toFixed(2)}/hr overage</span>
+                </li>
               </ul>
 
-              <button
-                onClick={() => handlePurchase(pkg.slug)}
-                disabled={loading === pkg.slug}
-                className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
-                  pkg.slug === 'growth'
+              <Link
+                href={`/onboarding?plan=${plan.slug}`}
+                className={`block w-full py-3 px-4 rounded-lg font-semibold text-center transition-colors ${
+                  plan.slug === 'growth'
                     ? 'bg-teal-600 text-white hover:bg-teal-700'
                     : 'bg-gray-900 text-white hover:bg-gray-800'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                }`}
               >
-                {loading === pkg.slug ? 'Loading...' : 'Buy Tokens'}
-              </button>
+                Get Started
+              </Link>
             </div>
           ))}
         </div>
 
-        {/* Enterprise CTA */}
-        <div className="bg-gray-900 rounded-2xl p-8 text-center mb-16">
-          <h2 className="text-2xl font-bold text-white mb-4">
-            Need More?
-          </h2>
-          <p className="text-gray-400 mb-6 max-w-xl mx-auto">
-            Enterprise plans with custom token amounts, volume discounts, and dedicated support.
-          </p>
-          <a
-            href="mailto:sales@mouseplatform.com"
-            className="inline-block bg-white text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-          >
-            Contact Sales
-          </a>
+        {/* How it works */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">How It Works</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {[
+              { step: '1', icon: Users, title: 'Pick Your Pro', desc: 'Choose an AI employee specialized for your industry' },
+              { step: '2', icon: Check, title: 'Answer Questions', desc: 'Tell us about your business in a few simple steps' },
+              { step: '3', icon: Zap, title: 'Subscribe', desc: 'Choose a plan and start your subscription' },
+              { step: '4', icon: Clock, title: 'AI Starts Working', desc: 'Your AI employee begins managing tasks immediately' },
+            ].map((item) => (
+              <div key={item.step} className="text-center">
+                <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-teal-700 font-bold text-lg">{item.step}</span>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-500">{item.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Token Costs Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-            What Can You Do With Tokens?
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-              <div className="bg-teal-100 p-3 rounded-lg">
-                <MessageSquare className="w-6 h-6 text-teal-600" />
+        {/* FAQ */}
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">FAQ</h2>
+          <div className="space-y-6">
+            {[
+              { q: 'What happens if I go over my hours?', a: 'You\'re billed at $4.98 per additional hour. No surprise charges — you can set alerts.' },
+              { q: 'Can I change plans?', a: 'Yes, upgrade or downgrade anytime. Changes take effect at the next billing cycle.' },
+              { q: 'What does the AI employee actually do?', a: 'It handles scheduling, inventory, customer communication, ordering, and admin tasks specific to your industry. It works autonomously and only asks you for approval on big decisions.' },
+              { q: 'Is my data secure?', a: 'Each customer gets their own sandboxed VM. Your data never touches other customers\' environments.' },
+            ].map((faq, i) => (
+              <div key={i} className="bg-white rounded-xl p-6 shadow-sm">
+                <h3 className="font-semibold text-gray-900 mb-2">{faq.q}</h3>
+                <p className="text-gray-600 text-sm">{faq.a}</p>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Message King Mouse</h3>
-                <p className="text-2xl font-bold text-teal-600">
-                  {TOKEN_COSTS.messageKingMouse.tokens} tokens
-                </p>
-                <p className="text-sm text-gray-500">
-                  Each message sent to your AI assistant
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Bot className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Deploy AI Employee</h3>
-                <p className="text-2xl font-bold text-blue-600">
-                  {TOKEN_COSTS.deployAiEmployee.tokens} tokens
-                </p>
-                <p className="text-sm text-gray-500">
-                  One-time cost per AI employee deployment
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <Clock className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">VM Runtime</h3>
-                <p className="text-2xl font-bold text-purple-600">
-                  {TOKEN_COSTS.vmRuntime1h.tokens} tokens/hour
-                </p>
-                <p className="text-sm text-gray-500">
-                  Per hour of VM runtime for AI employees
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-              <div className="bg-green-100 p-3 rounded-lg">
-                <Mail className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Process Email</h3>
-                <p className="text-2xl font-bold text-green-600">
-                  {TOKEN_COSTS.processEmail.tokens} tokens
-                </p>
-                <p className="text-sm text-gray-500">
-                  Per email processed by AI employees
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-              <div className="bg-orange-100 p-3 rounded-lg">
-                <Zap className="w-6 h-6 text-orange-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">API Call</h3>
-                <p className="text-2xl font-bold text-orange-600">
-                  {TOKEN_COSTS.apiCall.tokens} token
-                </p>
-                <p className="text-sm text-gray-500">
-                  Per API request to the platform
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-              <div className="bg-red-100 p-3 rounded-lg">
-                <AlertCircle className="w-6 h-6 text-red-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Low Balance Alert</h3>
-                <p className="text-2xl font-bold text-red-600">
-                  &lt; 500 tokens
-                </p>
-                <p className="text-sm text-gray-500">
-                  We&apos;ll notify you when running low
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
