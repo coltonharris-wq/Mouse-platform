@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowRight, Check, Clock, Shield, Zap, Users } from 'lucide-react';
 import ProGrid from '@/components/marketplace/ProGrid';
 import DemoChat from '@/components/landing/DemoChat';
+import IndustrySelector from '@/components/landing/IndustrySelector';
 import { SUBSCRIPTION_PLANS } from '@/lib/plans';
 
 export default function LandingPage() {
@@ -30,15 +31,22 @@ export default function LandingPage() {
       <section className="pt-20 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl sm:text-6xl font-bold text-[#0B1F3B] mb-6 leading-tight">
-            Stop Hiring.<br />Start Deploying.
+            Hire Your AI<br />Operations Manager
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-4">
             KingMouse handles operations, scheduling, inventory, and customer communication &mdash; so you don&apos;t have to.
           </p>
-          <p className="text-3xl font-bold text-[#0F6B6E] mb-8">
+          <p className="text-3xl font-bold text-[#0F6B6E] mb-10">
             AI Employees at $4.98/hr
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+
+          {/* Industry/Niche Selection */}
+          <div className="mb-8">
+            <p className="text-sm text-gray-500 mb-4 font-medium uppercase tracking-wide">Select your industry to chat with King Mouse</p>
+            <IndustrySelector />
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
             <Link
               href="/onboarding"
               className="flex items-center gap-2 bg-[#0F6B6E] text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#0B5456] transition-colors"

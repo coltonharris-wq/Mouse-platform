@@ -51,7 +51,7 @@ const NAV_ITEMS = [
   { slug: 'businesses', name: 'Businesses', icon: Building2, route: '/reseller/businesses' },
   { slug: 'lead-finder', name: 'Lead Finder', icon: Search, route: '/reseller/lead-finder' },
   { slug: 'task-log', name: 'Task Log', icon: ClipboardList, route: '/reseller/task-log' },
-  { slug: 'voice', name: 'Voice', icon: Phone, route: '/reseller/voice' },
+  { slug: 'voice', name: 'Voice Builder', icon: Phone, route: '/reseller/voice' },
   { slug: 'settings', name: 'Settings', icon: Settings, route: '/reseller/settings' },
 ];
 
