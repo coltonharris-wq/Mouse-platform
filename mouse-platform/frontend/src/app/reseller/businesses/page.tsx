@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Plus, Copy, X, ChevronDown, ChevronUp, Send, Building2 } from 'lucide-react';
-import type { ResellerBusiness } from '@/types/reseller-dashboard';
+import { Plus, Copy, X, ChevronDown, ChevronUp, Send, Building2, Phone, Target, Mouse } from 'lucide-react';
+import Link from 'next/link';
+import type { ResellerBusiness, BusinessProducts } from '@/types/reseller-dashboard';
 
 interface ProOption {
   slug: string;
@@ -24,6 +25,9 @@ export default function BusinessesPage() {
   });
   const [creating, setCreating] = useState(false);
   const [inviteResult, setInviteResult] = useState<{ link: string; code: string } | null>(null);
+
+  // Product status
+  const [products, setProducts] = useState<Record<string, BusinessProducts>>({});
 
   // Detail edit
   const [editNotes, setEditNotes] = useState('');
@@ -52,10 +56,47 @@ export default function BusinessesPage() {
     if (!resellerId) { setLoading(false); return; }
     fetch(`/api/reseller/businesses?reseller_id=${resellerId}`)
       .then((r) => r.json())
-      .then((d) => setBusinesses(d.businesses || []))
+      .then((d) => {
+        const bizList = d.businesses || [];
+        setBusinesses(bizList);
+        // Load product status for each business
+        loadProducts(bizList, resellerId);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [resellerId]);
+
+  const loadProducts = async (bizList: ResellerBusiness[], rId: string) => {
+    // Get voice agents for this reseller
+    const productsMap: Record<string, BusinessProducts> = {};
+    try {
+      const agentsRes = await fetch(`/api/reseller/voice/agents?reseller_id=${rId}`);
+      const agentsData = await agentsRes.json();
+      const agents = agentsData.agents || [];
+
+      for (const biz of bizList) {
+        const agent = agents.find((a: { business_id: string }) => a.business_id === biz.id);
+        productsMap[biz.id] = {
+          receptionist: {
+            active: !!agent,
+            phone_number: agent?.phone_number,
+            calls_this_month: agent?.calls_today || 0,
+          },
+          lead_funnel: { active: false },
+          king_mouse: { active: false },
+        };
+      }
+    } catch {
+      for (const biz of bizList) {
+        productsMap[biz.id] = {
+          receptionist: { active: false },
+          lead_funnel: { active: false },
+          king_mouse: { active: false },
+        };
+      }
+    }
+    setProducts(productsMap);
+  };
 
   const handleCreate = async () => {
     if (!form.business_name || !form.business_email || !resellerId) return;
@@ -299,6 +340,85 @@ export default function BusinessesPage() {
                     {expandedId === biz.id && (
                       <tr>
                         <td colSpan={6} className="px-4 py-4 bg-gray-50">
+                          {/* Product Cards */}
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Products</p>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                            {/* AI Receptionist */}
+                            <div className="bg-white rounded-lg border border-gray-200 p-4">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Phone className="w-4 h-4 text-teal-600" />
+                                <span className="text-sm font-semibold text-gray-900">AI Receptionist</span>
+                              </div>
+                              {products[biz.id]?.receptionist?.active ? (
+                                <>
+                                  <div className="flex items-center gap-1.5 mb-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    <span className="text-xs text-green-700 font-medium">Active</span>
+                                  </div>
+                                  <p className="text-xs text-gray-500 mb-1">{products[biz.id].receptionist.phone_number}</p>
+                                  <p className="text-xs text-gray-400">{products[biz.id].receptionist.calls_this_month || 0} calls</p>
+                                  <Link href={`/reseller/voice?business_id=${biz.id}`} className="text-xs text-[#0F6B6E] font-medium hover:underline mt-2 inline-block">
+                                    Manage &rarr;
+                                  </Link>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="flex items-center gap-1.5 mb-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
+                                    <span className="text-xs text-gray-400">Not Set Up</span>
+                                  </div>
+                                  <Link href={`/reseller/voice?business_id=${biz.id}`} className="text-xs text-[#0F6B6E] font-medium hover:underline">
+                                    Set Up &rarr;
+                                  </Link>
+                                </>
+                              )}
+                            </div>
+
+                            {/* Lead Gen Funnel */}
+                            <div className="bg-white rounded-lg border border-gray-200 p-4">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Target className="w-4 h-4 text-purple-600" />
+                                <span className="text-sm font-semibold text-gray-900">Lead Gen Funnel</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 mb-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
+                                <span className="text-xs text-gray-400">Not Set Up</span>
+                              </div>
+                              <Link href={`/reseller/lead-funnels?business_id=${biz.id}`} className="text-xs text-[#0F6B6E] font-medium hover:underline">
+                                Set Up &rarr;
+                              </Link>
+                            </div>
+
+                            {/* King Mouse */}
+                            <div className="bg-white rounded-lg border border-gray-200 p-4">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Mouse className="w-4 h-4 text-orange-600" />
+                                <span className="text-sm font-semibold text-gray-900">King Mouse</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 mb-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
+                                <span className="text-xs text-gray-400">Not Set Up</span>
+                              </div>
+                              <span className="text-xs text-gray-400">Coming soon</span>
+                            </div>
+                          </div>
+
+                          {/* Revenue line */}
+                          <div className="bg-white rounded-lg border border-gray-200 px-4 py-3 mb-4">
+                            <div className="flex items-center gap-4 text-sm">
+                              <span className="text-gray-500">Revenue This Month:</span>
+                              <span className="text-gray-700">Receptionist <strong>${products[biz.id]?.receptionist?.active ? ((biz.monthly_revenue_cents || 0) * 0.4 / 100).toFixed(0) : '0'}</strong></span>
+                              <span className="text-gray-400">&middot;</span>
+                              <span className="text-gray-700">Lead Gen <strong>$0</strong></span>
+                              <span className="text-gray-400">&middot;</span>
+                              <span className="text-gray-700">King Mouse <strong>$0</strong></span>
+                              <span className="ml-auto text-gray-900 font-semibold">
+                                Total: ${((biz.monthly_revenue_cents || 0) / 100).toFixed(0)}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Contact & Notes */}
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                             <div>
                               <p className="text-gray-500 mb-1">Contact</p>

@@ -4,8 +4,9 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  MessageSquare, BarChart3, Store, Building2, Search,
-  ClipboardList, Phone, Settings, Menu, X, Plus, Trash2, Copy
+  MessageSquare, BarChart3, Building2, Search,
+  Phone, Settings, Menu, X, Plus, Trash2, Copy,
+  Target, DollarSign, Palette
 } from 'lucide-react';
 import KingMouseAvatar from '@/components/KingMouseAvatar';
 import type { KingMouseStatus } from '@/types/kingmouse-status';
@@ -47,11 +48,12 @@ function groupByDate(conversations: Conversation[]) {
 
 const NAV_ITEMS = [
   { slug: 'dashboard', name: 'Dashboard', icon: BarChart3, route: '/reseller/dashboard' },
-  { slug: 'marketplace', name: 'Marketplace', icon: Store, route: '/reseller/marketplace' },
   { slug: 'businesses', name: 'Businesses', icon: Building2, route: '/reseller/businesses' },
-  { slug: 'lead-finder', name: 'Lead Finder', icon: Search, route: '/reseller/lead-finder' },
-  { slug: 'task-log', name: 'Task Log', icon: ClipboardList, route: '/reseller/task-log' },
   { slug: 'voice', name: 'Voice Builder', icon: Phone, route: '/reseller/voice' },
+  { slug: 'lead-funnels', name: 'Lead Funnels', icon: Target, route: '/reseller/lead-funnels' },
+  { slug: 'lead-finder', name: 'Find Leads', icon: Search, route: '/reseller/lead-finder' },
+  { slug: 'revenue', name: 'Revenue', icon: DollarSign, route: '/reseller/revenue' },
+  { slug: 'branding', name: 'Branding', icon: Palette, route: '/reseller/branding' },
   { slug: 'settings', name: 'Settings', icon: Settings, route: '/reseller/settings' },
 ];
 

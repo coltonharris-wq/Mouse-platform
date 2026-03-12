@@ -19,6 +19,7 @@ export interface ResellerBusiness {
   activated_at: string | null;
   created_at: string;
   updated_at: string;
+  products?: BusinessProducts;
 }
 
 export interface SavedLead {
@@ -73,4 +74,24 @@ export interface LeadSearchResult {
   phone: string;
   website: string;
   industry: string;
+}
+
+export interface BusinessProducts {
+  receptionist: {
+    active: boolean;
+    phone_number?: string;
+    calls_this_month?: number;
+  };
+  lead_funnel: {
+    active: boolean;
+    funnel_id?: string;
+    leads_this_month?: number;
+    target?: number;
+  };
+  king_mouse: {
+    active: boolean;
+    computer_id?: string;
+    hours_this_month?: number;
+    vm_status?: string;
+  };
 }
