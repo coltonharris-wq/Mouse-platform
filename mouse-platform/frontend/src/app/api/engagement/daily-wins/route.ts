@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     let hoursWorked = 0;
     try {
       const sessions = await supabaseQuery(
-        'vm_telemetry',
+        'work_sessions',
         'GET',
         undefined,
         `customer_id=eq.${customerId}&started_at=gte.${dateStr}T00:00:00&started_at=lt.${dateStr}T23:59:59&select=billed_hours`

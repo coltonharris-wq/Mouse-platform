@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       'customers',
       'GET',
       undefined,
-      `id=eq.${customerId}&select=business_name,email,phone,owner_name,industry,niche,subscription_plan`
+      `id=eq.${customerId}&select=company_name,email,owner_name,industry,niche,subscription_plan`
     );
 
     // Get notification preferences

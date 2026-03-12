@@ -36,20 +36,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ daily });
     }
 
-    // Fallback: compute from vm_telemetry
-    const sessions = await supabaseQuery(
-      'vm_telemetry',
-      'GET',
-      undefined,
-      `customer_id=eq.${customerId}&started_at=gte.${periodStartStr}T00:00:00&select=started_at,billed_hours&order=started_at.asc`
-    );
-
+    // Fallback: compute from work_sessions (vm_telemetry may not exist)
     const dayMap: Record<string, number> = {};
-    if (sessions) {
-      for (const s of sessions) {
-        const date = new Date(s.started_at).toISOString().split('T')[0];
-        dayMap[date] = (dayMap[date] || 0) + (parseFloat(String(s.billed_hours)) || 0);
+    try {
+      const sessions = await supabaseQuery(
+        'work_sessions',
+        'GET',
+        undefined,
+        `customer_id=eq.${customerId}&started_at=gte.${periodStartStr}T00:00:00&select=started_at,billed_hours&order=started_at.asc`
+      );
+      if (sessions) {
+        for (const s of sessions) {
+          const date = new Date(s.started_at).toISOString().split('T')[0];
+          dayMap[date] = (dayMap[date] || 0) + (parseFloat(String(s.billed_hours)) || 0);
+        }
       }
+    } catch {
+      // Table may not exist — return empty data
     }
 
     // Fill in all days of the period

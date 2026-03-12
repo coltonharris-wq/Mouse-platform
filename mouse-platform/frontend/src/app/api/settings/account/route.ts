@@ -18,14 +18,23 @@ export async function GET(request: NextRequest) {
       'customers',
       'GET',
       undefined,
-      `id=eq.${customerId}&select=business_name,email,phone,owner_name`
+      `id=eq.${customerId}&select=company_name,email,owner_name`
     );
 
     if (!customers || customers.length === 0) {
       return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ account: customers[0] });
+    // Map DB column names to frontend field names
+    const c = customers[0];
+    return NextResponse.json({
+      account: {
+        business_name: c.company_name || '',
+        email: c.email || '',
+        phone: null,
+        owner_name: c.owner_name || null,
+      },
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Internal server error';
     console.error('[SETTINGS_ACCOUNT_GET]', message);
@@ -36,15 +45,14 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { customer_id, business_name, phone, owner_name } = body;
+    const { customer_id, business_name, owner_name } = body;
 
     if (!customer_id) {
       return NextResponse.json({ error: 'customer_id required' }, { status: 400 });
     }
 
     const updates: Record<string, unknown> = {};
-    if (business_name !== undefined) updates.business_name = business_name;
-    if (phone !== undefined) updates.phone = phone;
+    if (business_name !== undefined) updates.company_name = business_name;
     if (owner_name !== undefined) updates.owner_name = owner_name;
 
     if (Object.keys(updates).length === 0) {

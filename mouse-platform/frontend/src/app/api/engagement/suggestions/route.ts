@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     let hoursSinceActivity = 24;
     try {
       const recent = await supabaseQuery(
-        'vm_telemetry',
+        'work_sessions',
         'GET',
         undefined,
         `customer_id=eq.${customerId}&order=started_at.desc&limit=1&select=started_at`
