@@ -14,32 +14,23 @@ function SuccessFlow() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const sessionId = searchParams.get('session_id');
+  const sessionKey = searchParams.get('sk') || (typeof window !== 'undefined' ? localStorage.getItem('onboarding_sk') : null);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [vmStatus, setVmStatus] = useState('pending');
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Complete onboarding
+  // Complete onboarding — reads data from DB (not sessionStorage)
   useEffect(() => {
     if (!sessionId) return;
-
-    const onboardingData = typeof window !== 'undefined'
-      ? JSON.parse(sessionStorage.getItem('onboarding_data') || '{}')
-      : {};
 
     fetch('/api/onboarding/complete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         stripe_session_id: sessionId,
-        business_name: onboardingData.business_name,
-        owner_name: onboardingData.owner_name,
-        email: onboardingData.email,
-        location: onboardingData.location,
-        pro_slug: onboardingData.pro_slug,
-        plan_slug: onboardingData.plan_slug,
-        onboarding_answers: onboardingData.onboarding_answers,
+        session_key: sessionKey,
       }),
     })
       .then((res) => res.json())
@@ -47,12 +38,16 @@ function SuccessFlow() {
         if (data.success) {
           setCustomerId(data.customer_id);
           setVmStatus(data.vm_status);
+          // Store customer_id for dashboard
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('customer_id', data.customer_id);
+          }
         } else {
           setError(data.error || 'Setup failed');
         }
       })
       .catch(() => setError('Connection error. Please refresh.'));
-  }, [sessionId]);
+  }, [sessionId, sessionKey]);
 
   // Animate deploy steps
   useEffect(() => {
@@ -71,16 +66,17 @@ function SuccessFlow() {
 
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/billing/usage?customer_id=${customerId}`);
+        const res = await fetch(`/api/vm/status?customer_id=${customerId}`);
         if (res.ok) {
-          // If we can reach billing, customer exists — check VM
-          const customerRes = await fetch(`/api/admin/customers`);
-          const data = await customerRes.json();
-          const customer = (data.customers || []).find((c: { id: string }) => c.id === customerId);
-          if (customer?.vm_status === 'running') {
+          const data = await res.json();
+          if (data.vm_status === 'running') {
             setVmStatus('running');
             clearInterval(interval);
             setTimeout(() => router.push('/dashboard'), 2000);
+          } else if (data.vm_status === 'error') {
+            setVmStatus('error');
+            setError('VM setup encountered an error. Please contact support.');
+            clearInterval(interval);
           }
         }
       } catch {
@@ -88,7 +84,16 @@ function SuccessFlow() {
       }
     }, 5000);
 
-    return () => clearInterval(interval);
+    // Auto-redirect after 3 minutes even if VM not ready (dashboard will handle)
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+      router.push('/dashboard');
+    }, 180000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
   }, [customerId, vmStatus, router]);
 
   if (error) {
@@ -116,7 +121,7 @@ function SuccessFlow() {
         <div className="relative mb-8">
           <div className="w-24 h-24 mx-auto bg-teal-500/20 rounded-2xl flex items-center justify-center animate-pulse">
             <div className="w-16 h-16 bg-teal-500/40 rounded-xl flex items-center justify-center">
-              <span className="text-4xl">🐭</span>
+              <span className="text-4xl">&#x1F42D;</span>
             </div>
           </div>
           <div className="absolute inset-0 w-32 h-32 mx-auto border-2 border-teal-500/30 rounded-3xl animate-spin" style={{ animationDuration: '8s' }} />
@@ -138,7 +143,7 @@ function SuccessFlow() {
                     ? 'bg-teal-500/50 text-white animate-pulse'
                     : 'bg-gray-700 text-gray-500'
               }`}>
-                {i < currentStep ? '&#10003;' : i === currentStep ? '...' : ''}
+                {i < currentStep ? '\u2713' : i === currentStep ? '...' : ''}
               </div>
               <span className={`text-sm ${
                 i <= currentStep ? 'text-white' : 'text-gray-500'

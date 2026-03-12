@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Clock, TrendingUp, CreditCard, ArrowUpRight } from 'lucide-react';
+import { SUBSCRIPTION_PLANS } from '@/lib/plans';
 
 interface UsageData {
   plan: string;
@@ -13,8 +14,6 @@ interface UsageData {
   billing_period_start: string;
   billing_period_end: string;
 }
-
-const PLAN_PRICES: Record<string, number> = { pro: 97, growth: 497, enterprise: 997 };
 
 export default function BillingPage() {
   const [usage, setUsage] = useState<UsageData | null>(null);
@@ -38,11 +37,14 @@ export default function BillingPage() {
   }
 
   const hoursPercent = usage ? Math.min(100, (usage.hours_used / Math.max(1, usage.hours_included)) * 100) : 0;
-  const planPrice = PLAN_PRICES[usage?.plan || ''] || 0;
+  const planKey = (usage?.plan || 'pro') as keyof typeof SUBSCRIPTION_PLANS;
+  const planConfig = SUBSCRIPTION_PLANS[planKey] || SUBSCRIPTION_PLANS.pro;
+  const planPrice = planConfig.priceCents / 100;
+  const overageRate = planConfig.overageRateCents / 100;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Billing & Hours</h1>
+      <h1 className="text-2xl font-bold text-[#0B1F3B] mb-6">Billing & Hours</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Plan info */}
@@ -87,7 +89,7 @@ export default function BillingPage() {
             <h3 className="font-semibold text-yellow-900">Overage</h3>
           </div>
           <p className="text-gray-700">
-            {usage.overage_hours.toFixed(1)} hours over limit at $4.98/hr = <strong>${(usage.overage_cost_cents / 100).toFixed(2)}</strong>
+            {usage.overage_hours.toFixed(1)} hours over limit at ${overageRate.toFixed(2)}/hr = <strong>${(usage.overage_cost_cents / 100).toFixed(2)}</strong>
           </p>
         </div>
       )}

@@ -6,7 +6,7 @@ import Link from 'next/link';
 export default function SettingsPage() {
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
+      <h1 className="text-2xl font-bold text-[#0B1F3B] mb-6">Settings</h1>
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
         <Settings className="w-12 h-12 mx-auto mb-4 text-gray-300" />
         <h2 className="text-lg font-semibold text-gray-700 mb-2">Coming Soon</h2>

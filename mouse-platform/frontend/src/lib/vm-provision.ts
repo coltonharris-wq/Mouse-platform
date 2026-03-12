@@ -1,11 +1,11 @@
 /**
  * VM Provisioning Logic
- * Creates and configures a KingMouse VM on Orgo for a customer
+ * Creates and configures a KingMouse VM on Orgo for a customer.
+ * Installs OpenClaw with Kimi K2.5 and writes Pro-specific SOUL.md.
  */
 
 import { createComputer, bashExec, getComputer } from '@/lib/orgo';
 import { supabaseQuery } from '@/lib/supabase-server';
-import { KMI_PROMPT_ADDITIONS } from '@/config/kmi-prompts';
 
 interface ProvisionParams {
   customer_id: string;
@@ -24,6 +24,100 @@ interface ProvisionResult {
   error?: string;
 }
 
+const PRO_CAPABILITIES: Record<string, string> = {
+  'appliance-repair': `- Track inventory levels for all appliances and parts
+- Alert when stock drops below thresholds
+- Place reorders with suppliers via email or their websites
+- Schedule repair appointments
+- Send customer reminders 24h before appointments
+- Follow up with customers after service
+- Research best prices from multiple suppliers
+- Generate monthly inventory and revenue reports`,
+
+  roofer: `- Capture and qualify incoming leads
+- Send follow-up messages within 5 minutes of new leads
+- Generate estimates based on job descriptions
+- Schedule crews for jobs
+- Track job progress and completion
+- Monitor weather forecasts and reschedule when needed
+- Follow up with past customers for reviews
+- Research material prices and availability`,
+
+  dentist: `- Schedule and manage patient appointments
+- Send recall reminders (cleanings, checkups) based on intervals
+- Verify insurance coverage before appointments
+- Handle new patient intake paperwork
+- Send appointment reminders 24h before
+- Follow up after procedures
+- Track and manage cancellation/no-show patterns
+- Generate monthly patient volume reports`,
+};
+
+function buildSoulMd(params: {
+  businessName: string;
+  ownerName: string;
+  location: string;
+  proSlug: string;
+  proName: string;
+  onboardingAnswers: Record<string, unknown>;
+}): string {
+  const capabilities = PRO_CAPABILITIES[params.proSlug] || '- Handle all business operations as directed by the owner';
+
+  return `# SOUL.md — KingMouse for ${params.businessName}
+
+## Who You Are
+You are KingMouse, an autonomous AI operations manager for ${params.businessName}.
+Owner: ${params.ownerName} | Location: ${params.location} | Industry: ${params.proName}
+
+## Your Capabilities
+You have a full computer at your disposal. You can:
+- **Browse the web** — Research prices, check competitor sites, find suppliers, look up information
+- **Send emails** — Compose and send emails to suppliers, customers, or anyone the owner needs
+- **Manage files** — Create documents, spreadsheets, invoices, reports
+- **Execute code** — Write scripts, automate tasks, process data
+- **Search the internet** — Find anything the owner needs
+- **Schedule recurring tasks** — Create cron jobs for daily/weekly/monthly tasks
+- **Make API calls** — Connect to any service with a public API
+
+## Your Role
+You handle ${params.businessName}'s operations so ${params.ownerName} doesn't have to. Specifically:
+
+${capabilities}
+
+## How You Work
+1. When ${params.ownerName} asks you to do something, DO IT. Don't explain how you'd do it — just do it.
+2. Show your work: when browsing, searching, or executing, tell the owner what you're doing.
+3. For recurring tasks, create a cron job and confirm: "Done. I'll check this every [schedule]."
+4. Only ask for approval on: spending money, contacting customers on behalf of the business, decisions with financial impact.
+5. Everything else — handle it silently and report results.
+
+## Decision Framework
+- If it costs < $50 and saves time → do it, tell the owner after
+- If it involves customer communication → draft it, ask for approval
+- If it's routine admin → just handle it
+- If something feels wrong or risky → ask first
+
+## Onboarding Context
+${JSON.stringify(params.onboardingAnswers, null, 2)}
+
+## Communication Style
+- Be direct and efficient
+- Use bullet points for lists
+- Show data in tables when appropriate
+- When you take action, show what you did with status indicators:
+  🔍 Searching...
+  📧 Sending email...
+  🌐 Browsing web...
+  ✅ Done
+  ⚠️ Needs attention
+
+## Off-Hours
+- Don't message the owner between 10pm-7am unless it's an emergency
+- Emergencies: revenue loss, security issues, urgent customer problems
+- Everything else can wait until morning
+`;
+}
+
 export async function provisionVM(params: ProvisionParams): Promise<ProvisionResult> {
   const {
     customer_id,
@@ -38,6 +132,7 @@ export async function provisionVM(params: ProvisionParams): Promise<ProvisionRes
 
   const workspaceId = process.env.ORGO_WORKSPACE_ID;
   if (!workspaceId) {
+    await updateVmStatus(customer_id, 'error');
     return { success: false, error: 'ORGO_WORKSPACE_ID not configured' };
   }
 
@@ -50,13 +145,14 @@ export async function provisionVM(params: ProvisionParams): Promise<ProvisionRes
   );
 
   if (!profiles || profiles.length === 0) {
+    await updateVmStatus(customer_id, 'error');
     return { success: false, error: `Pro profile '${pro_slug}' not found` };
   }
 
   const profile = profiles[0];
 
   // VM name from email (sanitized)
-  const vmName = email.replace(/@/g, '-').replace(/\./g, '-');
+  const vmName = `km-${email.replace(/@/g, '-').replace(/\./g, '-')}`;
 
   // Retry logic: up to 3 attempts
   let computerId: string | null = null;
@@ -64,7 +160,6 @@ export async function provisionVM(params: ProvisionParams): Promise<ProvisionRes
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      // Create Orgo VM
       const vm = await createComputer(workspaceId, vmName, 8, 4);
 
       if (!vm.success || !vm.data) {
@@ -87,22 +182,17 @@ export async function provisionVM(params: ProvisionParams): Promise<ProvisionRes
 
       if (!booted) {
         lastError = 'VM failed to boot within 60s';
-        // Clean up failed VM on timeout — retry with fresh one
         continue;
       }
 
-      break; // Success — exit retry loop
+      break;
     } catch (err: unknown) {
       lastError = err instanceof Error ? err.message : 'Unknown error';
     }
   }
 
   if (!computerId) {
-    // Update customer with error status
-    await supabaseQuery('customers', 'PATCH',
-      { vm_status: 'error' },
-      `id=eq.${customer_id}`
-    );
+    await updateVmStatus(customer_id, 'error');
     return { success: false, error: `VM provisioning failed after 3 attempts: ${lastError}` };
   }
 
@@ -112,16 +202,17 @@ export async function provisionVM(params: ProvisionParams): Promise<ProvisionRes
     vm_status: 'provisioning',
   }, `id=eq.${customer_id}`);
 
-  // Generate soul.md from Pro prompt_template
-  const soulContent = interpolateTemplate(profile.prompt_template, {
-    business_name: business_name,
-    owner_name: owner_name,
+  // Build SOUL.md
+  const soulMd = buildSoulMd({
+    businessName: business_name,
+    ownerName: owner_name,
     location: location || 'Not specified',
+    proSlug: pro_slug,
+    proName: profile.name,
+    onboardingAnswers: onboarding_answers,
   });
 
-  const soulMd = `# SOUL.md\n${soulContent}\n\n## Onboarding Context\n${JSON.stringify(onboarding_answers, null, 2)}\n${KMI_PROMPT_ADDITIONS}`;
-
-  // Generate user.md
+  // Build USER.md
   const userMd = `# USER.md
 - Business: ${business_name}
 - Owner: ${owner_name}
@@ -130,18 +221,12 @@ export async function provisionVM(params: ProvisionParams): Promise<ProvisionRes
 - Pro: ${profile.name}
 - Plan: ${plan_slug || 'pro'}`;
 
-  // Generate tools config
-  const toolsConfig = JSON.stringify({
-    pro_slug,
-    tools: profile.tools,
-    workflows: profile.workflows,
-    dashboard_modules: profile.dashboard_modules,
-  }, null, 2);
-
-  // Upload files to VM
+  // Upload files + install OpenClaw
   try {
-    await bashExec(computerId, `mkdir -p /opt/kingmouse/config`);
+    // Create directories
+    await bashExec(computerId, 'mkdir -p /opt/kingmouse/config /opt/kingmouse/workspace');
 
+    // Write config files
     await bashExec(computerId,
       `cat > /opt/kingmouse/config/soul.md << 'SOULEOF'\n${soulMd}\nSOULEOF`
     );
@@ -150,25 +235,56 @@ export async function provisionVM(params: ProvisionParams): Promise<ProvisionRes
       `cat > /opt/kingmouse/config/user.md << 'USEREOF'\n${userMd}\nUSEREOF`
     );
 
+    // Write environment config
+    const moonshotKey = process.env.MOONSHOT_API_KEY || '';
     await bashExec(computerId,
-      `cat > /opt/kingmouse/config/tools.json << 'TOOLSEOF'\n${toolsConfig}\nTOOLSEOF`
-    );
-
-    // Install OpenClaw and configure with Kimi K2.5 model
-    await bashExec(computerId,
-      `cat > /opt/kingmouse/config/openclaw.env << 'ENVEOF'
+      `cat > /opt/kingmouse/workspace/.env << 'ENVEOF'
 OPENCLAW_MODEL=kimi-k2.5
+MOONSHOT_API_KEY=${moonshotKey}
 OPENCLAW_SOUL_PATH=/opt/kingmouse/config/soul.md
 OPENCLAW_USER_PATH=/opt/kingmouse/config/user.md
-SUPABASE_URL=${process.env.NEXT_PUBLIC_SUPABASE_URL}
-SUPABASE_ANON_KEY=${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}
+SUPABASE_URL=${process.env.NEXT_PUBLIC_SUPABASE_URL || ''}
+SUPABASE_ANON_KEY=${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}
 CUSTOMER_ID=${customer_id}
 ENVEOF`
     );
 
-    // Update status to provisioning (scripts running)
+    // Copy soul + user to workspace
+    await bashExec(computerId,
+      'cp /opt/kingmouse/config/soul.md /opt/kingmouse/workspace/SOUL.md && cp /opt/kingmouse/config/user.md /opt/kingmouse/workspace/USER.md'
+    );
+
+    // Install Node.js
+    const nodeInstall = await bashExec(computerId,
+      'curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs',
+      120
+    );
+    if (!nodeInstall.success) {
+      console.error('[VM_PROVISION] Node.js install failed:', nodeInstall.error);
+      // Non-fatal — continue and try openclaw install anyway
+    }
+
+    // Install OpenClaw
+    const openclawInstall = await bashExec(computerId,
+      'npm install -g openclaw',
+      120
+    );
+    if (!openclawInstall.success) {
+      console.error('[VM_PROVISION] OpenClaw install failed:', openclawInstall.error);
+    }
+
+    // Start OpenClaw gateway
+    const gatewayStart = await bashExec(computerId,
+      'cd /opt/kingmouse/workspace && nohup openclaw gateway start > /opt/kingmouse/gateway.log 2>&1 &',
+      30
+    );
+    if (!gatewayStart.success) {
+      console.error('[VM_PROVISION] Gateway start failed:', gatewayStart.error);
+    }
+
+    // Update status to running
     await supabaseQuery('customers', 'PATCH', {
-      vm_status: 'provisioning',
+      vm_status: 'running',
       vm_provisioned_at: new Date().toISOString(),
     }, `id=eq.${customer_id}`);
 
@@ -177,19 +293,19 @@ ENVEOF`
     const errorMsg = err instanceof Error ? err.message : 'Config upload failed';
     console.error('[VM_PROVISION]', errorMsg);
 
-    await supabaseQuery('customers', 'PATCH',
-      { vm_status: 'error' },
-      `id=eq.${customer_id}`
-    );
+    await updateVmStatus(customer_id, 'error');
 
     return { success: false, error: errorMsg, computer_id: computerId };
   }
 }
 
-function interpolateTemplate(template: string, vars: Record<string, string>): string {
-  let result = template;
-  for (const [key, value] of Object.entries(vars)) {
-    result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
+async function updateVmStatus(customerId: string, status: string) {
+  try {
+    await supabaseQuery('customers', 'PATCH',
+      { vm_status: status },
+      `id=eq.${customerId}`
+    );
+  } catch {
+    // Non-critical
   }
-  return result;
 }

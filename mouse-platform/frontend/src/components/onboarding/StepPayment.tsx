@@ -14,21 +14,24 @@ interface StepPaymentProps {
   selectedPlan: string;
   email: string;
   proSlug: string;
+  sessionKey: string;
+  resellerBrandSlug?: string;
   onChange: (planSlug: string) => void;
   onBack: () => void;
 }
 
-export default function StepPayment({ selectedPlan, email, proSlug, onChange, onBack }: StepPaymentProps) {
+export default function StepPayment({ selectedPlan, email, proSlug, sessionKey, resellerBrandSlug, onChange, onBack }: StepPaymentProps) {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoApplied, setPromoApplied] = useState(false);
 
   useEffect(() => {
-    // Fetch plans from subscription_plans or use defaults
     setPlans([
-      { slug: 'pro', name: 'Pro', price_cents: 9700, hours_included: 20, features: ['20 hours/month', '1 AI employee', 'Core automations', 'Email support'] },
-      { slug: 'growth', name: 'Growth', price_cents: 49700, hours_included: 125, features: ['125 hours/month', '1 AI employee', 'Advanced automations', 'Priority support', 'Custom workflows'] },
-      { slug: 'enterprise', name: 'Enterprise', price_cents: 99700, hours_included: 300, features: ['300 hours/month', '1 AI employee', 'All automations', 'Dedicated support', 'Custom integrations', 'API access'] },
+      { slug: 'pro', name: 'Pro', price_cents: 9700, hours_included: 20, features: ['20 hours/month', '1 AI employee', 'Full agent capabilities', 'Email support'] },
+      { slug: 'growth', name: 'Growth', price_cents: 49700, hours_included: 125, features: ['125 hours/month', '1 AI employee', 'Full agent capabilities', 'Priority support', 'Custom workflows'] },
+      { slug: 'enterprise', name: 'Enterprise', price_cents: 99700, hours_included: 300, features: ['300 hours/month', '1 AI employee', 'Full agent capabilities', 'Dedicated support', 'Custom integrations', 'API access'] },
     ]);
     setLoading(false);
   }, []);
@@ -45,14 +48,16 @@ export default function StepPayment({ selectedPlan, email, proSlug, onChange, on
           email,
           plan_slug: selectedPlan,
           pro_slug: proSlug,
-          success_url: `${window.location.origin}/onboarding/success?session_id={CHECKOUT_SESSION_ID}`,
+          session_key: sessionKey || undefined,
+          promo_code: promoCode || undefined,
+          reseller_brand_slug: resellerBrandSlug || undefined,
+          success_url: `${window.location.origin}/onboarding/success?session_id={CHECKOUT_SESSION_ID}${sessionKey ? `&sk=${sessionKey}` : ''}`,
           cancel_url: `${window.location.origin}/onboarding/cancel`,
         }),
       });
 
       const data = await res.json();
       if (data.checkout_url) {
-        // Store onboarding data in sessionStorage before redirect
         window.location.href = data.checkout_url;
       } else {
         alert('Failed to create checkout session.');
@@ -110,6 +115,37 @@ export default function StepPayment({ selectedPlan, email, proSlug, onChange, on
             </ul>
           </button>
         ))}
+      </div>
+
+      {/* Promo Code */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">Have a promo code?</label>
+        <div className="flex gap-2 max-w-md">
+          <input
+            type="text"
+            value={promoCode}
+            onChange={(e) => {
+              setPromoCode(e.target.value.toUpperCase());
+              setPromoApplied(false);
+            }}
+            placeholder="Enter promo code"
+            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+          />
+          {promoCode && !promoApplied && (
+            <button
+              type="button"
+              onClick={() => setPromoApplied(true)}
+              className="bg-teal-100 text-teal-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-200 transition-colors"
+            >
+              Apply
+            </button>
+          )}
+        </div>
+        {promoApplied && promoCode && (
+          <p className="text-sm text-teal-600 mt-1 font-medium">
+            Code &quot;{promoCode}&quot; will be applied at checkout
+          </p>
+        )}
       </div>
 
       <div className="flex gap-4">

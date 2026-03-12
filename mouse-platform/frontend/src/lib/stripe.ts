@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { getCustomerUrl } from '@/lib/urls';
 
 let _stripe: Stripe | null = null;
 
@@ -65,7 +66,7 @@ export async function createSubscriptionCheckout(
 export async function createCustomerPortalSession(stripeCustomerId: string) {
   const session = await getStripe().billingPortal.sessions.create({
     customer: stripeCustomerId,
-    return_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://mouse-platform-demo.vercel.app'}/dashboard/billing`,
+    return_url: getCustomerUrl('/dashboard/billing'),
   });
 
   return session;

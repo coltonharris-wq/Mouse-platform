@@ -1,7 +1,8 @@
 /**
  * POST /api/onboarding/complete
- * Orchestrates post-payment setup — creates customer + triggers VM provisioning
- * Idempotent: calling twice with same session_id won't create duplicates
+ * BACKUP trigger for post-payment setup (PRIMARY is webhook).
+ * Reads onboarding data from onboarding_sessions table (not client).
+ * Idempotent: if webhook already created customer + VM, returns existing.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -12,16 +13,7 @@ import { provisionVM } from '@/lib/vm-provision';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const {
-      stripe_session_id,
-      business_name,
-      owner_name,
-      email,
-      location,
-      pro_slug,
-      plan_slug,
-      onboarding_answers,
-    } = body;
+    const { stripe_session_id, session_key } = body;
 
     if (!stripe_session_id) {
       return NextResponse.json(
@@ -40,7 +32,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Idempotency check — see if customer already exists for this session
+    // Idempotency — check if customer already exists for this subscription
     const existing = await supabaseQuery(
       'customers',
       'GET',
@@ -49,62 +41,148 @@ export async function POST(request: NextRequest) {
     );
 
     if (existing && existing.length > 0) {
-      // Already created (by webhook or previous call) — return existing
+      // Already created (by webhook) — return existing
+      const customer = existing[0];
+
+      // If VM is still pending, try to trigger provisioning as backup
+      if (customer.vm_status === 'pending') {
+        await triggerProvisioningFromSession(customer.id, session_key || session.metadata?.session_key, session);
+      }
+
       return NextResponse.json({
         success: true,
-        customer_id: existing[0].id,
-        vm_status: existing[0].vm_status,
-        message: 'Customer already exists. Checking VM status.',
+        customer_id: customer.id,
+        vm_status: customer.vm_status,
+        message: 'Customer exists. Checking VM status.',
       });
     }
 
-    // Get plan details
-    const resolvedPlanSlug = plan_slug || session.metadata?.plan_slug || 'pro';
-    const resolvedProSlug = pro_slug || session.metadata?.pro_slug;
+    // Customer doesn't exist yet (webhook hasn't fired) — create now
+    const sk = session_key || session.metadata?.session_key;
+    const resolvedPlanSlug = session.metadata?.plan_slug || 'pro';
+    const resolvedProSlug = session.metadata?.pro_slug || '';
 
+    // Retrieve onboarding data from DB
+    let onboardingData: Record<string, unknown> = {};
+    if (sk) {
+      try {
+        const sessions = await supabaseQuery(
+          'onboarding_sessions',
+          'GET',
+          undefined,
+          `session_key=eq.${sk}&select=*`
+        );
+        if (sessions && sessions.length > 0) {
+          onboardingData = sessions[0];
+        }
+      } catch {
+        // Continue with defaults
+      }
+    }
+
+    const businessName = (onboardingData.business_name as string) || session.customer_email?.split('@')[0] || 'New Customer';
+    const ownerName = (onboardingData.owner_name as string) || '';
+    const email = (onboardingData.email as string) || session.customer_email || '';
+    const location = (onboardingData.location as string) || '';
+
+    // Get plan details
     const plans = await supabaseQuery(
       'subscription_plans',
       'GET',
       undefined,
       `slug=eq.${resolvedPlanSlug}`
     );
-
     const plan = plans?.[0];
     const hoursIncluded = plan?.hours_included || 0;
 
+    // Resolve reseller attribution from onboarding session or Stripe metadata
+    const resellerBrandSlug = (onboardingData.reseller_brand_slug as string) || session.metadata?.reseller_brand_slug || null;
+    const attributionSource = (onboardingData.attribution_source as string) || (resellerBrandSlug ? 'reseller_link' : 'direct');
+
+    // Look up reseller_id from brand_slug if present
+    let resellerId: string | null = null;
+    if (resellerBrandSlug) {
+      try {
+        const resellers = await supabaseQuery(
+          'resellers', 'GET', undefined,
+          `brand_slug=eq.${resellerBrandSlug}&select=id`
+        );
+        if (resellers && resellers.length > 0) {
+          resellerId = resellers[0].id;
+        }
+      } catch {
+        // Continue without reseller_id
+      }
+    }
+
     // Create customer
     const customerId = `cust_${Date.now().toString(36)}`;
+    const now = new Date().toISOString();
 
     await supabaseQuery('customers', 'POST', {
       id: customerId,
-      company_name: business_name || email?.split('@')[0] || 'New Customer',
-      email: email || session.customer_email,
-      owner_name: owner_name || '',
-      location: location || '',
+      company_name: businessName,
+      email,
+      owner_name: ownerName,
+      location,
       pro_slug: resolvedProSlug,
       subscription_plan: resolvedPlanSlug,
       hours_included: hoursIncluded,
       hours_used: 0,
       trial_hours_remaining: 2.0,
-      onboarding_answers: onboarding_answers || {},
+      onboarding_answers: (onboardingData.onboarding_answers as Record<string, unknown>) || {},
+      onboarding_session_key: sk || null,
       vm_status: 'pending',
       stripe_customer_id: session.customer as string,
       stripe_subscription_id: session.subscription as string,
       stripe_subscription_status: 'active',
       status: 'active',
-      created_at: new Date().toISOString(),
+      reseller_id: resellerId,
+      reseller_brand_slug: resellerBrandSlug,
+      attribution_source: attributionSource,
+      attributed_at: resellerId ? now : null,
+      created_at: now,
     });
 
-    // Trigger VM provisioning (async — don't block response)
+    // Log attribution if reseller present
+    if (resellerId) {
+      try {
+        await supabaseQuery('attribution_log', 'POST', {
+          customer_id: customerId,
+          old_reseller_id: null,
+          new_reseller_id: resellerId,
+          changed_by: 'system',
+          reason: `Initial attribution via ${attributionSource}`,
+          created_at: now,
+        });
+      } catch {
+        // Non-critical — don't block onboarding
+      }
+    }
+
+    // Mark onboarding session completed
+    if (sk) {
+      try {
+        await supabaseQuery('onboarding_sessions', 'PATCH', {
+          stripe_session_id: session.id,
+          status: 'completed',
+          updated_at: new Date().toISOString(),
+        }, `session_key=eq.${sk}`);
+      } catch {
+        // Non-critical
+      }
+    }
+
+    // Trigger VM provisioning (async)
     provisionVM({
       customer_id: customerId,
       pro_slug: resolvedProSlug,
-      business_name: business_name || 'New Business',
-      owner_name: owner_name || '',
-      email: email || session.customer_email || '',
-      location: location || '',
+      business_name: businessName,
+      owner_name: ownerName,
+      email,
+      location,
       plan_slug: resolvedPlanSlug,
-      onboarding_answers: onboarding_answers || {},
+      onboarding_answers: (onboardingData.onboarding_answers as Record<string, unknown>) || {},
     }).catch((err) => {
       console.error('[ONBOARDING_COMPLETE] VM provisioning error:', err);
     });
@@ -123,4 +201,44 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+async function triggerProvisioningFromSession(
+  customerId: string,
+  sessionKey: string | undefined,
+  stripeSession: { metadata?: Record<string, string> | null; customer_email?: string | null }
+) {
+  let onboardingData: Record<string, unknown> = {};
+  if (sessionKey) {
+    try {
+      const sessions = await supabaseQuery(
+        'onboarding_sessions',
+        'GET',
+        undefined,
+        `session_key=eq.${sessionKey}&select=*`
+      );
+      if (sessions && sessions.length > 0) {
+        onboardingData = sessions[0];
+      }
+    } catch {
+      // Continue with defaults
+    }
+  }
+
+  const email = (onboardingData.email as string) || stripeSession.customer_email || '';
+  const proSlug = stripeSession.metadata?.pro_slug || (onboardingData.pro_slug as string) || '';
+  const planSlug = stripeSession.metadata?.plan_slug || (onboardingData.plan_slug as string) || 'pro';
+
+  provisionVM({
+    customer_id: customerId,
+    pro_slug: proSlug,
+    business_name: (onboardingData.business_name as string) || email.split('@')[0],
+    owner_name: (onboardingData.owner_name as string) || '',
+    email,
+    location: (onboardingData.location as string) || '',
+    plan_slug: planSlug,
+    onboarding_answers: (onboardingData.onboarding_answers as Record<string, unknown>) || {},
+  }).catch((err) => {
+    console.error(`[ONBOARDING_COMPLETE] Backup provisioning error for ${customerId}:`, err);
+  });
 }

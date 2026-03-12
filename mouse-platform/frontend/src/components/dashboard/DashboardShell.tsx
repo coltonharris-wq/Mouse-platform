@@ -1,150 +1,266 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  MessageSquare, Package, ShoppingCart, Calendar, Truck,
-  UserPlus, FileText, Briefcase, Users, Heart, Bell,
-  Shield, History, Clock, Settings, Menu, X, ChevronRight
+  MessageSquare, History, Clock, Settings, Menu, X,
+  Phone, Plus, Trash2
 } from 'lucide-react';
+import KingMouseAvatar from '@/components/KingMouseAvatar';
+import type { KingMouseStatus } from '@/types/kingmouse-status';
 
-interface Module {
-  slug: string;
-  name: string;
-  icon: string;
-  route: string;
+interface Conversation {
+  id: string;
+  title: string;
+  last_message_at: string | null;
+  created_at: string;
 }
-
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  MessageSquare, Package, ShoppingCart, Calendar, Truck,
-  UserPlus, FileText, Briefcase, Users, Heart, Bell,
-  Shield, History, Clock, Settings,
-};
 
 interface DashboardShellProps {
   children: React.ReactNode;
 }
 
+function groupByDate(conversations: Conversation[]) {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 86400000);
+  const weekAgo = new Date(today.getTime() - 7 * 86400000);
+
+  const groups: { label: string; items: Conversation[] }[] = [
+    { label: 'Today', items: [] },
+    { label: 'Yesterday', items: [] },
+    { label: 'Previous 7 Days', items: [] },
+    { label: 'Older', items: [] },
+  ];
+
+  for (const c of conversations) {
+    const d = new Date(c.last_message_at || c.created_at);
+    if (d >= today) groups[0].items.push(c);
+    else if (d >= yesterday) groups[1].items.push(c);
+    else if (d >= weekAgo) groups[2].items.push(c);
+    else groups[3].items.push(c);
+  }
+
+  return groups.filter((g) => g.items.length > 0);
+}
+
+const NAV_ITEMS = [
+  { slug: 'receptionist', name: 'AI Receptionist', icon: Phone, route: '/dashboard/receptionist' },
+  { slug: 'activity', name: 'Activity Log', icon: History, route: '/dashboard/activity' },
+  { slug: 'billing', name: 'Billing & Hours', icon: Clock, route: '/dashboard/billing' },
+  { slug: 'settings', name: 'Settings', icon: Settings, route: '/dashboard/settings' },
+];
+
 export default function DashboardShell({ children }: DashboardShellProps) {
   const pathname = usePathname();
-  const [modules, setModules] = useState<Module[]>([]);
-  const [proName, setProName] = useState('');
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [proName, setProName] = useState('');
+  const [kmStatus, setKmStatus] = useState<KingMouseStatus>('idle');
+  const statusInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const customerId = typeof window !== 'undefined'
+    ? sessionStorage.getItem('customer_id') || 'demo'
+    : 'demo';
+
+  const loadConversations = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/conversations?customer_id=${customerId}`);
+      const data = await res.json();
+      setConversations(data.conversations || []);
+    } catch {
+      // Ignore
+    }
+  }, [customerId]);
+
+  const fetchStatus = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/kingmouse/status?customer_id=${customerId}`);
+      const data = await res.json();
+      if (data.status) setKmStatus(data.status as KingMouseStatus);
+    } catch { /* ignore */ }
+  }, [customerId]);
 
   useEffect(() => {
-    // For now, use a placeholder customer_id — will be replaced with auth
-    const customerId = typeof window !== 'undefined'
-      ? sessionStorage.getItem('customer_id') || 'demo'
-      : 'demo';
+    loadConversations();
+    fetchStatus();
 
+    // Load pro name
     fetch(`/api/dashboard/modules?customer_id=${customerId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.modules) {
-          setModules(data.modules);
-          setProName(data.pro_name || '');
-        }
-      })
-      .catch(() => {
-        // Fallback modules for demo
-        setModules([
-          { slug: 'chat', name: 'Chat with KingMouse', icon: 'MessageSquare', route: '/dashboard/chat' },
-          { slug: 'activity_log', name: 'Activity Log', icon: 'History', route: '/dashboard/activity' },
-          { slug: 'billing', name: 'Billing & Hours', icon: 'Clock', route: '/dashboard/billing' },
-        ]);
-      });
-  }, []);
+      .then((r) => r.json())
+      .then((d) => setProName(d.pro_name || ''))
+      .catch(() => {});
 
-  const renderIcon = (iconName: string, className: string) => {
-    const Icon = ICON_MAP[iconName];
-    return Icon ? <Icon className={className} /> : <ChevronRight className={className} />;
+    // Poll KingMouse status every 10 seconds
+    statusInterval.current = setInterval(fetchStatus, 10000);
+    return () => { if (statusInterval.current) clearInterval(statusInterval.current); };
+  }, [customerId, loadConversations, fetchStatus]);
+
+  // Expose conversation functions globally for child components
+  useEffect(() => {
+    (window as unknown as Record<string, unknown>).__km_loadConversations = loadConversations;
+    (window as unknown as Record<string, unknown>).__km_setActiveConversation = setActiveConversationId;
+    (window as unknown as Record<string, unknown>).__km_activeConversationId = activeConversationId;
+    (window as unknown as Record<string, unknown>).__km_setStatus = setKmStatus;
+    (window as unknown as Record<string, unknown>).__km_refreshStatus = fetchStatus;
+  }, [loadConversations, activeConversationId]);
+
+  const handleNewChat = async () => {
+    try {
+      const res = await fetch('/api/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer_id: customerId }),
+      });
+      const data = await res.json();
+      if (data.id) {
+        setActiveConversationId(data.id);
+        await loadConversations();
+        setSidebarOpen(false);
+        // Navigate to dashboard (chat) if on a sub-page
+        if (pathname !== '/dashboard') {
+          window.location.href = '/dashboard';
+        }
+      }
+    } catch {
+      // Ignore
+    }
   };
 
-  const settingsModule = { slug: 'settings', name: 'Settings', icon: 'Settings', route: '/dashboard/settings' };
+  const handleDeleteConversation = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await fetch(`/api/conversations/${id}`, { method: 'DELETE' });
+      if (activeConversationId === id) setActiveConversationId(null);
+      await loadConversations();
+    } catch {
+      // Ignore
+    }
+  };
+
+  const groups = groupByDate(conversations);
+  const isChat = pathname === '/dashboard';
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Mobile sidebar overlay */}
+    <div className="h-screen flex overflow-hidden">
+      {/* Mobile overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform lg:translate-x-0 ${
+      <aside className={`fixed md:static inset-y-0 left-0 z-50 w-[280px] bg-gray-900 text-gray-300 flex flex-col transform transition-transform md:translate-x-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="p-6 border-b border-gray-100">
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <span className="text-2xl">🐭</span>
-              <span className="text-xl font-bold text-gray-900">KingMouse</span>
-            </Link>
-            {proName && (
-              <div className="mt-2 flex items-center gap-2">
-                <span className="text-xs px-2 py-0.5 bg-teal-100 text-teal-700 rounded-full font-medium">
-                  {proName}
-                </span>
-                <span className="w-2 h-2 bg-green-500 rounded-full" title="Active" />
-              </div>
-            )}
-          </div>
+        {/* Header */}
+        <div className="p-4 flex items-center justify-between">
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <KingMouseAvatar status={kmStatus} size="sm" />
+            <span className="text-lg font-bold text-white">KingMouse</span>
+          </Link>
+          <button onClick={() => setSidebarOpen(false)} className="md:hidden p-1">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-            {modules.map((mod) => {
-              const isActive = pathname === mod.route || pathname.startsWith(mod.route + '/');
-              return (
-                <Link
-                  key={mod.slug}
-                  href={mod.route}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-teal-50 text-teal-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+        {proName && (
+          <div className="px-4 pb-3">
+            <span className="text-xs px-2 py-0.5 bg-teal-900/50 text-teal-400 rounded-full font-medium">
+              {proName}
+            </span>
+          </div>
+        )}
+
+        {/* New Chat button */}
+        <div className="px-3 pb-2">
+          <button
+            onClick={handleNewChat}
+            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium bg-gray-800 hover:bg-gray-700 text-gray-200 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            New Chat
+          </button>
+        </div>
+
+        {/* Conversation list */}
+        <div className="flex-1 overflow-y-auto px-3 space-y-4">
+          {groups.map((group) => (
+            <div key={group.label}>
+              <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider px-2 mb-1">
+                {group.label}
+              </p>
+              {group.items.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => {
+                    setActiveConversationId(c.id);
+                    setSidebarOpen(false);
+                    if (pathname !== '/dashboard') window.location.href = '/dashboard';
+                  }}
+                  className={`group w-full text-left flex items-center gap-2 px-2 py-2 rounded-lg text-sm transition-colors ${
+                    activeConversationId === c.id
+                      ? 'bg-gray-700 text-white'
+                      : 'hover:bg-gray-800 text-gray-400'
                   }`}
                 >
-                  {renderIcon(mod.icon, `w-5 h-5 ${isActive ? 'text-teal-600' : 'text-gray-400'}`)}
-                  {mod.name}
-                </Link>
-              );
-            })}
-          </nav>
+                  <MessageSquare className="w-4 h-4 shrink-0 opacity-50" />
+                  <span className="truncate flex-1">{c.title}</span>
+                  <button
+                    onClick={(e) => handleDeleteConversation(c.id, e)}
+                    className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 transition-opacity"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </button>
+              ))}
+            </div>
+          ))}
 
-          {/* Bottom nav */}
-          <div className="p-4 border-t border-gray-100 space-y-1">
-            <Link
-              href={settingsModule.route}
-              onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                pathname === settingsModule.route
-                  ? 'bg-teal-50 text-teal-700'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}
-            >
-              <Settings className={`w-5 h-5 ${pathname === settingsModule.route ? 'text-teal-600' : 'text-gray-400'}`} />
-              Settings
-            </Link>
-          </div>
+          {conversations.length === 0 && (
+            <p className="text-xs text-gray-600 px-2 mt-4">No conversations yet. Click New Chat to start.</p>
+          )}
+        </div>
+
+        {/* Bottom nav */}
+        <div className="border-t border-gray-800 p-3 space-y-0.5">
+          {NAV_ITEMS.map((item) => {
+            const isActive = pathname === item.route || pathname.startsWith(item.route + '/');
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.slug}
+                href={item.route}
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-gray-700 text-white'
+                    : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {item.name}
+              </Link>
+            );
+          })}
         </div>
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 bg-white">
         {/* Mobile header */}
-        <header className="lg:hidden sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <header className="md:hidden sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
           <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2">
             <Menu className="w-6 h-6 text-gray-600" />
           </button>
           <span className="font-bold text-gray-900 flex items-center gap-2">
-            🐭 KingMouse
+            <KingMouseAvatar status={kmStatus} size="sm" /> KingMouse
           </span>
           <div className="w-10" />
         </header>
 
-        <main className="flex-1 p-6 lg:p-8">
+        <main className={`flex-1 ${isChat ? '' : 'p-6 lg:p-8 overflow-y-auto'}`}>
           {children}
         </main>
       </div>

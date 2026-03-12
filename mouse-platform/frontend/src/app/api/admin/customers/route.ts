@@ -6,6 +6,56 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseQuery } from '@/lib/supabase-server';
 
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { customer_id, ...updates } = body;
+
+    if (!customer_id) {
+      return NextResponse.json({ error: 'customer_id required' }, { status: 400 });
+    }
+
+    // Attribution lock: prevent reseller_id changes without admin_override
+    if (updates.reseller_id !== undefined) {
+      const existing = await supabaseQuery(
+        'customers', 'GET', undefined,
+        `id=eq.${customer_id}&select=id,reseller_id`
+      );
+      const customer = existing?.[0];
+
+      if (customer?.reseller_id && updates.reseller_id !== customer.reseller_id) {
+        if (!body.admin_override || !body.reason) {
+          return NextResponse.json(
+            { error: 'Cannot change reseller attribution. Use admin_override with reason.' },
+            { status: 403 }
+          );
+        }
+
+        // Log the override
+        await supabaseQuery('attribution_log', 'POST', {
+          customer_id,
+          old_reseller_id: customer.reseller_id,
+          new_reseller_id: updates.reseller_id,
+          changed_by: 'admin',
+          reason: body.reason,
+        });
+      }
+    }
+
+    // Remove non-column fields before patching
+    delete updates.admin_override;
+    delete updates.reason;
+
+    await supabaseQuery('customers', 'PATCH', updates, `id=eq.${customer_id}`);
+
+    return NextResponse.json({ success: true });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Internal server error';
+    console.error('[ADMIN_CUSTOMERS_PATCH]', message);
+    return NextResponse.json({ error: 'Failed to update customer' }, { status: 500 });
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     // TODO: Add platform_owner auth check (Phase 9, Task 46)

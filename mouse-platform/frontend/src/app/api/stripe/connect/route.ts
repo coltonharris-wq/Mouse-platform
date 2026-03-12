@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
 import { supabaseQuery } from '@/lib/supabase-server';
+import { getCustomerUrl } from '@/lib/urls';
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,11 +49,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Create account onboarding link
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mouse-platform-demo.vercel.app';
     const accountLink = await getStripe().accountLinks.create({
       account: accountId,
-      refresh_url: `${siteUrl}/admin/resellers?refresh=true`,
-      return_url: `${siteUrl}/admin/resellers?connected=true`,
+      refresh_url: getCustomerUrl('/admin/resellers?refresh=true'),
+      return_url: getCustomerUrl('/admin/resellers?connected=true'),
       type: 'account_onboarding',
     });
 

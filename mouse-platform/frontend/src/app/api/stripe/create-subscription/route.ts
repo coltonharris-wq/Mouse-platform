@@ -6,10 +6,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
 import { supabaseQuery } from '@/lib/supabase-server';
+import { getCustomerUrl } from '@/lib/urls';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, plan_slug, pro_slug, success_url, cancel_url } = await request.json();
+    const { email, plan_slug, pro_slug, session_key, promo_code, reseller_brand_slug, success_url, cancel_url } = await request.json();
 
     if (!email || !plan_slug || !pro_slug) {
       return NextResponse.json(
@@ -57,29 +58,53 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const defaultSuccessUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://mouse-platform-demo.vercel.app'}/onboarding/success?session_id={CHECKOUT_SESSION_ID}`;
-    const defaultCancelUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://mouse-platform-demo.vercel.app'}/onboarding/cancel`;
+    const defaultSuccessUrl = getCustomerUrl('/onboarding/success?session_id={CHECKOUT_SESSION_ID}');
+    const defaultCancelUrl = getCustomerUrl('/onboarding/cancel');
+
+    // If a promo code was passed, look up the Stripe promotion code ID
+    let discounts: { promotion_code: string }[] | undefined;
+    if (promo_code) {
+      const promos = await getStripe().promotionCodes.list({
+        code: promo_code,
+        active: true,
+        limit: 1,
+      });
+      if (promos.data.length > 0) {
+        discounts = [{ promotion_code: promos.data[0].id }];
+      }
+    }
 
     // Create Stripe Checkout session in subscription mode
     const session = await getStripe().checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
       customer_email: email,
+      payment_method_collection: 'always',
       line_items: [
         {
           price: priceId,
           quantity: 1,
         },
       ],
+      ...(discounts
+        ? { discounts }
+        : { allow_promotion_codes: true }),
       metadata: {
         pro_slug,
         plan_slug,
+        ...(session_key ? { session_key } : {}),
+        ...(reseller_brand_slug ? { reseller_brand_slug } : {}),
       },
       subscription_data: {
         metadata: {
           pro_slug,
           plan_slug,
+          ...(session_key ? { session_key } : {}),
+          ...(reseller_brand_slug ? { reseller_brand_slug } : {}),
         },
+      },
+      custom_text: {
+        submit: { message: 'Your AI employee will be ready in ~2 minutes after payment.' },
       },
       success_url: success_url || defaultSuccessUrl,
       cancel_url: cancel_url || defaultCancelUrl,

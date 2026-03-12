@@ -12,8 +12,8 @@ export default function PricingPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            AI Employees at $4.98/hr
+          <h1 className="text-4xl font-bold text-[#0B1F3B] mb-4">
+            AI Employees Starting at $3.98/hr
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Subscription plans with included hours. Your KingMouse AI employee works around the clock for a fraction of human cost.
@@ -30,7 +30,7 @@ export default function PricingPage() {
             <div className="text-gray-500 text-2xl">vs</div>
             <div>
               <p className="text-teal-400 text-sm">KingMouse AI</p>
-              <p className="text-2xl font-bold text-teal-400">$4.98/hr</p>
+              <p className="text-2xl font-bold text-teal-400">$3.98-4.98/hr</p>
             </div>
           </div>
         </div>
@@ -136,7 +136,7 @@ export default function PricingPage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">FAQ</h2>
           <div className="space-y-6">
             {[
-              { q: 'What happens if I go over my hours?', a: 'You\'re billed at $4.98 per additional hour. No surprise charges — you can set alerts.' },
+              { q: 'What happens if I go over my hours?', a: 'You\'re billed at your plan\'s overage rate ($4.98/hr Pro, $4.48/hr Growth, $3.98/hr Enterprise). No surprise charges — you can set alerts.' },
               { q: 'Can I change plans?', a: 'Yes, upgrade or downgrade anytime. Changes take effect at the next billing cycle.' },
               { q: 'What does the AI employee actually do?', a: 'It handles scheduling, inventory, customer communication, ordering, and admin tasks specific to your industry. It works autonomously and only asks you for approval on big decisions.' },
               { q: 'Is my data secure?', a: 'Each customer gets their own sandboxed VM. Your data never touches other customers\' environments.' },

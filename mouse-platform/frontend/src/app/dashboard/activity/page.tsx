@@ -5,7 +5,7 @@ import { History, MessageSquare, Zap, Bell, Filter } from 'lucide-react';
 
 interface ActivityItem {
   id: string;
-  type: 'chat' | 'task' | 'automation' | 'notification';
+  type: 'chat' | 'task' | 'call' | 'notification';
   description: string;
   timestamp: string;
 }
@@ -13,7 +13,7 @@ interface ActivityItem {
 const TYPE_CONFIG = {
   chat: { icon: MessageSquare, color: 'bg-blue-100 text-blue-600', label: 'Chat' },
   task: { icon: Zap, color: 'bg-teal-100 text-teal-600', label: 'Task' },
-  automation: { icon: History, color: 'bg-purple-100 text-purple-600', label: 'Automation' },
+  call: { icon: History, color: 'bg-purple-100 text-purple-600', label: 'Call' },
   notification: { icon: Bell, color: 'bg-yellow-100 text-yellow-600', label: 'Notification' },
 };
 
@@ -25,7 +25,6 @@ export default function ActivityPage() {
   useEffect(() => {
     const customerId = sessionStorage.getItem('customer_id') || 'demo';
 
-    // Fetch from chat_logs and work_sessions
     Promise.all([
       fetch(`/api/vm/telemetry?customer_id=${customerId}&limit=50`).then((r) => r.json()).catch(() => ({ sessions: [] })),
     ]).then(([telemetry]) => {
@@ -53,18 +52,18 @@ export default function ActivityPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Activity Log</h1>
+        <h1 className="text-2xl font-bold text-[#0B1F3B]">Activity Log</h1>
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-gray-400" />
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5"
+            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white"
           >
             <option value="all">All</option>
             <option value="chat">Chat</option>
             <option value="task">Tasks</option>
-            <option value="automation">Automations</option>
+            <option value="call">Calls</option>
             <option value="notification">Notifications</option>
           </select>
         </div>
