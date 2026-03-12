@@ -1,12 +1,38 @@
 /**
- * POST /api/vm/chat
- * Send a message to the customer's KingMouse VM
+ * POST /api/vm/chat — Send a message to the customer's KingMouse VM
+ * GET  /api/vm/chat?customer_id=xxx — Load chat history from chat_logs
  * NO cloud fallback — the VM IS the product
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseQuery } from '@/lib/supabase-server';
 import { bashExec } from '@/lib/orgo';
+
+export async function GET(request: NextRequest) {
+  const customerId = request.nextUrl.searchParams.get('customer_id');
+  if (!customerId) {
+    return NextResponse.json({ error: 'customer_id required' }, { status: 400 });
+  }
+
+  try {
+    const logs = await supabaseQuery(
+      'chat_logs',
+      'GET',
+      undefined,
+      `customer_id=eq.${customerId}&order=timestamp.desc&limit=50`
+    );
+
+    // Reverse to chronological order and flatten into user/assistant pairs
+    const messages = (logs || []).reverse().flatMap((log: { message: string; response: string; timestamp: string; action_taken?: string }) => [
+      { role: 'user', content: log.message, timestamp: log.timestamp },
+      { role: 'assistant', content: log.response, timestamp: log.timestamp, actions_taken: log.action_taken ? JSON.parse(log.action_taken) : [] },
+    ]);
+
+    return NextResponse.json({ messages });
+  } catch {
+    return NextResponse.json({ messages: [] });
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,11 +77,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send message to VM via OpenClaw WebSocket/CLI
-    const escapedMessage = message.replace(/'/g, "'\\''");
+    // Send message to VM via OpenClaw CLI on the VM
+    const escapedMessage = message.replace(/'/g, "'\\''").replace(/\\/g, '\\\\').replace(/\n/g, '\\n');
     const result = await bashExec(
       customer.vm_computer_id,
-      `cd /opt/openclaw && echo '${escapedMessage}' | node cli.js chat 2>/dev/null || echo '{"error":"Agent unavailable"}'`
+      `cd /opt/kingmouse/workspace && timeout 30 openclaw chat -m '${escapedMessage}' --json 2>/dev/null || echo '${escapedMessage}' | openclaw chat --json 2>/dev/null || echo '{"response":"I am having trouble right now. Please try again in a moment.","error":true}'`,
+      35
     );
 
     if (!result.success || !result.data) {
@@ -70,25 +97,33 @@ export async function POST(request: NextRequest) {
 
     try {
       const parsed = JSON.parse(result.data.output);
-      response = parsed.response || parsed.message || result.data.output;
-      actionsTaken = parsed.actions_taken || [];
+      if (parsed.error === true) {
+        response = parsed.response || 'I am having trouble right now. Please try again.';
+      } else {
+        response = parsed.response || parsed.message || result.data.output;
+        actionsTaken = parsed.actions_taken || [];
+      }
     } catch {
       response = result.data.output;
     }
 
-    // Log chat
-    await supabaseQuery('chat_logs', 'POST', {
-      customer_id,
-      message,
-      response,
-      action_taken: actionsTaken.length > 0 ? JSON.stringify(actionsTaken) : null,
-      timestamp: new Date().toISOString(),
-    });
+    // Log chat to chat_logs
+    try {
+      await supabaseQuery('chat_logs', 'POST', {
+        customer_id,
+        message,
+        response,
+        action_taken: actionsTaken.length > 0 ? JSON.stringify(actionsTaken) : null,
+        timestamp: new Date().toISOString(),
+      });
+    } catch {
+      // Non-fatal — chat still works even if logging fails
+    }
 
     return NextResponse.json({ response, actions_taken: actionsTaken });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Internal server error';
-    console.error('[VM_CHAT]', message);
+    const errMsg = err instanceof Error ? err.message : 'Internal server error';
+    console.error('[VM_CHAT]', errMsg);
     return NextResponse.json(
       { error: 'Failed to process chat message' },
       { status: 500 }

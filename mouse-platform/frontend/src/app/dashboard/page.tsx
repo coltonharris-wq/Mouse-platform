@@ -1,14 +1,13 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { Send, BarChart3, X } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { Send, BarChart3, X, Wifi, WifiOff } from 'lucide-react';
 import DailyWins from '@/components/dashboard/DailyWins';
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
-  metadata?: Record<string, unknown>;
   created_at: string;
 }
 
@@ -16,12 +15,9 @@ export default function DashboardChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
-  const [conversationId, setConversationId] = useState<string | null>(null);
-  const [loadingOlder, setLoadingOlder] = useState(false);
-  const [hasOlder, setHasOlder] = useState(true);
   const [initialized, setInitialized] = useState(false);
+  const [vmStatus, setVmStatus] = useState<'checking' | 'running' | 'provisioning' | 'offline'>('checking');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesTopRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -29,42 +25,40 @@ export default function DashboardChatPage() {
     ? sessionStorage.getItem('customer_id') || 'demo'
     : 'demo';
 
-  // Load or create the single conversation on mount
+  // Check VM status + load chat history on mount
   useEffect(() => {
     (async () => {
+      // Check VM status
       try {
-        // Get existing conversations
-        const res = await fetch(`/api/conversations?customer_id=${customerId}`);
-        const data = await res.json();
-        const convos = data.conversations || [];
-
-        let convId: string;
-        if (convos.length > 0) {
-          // Use the first (most recent) conversation
-          convId = convos[0].id;
+        const statusRes = await fetch(`/api/vm/status?customer_id=${customerId}`);
+        const statusData = await statusRes.json();
+        if (statusData.status === 'running') {
+          setVmStatus('running');
+        } else if (statusData.status === 'provisioning') {
+          setVmStatus('provisioning');
         } else {
-          // Create one
-          const createRes = await fetch('/api/conversations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ customer_id: customerId }),
-          });
-          const createData = await createRes.json();
-          convId = createData.id;
+          setVmStatus('offline');
         }
-
-        setConversationId(convId);
-
-        // Load latest messages
-        const msgRes = await fetch(`/api/conversations/${convId}/messages?limit=50`);
-        const msgData = await msgRes.json();
-        const msgs = msgData.messages || [];
-        setMessages(msgs);
-        setHasOlder(msgs.length >= 50);
-        setInitialized(true);
       } catch {
-        setInitialized(true);
+        setVmStatus('offline');
       }
+
+      // Load chat history from vm/chat endpoint
+      try {
+        const histRes = await fetch(`/api/vm/chat?customer_id=${customerId}`);
+        const histData = await histRes.json();
+        const msgs: Message[] = (histData.messages || []).map((m: { role: string; content: string; timestamp: string }, i: number) => ({
+          id: `hist-${i}`,
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+          created_at: m.timestamp || new Date().toISOString(),
+        }));
+        setMessages(msgs);
+      } catch {
+        // No history — that's fine
+      }
+
+      setInitialized(true);
     })();
   }, [customerId]);
 
@@ -74,44 +68,6 @@ export default function DashboardChatPage() {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, initialized]);
-
-  // Scroll-up pagination: load older messages
-  const loadOlderMessages = useCallback(async () => {
-    if (!conversationId || loadingOlder || !hasOlder || messages.length === 0) return;
-    setLoadingOlder(true);
-
-    const oldestId = messages[0]?.id;
-    try {
-      const res = await fetch(`/api/conversations/${conversationId}/messages?limit=50&before=${oldestId}`);
-      const data = await res.json();
-      const older = data.messages || [];
-
-      if (older.length === 0) {
-        setHasOlder(false);
-      } else {
-        setMessages((prev) => [...older, ...prev]);
-        setHasOlder(older.length >= 50);
-      }
-    } catch {
-      // Ignore
-    }
-    setLoadingOlder(false);
-  }, [conversationId, loadingOlder, hasOlder, messages]);
-
-  // Intersection observer for scroll-up pagination
-  useEffect(() => {
-    if (!messagesTopRef.current || !initialized) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasOlder && !loadingOlder) {
-          loadOlderMessages();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(messagesTopRef.current);
-    return () => observer.disconnect();
-  }, [initialized, hasOlder, loadingOlder, loadOlderMessages]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
@@ -128,25 +84,6 @@ export default function DashboardChatPage() {
     setInput('');
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
     setSending(true);
-
-    let convId = conversationId;
-
-    // Create conversation if somehow none exists
-    if (!convId) {
-      try {
-        const res = await fetch('/api/conversations', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ customer_id: customerId }),
-        });
-        const data = await res.json();
-        convId = data.id;
-        setConversationId(convId);
-      } catch {
-        setSending(false);
-        return;
-      }
-    }
 
     // Optimistic user message
     const tempUserMsg: Message = {
@@ -167,24 +104,70 @@ export default function DashboardChatPage() {
     setMessages((prev) => [...prev, typingMsg]);
 
     try {
-      const res = await fetch(`/api/conversations/${convId}/messages`, {
+      const res = await fetch('/api/vm/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customer_id: customerId, content: messageText }),
+        body: JSON.stringify({
+          customer_id: customerId,
+          message: messageText,
+        }),
       });
+
       const data = await res.json();
+
+      if (!res.ok) {
+        // Remove typing indicator
+        setMessages((prev) => prev.filter((m) => m.id !== 'typing'));
+
+        if (res.status === 503) {
+          setVmStatus('offline');
+          setMessages((prev) => [...prev, {
+            id: `sys-${Date.now()}`,
+            role: 'system',
+            content: 'King Mouse is currently offline. Please check the Help page or wait a moment and try again.',
+            created_at: new Date().toISOString(),
+          }]);
+        } else {
+          setMessages((prev) => [...prev, {
+            id: `sys-${Date.now()}`,
+            role: 'system',
+            content: data.error || 'Something went wrong. Please try again.',
+            created_at: new Date().toISOString(),
+          }]);
+        }
+        return;
+      }
+
+      // Replace typing indicator with response
+      const assistantMsg: Message = {
+        id: `resp-${Date.now()}`,
+        role: 'assistant',
+        content: data.response,
+        created_at: new Date().toISOString(),
+      };
 
       setMessages((prev) => {
         const filtered = prev.filter((m) => m.id !== 'typing');
-        const withoutTemp = filtered.filter((m) => m.id !== tempUserMsg.id);
-        const newMessages = [...withoutTemp];
-        if (data.user_message) newMessages.push(data.user_message);
-        else newMessages.push(tempUserMsg);
-        if (data.assistant_message) newMessages.push(data.assistant_message);
-        return newMessages;
+        return [...filtered, assistantMsg];
       });
+
+      // Show actions taken if any
+      if (data.actions_taken && data.actions_taken.length > 0) {
+        setMessages((prev) => [...prev, {
+          id: `actions-${Date.now()}`,
+          role: 'system',
+          content: `Actions taken: ${data.actions_taken.join(', ')}`,
+          created_at: new Date().toISOString(),
+        }]);
+      }
     } catch {
       setMessages((prev) => prev.filter((m) => m.id !== 'typing'));
+      setMessages((prev) => [...prev, {
+        id: `err-${Date.now()}`,
+        role: 'system',
+        content: 'Something went wrong. Please try again.',
+        created_at: new Date().toISOString(),
+      }]);
     } finally {
       setSending(false);
     }
@@ -249,7 +232,7 @@ export default function DashboardChatPage() {
     }
   };
 
-  const hasMessages = messages.length > 0 && conversationId;
+  const hasMessages = messages.length > 0;
 
   const FALLBACK_SUGGESTIONS = [
     { emoji: '\u{1F4E6}', text: 'Check my inventory levels', message: 'Check my inventory levels and flag anything running low' },
@@ -262,8 +245,49 @@ export default function DashboardChatPage() {
     ? suggestions.slice(0, 4).map((s) => ({ ...s, display: `${s.emoji} ${s.text}` }))
     : FALLBACK_SUGGESTIONS.map((s) => ({ ...s, display: `${s.emoji} ${s.text}` }));
 
+  // VM status indicator
+  const vmStatusLabel = vmStatus === 'running' ? 'King Mouse is online'
+    : vmStatus === 'provisioning' ? 'King Mouse is starting up...'
+    : vmStatus === 'checking' ? 'Checking status...'
+    : 'King Mouse is offline';
+
+  const vmStatusColor = vmStatus === 'running' ? 'text-green-600'
+    : vmStatus === 'provisioning' ? 'text-yellow-600'
+    : vmStatus === 'checking' ? 'text-gray-400'
+    : 'text-red-500';
+
+  const vmStatusDot = vmStatus === 'running' ? 'bg-green-500'
+    : vmStatus === 'provisioning' ? 'bg-yellow-500'
+    : vmStatus === 'checking' ? 'bg-gray-400'
+    : 'bg-red-500';
+
   return (
     <div className="flex flex-col h-full">
+      {/* VM Status Indicator */}
+      <div className="border-b border-gray-100 px-4 py-2 flex items-center justify-between bg-white">
+        <div className="flex items-center gap-2">
+          <div className={`w-2.5 h-2.5 rounded-full ${vmStatusDot} ${vmStatus === 'provisioning' ? 'animate-pulse' : ''}`} />
+          <span className={`text-sm font-medium ${vmStatusColor}`}>{vmStatusLabel}</span>
+        </div>
+        {vmStatus === 'offline' && (
+          <button
+            onClick={() => {
+              setVmStatus('checking');
+              fetch(`/api/vm/status?customer_id=${customerId}`)
+                .then(r => r.json())
+                .then(data => {
+                  setVmStatus(data.status === 'running' ? 'running' : data.status === 'provisioning' ? 'provisioning' : 'offline');
+                })
+                .catch(() => setVmStatus('offline'));
+            }}
+            className="text-sm text-[#0F6B6E] font-medium hover:underline flex items-center gap-1"
+          >
+            {vmStatus === 'offline' ? <WifiOff className="w-3.5 h-3.5" /> : <Wifi className="w-3.5 h-3.5" />}
+            Retry
+          </button>
+        )}
+      </div>
+
       {/* Messages area */}
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
         {!hasMessages ? (
@@ -299,14 +323,6 @@ export default function DashboardChatPage() {
         ) : (
           // Messages — max-width 768px centered
           <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
-            {/* Scroll-up pagination trigger */}
-            <div ref={messagesTopRef} className="h-1" />
-            {loadingOlder && (
-              <div className="flex justify-center py-4">
-                <div className="w-6 h-6 border-2 border-[#0F6B6E] border-t-transparent rounded-full animate-spin" />
-              </div>
-            )}
-
             {messages.map((msg) => (
               <div key={msg.id} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {msg.role === 'assistant' && (
@@ -314,9 +330,16 @@ export default function DashboardChatPage() {
                     <span className="text-lg">{'\u{1F42D}'}</span>
                   </div>
                 )}
+                {msg.role === 'system' && (
+                  <div className="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center shrink-0 mt-1">
+                    <span className="text-lg">{'\u{26A0}'}</span>
+                  </div>
+                )}
                 <div className={`max-w-[80%] rounded-2xl px-5 py-4 ${
                   msg.role === 'user'
                     ? 'bg-[#0F6B6E] text-white'
+                    : msg.role === 'system'
+                    ? 'bg-yellow-50 text-yellow-800 border border-yellow-200'
                     : 'bg-gray-100 text-gray-900'
                 }`}>
                   {msg.id === 'typing' ? (

@@ -202,15 +202,44 @@ export async function provisionVM(params: ProvisionParams): Promise<ProvisionRes
     vm_status: 'provisioning',
   }, `id=eq.${customer_id}`);
 
-  // Build SOUL.md
-  const soulMd = buildSoulMd({
-    businessName: business_name,
-    ownerName: owner_name,
-    location: location || 'Not specified',
-    proSlug: pro_slug,
-    proName: profile.name,
-    onboardingAnswers: onboarding_answers,
-  });
+  // Build SOUL.md — try pro_templates first, fall back to generic
+  let soulMd: string;
+  try {
+    const templates = await supabaseQuery(
+      'pro_templates',
+      'GET',
+      undefined,
+      `niche=eq.${encodeURIComponent(pro_slug)}&active=eq.true&select=soul_template,niche,display_name&limit=1`
+    );
+
+    if (templates && templates.length > 0 && templates[0].soul_template) {
+      // Use template SOUL.md with variable substitution
+      soulMd = templates[0].soul_template
+        .replace(/\{\{business_name\}\}/g, business_name)
+        .replace(/\{\{owner_name\}\}/g, owner_name)
+        .replace(/\{\{location\}\}/g, location || 'Not specified')
+        .replace(/\{\{business_hours\}\}/g, (onboarding_answers.business_hours as string) || 'Not specified')
+        .replace(/\{\{phone\}\}/g, (onboarding_answers.phone as string) || email);
+    } else {
+      soulMd = buildSoulMd({
+        businessName: business_name,
+        ownerName: owner_name,
+        location: location || 'Not specified',
+        proSlug: pro_slug,
+        proName: profile.name,
+        onboardingAnswers: onboarding_answers,
+      });
+    }
+  } catch {
+    soulMd = buildSoulMd({
+      businessName: business_name,
+      ownerName: owner_name,
+      location: location || 'Not specified',
+      proSlug: pro_slug,
+      proName: profile.name,
+      onboardingAnswers: onboarding_answers,
+    });
+  }
 
   // Build USER.md
   const userMd = `# USER.md
@@ -236,11 +265,14 @@ export async function provisionVM(params: ProvisionParams): Promise<ProvisionRes
     );
 
     // Write environment config
-    const moonshotKey = process.env.MOONSHOT_API_KEY || '';
+    const kimiKey = process.env.KIMI_API_KEY || process.env.MOONSHOT_API_KEY || '';
+    const kimiBaseUrl = 'https://api.moonshot.ai/v1';
     await bashExec(computerId,
       `cat > /opt/kingmouse/workspace/.env << 'ENVEOF'
 OPENCLAW_MODEL=kimi-k2.5
-MOONSHOT_API_KEY=${moonshotKey}
+KIMI_API_KEY=${kimiKey}
+MOONSHOT_API_KEY=${kimiKey}
+LLM_BASE_URL=${kimiBaseUrl}
 OPENCLAW_SOUL_PATH=/opt/kingmouse/config/soul.md
 OPENCLAW_USER_PATH=/opt/kingmouse/config/user.md
 SUPABASE_URL=${process.env.NEXT_PUBLIC_SUPABASE_URL || ''}
@@ -254,32 +286,68 @@ ENVEOF`
       'cp /opt/kingmouse/config/soul.md /opt/kingmouse/workspace/SOUL.md && cp /opt/kingmouse/config/user.md /opt/kingmouse/workspace/USER.md'
     );
 
-    // Install Node.js
-    const nodeInstall = await bashExec(computerId,
-      'curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs',
-      120
-    );
-    if (!nodeInstall.success) {
-      console.error('[VM_PROVISION] Node.js install failed:', nodeInstall.error);
-      // Non-fatal — continue and try openclaw install anyway
-    }
+    // Install OpenClaw — tarball (fast) or npm (slow)
+    const tarballUrl = process.env.MOUSE_OS_TARBALL_URL;
 
-    // Install OpenClaw
-    const openclawInstall = await bashExec(computerId,
-      'npm install -g openclaw',
-      120
-    );
-    if (!openclawInstall.success) {
-      console.error('[VM_PROVISION] OpenClaw install failed:', openclawInstall.error);
+    if (tarballUrl) {
+      // Fast path: pre-built tarball (~60s provision)
+      const tarInstall = await bashExec(computerId,
+        `cd /opt && curl -fsSL "${tarballUrl}" | tar xz && ln -sf /opt/openclaw/bin/openclaw /usr/local/bin/openclaw`,
+        180
+      );
+      if (!tarInstall.success) {
+        console.error('[VM_PROVISION] Tarball install failed, falling back to npm:', tarInstall.error);
+        // Fall through to npm install
+        await bashExec(computerId,
+          'curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs',
+          120
+        );
+        await bashExec(computerId, 'npm install -g openclaw', 120);
+      }
+    } else {
+      // Slow path: install from npm
+      const nodeInstall = await bashExec(computerId,
+        'curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs',
+        120
+      );
+      if (!nodeInstall.success) {
+        console.error('[VM_PROVISION] Node.js install failed:', nodeInstall.error);
+      }
+
+      const openclawInstall = await bashExec(computerId,
+        'npm install -g openclaw',
+        120
+      );
+      if (!openclawInstall.success) {
+        console.error('[VM_PROVISION] OpenClaw install failed:', openclawInstall.error);
+      }
     }
 
     // Start OpenClaw gateway
-    const gatewayStart = await bashExec(computerId,
+    await bashExec(computerId,
       'cd /opt/kingmouse/workspace && nohup openclaw gateway start > /opt/kingmouse/gateway.log 2>&1 &',
       30
     );
-    if (!gatewayStart.success) {
-      console.error('[VM_PROVISION] Gateway start failed:', gatewayStart.error);
+
+    // Wait 5s then health check
+    await new Promise(r => setTimeout(r, 5000));
+
+    const healthCheck = await bashExec(computerId,
+      'openclaw gateway status 2>/dev/null || echo "NOT_RUNNING"',
+      15
+    );
+
+    if (healthCheck.data?.output?.includes('NOT_RUNNING')) {
+      console.error('[VM_PROVISION] Gateway failed to start, retrying...');
+      const log = await bashExec(computerId, 'tail -20 /opt/kingmouse/gateway.log', 10);
+      console.error('[VM_PROVISION] Gateway log:', log.data?.output);
+
+      // Retry once
+      await bashExec(computerId,
+        'cd /opt/kingmouse/workspace && nohup openclaw gateway start > /opt/kingmouse/gateway.log 2>&1 &',
+        30
+      );
+      await new Promise(r => setTimeout(r, 5000));
     }
 
     // Update status to running

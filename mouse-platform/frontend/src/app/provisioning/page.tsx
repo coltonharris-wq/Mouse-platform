@@ -80,19 +80,29 @@ function ProvisioningContent() {
 
       // If not already provisioning, kick it off
       if (infoData.status !== 'provisioning') {
-        const industry = sessionStorage.getItem('signup_industry') || '';
-        const niche = sessionStorage.getItem('signup_niche') || '';
+        // Fetch full customer data from API
+        let customerData: Record<string, unknown> = {};
+        try {
+          const custRes = await fetch(`/api/customers/${customerId}`);
+          if (custRes.ok) {
+            customerData = await custRes.json();
+          }
+        } catch {
+          // Fall back to sessionStorage below
+        }
 
         await fetch('/api/vm/provision', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             customer_id: customerId,
-            pro_slug: niche || 'general',
-            business_name: sessionStorage.getItem('signup_business_name') || 'My Business',
-            owner_name: '',
-            industry,
-            niche,
+            pro_slug: (customerData.niche as string) || sessionStorage.getItem('signup_niche') || 'general',
+            business_name: (customerData.company_name as string) || sessionStorage.getItem('signup_business_name') || 'My Business',
+            owner_name: (customerData.owner_name as string) || '',
+            email: (customerData.email as string) || '',
+            location: (customerData.location as string) || '',
+            plan_slug: (customerData.plan as string) || (customerData.subscription_plan as string) || 'pro',
+            onboarding_answers: customerData.onboarding_answers || {},
           }),
         });
       }

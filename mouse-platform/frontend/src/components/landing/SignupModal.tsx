@@ -68,6 +68,7 @@ export default function SignupModal({
       }
       sessionStorage.setItem('signup_industry', industry);
       sessionStorage.setItem('signup_niche', niche);
+      sessionStorage.setItem('signup_business_name', businessName || '');
 
       // Redirect to provisioning
       window.location.href = `/provisioning?customer_id=${data.customer_id}`;
