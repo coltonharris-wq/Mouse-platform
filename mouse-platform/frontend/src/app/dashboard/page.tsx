@@ -3,6 +3,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { Send, BarChart3, X, Wifi, WifiOff } from 'lucide-react';
 import DailyWins from '@/components/dashboard/DailyWins';
+import GettingStarted from '@/components/dashboard/GettingStarted';
+import { WIDGET_REGISTRY, DEFAULT_WIDGET_CONFIGS } from '@/components/dashboard/widgets';
+import type { ProTemplateLight } from '@/types/pro-template';
 
 interface Message {
   id: string;
@@ -24,6 +27,26 @@ export default function DashboardChatPage() {
   const customerId = typeof window !== 'undefined'
     ? sessionStorage.getItem('customer_id') || 'demo'
     : 'demo';
+
+  // Fetch customer's template for vertical-specific widgets
+  const [template, setTemplate] = useState<ProTemplateLight | null>(null);
+  const [businessName, setBusinessName] = useState('');
+
+  useEffect(() => {
+    if (customerId === 'demo') return;
+    fetch(`/api/customers/${customerId}`)
+      .then((r) => r.json())
+      .then((customer) => {
+        if (customer.business_name) setBusinessName(customer.business_name);
+        if (customer.pro_template_id) {
+          return fetch(`/api/templates/${customer.pro_template_id}`);
+        }
+        return null;
+      })
+      .then((r) => r?.json())
+      .then((tmpl) => { if (tmpl && !tmpl.error) setTemplate(tmpl); })
+      .catch(() => {});
+  }, [customerId]);
 
   // Check VM status + load chat history on mount
   useEffect(() => {
@@ -291,33 +314,80 @@ export default function DashboardChatPage() {
       {/* Messages area */}
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
         {!hasMessages ? (
-          // Empty state — input centered like ChatGPT/Claude
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center max-w-lg px-4">
+          // Dashboard home — widgets + chat prompt
+          <div className="overflow-y-auto h-full">
+            <div className="max-w-4xl mx-auto px-4 py-8">
               <DailyWins />
-              <div className="text-7xl mb-6">{'\u{1F42D}'}</div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-3">How can I help you today?</h2>
-              <p className="text-xl text-gray-500 mb-10">
-                I&apos;m KingMouse, your AI operations manager. Tell me what you need and I&apos;ll handle it.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {displaySuggestions.map((s) => (
-                  <button
-                    key={s.text}
-                    onClick={() => setInput(s.message)}
-                    className="text-left p-4 rounded-xl border border-gray-200 text-lg text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
-                  >
-                    {s.display}
-                  </button>
-                ))}
+
+              {/* Dashboard header with business name */}
+              <div className="text-center mb-8">
+                <div className="text-5xl mb-3">{template?.emoji || '\u{1F42D}'}</div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-1">
+                  {businessName ? `${businessName}` : 'How can I help you today?'}
+                </h2>
+                {template && (
+                  <p className="text-lg text-gray-500">
+                    {template.emoji} {template.display_name} Dashboard
+                  </p>
+                )}
               </div>
-              <button
-                onClick={openReportCard}
-                className="mt-6 inline-flex items-center gap-2 text-lg text-[#0F6B6E] font-medium hover:underline"
-              >
-                <BarChart3 className="w-5 h-5" />
-                View your monthly report card
-              </button>
+
+              {/* Vertical-specific widget grid */}
+              {(() => {
+                const widgetsToShow = template?.dashboard_widgets
+                  ?.sort((a, b) => a.priority - b.priority)
+                  || DEFAULT_WIDGET_CONFIGS;
+
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                    {widgetsToShow.map((widgetConfig) => {
+                      const Widget = WIDGET_REGISTRY[widgetConfig.id];
+                      if (!Widget) return null;
+                      return (
+                        <Widget
+                          key={widgetConfig.id}
+                          customerId={customerId}
+                          templateId={template?.id}
+                          config={widgetConfig}
+                        />
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
+              {/* Getting Started with sample tasks */}
+              {template?.sample_tasks && template.sample_tasks.length > 0 && (
+                <GettingStarted
+                  tasks={template.sample_tasks}
+                  onTryTask={(text) => setInput(text)}
+                />
+              )}
+
+              {/* Chat suggestions */}
+              <div className="mt-8 text-center">
+                <p className="text-xl text-gray-500 mb-6">
+                  Ask King Mouse anything:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
+                  {displaySuggestions.map((s) => (
+                    <button
+                      key={s.text}
+                      onClick={() => setInput(s.message)}
+                      className="text-left p-4 rounded-xl border border-gray-200 text-lg text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                    >
+                      {s.display}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={openReportCard}
+                  className="mt-6 inline-flex items-center gap-2 text-lg text-[#0F6B6E] font-medium hover:underline"
+                >
+                  <BarChart3 className="w-5 h-5" />
+                  View your monthly report card
+                </button>
+              </div>
             </div>
           </div>
         ) : (

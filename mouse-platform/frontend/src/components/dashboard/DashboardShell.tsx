@@ -36,6 +36,8 @@ export default function DashboardShell({ children }: DashboardShellProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [proName, setProName] = useState('');
+  const [businessEmoji, setBusinessEmoji] = useState('');
+  const [businessDisplayName, setBusinessDisplayName] = useState('');
   const [kmStatus, setKmStatus] = useState<KingMouseStatus>('idle');
   const [overage, setOverage] = useState<OverageInfo | null>(null);
   const statusInterval = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -55,11 +57,30 @@ export default function DashboardShell({ children }: DashboardShellProps) {
   useEffect(() => {
     fetchStatus();
 
-    // Load pro name
+    // Load pro name and template info
     fetch(`/api/dashboard/modules?customer_id=${customerId}`)
       .then((r) => r.json())
       .then((d) => setProName(d.pro_name || ''))
       .catch(() => {});
+
+    // Load customer template for header display
+    if (customerId !== 'demo') {
+      fetch(`/api/customers/${customerId}`)
+        .then((r) => r.json())
+        .then((customer) => {
+          if (customer.business_name) setBusinessDisplayName(customer.business_name);
+          if (customer.pro_template_id) {
+            fetch(`/api/templates/${customer.pro_template_id}`)
+              .then((r) => r.json())
+              .then((tmpl) => {
+                if (tmpl.emoji) setBusinessEmoji(tmpl.emoji);
+                if (!businessDisplayName && tmpl.display_name) setBusinessDisplayName(tmpl.display_name);
+              })
+              .catch(() => {});
+          }
+        })
+        .catch(() => {});
+    }
 
     // Check billing overage for header banner
     fetch(`/api/billing/usage?customer_id=${customerId}`)
@@ -109,10 +130,11 @@ export default function DashboardShell({ children }: DashboardShellProps) {
           </button>
         </div>
 
-        {proName && (
+        {(proName || businessDisplayName) && (
           <div className="px-4 pb-3">
             <span className="text-sm px-3 py-1 bg-teal-900/50 text-teal-400 rounded-full font-medium">
-              {proName}
+              {businessEmoji && <span className="mr-1">{businessEmoji}</span>}
+              {businessDisplayName || proName}
             </span>
           </div>
         )}
