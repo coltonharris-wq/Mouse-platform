@@ -7,9 +7,23 @@ import StepNeedsGoals from '@/components/onboarding/StepNeedsGoals';
 import StepProSelection from '@/components/onboarding/StepProSelection';
 import StepIndustryQuestions from '@/components/onboarding/StepIndustryQuestions';
 import StepPayment from '@/components/onboarding/StepPayment';
+import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
 import { Suspense } from 'react';
 
 function OnboardingFlow() {
+  const searchParams = useSearchParams();
+
+  // If customer_id is present, show the post-signup template wizard
+  const customerId = searchParams.get('customer_id');
+  if (customerId) {
+    return <OnboardingWizard customerId={customerId} />;
+  }
+
+  // Otherwise, show the original pre-signup onboarding flow
+  return <PreSignupOnboarding />;
+}
+
+function PreSignupOnboarding() {
   const searchParams = useSearchParams();
   const preselectedPro = searchParams.get('pro') || '';
   const referralCode = searchParams.get('ref') || '';
