@@ -28,6 +28,10 @@ export default function VoicePage() {
   const [loadingAgents, setLoadingAgents] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
+  // Query params for cross-feature navigation
+  const [initBusinessName, setInitBusinessName] = useState('');
+  const [initWebsite, setInitWebsite] = useState('');
+
   // Test call state
   const [testModalAgent, setTestModalAgent] = useState<VoiceAgent | null>(null);
   const [testPhone, setTestPhone] = useState('');
@@ -37,6 +41,12 @@ export default function VoicePage() {
   const resellerId = typeof window !== 'undefined'
     ? sessionStorage.getItem('reseller_id') || ''
     : '';
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('business_name')) setInitBusinessName(params.get('business_name')!);
+    if (params.get('website')) setInitWebsite(params.get('website')!);
+  }, []);
 
   const loadAgents = async () => {
     if (!resellerId) return;
@@ -135,6 +145,8 @@ export default function VoicePage() {
       {view === 'builder' && (
         <VoiceAgentBuilder
           resellerId={resellerId}
+          initBusinessName={initBusinessName}
+          initWebsite={initWebsite}
           onDeployed={() => {
             setView('manage');
             loadAgents();

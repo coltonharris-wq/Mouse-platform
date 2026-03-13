@@ -22,6 +22,40 @@ export interface ResellerBusiness {
   products?: BusinessProducts;
 }
 
+export interface LeadIntel {
+  estimated_employees: string;
+  estimated_revenue: string;
+  owner_name: string | null;
+  owner_source: string | null;
+  owner_linkedin: string | null;
+  decision_maker: string | null;
+  years_in_business: string | null;
+  sales_angles: string[];
+  pain_points: string[];
+  gatekeeper_strategy: string;
+  best_call_time: string;
+  suggested_pitch: string;
+  current_tools: string[];
+  missing_tools: string[];
+  recommended_products: string[];
+  estimated_value: string;
+}
+
+export interface OnlinePresence {
+  google_rating: number;
+  google_reviews: number;
+  google_response_rate: string;
+  has_website: boolean;
+  website_quality: 'basic' | 'modern' | 'professional' | 'outdated' | 'none';
+  has_online_booking: boolean;
+  has_chat_widget: boolean;
+  has_contact_form: boolean;
+  facebook_url: string | null;
+  yelp_url: string | null;
+  instagram_url: string | null;
+  social_activity: string;
+}
+
 export interface SavedLead {
   id: string;
   reseller_id: string;
@@ -33,10 +67,15 @@ export interface SavedLead {
   website: string | null;
   employee_count: string | null;
   notes: string | null;
-  status: 'new' | 'contacted' | 'interested' | 'converted' | 'lost';
+  status: 'new' | 'contacting' | 'pitched' | 'demo_sent' | 'closed' | 'lost';
   source: 'manual' | 'search' | 'import';
+  intel: LeadIntel | null;
+  online_presence: OnlinePresence | null;
+  products_sold: string[];
+  estimated_monthly_value: number;
   created_at: string;
   updated_at: string;
+  last_contacted: string | null;
 }
 
 export interface TaskLogEntry {
@@ -73,7 +112,15 @@ export interface LeadSearchResult {
   address: string;
   phone: string;
   website: string;
+  rating: number;
+  review_count: number;
+  place_id: string;
   industry: string;
+  business_types: string[];
+  hours: string;
+  is_open_now: boolean;
+  online_presence: OnlinePresence;
+  intel: LeadIntel;
 }
 
 export interface BusinessProducts {

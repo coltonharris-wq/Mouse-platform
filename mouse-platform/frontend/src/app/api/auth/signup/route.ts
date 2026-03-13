@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
       phone,
       industry,
       niche,
+      pro_template_id: clientProTemplateId,
       session_token,
       demo_chat_transcript,
     } = await request.json();
@@ -68,20 +69,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
     }
 
-    // 2. Look up pro_template_id
-    let proTemplateId: string | null = null;
-    try {
-      const templates = await supabaseQuery(
-        'pro_templates',
-        'GET',
-        undefined,
-        `industry=eq.${encodeURIComponent(industry)}&niche=eq.${encodeURIComponent(niche)}&active=eq.true&select=id&limit=1`
-      );
-      if (templates && templates.length > 0) {
-        proTemplateId = templates[0].id;
+    // 2. Use client-provided pro_template_id or look up from DB
+    let proTemplateId: string | null = clientProTemplateId || null;
+    if (!proTemplateId) {
+      try {
+        const templates = await supabaseQuery(
+          'pro_templates',
+          'GET',
+          undefined,
+          `industry=eq.${encodeURIComponent(industry)}&niche=eq.${encodeURIComponent(niche)}&active=eq.true&select=id&limit=1`
+        );
+        if (templates && templates.length > 0) {
+          proTemplateId = templates[0].id;
+        }
+      } catch {
+        // Non-fatal — continue without template link
       }
-    } catch {
-      // Non-fatal — continue without template link
     }
 
     // 3. Create customers row

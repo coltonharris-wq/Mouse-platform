@@ -10,6 +10,8 @@ import type { ResellerBusiness } from '@/types/reseller-dashboard';
 
 interface VoiceAgentBuilderProps {
   resellerId: string;
+  initBusinessName?: string;
+  initWebsite?: string;
   onDeployed?: (agent: { agent_id: string; phone_number: string; business_id: string }) => void;
 }
 
@@ -20,7 +22,7 @@ interface AvailableNumber {
   region: string;
 }
 
-export default function VoiceAgentBuilder({ resellerId, onDeployed }: VoiceAgentBuilderProps) {
+export default function VoiceAgentBuilder({ resellerId, initBusinessName, initWebsite, onDeployed }: VoiceAgentBuilderProps) {
   // Business selection
   const [businesses, setBusinesses] = useState<ResellerBusiness[]>([]);
   const [selectedBusinessId, setSelectedBusinessId] = useState('');
@@ -56,6 +58,12 @@ export default function VoiceAgentBuilder({ resellerId, onDeployed }: VoiceAgent
   const [deploying, setDeploying] = useState(false);
   const [deployResult, setDeployResult] = useState<{ phone_number: string; agent_id: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Pre-fill from props (cross-feature navigation)
+  useEffect(() => {
+    if (initBusinessName) setNewBusinessName(initBusinessName);
+    if (initWebsite) setWebsiteUrl(initWebsite);
+  }, [initBusinessName, initWebsite]);
 
   useEffect(() => {
     if (!resellerId) return;
