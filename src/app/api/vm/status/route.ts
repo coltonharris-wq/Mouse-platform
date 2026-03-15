@@ -5,11 +5,19 @@ import { extractVmIp } from '@/lib/orgo';
 const ORGO_BASE = process.env.ORGO_BASE_URL || 'https://www.orgo.ai/api';
 
 async function runInstallOnVM(orgoVmId: string, bashCommand: string): Promise<void> {
-  // Orgo exec API expects Python code, so wrap bash in subprocess.
-  // Run in background (nohup) so the exec call returns immediately —
-  // the 800MB tarball download outlasts the Orgo exec timeout otherwise.
-  const bgCommand = `nohup bash -c ${JSON.stringify(bashCommand)} > /tmp/mouse-install.log 2>&1 &`;
-  const pythonCode = `import subprocess; subprocess.Popen(["bash", "-c", ${JSON.stringify(bgCommand)}]); print("install started in background")`;
+  // Orgo exec API expects Python code. We base64-encode the bash command
+  // and write it to a file on the VM, then run it in background.
+  // This avoids multi-layer quoting issues with JSON → Python → bash.
+  const scriptB64 = Buffer.from(
+    `#!/bin/bash\nset -euo pipefail\nexec > /tmp/mouse-install.log 2>&1\n${bashCommand}\n`
+  ).toString('base64');
+
+  const pythonCode = [
+    'import base64, subprocess',
+    `open("/tmp/run-install.sh","wb").write(base64.b64decode("${scriptB64}"))`,
+    'subprocess.Popen(["bash","/tmp/run-install.sh"])',
+    'print("install started in background")',
+  ].join('; ');
 
   const res = await fetch(`${ORGO_BASE}/computers/${orgoVmId}/exec`, {
     method: 'POST',
@@ -123,12 +131,16 @@ export async function GET(request: NextRequest) {
         vm.status = 'ready';
         vm.ready_at = new Date().toISOString();
         healthStatus = 'healthy';
-      } else if (vm.status === 'provisioning' && vm.orgo_vm_id) {
+      } else if (vm.orgo_vm_id && (
+        vm.status === 'provisioning' ||
+        // Retry if stuck in 'installing' for over 5 minutes (install may have failed silently)
+        (vm.status === 'installing' && vm.provision_started_at &&
+          Date.now() - new Date(vm.provision_started_at).getTime() > 5 * 60 * 1000)
+      )) {
         // VM is booted (has IP) but gateway not running — trigger install script
-        // Mark as 'installing' first so we only trigger once
         await supabase
           .from('vms')
-          .update({ status: 'installing' })
+          .update({ status: 'installing', provision_started_at: new Date().toISOString() })
           .eq('id', vmId);
         vm.status = 'installing';
 
@@ -145,7 +157,6 @@ export async function GET(request: NextRequest) {
 
         console.log(`[Status] Triggered install on VM ${vm.orgo_vm_id} (${vm.ip_address})`);
       }
-      // If status is 'installing', just keep polling — install is running
     }
 
     // If VM is ready, ping the health endpoint
