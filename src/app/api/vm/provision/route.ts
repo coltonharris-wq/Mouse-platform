@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
         orgo_vm_id: computerId,
         ip_address: vmAddress,
         status: 'provisioning',
-        port: 18789,
+        port: 8080,
         provision_started_at: new Date().toISOString(),
         config_json: configPayload,
       })

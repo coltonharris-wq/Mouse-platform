@@ -8,6 +8,7 @@ set -euo pipefail
 CONFIG_B64="${1:-}"
 MOUSE_TARBALL_URL="${MOUSE_TARBALL_URL:-https://github.com/coltonharris-wq/mouse/releases/download/v1/mouse-os.tar.gz}"
 INSTALL_DIR="/opt/king-mouse"
+MOUSE_PORT="${MOUSE_PORT:-8080}"
 
 echo "[Mouse] Setting up King Mouse on VM..."
 
@@ -74,9 +75,13 @@ fi
 
 # 4. Run silent onboard (writes mouse.json, sets up gateway config)
 echo "[Mouse] Running silent onboard..."
+# Kill desktop-api on port 8080 so King Mouse can use it (externally accessible)
+pkill -f desktop-api 2>/dev/null || true
+sleep 1
+
 MOUSE_SILENT=1 \
 MOUSE_PRESET=king-mouse \
-MOUSE_PORT="${MOUSE_PORT:-18789}" \
+MOUSE_PORT="$MOUSE_PORT" \
 node openclaw.mjs onboard --silent --auto-skills 2>/dev/null || true
 
 # 4b. Fix config: strip unrecognized keys, set gateway.mode=local
@@ -105,8 +110,8 @@ echo "[Mouse] Gateway PID: $GATEWAY_PID"
 
 # 6. Wait for health check
 for i in $(seq 1 30); do
-    if curl -sf http://127.0.0.1:18789/health >/dev/null 2>&1; then
-        echo "[Mouse] King Mouse is ready on port 18789"
+    if curl -sf http://127.0.0.1:$MOUSE_PORT/health >/dev/null 2>&1; then
+        echo "[Mouse] King Mouse is ready on port $MOUSE_PORT"
         exit 0
     fi
     sleep 2
