@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase-server';
+import { extractVmIp } from '@/lib/orgo';
 
 export async function GET(request: NextRequest) {
   try {
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
 
       try {
         const response = await fetch(
-          `http://${vm.ip_address}:${vm.port}/health`,
+          `http://${extractVmIp(vm.ip_address)}:${vm.port}/health`,
           { signal: AbortSignal.timeout(10000) }
         );
 

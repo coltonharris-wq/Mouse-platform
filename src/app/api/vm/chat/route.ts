@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase-server';
 import { getVerticalConfig } from '@/lib/config-loader';
+import { extractVmIp } from '@/lib/orgo';
 
 const HOURS_PER_MESSAGE = 0.002;
 
@@ -179,7 +180,7 @@ export async function POST(request: NextRequest) {
     if (vm?.ip_address) {
       // VM is ready - proxy to VM
       try {
-        const vmResponse = await fetch(`http://${vm.ip_address}:${vm.port}/chat`, {
+        const vmResponse = await fetch(`http://${extractVmIp(vm.ip_address)}:${vm.port}/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

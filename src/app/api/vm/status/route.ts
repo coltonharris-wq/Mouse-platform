@@ -1,18 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase-server';
+import { extractVmIp } from '@/lib/orgo';
 
 const ORGO_BASE = process.env.ORGO_BASE_URL || 'https://www.orgo.ai/api';
 
-async function runInstallOnVM(orgoVmId: string, command: string): Promise<void> {
-  // Try the /computers/{id}/exec endpoint first (matches the API pattern used for creation)
+async function runInstallOnVM(orgoVmId: string, bashCommand: string): Promise<void> {
+  // Orgo exec API expects Python code, so wrap bash in subprocess.
+  // Run in background (nohup) so the exec call returns immediately —
+  // the 800MB tarball download outlasts the Orgo exec timeout otherwise.
+  const bgCommand = `nohup bash -c ${JSON.stringify(bashCommand)} > /tmp/mouse-install.log 2>&1 &`;
+  const pythonCode = `import subprocess; subprocess.Popen(["bash", "-c", ${JSON.stringify(bgCommand)}]); print("install started in background")`;
+
   const res = await fetch(`${ORGO_BASE}/computers/${orgoVmId}/exec`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${process.env.ORGO_API_KEY}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ command }),
-    signal: AbortSignal.timeout(120000), // 2 min timeout — install takes time
+    body: JSON.stringify({ code: pythonCode }),
+    signal: AbortSignal.timeout(30000),
   });
 
   if (!res.ok) {
@@ -92,10 +98,11 @@ export async function GET(request: NextRequest) {
     // If VM is provisioning and has an IP, try to trigger install and check health
     if ((vm.status === 'provisioning' || vm.status === 'installing') && vm.ip_address) {
       // First check if gateway is already healthy (install already completed)
+      const bareIp = extractVmIp(vm.ip_address);
       let gatewayUp = false;
       try {
         const healthResponse = await fetch(
-          `http://${vm.ip_address}:${vm.port}/health`,
+          `http://${bareIp}:${vm.port}/health`,
           { signal: AbortSignal.timeout(5000) }
         );
         gatewayUp = healthResponse.ok;
@@ -144,8 +151,9 @@ export async function GET(request: NextRequest) {
     // If VM is ready, ping the health endpoint
     if (vm.status === 'ready' && vm.ip_address && healthStatus === null) {
       try {
+        const bareIp = extractVmIp(vm.ip_address);
         const healthResponse = await fetch(
-          `http://${vm.ip_address}:${vm.port}/health`,
+          `http://${bareIp}:${vm.port}/health`,
           { signal: AbortSignal.timeout(5000) }
         );
 

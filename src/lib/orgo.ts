@@ -79,9 +79,20 @@ export async function executeOnVM(vmId: string, command: string): Promise<string
   return data.output || '';
 }
 
+/** Extract bare IP from Orgo URL like "http://67.213.119.157:29629" */
+export function extractVmIp(ipOrUrl: string): string {
+  try {
+    const url = new URL(ipOrUrl.startsWith('http') ? ipOrUrl : `http://${ipOrUrl}`);
+    return url.hostname;
+  } catch {
+    return ipOrUrl.replace(/^https?:\/\//, '').split(':')[0];
+  }
+}
+
 export async function checkVMHealth(ipAddress: string, port: number = 18789): Promise<boolean> {
   try {
-    const res = await fetch(`http://${ipAddress}:${port}/health`, {
+    const bareIp = extractVmIp(ipAddress);
+    const res = await fetch(`http://${bareIp}:${port}/health`, {
       signal: AbortSignal.timeout(5000),
     });
     return res.ok;
