@@ -79,6 +79,23 @@ MOUSE_PRESET=king-mouse \
 MOUSE_PORT="${MOUSE_PORT:-18789}" \
 node openclaw.mjs onboard --silent --auto-skills 2>/dev/null || true
 
+# 4b. Fix config: strip unrecognized keys, set gateway.mode=local
+echo "[Mouse] Running doctor --fix..."
+node openclaw.mjs doctor --fix 2>/dev/null || true
+
+# 4c. Ensure gateway.mode=local and bind=lan (required for container VMs)
+python3 -c "
+import json, os
+p = os.path.expanduser('~/.mouse/mouse.json')
+if os.path.exists(p):
+    c = json.load(open(p))
+    g = c.setdefault('gateway', {})
+    g['mode'] = 'local'
+    if g.get('bind') in ['0.0.0.0', 'localhost', '127.0.0.1']:
+        g['bind'] = 'lan'
+    json.dump(c, open(p, 'w'), indent=2)
+" 2>/dev/null || true
+
 # 5. Start gateway (nohup — Orgo VMs are containers without systemd)
 echo "[Mouse] Starting King Mouse gateway..."
 NODE_ENV=production nohup node "$INSTALL_DIR/openclaw.mjs" gateway \
