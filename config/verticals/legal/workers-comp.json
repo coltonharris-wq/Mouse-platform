@@ -1,0 +1,95 @@
+{
+  "id": "workers-comp",
+  "industry": "Legal",
+  "niche": "Workers Comp",
+  "icon": "HardHat",
+  "sidebar": {
+    "nicheLabel": "Workers Comp",
+    "tabs": [
+      {"id": "cases", "label": "Case intake", "icon": "Briefcase", "component": "CaseIntake"},
+      {"id": "clients", "label": "Client portal", "icon": "Users", "component": "ClientPortal"},
+      {"id": "documents", "label": "Document management", "icon": "FileText", "component": "DocumentManagement"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "cases", "label": "Active cases", "icon": "Briefcase", "defaultValue": "0", "subtitle": "total open"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Cases active", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, counselor! Let's review your workers' compensation cases and fight for every injured worker's benefits.",
+    "quickActions": [
+      "Log a new workers' comp claim",
+      "File claim with workers' comp board",
+      "Request independent medical exam",
+      "Check hearing or mediation dates",
+      "Calculate disability benefit amounts"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for a workers' compensation law firm. You help manage workplace injury claims, disability benefits, medical treatment authorizations, and hearings before workers' comp boards. You understand the claims process, benefit calculations, employer defenses, and how to secure maximum compensation for injured workers."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling the law offices of {company_name}. We fight to protect the rights of workers injured on the job and help them get the benefits they deserve. How can I help you today?",
+    "commonReasons": [
+      "New injury claim consultation",
+      "Case status update",
+      "Medical treatment authorization",
+      "Benefit payment question",
+      "Hearing date inquiry",
+      "Return to work question"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "firm-info", "title": "Firm Information", "description": "Enter your law firm name, address, and contact details"},
+      {"id": "practice-areas", "title": "Workers' Comp Services", "description": "Select the types of workplace injury claims you handle (construction, industrial, repetitive stress, occupational disease, etc.)"},
+      {"id": "intake-process", "title": "Claim Intake Process", "description": "Configure your intake questionnaire, injury report forms, and consultation scheduling"},
+      {"id": "fee-structure", "title": "Fee Structure", "description": "Set your contingency fee percentages, statutory fee schedules, and cost advance policies"},
+      {"id": "integrations", "title": "Integrations", "description": "Connect your case management software, medical provider networks, and calendar"},
+      {"id": "branding", "title": "Branding & Website", "description": "Upload your logo, set firm colors, and configure your client-facing website"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Workplace injury claim",
+      "Construction accident",
+      "Repetitive stress injury",
+      "Occupational disease",
+      "Denied claim appeal",
+      "Permanent disability benefits",
+      "Temporary disability benefits",
+      "Medical treatment dispute",
+      "Third-party liability claim",
+      "Return to work / vocational rehab"
+    ],
+    "statusLabels": ["New inquiry", "Consultation", "Retained", "Active case", "Closed"],
+    "sourceLabels": ["Google Ads", "Avvo", "Referral", "Phone call", "Website form", "Bar association"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for a workers' compensation law firm.",
+    "capabilities": [
+      "Track workers' comp claims from injury report through settlement or award",
+      "Monitor hearing dates, filing deadlines, and appeal windows",
+      "Manage medical records and treatment authorization requests",
+      "Calculate temporary and permanent disability benefit amounts",
+      "Coordinate independent medical exams and doctor appointments",
+      "Generate claim forms and hearing preparation documents",
+      "Track employer and insurance carrier communications",
+      "Track contingency fee billing and cost advances",
+      "Manage injured worker communication with empathy and clarity",
+      "Monitor online reviews and reputation across legal directories"
+    ],
+    "terminology": {
+      "client": "client",
+      "case": "case",
+      "consultation": "consultation",
+      "retainer": "retainer"
+    }
+  }
+}

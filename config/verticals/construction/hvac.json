@@ -1,0 +1,80 @@
+{
+  "id": "hvac",
+  "industry": "Construction",
+  "niche": "HVAC",
+  "icon": "Thermometer",
+  "sidebar": {
+    "nicheLabel": "HVAC",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your HVAC operations manager. I can help you dispatch techs for AC and furnace calls, manage system replacement leads, send load calculation estimates, and fill your maintenance agreement pipeline.",
+    "quickActions": [
+      {"label": "Send AC replacement estimate", "prompt": "Draft an estimate for a 3-ton central AC system replacement including condenser, evaporator coil, refrigerant line set, and thermostat upgrade."},
+      {"label": "Follow up on no-cooling call", "prompt": "Write a follow-up message to a homeowner who called about their AC not cooling and needs a diagnostic appointment."},
+      {"label": "Schedule a furnace tune-up", "prompt": "Help me schedule a fall furnace tune-up and safety inspection for a residential customer."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a customer to leave a Google review after we installed their new heat pump system."},
+      {"label": "Promote maintenance agreements", "prompt": "Draft a promotional message for our annual HVAC maintenance agreement including spring AC and fall furnace tune-ups."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for an HVAC business. You speak the language of HVAC technicians — tonnage, SEER ratings, AFUE, heat pumps, mini-splits, ductwork, load calculations, refrigerant, compressors, evaporator coils, condensers, thermostats, air handlers, zoning systems, and maintenance agreements. You help manage leads during peak summer and winter seasons, dispatch techs for no-heat and no-cool emergencies, generate system replacement estimates, and build recurring revenue through maintenance contract programs."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your local heating and cooling experts. Whether your AC stopped cooling, your furnace isn't heating, or you need a new system, we're here to help. How can I assist you today?",
+    "commonReasons": ["AC not cooling", "Furnace not heating", "System replacement quote", "Maintenance tune-up", "Thermostat issue", "Strange noise from unit", "Ductwork repair or cleaning", "Heat pump installation", "Maintenance agreement signup"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your HVAC Company", "description": "Tell us your company name, license number, location, and how many HVAC technicians you employ."},
+      {"id": "services", "title": "HVAC Services", "description": "Select the HVAC services you offer — AC install, furnace repair, heat pumps, mini-splits, ductwork, maintenance agreements."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your HVAC service area by zip codes, cities, or drive-time radius."},
+      {"id": "ai-receptionist", "title": "HVAC Call Handling", "description": "Set up your AI receptionist to triage no-heat and no-cool emergencies, qualify replacement leads, and book diagnostics."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor HVAC reviews and request feedback after service and install jobs."},
+      {"id": "go-live", "title": "Launch Your HVAC Hub", "description": "Review your settings and go live. Your HVAC command center is ready to manage seasonal demand and dispatch techs."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["AC repair", "AC system replacement", "Furnace repair", "Furnace replacement", "Heat pump installation", "Mini-split installation", "Ductwork repair", "Maintenance tune-up", "Thermostat installation", "Indoor air quality"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for an HVAC business.",
+    "capabilities": [
+      "Dispatch HVAC technicians to emergency no-heat and no-cool calls",
+      "Generate system replacement estimates with equipment and labor pricing",
+      "Manage seasonal demand spikes during summer cooling and winter heating",
+      "Follow up with leads requesting AC and furnace replacement quotes",
+      "Track maintenance agreement renewals and schedule seasonal tune-ups",
+      "Request and monitor Google reviews from completed HVAC jobs",
+      "Run Google Ads targeting AC repair and furnace replacement searches",
+      "Send technician ETA updates and appointment reminders to homeowners",
+      "Track equipment inventory — condensers, coils, furnaces, thermostats",
+      "Generate revenue reports by service type — repair, replacement, maintenance"
+    ],
+    "terminology": {
+      "customer": "homeowner",
+      "appointment": "service call",
+      "job": "HVAC job",
+      "estimate": "system estimate",
+      "service": "HVAC service",
+      "team_member": "technician",
+      "location": "job site"
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "id": "paint-protection",
+  "industry": "Automotive",
+  "niche": "Paint Protection Film & Ceramic Coating",
+  "icon": "Shield",
+  "sidebar": {
+    "nicheLabel": "Paint Protection",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your paint protection operations manager. I can help you schedule PPF installs and ceramic coating jobs, follow up on high-value quotes, manage film inventory, and keep your bays booked with premium clients.",
+    "quickActions": [
+      {"label": "Send full front PPF estimate", "prompt": "Draft an estimate for a full front-end paint protection film installation covering the hood, fenders, bumper, mirrors, and headlights on a luxury sedan."},
+      {"label": "Follow up on ceramic coating lead", "prompt": "Write a follow-up message to a customer who inquired about a multi-year ceramic coating package for their new vehicle."},
+      {"label": "Schedule a full body PPF wrap", "prompt": "Help me schedule a full-body paint protection film installation including paint correction prep for a high-end sports car."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a customer to leave a Google review after we completed their PPF and ceramic coating combo job."},
+      {"label": "Create new vehicle owner promo", "prompt": "Create a promotional package targeting new car buyers offering a PPF and ceramic coating combo at a special introductory price."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a paint protection film and ceramic coating business. You speak the language of PPF and coating professionals — XPEL, SunTek, 3M, bulk film vs pre-cut kits, self-healing top coats, paint correction, clay bar decontamination, IPA wipe-down, ceramic coating layers, SiO2 content, hydrophobic properties, curing times, infrared lamps, and surface preparation. You help manage high-ticket quotes for full wraps and partial coverage, schedule install bays for multi-day PPF jobs, track film inventory and coating product stock, and follow up with dealership partners and individual clients. You understand that this is a premium service requiring meticulous attention to detail, controlled environments, and skilled installers."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, specialists in paint protection film and ceramic coating. Whether you're looking to protect a new car or preserve your vehicle's finish, we provide premium protection solutions. How can I assist you today?",
+    "commonReasons": ["Full front PPF quote", "Full body PPF wrap quote", "Ceramic coating packages", "PPF and ceramic combo pricing", "Paint correction inquiry", "Dealership partnership", "Schedule a consultation", "Warranty or maintenance question"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your PPF & Coating Business", "description": "Tell us your business name, location, and how many install bays you operate for film and coating work."},
+      {"id": "services", "title": "Protection Services", "description": "Select the services you offer — partial PPF, full body wrap, ceramic coating, paint correction, window tint, and vinyl wrap."},
+      {"id": "service-area", "title": "Service Area", "description": "Define your service area and identify nearby dealerships and luxury car communities you serve."},
+      {"id": "ai-receptionist", "title": "Call Handling", "description": "Set up your AI receptionist to answer PPF and coating inquiries, provide package pricing, and schedule consultations."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to showcase your PPF and coating work and collect reviews from satisfied clients."},
+      {"id": "go-live", "title": "Launch Your Protection Hub", "description": "Review your settings and go live. Your paint protection command center is ready to capture premium clients and fill your bays."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Full front PPF package", "Full body PPF wrap", "Ceramic coating", "PPF and ceramic combo", "Paint correction", "Partial PPF coverage", "Track day package", "Dealership bulk PPF", "Window tint add-on"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a paint protection film and ceramic coating business.",
+    "capabilities": [
+      "Schedule PPF installations and ceramic coating jobs across multiple bays",
+      "Generate detailed estimates for partial and full-body PPF coverage with material costs",
+      "Track paint protection film inventory by brand, width, and pre-cut kit availability",
+      "Follow up with clients after consultations with tailored protection package recommendations",
+      "Manage dealership partner accounts and bulk pricing agreements",
+      "Request and manage Google reviews showcasing completed PPF and coating jobs",
+      "Create and optimize Google Ads campaigns targeting luxury and performance car owners",
+      "Send automated appointment reminders and post-install care instructions",
+      "Track ceramic coating product inventory and curing schedule requirements",
+      "Generate revenue reports broken down by PPF, ceramic coating, and combo packages"
+    ],
+    "terminology": {
+      "customer": "client",
+      "appointment": "consultation",
+      "job": "installation",
+      "estimate": "protection quote",
+      "service": "protection package",
+      "team_member": "installer",
+      "location": "install bay"
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "id": "towing",
+  "industry": "Automotive",
+  "niche": "Towing",
+  "icon": "Truck",
+  "sidebar": {
+    "nicheLabel": "Towing",
+    "tabs": [
+      {"id": "tickets", "label": "Service tickets", "icon": "Clipboard", "component": "ServiceTickets"},
+      {"id": "parts", "label": "Parts inventory", "icon": "Package", "component": "PartsInventory"},
+      {"id": "vehicles", "label": "Customer vehicles", "icon": "Car", "component": "CustomerVehicles"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "tickets", "label": "Open tickets", "icon": "Clipboard", "defaultValue": "0", "subtitle": "in progress"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Services today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! Your towing operation is on the move. Let's dispatch those trucks fast, keep response times low, and customers rescued.",
+    "quickActions": [
+      "Dispatch a tow truck",
+      "Create a roadside assistance ticket",
+      "Check driver availability and locations",
+      "Send ETA update to customer",
+      "Log a completed tow with mileage"
+    ],
+    "systemPrompt": "You are King Mouse, an AI shop manager for a towing business. You help manage dispatch, track tow truck locations, coordinate roadside assistance, handle impound lot operations, and manage customer calls. You understand towing services including flatbed, wheel-lift, motorcycle towing, jump starts, lockouts, and winch-outs."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, available 24/7 for towing and roadside assistance. What's your location and how can we help?",
+    "commonReasons": [
+      "Request a tow",
+      "Get roadside assistance",
+      "Ask about towing rates",
+      "Check ETA for dispatched driver",
+      "Inquire about impound vehicle pickup",
+      "Request a jump start or lockout service"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Business details", "description": "Enter your towing company name, address, and dispatch number"},
+      {"id": "services", "title": "Services offered", "description": "Select your towing services (flatbed, roadside, impound, etc.)"},
+      {"id": "fleet", "title": "Fleet setup", "description": "Add your tow trucks and their capabilities (weight class, type)"},
+      {"id": "hours", "title": "Operating hours", "description": "Set your dispatch hours and after-hours availability"},
+      {"id": "branding", "title": "Brand & website", "description": "Upload your logo and set up your online presence"},
+      {"id": "integrations", "title": "Connect tools", "description": "Link your GPS tracking, motor club networks, and payment processor"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Local tow",
+      "Long-distance tow",
+      "Flatbed transport",
+      "Motorcycle tow",
+      "Jump start",
+      "Lockout service",
+      "Tire change",
+      "Fuel delivery",
+      "Winch-out",
+      "Impound release"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website", "RepairPal", "AutoMD"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI shop manager for a towing business.",
+    "capabilities": [
+      "Dispatch tow trucks and track driver locations",
+      "Create and manage towing service tickets",
+      "Calculate towing rates based on distance and vehicle type",
+      "Send real-time ETA updates to customers",
+      "Manage impound lot inventory and releases",
+      "Coordinate with motor clubs and insurance companies",
+      "Monitor online reviews and reputation",
+      "Run daily dispatch and revenue reports",
+      "Track fleet maintenance and fuel usage",
+      "Handle after-hours call routing and dispatch"
+    ],
+    "terminology": {
+      "service": "service",
+      "vehicle": "vehicle",
+      "ticket": "ticket",
+      "customer": "customer",
+      "worker": "driver",
+      "location": "yard"
+    }
+  }
+}

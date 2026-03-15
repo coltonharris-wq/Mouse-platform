@@ -1,0 +1,99 @@
+{
+  "id": "outdoor-gear",
+  "industry": "Retail",
+  "niche": "Outdoor & Camping Gear",
+  "icon": "Mountain",
+  "sidebar": {
+    "nicheLabel": "Outdoor & Camping Gear",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Sales today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your outdoor gear operations manager. Let's make sure adventurers find the right kit and your seasonal inventory is dialed in.",
+    "quickActions": [
+      {"label": "Check seasonal stock levels", "prompt": "Show me inventory levels for seasonal gear and flag items that need restocking before peak season."},
+      {"label": "Log a gear rental return", "prompt": "Walk me through processing a gear rental return and condition inspection."},
+      {"label": "Plan a demo day event", "prompt": "Help me plan an outdoor demo day event with brand reps for this month."},
+      {"label": "View repair queue", "prompt": "Show me all pending gear repair and service requests in the queue."},
+      {"label": "Create a packing list", "prompt": "Help me create a recommended packing list for a customer planning a specific type of outdoor trip."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for an outdoor and camping gear retail store. You help manage inventory across camping, hiking, climbing, kayaking, and winter sports gear, coordinate gear rentals and repairs, plan demo events, and advise customers on trip-appropriate equipment. You understand outdoor product categories, seasonal demand cycles, gear maintenance, brand warranty programs, and the importance of expert staff knowledge in specialty outdoor retail."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We carry gear for camping, hiking, climbing, and every outdoor adventure. How can I help you today?",
+    "commonReasons": [
+      "Ask about product availability",
+      "Inquire about gear rental options",
+      "Check on a gear repair or service status",
+      "Get trip-specific gear recommendations",
+      "Ask about upcoming demo day events",
+      "Inquire about return or exchange policy",
+      "Ask about brand warranty claims",
+      "Check store hours and location"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "store-info", "title": "Store information", "description": "Enter your outdoor shop name, location, and contact information."},
+      {"id": "categories", "title": "Product categories", "description": "Define your departments: camping, hiking, climbing, water sports, winter sports, apparel, footwear."},
+      {"id": "services", "title": "Services & rentals", "description": "Configure gear rental programs, repair services, boot fitting, and guided trip partnerships."},
+      {"id": "pos-setup", "title": "POS setup", "description": "Connect your point-of-sale system for real-time sales and rental tracking."},
+      {"id": "branding", "title": "Company branding", "description": "Upload your logo and set your shop's brand identity."},
+      {"id": "phone", "title": "Phone setup", "description": "Configure your AI receptionist to handle customer calls and rental inquiries."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Camping gear purchase",
+      "Hiking & backpacking equipment",
+      "Climbing gear & accessories",
+      "Water sports equipment",
+      "Winter sports gear",
+      "Gear rental booking",
+      "Gear repair or servicing",
+      "Group or corporate outing order",
+      "Boot or pack fitting appointment"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for an outdoor and camping gear retail store.",
+    "capabilities": [
+      "Track inventory across seasonal outdoor gear categories",
+      "Manage gear rental fleet with availability and condition tracking",
+      "Coordinate gear repair and service queue with turnaround estimates",
+      "Plan demo day events and brand representative visits",
+      "Generate seasonal buying recommendations based on regional demand",
+      "Create trip-specific packing lists and gear recommendations",
+      "Process brand warranty claims and defective product returns",
+      "Analyze sales trends by activity type and season",
+      "Manage expert staff scheduling for peak adventure seasons",
+      "Coordinate guided trip partnerships and referral programs"
+    ],
+    "terminology": {
+      "customer": "customer",
+      "appointment": "fitting appointment",
+      "job": "order",
+      "estimate": "quote",
+      "service": "gear category",
+      "team_member": "gear specialist",
+      "location": "shop"
+    }
+  }
+}

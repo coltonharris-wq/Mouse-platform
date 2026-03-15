@@ -1,0 +1,97 @@
+{
+  "id": "lawn-care",
+  "industry": "Home services",
+  "niche": "Lawn care",
+  "icon": "Flower2",
+  "sidebar": {
+    "nicheLabel": "Lawn care",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back! Let's keep those lawns looking pristine. Ready to manage your mowing schedule and grow your client list?",
+    "quickActions": [
+      {"label": "Schedule a mowing", "prompt": "Help me schedule a new lawn mowing job for a client."},
+      {"label": "Send an estimate", "prompt": "Help me create and send an estimate for lawn care service."},
+      {"label": "Follow up on leads", "prompt": "Show me my recent leads that need follow-up."},
+      {"label": "Check today's route", "prompt": "What lawn care jobs are scheduled for today?"},
+      {"label": "Request a review", "prompt": "Help me send a review request to a recent client."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a lawn care business. You help manage mowing schedules, recurring service plans, coordinate crews and routes, handle estimates for residential and commercial properties, and grow the business through reputation management and advertising."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We'd love to help keep your lawn looking great. Are you looking for a quote or want to schedule lawn service?",
+    "commonReasons": [
+      "Get a quote for lawn mowing",
+      "Schedule lawn service",
+      "Reschedule service",
+      "Cancel service",
+      "Ask about fertilization or weed control",
+      "Inquire about seasonal services",
+      "Report a concern about a previous visit"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"target": "#business-name", "title": "Name your lawn care business", "body": "Enter the name clients will see when you send estimates and invoices.", "position": "bottom"},
+      {"target": "#service-area", "title": "Set your service area", "body": "Define the neighborhoods or zip codes where your crews operate.", "position": "bottom"},
+      {"target": "#service-types", "title": "Add your lawn services", "body": "List the services you offer: mowing, edging, fertilization, aeration, overseeding, etc.", "position": "right"},
+      {"target": "#pricing", "title": "Set your pricing", "body": "Configure pricing by lot size, service type, or recurring plan.", "position": "right"},
+      {"target": "#team", "title": "Add your crew members", "body": "Add team members so you can assign routes and schedule jobs efficiently.", "position": "left"},
+      {"target": "#go-live", "title": "Go live!", "body": "Your lawn care business is set up. Start capturing leads and booking mowing jobs!", "position": "bottom"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Weekly mowing",
+      "Biweekly mowing",
+      "One-time mowing",
+      "Fertilization",
+      "Weed control",
+      "Aeration",
+      "Overseeding",
+      "Leaf removal",
+      "Spring/fall cleanup",
+      "Sod installation"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a lawn care business.",
+    "capabilities": [
+      "Schedule and manage recurring mowing routes",
+      "Create estimates based on lot size and service type",
+      "Coordinate crew assignments and daily routes",
+      "Track seasonal service schedules",
+      "Send automated reminders for upcoming service days",
+      "Generate invoices after completed visits",
+      "Monitor online reviews and respond to feedback",
+      "Manage fertilization and treatment application schedules",
+      "Analyze revenue by service type and property size"
+    ],
+    "terminology": {
+      "job": "service visit",
+      "client": "client",
+      "worker": "crew member",
+      "team": "crew",
+      "estimate": "estimate",
+      "service_area": "service area"
+    }
+  }
+}

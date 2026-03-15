@@ -1,0 +1,96 @@
+{
+  "id": "junk-removal",
+  "industry": "Home services",
+  "niche": "Junk removal",
+  "icon": "Trash2",
+  "sidebar": {
+    "nicheLabel": "Junk removal",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back! Let's keep your trucks rolling and your schedule full. Ready to clear out some clutter and book more jobs?",
+    "quickActions": [
+      {"label": "Schedule a pickup", "prompt": "Help me schedule a new junk removal pickup for a client."},
+      {"label": "Send an estimate", "prompt": "Help me create and send an estimate for junk removal."},
+      {"label": "Follow up on leads", "prompt": "Show me my recent leads that need follow-up."},
+      {"label": "Check today's pickups", "prompt": "What junk removal jobs are scheduled for today?"},
+      {"label": "Request a review", "prompt": "Help me send a review request to a recent client."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a junk removal business. You help manage pickup schedules, coordinate crews and trucks, handle estimates based on load size and item type, and grow the business through reputation management and advertising."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We'll haul away anything you don't need. Are you looking to schedule a junk removal pickup or get a quote?",
+    "commonReasons": [
+      "Schedule a junk removal pickup",
+      "Get a quote",
+      "Ask what items are accepted",
+      "Reschedule a pickup",
+      "Ask about pricing",
+      "Inquire about same-day service",
+      "Request a commercial cleanout"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"target": "#business-name", "title": "Name your junk removal business", "body": "Enter the name clients will see when you send estimates and invoices.", "position": "bottom"},
+      {"target": "#service-area", "title": "Set your service area", "body": "Define the neighborhoods or zip codes where your trucks operate.", "position": "bottom"},
+      {"target": "#service-types", "title": "Add your junk removal services", "body": "List the types of pickups you handle: residential, commercial, construction debris, appliances, furniture, etc.", "position": "right"},
+      {"target": "#pricing", "title": "Set your pricing", "body": "Configure pricing by truck load fraction (1/4, 1/2, 3/4, full) or item type.", "position": "right"},
+      {"target": "#team", "title": "Add your crew", "body": "Add team members so you can assign trucks and schedule pickups efficiently.", "position": "left"},
+      {"target": "#go-live", "title": "Go live!", "body": "Your junk removal business is set up. Start capturing leads and booking pickups!", "position": "bottom"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Residential junk removal",
+      "Commercial cleanout",
+      "Construction debris removal",
+      "Appliance removal",
+      "Furniture removal",
+      "Yard waste removal",
+      "Estate cleanout",
+      "Hoarding cleanout",
+      "E-waste disposal"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a junk removal business.",
+    "capabilities": [
+      "Schedule and manage junk removal pickups",
+      "Create estimates based on load size and item type",
+      "Coordinate truck and crew assignments",
+      "Track disposal and recycling records",
+      "Send automated appointment confirmations and reminders",
+      "Generate invoices after completed pickups",
+      "Monitor online reviews and respond to feedback",
+      "Manage same-day and next-day booking availability",
+      "Analyze revenue by job type and load size"
+    ],
+    "terminology": {
+      "job": "pickup",
+      "client": "client",
+      "worker": "crew member",
+      "team": "crew",
+      "estimate": "estimate",
+      "service_area": "service area"
+    }
+  }
+}

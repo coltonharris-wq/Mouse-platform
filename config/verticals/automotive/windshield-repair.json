@@ -1,0 +1,80 @@
+{
+  "id": "windshield-repair",
+  "industry": "Automotive",
+  "niche": "Windshield Repair & Replacement",
+  "icon": "Car",
+  "sidebar": {
+    "nicheLabel": "Windshield Repair",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your windshield repair operations manager. I can help you dispatch mobile techs, handle insurance claims, schedule chip repairs and full replacements, and keep every job tracked from call to completion.",
+    "quickActions": [
+      {"label": "Send windshield replacement quote", "prompt": "Draft a quote for a full windshield replacement including OEM glass, urethane adhesive, and ADAS recalibration for a late-model SUV."},
+      {"label": "Follow up on chip repair lead", "prompt": "Write a follow-up message to a customer who called about a rock chip in their windshield before it spreads into a crack."},
+      {"label": "Schedule mobile repair dispatch", "prompt": "Help me schedule a mobile windshield replacement at the customer's home or workplace including drive time and safe-away time."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a customer to leave a Google review after we completed their windshield replacement or chip repair."},
+      {"label": "Create insurance claim template", "prompt": "Create a template for filing windshield replacement insurance claims including all required vehicle and damage information fields."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a windshield repair and replacement business. You speak the language of auto glass professionals — rock chip repair, resin injection, bull's-eye chips, star breaks, stress cracks, OEM vs aftermarket glass, urethane adhesive, primer, safe-drive-away time, ADAS recalibration, rain sensors, heated windshields, mobile dispatch, and insurance claim processing. You help manage incoming calls for chip repairs and full replacements, dispatch mobile technicians, process insurance claims and track approvals, schedule shop appointments, and follow up on estimates. You understand the urgency of glass repair, insurance billing workflows, and the growing complexity of ADAS-equipped windshields."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your trusted windshield repair and replacement specialists. Whether you have a small chip or need a full windshield replacement, we can help — and we work with all major insurance providers. How can I assist you today?",
+    "commonReasons": ["Rock chip repair", "Windshield replacement quote", "Insurance claim filing", "Mobile service request", "ADAS recalibration question", "Schedule a shop appointment", "Check on replacement status", "Fleet or commercial glass service"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Auto Glass Business", "description": "Tell us your business name, location, and whether you offer mobile, in-shop, or both types of service."},
+      {"id": "services", "title": "Glass Services", "description": "Select the services you offer — chip repair, windshield replacement, back glass, side windows, ADAS recalibration, and fleet service."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your mobile service area by zip codes, cities, or drive-time radius from your shop."},
+      {"id": "ai-receptionist", "title": "Call Handling", "description": "Set up your AI receptionist to qualify glass repair calls, collect vehicle and insurance info, and book appointments."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor auto glass reviews and request feedback after completed jobs."},
+      {"id": "go-live", "title": "Launch Your Auto Glass Hub", "description": "Review your settings and go live. Your windshield repair command center is ready to dispatch techs and process claims."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Rock chip repair", "Windshield replacement", "Back glass replacement", "Side window replacement", "ADAS recalibration", "Mobile windshield service", "Fleet glass service", "Commercial vehicle glass", "Insurance claim repair"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a windshield repair and replacement business.",
+    "capabilities": [
+      "Dispatch mobile technicians and optimize daily route scheduling",
+      "Generate quotes for chip repairs and full windshield replacements with glass sourcing",
+      "Process insurance claims and track approval status with major carriers",
+      "Follow up with customers who received quotes but haven't scheduled service",
+      "Track glass inventory by vehicle make, model, and year compatibility",
+      "Request and manage Google reviews from completed windshield jobs",
+      "Create and optimize Google Ads campaigns targeting drivers with glass damage",
+      "Send automated appointment reminders and safe-drive-away time notifications",
+      "Manage ADAS recalibration scheduling and equipment tracking",
+      "Generate revenue reports broken down by insurance vs cash, repair vs replacement"
+    ],
+    "terminology": {
+      "customer": "customer",
+      "appointment": "service appointment",
+      "job": "glass job",
+      "estimate": "glass quote",
+      "service": "glass service",
+      "team_member": "technician",
+      "location": "service location"
+    }
+  }
+}

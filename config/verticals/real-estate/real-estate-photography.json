@@ -1,0 +1,99 @@
+{
+  "id": "real-estate-photography",
+  "industry": "Real estate",
+  "niche": "Real Estate Photography",
+  "icon": "Camera",
+  "sidebar": {
+    "nicheLabel": "Real Estate Photography",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Shoots today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your real estate photography operations manager. Let's keep your shoot schedule tight and your galleries delivered on time.",
+    "quickActions": [
+      {"label": "Book a new photo shoot", "prompt": "Walk me through booking a new real estate photo shoot with an agent."},
+      {"label": "Check today's shoot schedule", "prompt": "Show me all photo shoots scheduled for today with addresses and package details."},
+      {"label": "Send a gallery delivery", "prompt": "Help me send edited photos to an agent for a completed shoot."},
+      {"label": "Create a package quote", "prompt": "Generate a quote for a new client based on property size and services needed."},
+      {"label": "Follow up on pending invoices", "prompt": "Show me all outstanding invoices and help me send payment reminders."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a real estate photography business. You help manage shoot scheduling, gallery delivery, drone and virtual tour coordination, client communication with real estate agents, and invoicing. You understand MLS photo requirements, HDR photography workflows, twilight shoots, aerial/drone regulations, virtual staging, 3D tours, and turnaround time expectations in the real estate industry."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We provide professional real estate photography, drone aerials, and virtual tours. How can I help you today?",
+    "commonReasons": [
+      "Book a photo shoot for a listing",
+      "Ask about pricing and packages",
+      "Check on gallery delivery status",
+      "Inquire about drone or aerial photography",
+      "Schedule a 3D virtual tour",
+      "Request twilight or sunset photos",
+      "Ask about virtual staging services",
+      "Reschedule an existing appointment"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business", "title": "Your business", "description": "Tell us about your real estate photography business, coverage area, and team size."},
+      {"id": "services", "title": "Service packages", "description": "Define your packages: standard photos, HDR, drone, virtual tours, floor plans, virtual staging."},
+      {"id": "equipment", "title": "Equipment & delivery", "description": "Set your turnaround times, gallery delivery method, and MLS formatting preferences."},
+      {"id": "pipeline", "title": "Client sources", "description": "Connect your booking channels: agent referrals, website forms, and scheduling tools."},
+      {"id": "branding", "title": "Company branding", "description": "Upload your logo and set your company brand identity."},
+      {"id": "phone", "title": "Phone setup", "description": "Configure your AI receptionist to handle agent booking calls and inquiries."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Standard photo package",
+      "HDR premium photography",
+      "Drone/aerial photography",
+      "3D virtual tour",
+      "Floor plan creation",
+      "Virtual staging",
+      "Twilight photography",
+      "Video walkthrough",
+      "Commercial property shoot"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a real estate photography business.",
+    "capabilities": [
+      "Schedule and route photo shoots efficiently across service areas",
+      "Track gallery editing progress and delivery deadlines",
+      "Manage drone flight scheduling and airspace compliance",
+      "Coordinate 3D virtual tour capture and processing",
+      "Generate quotes and invoices based on property size and services",
+      "Send automated gallery delivery notifications to agents",
+      "Track repeat client relationships and preferred packages",
+      "Monitor seasonal demand and optimize pricing strategies",
+      "Manage virtual staging requests and revision cycles",
+      "Maintain equipment maintenance schedules and backup gear readiness"
+    ],
+    "terminology": {
+      "customer": "agent",
+      "appointment": "shoot",
+      "job": "photo shoot",
+      "estimate": "quote",
+      "service": "photography package",
+      "team_member": "photographer",
+      "location": "property address"
+    }
+  }
+}

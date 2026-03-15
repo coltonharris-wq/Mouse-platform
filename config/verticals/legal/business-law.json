@@ -1,0 +1,95 @@
+{
+  "id": "business-law",
+  "industry": "Legal",
+  "niche": "Business Law",
+  "icon": "Building",
+  "sidebar": {
+    "nicheLabel": "Business Law",
+    "tabs": [
+      {"id": "cases", "label": "Case intake", "icon": "Briefcase", "component": "CaseIntake"},
+      {"id": "clients", "label": "Client portal", "icon": "Users", "component": "ClientPortal"},
+      {"id": "documents", "label": "Document management", "icon": "FileText", "component": "DocumentManagement"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "cases", "label": "Active cases", "icon": "Briefcase", "defaultValue": "0", "subtitle": "total open"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Cases active", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, counselor! Let's review your business law matters and keep your clients' ventures legally sound.",
+    "quickActions": [
+      "Log a new business formation matter",
+      "Draft operating agreement or bylaws",
+      "Review contract for client",
+      "Prepare partnership or shareholder agreement",
+      "Schedule business compliance review"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for a business law firm. You help manage entity formations, contract drafting and review, mergers and acquisitions, corporate governance, and commercial transactions. You understand business structures, regulatory compliance, and the legal needs of entrepreneurs and established companies alike."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling the law offices of {company_name}. We provide strategic legal counsel to businesses of all sizes, from startups to established enterprises. How can I help you today?",
+    "commonReasons": [
+      "New business consultation",
+      "Contract review request",
+      "Entity formation question",
+      "Corporate governance inquiry",
+      "Transaction or deal support",
+      "Appointment scheduling"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "firm-info", "title": "Firm Information", "description": "Enter your law firm name, address, and contact details"},
+      {"id": "practice-areas", "title": "Business Law Services", "description": "Select the business law services you provide (formations, contracts, M&A, corporate governance, etc.)"},
+      {"id": "intake-process", "title": "Client Intake Process", "description": "Configure your intake questionnaire, conflict checks, and consultation scheduling"},
+      {"id": "fee-structure", "title": "Fee Structure", "description": "Set your hourly rates, flat fees for formations, retainer arrangements, and billing terms"},
+      {"id": "integrations", "title": "Integrations", "description": "Connect your document management system, contract tools, and calendar"},
+      {"id": "branding", "title": "Branding & Website", "description": "Upload your logo, set firm colors, and configure your client-facing website"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Business formation (LLC, Corp, Partnership)",
+      "Contract drafting and review",
+      "Mergers and acquisitions",
+      "Operating agreements / bylaws",
+      "Commercial lease review",
+      "Shareholder / partnership disputes",
+      "Regulatory compliance",
+      "Business succession planning",
+      "Franchise agreements",
+      "Joint ventures"
+    ],
+    "statusLabels": ["New inquiry", "Consultation", "Retained", "Active case", "Closed"],
+    "sourceLabels": ["Google Ads", "Avvo", "Referral", "Phone call", "Website form", "Bar association"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for a business law firm.",
+    "capabilities": [
+      "Track business law matters from engagement through completion",
+      "Manage contract drafting, review, and negotiation workflows",
+      "Monitor entity formation filings and annual compliance deadlines",
+      "Coordinate due diligence for mergers and acquisitions",
+      "Track corporate governance documents and resolutions",
+      "Generate engagement letters and scope of work documents",
+      "Schedule board meetings and shareholder communications",
+      "Track hourly billing, flat fees, and retainer balances",
+      "Manage multi-matter client relationships for business clients",
+      "Monitor online reviews and reputation across legal directories"
+    ],
+    "terminology": {
+      "client": "client",
+      "case": "case",
+      "consultation": "consultation",
+      "retainer": "retainer"
+    }
+  }
+}

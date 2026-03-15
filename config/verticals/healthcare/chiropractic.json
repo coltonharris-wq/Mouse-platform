@@ -1,0 +1,99 @@
+{
+  "id": "chiropractic",
+  "industry": "Healthcare",
+  "niche": "Chiropractic",
+  "icon": "Bone",
+  "sidebar": {
+    "nicheLabel": "Chiropractic",
+    "tabs": [
+      {"id": "scheduling", "label": "Patient scheduling", "icon": "Calendar", "component": "PatientScheduling"},
+      {"id": "insurance", "label": "Insurance & billing", "icon": "FileText", "component": "InsuranceBilling"},
+      {"id": "portal", "label": "Patient portal", "icon": "Users", "component": "PatientPortal"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "appointments", "label": "Appointments", "icon": "Calendar", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Appointments today", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, Doctor! Let's keep your chiropractic practice aligned and thriving. Ready to review today's adjustments or check on care plan progress?",
+    "quickActions": [
+      "Show today's adjustment schedule",
+      "Review active care plans",
+      "Check new patient intake forms",
+      "Send reactivation outreach",
+      "View insurance authorizations"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for a chiropractic practice. You help manage patient scheduling, care plan tracking, insurance authorizations, patient retention, and practice growth. You understand chiropractic terminology including spinal adjustments, subluxations, maintenance care, and corrective care plans. You refer to people as patients and track appointments, not jobs."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your chiropractic care provider. How may I assist you today?",
+    "commonReasons": [
+      "Schedule appointment",
+      "Insurance question",
+      "Back or neck pain",
+      "Reschedule or cancel",
+      "New patient consultation",
+      "Care plan question",
+      "Billing inquiry",
+      "Request records"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "practice-info", "title": "Practice information", "description": "Enter your chiropractic practice name, address, and contact details"},
+      {"id": "providers", "title": "Chiropractors & staff", "description": "Add your chiropractors, massage therapists, and support staff"},
+      {"id": "services", "title": "Chiropractic services", "description": "Select the adjustments, therapies, and treatments you offer"},
+      {"id": "insurance", "title": "Insurance plans", "description": "Add the insurance plans and networks you accept"},
+      {"id": "hours", "title": "Office hours", "description": "Set your practice hours and appointment availability"},
+      {"id": "branding", "title": "Practice branding", "description": "Upload your logo and customize your patient-facing pages"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Initial consultation",
+      "Spinal adjustment",
+      "Corrective care plan",
+      "Maintenance care",
+      "Sports injury rehab",
+      "Massage therapy",
+      "X-ray evaluation",
+      "Decompression therapy"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Insurance referral"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for a chiropractic practice.",
+    "capabilities": [
+      "Manage patient appointments and recurring visits",
+      "Track care plan progress and visit counts",
+      "Verify insurance coverage and authorizations",
+      "Monitor patient retention and reactivation",
+      "Handle new patient intake and consultations",
+      "Generate production and collection reports",
+      "Coordinate referrals with other providers",
+      "Manage reviews and online reputation",
+      "Track visit frequency and compliance",
+      "Send appointment reminders and wellness tips"
+    ],
+    "terminology": {
+      "customer": "patient",
+      "job": "appointment",
+      "business": "practice",
+      "estimate": "care plan",
+      "invoice": "statement",
+      "worker": "provider",
+      "booking": "appointment",
+      "service": "adjustment"
+    }
+  }
+}

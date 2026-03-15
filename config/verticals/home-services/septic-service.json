@@ -1,0 +1,99 @@
+{
+  "id": "septic-service",
+  "industry": "Home Services",
+  "niche": "Septic Service",
+  "icon": "Droplets",
+  "sidebar": {
+    "nicheLabel": "Septic Service",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your septic service operations manager. I handle your pumping schedules, inspection bookings, and customer follow-ups so you can focus on keeping systems flowing. What do you need?",
+    "quickActions": [
+      {"label": "Schedule a tank pumping", "prompt": "Help me schedule a septic tank pumping for a residential customer this week."},
+      {"label": "Create a repair estimate", "prompt": "Draft an estimate for a drainfield repair including excavation and new laterals."},
+      {"label": "Check overdue maintenance", "prompt": "Show me customers whose septic tanks are overdue for pumping based on their last service date."},
+      {"label": "View today's pump-out schedule", "prompt": "Show me today's pumping schedule and truck assignments."},
+      {"label": "Send maintenance reminders", "prompt": "Send pumping reminder notices to customers approaching their 3-year service interval."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a septic service business. You understand septic tank pumping, drainfield inspection and repair, system installation, riser and lid replacement, baffle repair, grease trap servicing, and regulatory inspection requirements. You help manage pump truck schedules, generate estimates for installations and repairs, track customer maintenance intervals, and handle emergency service calls. Always reference local health department regulations and EPA guidelines when relevant."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your local septic system experts. How can I help you today?",
+    "commonReasons": [
+      "Schedule a septic tank pumping",
+      "Report a backup or slow drain",
+      "Request a septic system inspection",
+      "Get a quote for a new system installation",
+      "Ask about drainfield repair",
+      "Schedule a grease trap cleaning",
+      "Inquire about real estate transaction inspections",
+      "Ask about maintenance plans and pumping intervals"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Business details", "description": "Enter your septic service company name, address, service area, and contact information."},
+      {"id": "services", "title": "Services offered", "description": "Select the septic services you provide: pumping, inspections, installations, drainfield repair, grease traps, and more."},
+      {"id": "team", "title": "Your crew", "description": "Add your pump truck operators and field technicians with their certifications and availability."},
+      {"id": "pricing", "title": "Pricing & estimates", "description": "Set your base rates for tank pumping by size, inspections, and common repair jobs."},
+      {"id": "integrations", "title": "Connect your tools", "description": "Link your Google Business Profile, payment processor, and any dispatch or routing software you use."},
+      {"id": "go-live", "title": "Go live", "description": "Review your setup, activate your AI receptionist, and start capturing septic service leads."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Septic Tank Pumping",
+      "Septic System Inspection",
+      "Drainfield Repair",
+      "New System Installation",
+      "Baffle Repair or Replacement",
+      "Riser & Lid Installation",
+      "Grease Trap Cleaning",
+      "Real Estate Transaction Inspection",
+      "Emergency Backup Service"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a septic service business.",
+    "capabilities": [
+      "Schedule and dispatch septic pumping and inspection jobs",
+      "Generate estimates for tank pumping, drainfield repair, and new installations",
+      "Track customer maintenance intervals and send pumping reminders",
+      "Manage pump truck assignments and optimize daily routes",
+      "Handle emergency backup service calls with priority dispatching",
+      "Monitor tank size records and service history per property",
+      "Send automated review requests after completed service calls",
+      "Track regulatory inspection deadlines and compliance requirements",
+      "Manage customer communication for appointment confirmations and follow-ups",
+      "Analyze revenue by service type and identify seasonal demand patterns"
+    ],
+    "terminology": {
+      "customer": "Property owner",
+      "appointment": "Service call",
+      "job": "Pump-out",
+      "estimate": "Estimate",
+      "service": "Septic service",
+      "team_member": "Operator",
+      "location": "Property"
+    }
+  }
+}

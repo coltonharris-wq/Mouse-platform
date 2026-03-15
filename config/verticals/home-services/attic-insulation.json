@@ -1,0 +1,99 @@
+{
+  "id": "attic-insulation",
+  "industry": "Home Services",
+  "niche": "Attic Insulation",
+  "icon": "Thermometer",
+  "sidebar": {
+    "nicheLabel": "Attic Insulation",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your attic insulation operations manager. I keep your install crews booked, your energy audit leads moving, and your estimates dialed in. What do you need today?",
+    "quickActions": [
+      {"label": "Schedule an energy audit", "prompt": "Help me schedule a free attic energy audit for a homeowner this week."},
+      {"label": "Create an insulation estimate", "prompt": "Draft an estimate for blown-in cellulose insulation for a 1,500 sq ft attic."},
+      {"label": "Follow up on pending estimates", "prompt": "Show me all estimates sent in the last 14 days that haven't been accepted yet."},
+      {"label": "Check today's install schedule", "prompt": "Show me today's installation schedule and crew assignments."},
+      {"label": "Send rebate info to leads", "prompt": "Send information about available utility rebates and tax credits to all open leads."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for an attic insulation business. You understand blown-in insulation (cellulose, fiberglass), batt insulation, spray foam, radiant barriers, air sealing, R-value requirements by climate zone, energy audits, and utility rebate programs. You help schedule energy audits and installation crews, generate accurate estimates based on attic square footage and target R-value, track leads from audit through install, and manage customer communication. Always reference local building codes, ENERGY STAR guidelines, and available rebates or tax credits when relevant."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your local attic insulation and energy efficiency experts. How can I help you today?",
+    "commonReasons": [
+      "Schedule a free attic energy audit",
+      "Get a quote for attic insulation",
+      "Ask about blown-in vs. spray foam options",
+      "Inquire about utility rebates and tax credits",
+      "Schedule insulation removal and replacement",
+      "Ask about radiant barrier installation",
+      "Report high energy bills or uneven temperatures",
+      "Ask about air sealing services"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Business details", "description": "Enter your insulation company name, address, service area, climate zone, and contact information."},
+      {"id": "services", "title": "Services offered", "description": "Select the insulation services you provide: blown-in, batt, spray foam, radiant barrier, air sealing, removal, and energy audits."},
+      {"id": "team", "title": "Your crew", "description": "Add your installation crews and energy auditors with their certifications and availability."},
+      {"id": "pricing", "title": "Pricing & estimates", "description": "Set your rates per square foot for each insulation type, energy audit fees, and common add-on services."},
+      {"id": "integrations", "title": "Connect your tools", "description": "Link your Google Business Profile, payment processor, and any energy audit or project management tools you use."},
+      {"id": "go-live", "title": "Go live", "description": "Review your setup, activate your AI receptionist, and start capturing insulation leads."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Free Energy Audit",
+      "Blown-in Cellulose Insulation",
+      "Blown-in Fiberglass Insulation",
+      "Spray Foam Insulation",
+      "Batt Insulation Install",
+      "Radiant Barrier Installation",
+      "Air Sealing",
+      "Insulation Removal & Replacement",
+      "Commercial Insulation"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for an attic insulation business.",
+    "capabilities": [
+      "Schedule energy audits and installation jobs",
+      "Generate estimates based on attic square footage, insulation type, and target R-value",
+      "Track leads from initial audit through completed installation",
+      "Manage installation crew assignments and daily schedules",
+      "Send automated review requests after completed installations",
+      "Provide information on utility rebates and federal tax credits",
+      "Monitor material inventory for cellulose, fiberglass, and spray foam",
+      "Follow up on pending estimates with timely reminders",
+      "Analyze conversion rates from energy audit to paid installation",
+      "Track seasonal demand patterns and adjust marketing spend accordingly"
+    ],
+    "terminology": {
+      "customer": "Homeowner",
+      "appointment": "Site visit",
+      "job": "Installation",
+      "estimate": "Estimate",
+      "service": "Insulation service",
+      "team_member": "Installer",
+      "location": "Property"
+    }
+  }
+}

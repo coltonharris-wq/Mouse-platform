@@ -1,0 +1,99 @@
+{
+  "id": "fertility-clinic",
+  "industry": "Healthcare",
+  "niche": "Fertility Clinic",
+  "icon": "Heart",
+  "sidebar": {
+    "nicheLabel": "Fertility Clinic",
+    "tabs": [
+      {"id": "scheduling", "label": "Patient scheduling", "icon": "Calendar", "component": "PatientScheduling"},
+      {"id": "insurance", "label": "Insurance & billing", "icon": "FileText", "component": "InsuranceBilling"},
+      {"id": "portal", "label": "Patient portal", "icon": "Users", "component": "PatientPortal"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "appointments", "label": "Appointments", "icon": "Calendar", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Appointments today", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your fertility clinic practice manager. Ready to check today's patient schedule, review cycle monitoring appointments, or see how new patient consultations are trending?",
+    "quickActions": [
+      {"label": "Show today's schedule", "prompt": "Show me today's appointments including monitoring visits, consultations, and procedures"},
+      {"label": "Check cycle monitoring", "prompt": "Show me patients currently in active IVF or IUI cycles who need monitoring this week"},
+      {"label": "Review new consultations", "prompt": "Show me new patient consultation requests and their referral sources"},
+      {"label": "Send medication reminders", "prompt": "Send medication protocol reminders to patients in active treatment cycles"},
+      {"label": "View pending authorizations", "prompt": "Show me insurance pre-authorization requests that are pending for fertility treatments"}
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for a fertility clinic. You help manage patient scheduling, cycle monitoring coordination, treatment plan tracking, and practice growth. You understand IVF protocols, IUI procedures, egg freezing, embryo transfer scheduling, hormonal monitoring, fertility medication protocols, insurance coverage for reproductive services, and the sensitive and compassionate communication required in fertility care."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We're here to help you schedule an appointment, ask about our fertility services, or assist with insurance and billing questions.",
+    "commonReasons": [
+      "Schedule a consultation",
+      "Cycle monitoring appointment",
+      "Insurance pre-authorization",
+      "Medication protocol question",
+      "Lab results inquiry",
+      "Reschedule or cancel",
+      "Billing inquiry",
+      "New patient registration"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "clinic-info", "title": "Clinic information", "description": "Enter your fertility clinic name, address, and contact details"},
+      {"id": "providers", "title": "Reproductive endocrinologists", "description": "Add your fertility specialists, embryologists, nurses, and clinical staff"},
+      {"id": "services", "title": "Services & treatments", "description": "Select your offerings including IVF, IUI, egg freezing, genetic testing, and fertility assessments"},
+      {"id": "insurance", "title": "Insurance & financing", "description": "Add insurance plans and fertility financing options you accept"},
+      {"id": "hours", "title": "Clinic hours", "description": "Set your consultation hours, monitoring hours, and procedure schedules"},
+      {"id": "branding", "title": "Clinic branding", "description": "Upload your logo and customize your patient-facing pages"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Initial fertility consultation",
+      "IVF treatment cycle",
+      "IUI treatment cycle",
+      "Egg freezing",
+      "Embryo transfer",
+      "Preimplantation genetic testing",
+      "Male fertility evaluation",
+      "Donor egg or sperm program",
+      "Fertility preservation"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Insurance referral", "OB-GYN referral"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for a fertility clinic.",
+    "capabilities": [
+      "Manage patient appointments including monitoring, consultations, and procedures",
+      "Coordinate IVF and IUI cycle scheduling and treatment timelines",
+      "Track patient treatment protocols and medication instructions",
+      "Verify insurance eligibility and manage pre-authorizations for fertility treatments",
+      "Handle new patient intake forms and medical histories",
+      "Generate billing reports for treatments, procedures, and lab work",
+      "Coordinate referrals from OB-GYNs and other reproductive specialists",
+      "Monitor reviews and online reputation with sensitivity to patient privacy",
+      "Send cycle monitoring reminders and medication protocol updates",
+      "Analyze patient volume, treatment success metrics, and consultation conversion"
+    ],
+    "terminology": {
+      "customer": "patient",
+      "appointment": "appointment",
+      "job": "treatment cycle",
+      "estimate": "treatment plan",
+      "service": "procedure",
+      "team_member": "provider",
+      "location": "clinic"
+    }
+  }
+}

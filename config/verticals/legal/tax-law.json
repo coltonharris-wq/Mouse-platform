@@ -1,0 +1,95 @@
+{
+  "id": "tax-law",
+  "industry": "Legal",
+  "niche": "Tax Law",
+  "icon": "Calculator",
+  "sidebar": {
+    "nicheLabel": "Tax Law",
+    "tabs": [
+      {"id": "cases", "label": "Case intake", "icon": "Briefcase", "component": "CaseIntake"},
+      {"id": "clients", "label": "Client portal", "icon": "Users", "component": "ClientPortal"},
+      {"id": "documents", "label": "Document management", "icon": "FileText", "component": "DocumentManagement"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "cases", "label": "Active cases", "icon": "Briefcase", "defaultValue": "0", "subtitle": "total open"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Cases active", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, counselor! Let's review your tax law matters and stay ahead of every IRS deadline and compliance requirement.",
+    "quickActions": [
+      "Log a new tax dispute case",
+      "File IRS offer in compromise",
+      "Prepare installment agreement request",
+      "Check IRS response deadlines",
+      "Draft tax court petition"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for a tax law firm. You help manage IRS disputes, tax court litigation, offers in compromise, installment agreements, and tax planning matters. You understand federal and state tax codes, IRS procedures, audit defense, and resolution strategies for individuals and businesses with tax liabilities."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling the law offices of {company_name}. We help individuals and businesses resolve tax disputes and achieve tax compliance with the IRS and state agencies. How can I help you today?",
+    "commonReasons": [
+      "New tax case consultation",
+      "Case status update",
+      "IRS notice or letter question",
+      "Payment plan inquiry",
+      "Audit notice received",
+      "Tax court deadline question"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "firm-info", "title": "Firm Information", "description": "Enter your law firm name, address, and contact details"},
+      {"id": "practice-areas", "title": "Tax Law Services", "description": "Select the tax matters you handle (IRS disputes, audit defense, tax court, offers in compromise, etc.)"},
+      {"id": "intake-process", "title": "Case Intake Process", "description": "Configure your intake questionnaire, IRS authorization forms (POA), and consultation scheduling"},
+      {"id": "fee-structure", "title": "Fee Structure", "description": "Set your flat fees by resolution type, hourly rates for litigation, and retainer policies"},
+      {"id": "integrations", "title": "Integrations", "description": "Connect your tax software, IRS e-services tools, and calendar"},
+      {"id": "branding", "title": "Branding & Website", "description": "Upload your logo, set firm colors, and configure your client-facing website"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "IRS audit defense",
+      "Offer in compromise",
+      "Installment agreement",
+      "Tax court petition",
+      "Wage levy / bank levy release",
+      "Tax lien removal",
+      "Innocent spouse relief",
+      "Payroll tax resolution",
+      "State tax dispute",
+      "Tax planning and compliance"
+    ],
+    "statusLabels": ["New inquiry", "Consultation", "Retained", "Active case", "Closed"],
+    "sourceLabels": ["Google Ads", "Avvo", "Referral", "Phone call", "Website form", "Bar association"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for a tax law firm.",
+    "capabilities": [
+      "Track tax cases from consultation through IRS or state resolution",
+      "Monitor IRS response deadlines, statute of limitations, and filing dates",
+      "Manage power of attorney filings and IRS transcript requests",
+      "Track offer in compromise submissions and review timelines",
+      "Coordinate audit defense document collection and responses",
+      "Generate financial analysis worksheets for resolution proposals",
+      "Schedule tax court appearances and IRS conference calls",
+      "Track flat fee and hourly billing by case type",
+      "Manage sensitive financial records with strict confidentiality",
+      "Monitor online reviews and reputation across legal directories"
+    ],
+    "terminology": {
+      "client": "client",
+      "case": "case",
+      "consultation": "consultation",
+      "retainer": "retainer"
+    }
+  }
+}

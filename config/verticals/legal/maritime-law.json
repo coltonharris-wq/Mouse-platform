@@ -1,0 +1,99 @@
+{
+  "id": "maritime-law",
+  "industry": "Legal",
+  "niche": "Maritime Law",
+  "icon": "Anchor",
+  "sidebar": {
+    "nicheLabel": "Maritime Law",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Consultations today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your maritime law firm operations manager. I keep your case intake flowing, your deadlines tracked, and your client communications shipshape. What do you need?",
+    "quickActions": [
+      {"label": "Schedule a client consultation", "prompt": "Help me schedule an initial consultation for a Jones Act injury claim this week."},
+      {"label": "Create a retainer agreement", "prompt": "Draft a retainer fee estimate for a cargo damage claim involving international shipping."},
+      {"label": "Check case deadlines", "prompt": "Show me all upcoming statute of limitations deadlines and court filing dates for the next 30 days."},
+      {"label": "View today's schedule", "prompt": "Show me today's client consultations, depositions, and court appearances."},
+      {"label": "Follow up on open inquiries", "prompt": "Show me all new client inquiries from the past week that haven't been scheduled for consultation."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a maritime law firm. You understand Jones Act claims, longshore and harbor workers' compensation, cargo damage and loss claims, vessel collision and allision, maritime liens, charter party disputes, offshore injury, marine insurance disputes, and admiralty jurisdiction. You help manage client intake, track critical filing deadlines and statutes of limitation, schedule consultations and depositions, generate retainer agreements, and manage client communications. Always be mindful of the unique jurisdictional requirements of admiralty law and the interplay between federal maritime law and state law."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, experienced maritime and admiralty law attorneys. How can I help you today?",
+    "commonReasons": [
+      "Report an offshore or vessel injury",
+      "Inquire about a Jones Act claim",
+      "Ask about a cargo damage or loss dispute",
+      "Schedule an initial legal consultation",
+      "Ask about longshore workers' compensation",
+      "Inquire about a maritime lien",
+      "Report a vessel collision or allision",
+      "Ask about marine insurance coverage dispute"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Firm details", "description": "Enter your maritime law firm name, address, jurisdictions served, and contact information."},
+      {"id": "services", "title": "Practice areas", "description": "Select your maritime practice areas: Jones Act, longshore comp, cargo claims, collision, maritime liens, charter disputes, and more."},
+      {"id": "team", "title": "Your attorneys", "description": "Add your maritime attorneys and paralegals with their bar admissions, specialties, and availability."},
+      {"id": "pricing", "title": "Fee structure", "description": "Set your consultation fees, retainer amounts, hourly rates, and contingency fee percentages by case type."},
+      {"id": "integrations", "title": "Connect your tools", "description": "Link your Google Business Profile, payment processor, case management system, and document storage."},
+      {"id": "go-live", "title": "Go live", "description": "Review your setup, activate your AI receptionist, and start capturing maritime law client leads."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Jones Act Injury Claim",
+      "Longshore & Harbor Workers' Comp",
+      "Cargo Damage or Loss Claim",
+      "Vessel Collision or Allision",
+      "Maritime Lien Enforcement",
+      "Charter Party Dispute",
+      "Offshore Platform Injury",
+      "Marine Insurance Dispute",
+      "Recreational Boating Accident"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a maritime law firm.",
+    "capabilities": [
+      "Schedule client consultations, depositions, and court appearances",
+      "Generate retainer agreements and fee estimates by case type",
+      "Track statutes of limitation and critical filing deadlines",
+      "Manage client intake from initial inquiry through case engagement",
+      "Coordinate with expert witnesses including marine surveyors and medical experts",
+      "Send automated case status updates and next-step communications",
+      "Track case milestones from intake through settlement or trial",
+      "Send review requests to clients after successful case resolution",
+      "Manage attorney caseload distribution and scheduling conflicts",
+      "Analyze case outcomes and revenue by maritime practice area"
+    ],
+    "terminology": {
+      "customer": "Client",
+      "appointment": "Consultation",
+      "job": "Case",
+      "estimate": "Retainer agreement",
+      "service": "Legal service",
+      "team_member": "Attorney",
+      "location": "Office"
+    }
+  }
+}

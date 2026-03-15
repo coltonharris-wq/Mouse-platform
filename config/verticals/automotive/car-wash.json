@@ -1,0 +1,80 @@
+{
+  "id": "car-wash",
+  "industry": "Automotive",
+  "niche": "Car Wash",
+  "icon": "Droplets",
+  "sidebar": {
+    "nicheLabel": "Car Wash",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Washes today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your car wash operations manager. I can help you manage membership plans, track wash volume, handle fleet accounts, and keep your tunnel and bays running at peak efficiency.",
+    "quickActions": [
+      {"label": "Create membership promo", "prompt": "Draft a promotional offer for a new unlimited monthly car wash membership plan with different tier options."},
+      {"label": "Follow up with fleet account", "prompt": "Write a follow-up message to a local business about setting up a fleet wash account for their company vehicles."},
+      {"label": "Handle customer complaint", "prompt": "Draft a professional response to a customer who reported a scratch on their vehicle after going through our wash tunnel."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a loyal car wash customer to leave us a Google review about their experience."},
+      {"label": "Plan seasonal detail package", "prompt": "Create a seasonal car wash and detail combo package to upsell during spring and fall."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a car wash business. You understand the car wash industry — express tunnels, self-serve bays, full-service washes, detail packages, unlimited membership plans, fleet accounts, water reclamation systems, chemical suppliers, conveyor maintenance, and seasonal demand patterns. You help manage membership sign-ups, track daily wash counts, schedule equipment maintenance, generate promotional campaigns, and optimize pricing tiers. You understand peak traffic hours, weather impacts on volume, and the importance of upselling premium wash packages and add-ons like ceramic spray, tire shine, and interior vacuum."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your local car wash and detailing experts. Whether you need a quick wash, a premium detail, or want to learn about our unlimited membership plans, we're happy to help. How can I assist you today?",
+    "commonReasons": ["Wash pricing and packages", "Unlimited membership sign-up", "Fleet account inquiry", "Detail appointment booking", "Gift card purchase", "Damage or complaint report", "Equipment or bay issue", "Business hours and location"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Car Wash Business", "description": "Tell us your car wash name, location, and what type of wash operation you run — tunnel, self-serve, full-service, or mobile."},
+      {"id": "services", "title": "Wash Packages & Services", "description": "Set up your wash tiers, detail packages, add-ons, and unlimited membership plans."},
+      {"id": "service-area", "title": "Service Area", "description": "Define your car wash location and the surrounding area you want to target for ads and promotions."},
+      {"id": "ai-receptionist", "title": "Call Handling", "description": "Set up your AI receptionist to answer pricing questions, sign up members, and handle complaints."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor reviews and send feedback requests after washes."},
+      {"id": "go-live", "title": "Launch Your Car Wash Hub", "description": "Review your settings and go live. Your car wash command center is ready to grow memberships and drive volume."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Express exterior wash", "Full-service wash", "Interior detail", "Full detail package", "Ceramic coating wash", "Fleet wash account", "Unlimited membership", "Mobile wash service", "RV or boat wash"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a car wash business.",
+    "capabilities": [
+      "Track daily wash volume and revenue across all wash packages",
+      "Manage unlimited membership sign-ups, renewals, and cancellations",
+      "Generate promotional campaigns for seasonal specials and new membership tiers",
+      "Handle fleet account inquiries and set up corporate wash programs",
+      "Schedule equipment maintenance and track chemical supply inventory",
+      "Request and manage Google reviews from customers after their wash",
+      "Create and optimize local Google Ads campaigns targeting nearby drivers",
+      "Monitor weather forecasts to predict wash volume and staffing needs",
+      "Send automated reminders for detail appointments and membership renewals",
+      "Generate revenue reports broken down by wash type, memberships, and add-ons"
+    ],
+    "terminology": {
+      "customer": "customer",
+      "appointment": "wash appointment",
+      "job": "wash",
+      "estimate": "wash quote",
+      "service": "wash package",
+      "team_member": "wash attendant",
+      "location": "wash site"
+    }
+  }
+}

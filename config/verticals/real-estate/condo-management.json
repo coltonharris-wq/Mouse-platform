@@ -1,0 +1,99 @@
+{
+  "id": "condo-management",
+  "industry": "Real estate",
+  "niche": "Condo Management",
+  "icon": "Building",
+  "sidebar": {
+    "nicheLabel": "Condo Management",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Open requests", "revenueLabel": "Assessments collected"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your condo management operations manager. Let's keep the association running smoothly, residents happy, and the financials in order.",
+    "quickActions": [
+      {"label": "Log a maintenance request", "prompt": "Walk me through logging a new maintenance request from a condo unit owner."},
+      {"label": "Prepare board meeting agenda", "prompt": "Help me prepare the agenda for the next condo association board meeting."},
+      {"label": "Check assessment collections", "prompt": "Show me the current status of monthly assessment collections and any delinquent accounts."},
+      {"label": "Schedule a vendor inspection", "prompt": "Help me schedule a vendor to inspect common area amenities or building systems."},
+      {"label": "Send a resident notice", "prompt": "Draft a community notice to send to all unit owners about an upcoming building event or policy update."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a condo management business. You help manage condominium associations including maintenance requests, assessment collection, board meeting coordination, vendor management, reserve fund planning, and resident communications. You understand condo association bylaws, CC&Rs, state condominium acts, reserve study requirements, and the balance between board governance and resident satisfaction."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We provide professional condominium association management services. How can I help you today?",
+    "commonReasons": [
+      "Submit a maintenance request",
+      "Ask about assessment payment status",
+      "Inquire about association management services",
+      "Report a common area issue",
+      "Ask about upcoming board meetings",
+      "Request an architectural modification approval",
+      "Ask about move-in/move-out procedures",
+      "Inquire about amenity reservations"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business", "title": "Your company", "description": "Tell us about your condo management firm, number of associations managed, and team size."},
+      {"id": "services", "title": "Management services", "description": "Define your services: financial management, maintenance coordination, board support, compliance."},
+      {"id": "properties", "title": "Associations", "description": "Add the condo associations in your portfolio with unit counts and amenity details."},
+      {"id": "pipeline", "title": "Lead sources", "description": "Connect your sources for new association contracts: referrals, board outreach, and industry events."},
+      {"id": "branding", "title": "Company branding", "description": "Upload your logo and set your company brand identity."},
+      {"id": "phone", "title": "Phone setup", "description": "Configure your AI receptionist to handle resident and board member calls."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Full-service association management",
+      "Financial-only management",
+      "Maintenance coordination",
+      "Board consulting",
+      "Reserve study coordination",
+      "Transition from developer",
+      "Emergency management takeover",
+      "Large-scale capital project oversight",
+      "Amenity management"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a condo management business.",
+    "capabilities": [
+      "Track and dispatch maintenance requests for common areas and units",
+      "Monitor monthly assessment collections and flag delinquent accounts",
+      "Prepare board meeting agendas, minutes, and action items",
+      "Manage vendor contracts for landscaping, cleaning, and building systems",
+      "Coordinate reserve fund planning and capital improvement projects",
+      "Process architectural modification requests and approvals",
+      "Send community-wide notices and emergency communications",
+      "Track insurance policies, renewals, and claims for associations",
+      "Generate financial statements and budget reports for board review",
+      "Maintain compliance with state condominium statutes and governing documents"
+    ],
+    "terminology": {
+      "customer": "unit owner",
+      "appointment": "inspection",
+      "job": "work order",
+      "estimate": "assessment",
+      "service": "management service",
+      "team_member": "community manager",
+      "location": "association"
+    }
+  }
+}

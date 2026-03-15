@@ -1,0 +1,80 @@
+{
+  "id": "solar-installation",
+  "industry": "Construction",
+  "niche": "Solar installation",
+  "icon": "Sun",
+  "sidebar": {
+    "nicheLabel": "Solar installation",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your solar operations manager. I can help you manage homeowner leads, schedule site surveys, send system design proposals, track permit approvals, and keep your install crews on rooftops.",
+    "quickActions": [
+      {"label": "Send solar proposal", "prompt": "Draft a solar proposal for a homeowner with a $250/month electric bill — include estimated system size in kW, panel count, projected savings, and available tax credits."},
+      {"label": "Follow up on a solar lead", "prompt": "Write a follow-up message to a homeowner who requested a solar quote after seeing our ad about eliminating their electric bill."},
+      {"label": "Schedule a site survey", "prompt": "Help me schedule a roof site survey including shade analysis, electrical panel assessment, and roof condition check for a solar install."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a homeowner to leave a Google review after their solar system was installed and passed final inspection."},
+      {"label": "Create battery storage promo", "prompt": "Draft a promotional message for battery backup systems like Tesla Powerwall paired with solar installations for energy independence."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a solar installation company. You speak the language of solar — kilowatts, panel wattage, inverters, microinverters, string inverters, racking, roof mounts, ground mounts, net metering, solar renewable energy credits, ITC tax credit, battery storage, Powerwall, Enphase, SolarEdge, shade analysis, production estimates, utility interconnection, AHJ permits, and PTO. You help manage the entire solar sales pipeline from lead to permission-to-operate, schedule site surveys and install crews, generate system proposals with savings projections, and track permitting and interconnection timelines."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your local solar installation experts. We help homeowners go solar, reduce their electric bills, and take advantage of tax credits. How can I assist you today?",
+    "commonReasons": ["Solar quote request", "System size question", "Tax credit information", "Battery storage inquiry", "Site survey scheduling", "Permit or interconnection status", "System monitoring question", "Roof compatibility question"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Solar Company", "description": "Tell us your company name, license number, location, and how many solar installation crews you run."},
+      {"id": "services", "title": "Solar Services", "description": "Select the solar services you offer — residential rooftop, ground mount, battery storage, commercial solar, EV charger add-on."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your solar installation service area by zip codes, cities, or utility territory."},
+      {"id": "ai-receptionist", "title": "Solar Call Handling", "description": "Set up your AI receptionist to qualify solar leads by electric bill, roof type, and homeownership, and book site surveys."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor reviews and request feedback after solar installations are complete."},
+      {"id": "go-live", "title": "Launch Your Solar Hub", "description": "Review your settings and go live. Your solar command center is ready to convert leads and manage installations."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Residential rooftop solar", "Ground mount solar", "Battery storage installation", "Commercial solar", "Solar panel upgrade", "EV charger with solar", "Solar roof replacement", "System monitoring setup"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a solar installation company.",
+    "capabilities": [
+      "Manage the full solar sales pipeline from lead to permission-to-operate",
+      "Generate solar proposals with system sizing, savings, and financing options",
+      "Schedule site surveys, install crews, and final inspection appointments",
+      "Follow up with homeowners requesting solar quotes and savings estimates",
+      "Track permit submissions, approvals, and utility interconnection timelines",
+      "Request and monitor Google reviews from homeowners with new solar systems",
+      "Run Google Ads targeting homeowners with high electric bills",
+      "Send milestone updates — design approved, permit pulled, install scheduled, PTO granted",
+      "Track panel, inverter, and racking inventory for upcoming installs",
+      "Generate revenue reports by system size, financing type, and lead source"
+    ],
+    "terminology": {
+      "customer": "homeowner",
+      "appointment": "site survey",
+      "job": "solar install",
+      "estimate": "solar proposal",
+      "service": "solar installation",
+      "team_member": "installer",
+      "location": "install site"
+    }
+  }
+}

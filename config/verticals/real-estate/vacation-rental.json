@@ -1,0 +1,95 @@
+{
+  "id": "vacation-rental",
+  "industry": "Real estate",
+  "niche": "Vacation Rental",
+  "icon": "Palmtree",
+  "sidebar": {
+    "nicheLabel": "Vacation Rental",
+    "tabs": [
+      {"id": "listings", "label": "Listing manager", "icon": "Building2", "component": "ListingManager"},
+      {"id": "pipeline", "label": "Lead pipeline", "icon": "Users", "component": "LeadPipeline"},
+      {"id": "openhouses", "label": "Open houses", "icon": "DoorOpen", "component": "OpenHouses"},
+      {"id": "transactions", "label": "Transaction tracker", "icon": "FileText", "component": "TransactionTracker"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "listings", "label": "Active listings", "icon": "Building2", "defaultValue": "0", "subtitle": "on market"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "volume", "label": "Volume", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Showings today", "revenueLabel": "Volume"}
+  },
+  "kingMouse": {
+    "greeting": "Let's keep those bookings flowing! Review your property availability, guest communications, and turnover schedules.",
+    "quickActions": [
+      "Check availability across all properties",
+      "Respond to a guest inquiry",
+      "Schedule a turnover cleaning",
+      "Adjust pricing for an upcoming season",
+      "Send check-in instructions to a guest"
+    ],
+    "systemPrompt": "You are King Mouse, an AI assistant for a vacation rental management professional. You help manage short-term rental listings, coordinate guest communications, schedule turnovers and cleanings, optimize pricing and occupancy, and maintain high guest review ratings. You understand platforms like Airbnb and VRBO, dynamic pricing, local regulations, and hospitality best practices."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We manage beautiful vacation rental properties for unforgettable getaways. How can I help you today?",
+    "commonReasons": [
+      "Check property availability for dates",
+      "Make a booking inquiry",
+      "Ask about a specific rental property",
+      "Report a maintenance issue during a stay",
+      "Request early check-in or late checkout",
+      "Inquire about property management services"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business", "title": "Your business", "description": "Tell us about your vacation rental management company and portfolio."},
+      {"id": "services", "title": "Rental types", "description": "Define your property types: beach house, cabin, condo, luxury villa, lake house."},
+      {"id": "listings", "title": "Properties", "description": "Add your rental properties with photos, amenities, and availability."},
+      {"id": "pipeline", "title": "Booking channels", "description": "Connect your platforms: Airbnb, VRBO, Booking.com, and direct booking website."},
+      {"id": "branding", "title": "Brand & marketing", "description": "Upload your logo and configure your vacation rental brand and marketing."},
+      {"id": "phone", "title": "Phone setup", "description": "Configure your AI receptionist to handle guest and property owner inquiries."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Beach house rental",
+      "Mountain cabin rental",
+      "Condo rental",
+      "Luxury villa rental",
+      "Lake house rental",
+      "City apartment rental",
+      "Owner seeking management",
+      "Event / Wedding venue rental"
+    ],
+    "statusLabels": ["New lead", "Showing", "Offer", "Under contract", "Closed"],
+    "sourceLabels": ["Zillow", "Realtor.com", "Referral", "Open house", "Google Ads", "Social media"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI assistant for a vacation rental management professional.",
+    "capabilities": [
+      "Manage property listings across Airbnb, VRBO, and direct channels",
+      "Coordinate guest communications from inquiry to checkout",
+      "Schedule turnover cleanings and property maintenance",
+      "Optimize pricing with dynamic and seasonal rate strategies",
+      "Track occupancy rates and revenue across the portfolio",
+      "Send automated check-in instructions and guest guides",
+      "Monitor and respond to guest reviews on all platforms",
+      "Manage property owner relationships and reporting",
+      "Ensure compliance with local short-term rental regulations",
+      "Analyze booking trends and channel performance"
+    ],
+    "terminology": {
+      "listing": "property listing",
+      "appointment": "showing",
+      "customer": "guest/owner",
+      "completion": "checkout",
+      "product": "rental property",
+      "revenue": "booking revenue"
+    }
+  }
+}

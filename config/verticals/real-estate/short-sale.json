@@ -1,0 +1,99 @@
+{
+  "id": "short-sale",
+  "industry": "Real estate",
+  "niche": "Short Sale Specialist",
+  "icon": "TrendingDown",
+  "sidebar": {
+    "nicheLabel": "Short Sale Specialist",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Active cases", "revenueLabel": "Commission volume"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your short sale operations manager. Let's help distressed homeowners find the best path forward and keep those lender negotiations on track.",
+    "quickActions": [
+      {"label": "Add a distressed homeowner", "prompt": "Walk me through adding a new distressed homeowner lead to the pipeline."},
+      {"label": "Check lender negotiation status", "prompt": "Show me the status of all pending lender negotiation packages."},
+      {"label": "Prepare a BPO package", "prompt": "Help me prepare a Broker Price Opinion package for a short sale listing."},
+      {"label": "Draft a hardship letter", "prompt": "Help me draft a hardship letter template for a homeowner's short sale application."},
+      {"label": "Review closing timeline", "prompt": "Show me all short sale cases approaching their closing deadlines this month."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a short sale specialist real estate business. You help manage distressed property transactions, lender negotiations, BPO preparation, hardship letter drafting, and buyer-seller coordination. You understand pre-foreclosure timelines, lender loss mitigation departments, deficiency judgment laws, short sale approval processes, and how to compassionately guide homeowners through financial hardship."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We specialize in helping homeowners navigate short sales and avoid foreclosure. How can I assist you today?",
+    "commonReasons": [
+      "Explore short sale options for my home",
+      "Check status of a pending short sale",
+      "Ask about foreclosure alternatives",
+      "Inquire about buying a short sale property",
+      "Schedule a confidential consultation",
+      "Discuss lender negotiation progress",
+      "Ask about deficiency judgment protection",
+      "Request a property valuation"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business", "title": "Your practice", "description": "Tell us about your short sale specialty, certifications, and years of experience."},
+      {"id": "services", "title": "Services offered", "description": "Define your services: short sale negotiation, foreclosure prevention, BPO preparation, buyer representation."},
+      {"id": "lenders", "title": "Lender contacts", "description": "Add your loss mitigation contacts at major lenders and servicers."},
+      {"id": "pipeline", "title": "Lead sources", "description": "Connect your lead sources: distressed property lists, attorney referrals, and online advertising."},
+      {"id": "branding", "title": "Company branding", "description": "Upload your logo and set your company brand identity."},
+      {"id": "phone", "title": "Phone setup", "description": "Configure your AI receptionist to handle sensitive homeowner and buyer calls."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Short sale listing",
+      "Pre-foreclosure consultation",
+      "Lender negotiation",
+      "BPO preparation",
+      "Short sale buyer representation",
+      "Loan modification referral",
+      "Deed in lieu consultation",
+      "Foreclosure defense referral",
+      "Investment property short sale"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a short sale specialist real estate business.",
+    "capabilities": [
+      "Track distressed property cases through the full short sale lifecycle",
+      "Manage lender negotiation timelines and document submissions",
+      "Prepare and organize BPO and CMA packages",
+      "Draft hardship letters and financial disclosure summaries",
+      "Monitor pre-foreclosure deadlines and auction dates",
+      "Coordinate between sellers, buyers, attorneys, and lenders",
+      "Track approval letters and closing requirements from servicers",
+      "Generate pipeline reports showing case status and bottlenecks",
+      "Maintain compliance with state-specific short sale regulations",
+      "Send compassionate automated updates to distressed homeowners"
+    ],
+    "terminology": {
+      "customer": "homeowner",
+      "appointment": "consultation",
+      "job": "short sale case",
+      "estimate": "property valuation",
+      "service": "short sale service",
+      "team_member": "negotiator",
+      "location": "property address"
+    }
+  }
+}

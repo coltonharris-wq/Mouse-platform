@@ -1,0 +1,80 @@
+{
+  "id": "excavation",
+  "industry": "Construction",
+  "niche": "Excavation",
+  "icon": "Shovel",
+  "sidebar": {
+    "nicheLabel": "Excavation",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your excavation operations manager. I can help you schedule dig crews, manage grading and trenching leads, bid site prep projects, coordinate hauling and dump runs, and keep your equipment running on every job.",
+    "quickActions": [
+      {"label": "Bid a site prep job", "prompt": "Draft a bid for a residential lot clearing and grading project including tree removal, topsoil stripping, rough grade, and compaction for a 0.5-acre lot."},
+      {"label": "Follow up on a trenching lead", "prompt": "Write a follow-up message to a contractor who requested a quote for utility trenching — water, sewer, and electrical — for a new home build."},
+      {"label": "Schedule equipment moves", "prompt": "Help me schedule excavator and skid steer transport to a new job site including lowboy trailer logistics."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a builder to leave a Google review after we completed their site prep and foundation excavation."},
+      {"label": "Create demolition promo", "prompt": "Draft a promotional message for residential demolition and lot clearing services for homeowners planning a new build."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for an excavation contractor. You speak the language of excavators — site prep, rough grading, finish grading, trenching, backfill, compaction, cut and fill, French drains, utility trenches, septic system installs, demolition, hauling, dump fees, track hoe, mini excavator, skid steer, dozer, and soil types. You help manage bids for builders and developers, schedule equipment and operators across sites, coordinate haul-off and material deliveries, and ensure jobs meet survey grades and compaction requirements."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your professional excavation and site work contractor. Whether you need lot clearing, grading, trenching, or demolition, we have the equipment and crew to get it done. How can I assist you today?",
+    "commonReasons": ["Site prep estimate", "Grading and leveling", "Utility trenching", "Foundation excavation", "Demolition quote", "Septic system install", "French drain or drainage work", "Land clearing"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Excavation Company", "description": "Tell us your company name, location, and what equipment you run — excavators, dozers, skid steers, dump trucks."},
+      {"id": "services", "title": "Excavation Services", "description": "Select the services you offer — site prep, grading, trenching, demolition, septic, drainage, hauling, land clearing."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your excavation service area by zip codes, cities, or drive-time radius."},
+      {"id": "ai-receptionist", "title": "Excavation Call Handling", "description": "Set up your AI receptionist to answer excavation inquiries, qualify projects by scope and site conditions, and book site visits."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to collect reviews from builders and homeowners."},
+      {"id": "go-live", "title": "Launch Your Excavation Hub", "description": "Review your settings and go live. Your excavation command center is ready to manage bids and equipment schedules."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Site preparation", "Rough grading", "Finish grading", "Utility trenching", "Foundation excavation", "Demolition", "Septic system install", "French drain installation", "Land clearing", "Hauling and material delivery"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for an excavation contractor.",
+    "capabilities": [
+      "Schedule equipment and operators across multiple excavation job sites",
+      "Generate excavation bids based on cubic yards, equipment hours, and haul distances",
+      "Coordinate lowboy trailer moves for excavators and dozers between sites",
+      "Follow up with builders requesting site prep, grading, and trenching bids",
+      "Track equipment maintenance schedules and fuel costs",
+      "Request and monitor reviews from builders and general contractors",
+      "Manage dump site accounts and haul-off ticket tracking",
+      "Send job start confirmations and equipment arrival schedules",
+      "Monitor weather to plan around rain delays and soil conditions",
+      "Generate revenue reports by project type — site prep, trenching, demo, septic"
+    ],
+    "terminology": {
+      "customer": "builder",
+      "appointment": "site visit",
+      "job": "excavation job",
+      "estimate": "excavation bid",
+      "service": "site work",
+      "team_member": "operator",
+      "location": "job site"
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "id": "demolition",
+  "industry": "Construction",
+  "niche": "Demolition",
+  "icon": "Hammer",
+  "sidebar": {
+    "nicheLabel": "Demolition",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your demolition operations manager. I can help you schedule teardowns, manage permits and disposal logistics, follow up on bid requests, and keep your crews and heavy equipment coordinated across every job site.",
+    "quickActions": [
+      {"label": "Send demolition estimate", "prompt": "Draft an estimate for a complete residential structure demolition including asbestos survey, permit filing, debris removal, and site grading."},
+      {"label": "Follow up on commercial demo bid", "prompt": "Write a follow-up message to a general contractor who requested a bid for interior selective demolition on a commercial renovation project."},
+      {"label": "Schedule a teardown job", "prompt": "Help me schedule a full structure demolition job including equipment mobilization, utility disconnects, and dumpster delivery."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a general contractor to leave a Google review after we completed their demolition project on time and on budget."},
+      {"label": "Create safety compliance checklist", "prompt": "Create a pre-demolition safety compliance checklist covering permits, asbestos abatement, utility disconnects, dust control, and neighbor notification."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a demolition business. You speak the language of demolition contractors — structural demolition, selective interior demo, mechanical demolition, implosion, wrecking ball, hydraulic excavators, skid steers, concrete crushers, asbestos abatement, lead paint surveys, demolition permits, dust and noise mitigation, debris hauling, landfill tipping fees, recycling and salvage, utility disconnections, and site grading. You help manage bids for residential and commercial demo projects, schedule crews and heavy equipment, track permits and environmental compliance, coordinate dumpster and hauling logistics, and follow up with general contractors and property owners. You understand demolition safety protocols, hazardous material regulations, and the importance of clean efficient site clearance."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your trusted demolition professionals. Whether you need a full structure teardown, interior selective demolition, or site clearing, we handle it safely and efficiently. How can I assist you today?",
+    "commonReasons": ["Residential demolition quote", "Commercial demolition bid", "Interior selective demo", "Concrete removal", "Site clearing and grading", "Asbestos survey question", "Permit and compliance inquiry", "Dumpster or debris hauling"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Demolition Company", "description": "Tell us your company name, location, and what types of demolition you specialize in — residential, commercial, or industrial."},
+      {"id": "services", "title": "Demolition Services", "description": "Select the services you offer — full structure demo, selective interior demo, concrete removal, site clearing, hazmat abatement, and debris hauling."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your demolition service area by zip codes, cities, or drive-time radius from your base."},
+      {"id": "ai-receptionist", "title": "Call Handling", "description": "Set up your AI receptionist to qualify demolition leads, collect project scope details, and schedule site visits."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor reviews and request feedback from general contractors and property owners."},
+      {"id": "go-live", "title": "Launch Your Demolition Hub", "description": "Review your settings and go live. Your demolition command center is ready to capture bids and coordinate teardown crews."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Full structure demolition", "Selective interior demolition", "Concrete removal and crushing", "Site clearing and grading", "Asbestos abatement", "Pool demolition", "Garage or shed removal", "Commercial strip-out", "Emergency demolition"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a demolition business.",
+    "capabilities": [
+      "Schedule demolition crews and heavy equipment across multiple job sites",
+      "Generate detailed demolition estimates with labor, equipment, hauling, and disposal costs",
+      "Track permits, environmental surveys, and regulatory compliance for each project",
+      "Follow up with general contractors and property owners on pending bid proposals",
+      "Coordinate dumpster delivery, debris hauling, and landfill or recycling logistics",
+      "Request and manage Google reviews from completed demolition projects",
+      "Create and optimize Google Ads campaigns targeting property owners and GCs",
+      "Send automated project milestone updates and schedule confirmations",
+      "Track heavy equipment utilization, maintenance schedules, and rental returns",
+      "Generate revenue reports broken down by residential, commercial, and specialty demolition"
+    ],
+    "terminology": {
+      "customer": "property owner",
+      "appointment": "site visit",
+      "job": "demolition job",
+      "estimate": "demo bid",
+      "service": "demolition service",
+      "team_member": "crew member",
+      "location": "job site"
+    }
+  }
+}

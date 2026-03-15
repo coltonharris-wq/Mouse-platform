@@ -1,0 +1,99 @@
+{
+  "id": "relocation-services",
+  "industry": "Real estate",
+  "niche": "Relocation Services",
+  "icon": "Truck",
+  "sidebar": {
+    "nicheLabel": "Relocation Services",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Relocations today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your relocation services operations manager. Let's make sure every transferee has a smooth landing in their new city.",
+    "quickActions": [
+      {"label": "Add a new transferee", "prompt": "Walk me through adding a new corporate transferee to the system."},
+      {"label": "Schedule a home-finding tour", "prompt": "Help me schedule a home-finding tour for an incoming relocatee."},
+      {"label": "Generate a cost-of-living report", "prompt": "Generate a cost-of-living comparison report for a transferee moving between two cities."},
+      {"label": "Track a relocation package", "prompt": "Show me the status of all active relocation packages and their milestones."},
+      {"label": "Send a welcome packet", "prompt": "Draft a welcome packet email for a new transferee arriving next week."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a relocation services business. You help coordinate corporate and individual relocations including home-finding tours, area orientations, school searches, spouse/partner career assistance, temporary housing, and move management. You understand corporate relocation policies, destination services, immigration basics, and the emotional aspects of uprooting families."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We specialize in making your move seamless, whether it's across the state or across the globe. How can I help you today?",
+    "commonReasons": [
+      "Inquire about relocation packages",
+      "Schedule a home-finding tour",
+      "Ask about temporary housing options",
+      "Request a cost-of-living comparison",
+      "Get help with school searches",
+      "Ask about corporate relocation programs",
+      "Check status of an active relocation",
+      "Inquire about international move support"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business", "title": "Your company", "description": "Tell us about your relocation services firm, service areas, and team size."},
+      {"id": "services", "title": "Service offerings", "description": "Define the relocation services you provide: domestic, international, corporate, individual."},
+      {"id": "partners", "title": "Partner network", "description": "Add your network of real estate agents, movers, and service providers in destination cities."},
+      {"id": "pipeline", "title": "Lead sources", "description": "Connect your corporate accounts, referral channels, and website inquiry forms."},
+      {"id": "branding", "title": "Company branding", "description": "Upload your logo and set your company brand identity."},
+      {"id": "phone", "title": "Phone setup", "description": "Configure your AI receptionist to handle transferee and corporate client calls."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Corporate relocation",
+      "Individual/family relocation",
+      "International relocation",
+      "Home-finding tour",
+      "Temporary housing",
+      "Area orientation",
+      "School search",
+      "Spouse/partner career assistance",
+      "Move management"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a relocation services business.",
+    "capabilities": [
+      "Coordinate end-to-end relocation timelines and milestones",
+      "Schedule home-finding tours and area orientations",
+      "Generate cost-of-living and neighborhood comparison reports",
+      "Manage corporate client accounts and policy compliance",
+      "Track temporary housing assignments and lease terms",
+      "Coordinate school search and enrollment assistance",
+      "Facilitate spouse and partner career support services",
+      "Manage vendor relationships with movers and service providers",
+      "Handle international relocation logistics and immigration referrals",
+      "Send automated check-ins and satisfaction surveys to transferees"
+    ],
+    "terminology": {
+      "customer": "transferee",
+      "appointment": "tour",
+      "job": "relocation",
+      "estimate": "relocation estimate",
+      "service": "relocation service",
+      "team_member": "relocation consultant",
+      "location": "destination city"
+    }
+  }
+}

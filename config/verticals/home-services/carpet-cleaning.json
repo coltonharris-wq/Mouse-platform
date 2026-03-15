@@ -1,0 +1,97 @@
+{
+  "id": "carpet-cleaning",
+  "industry": "Home services",
+  "niche": "Carpet cleaning",
+  "icon": "Layers",
+  "sidebar": {
+    "nicheLabel": "Carpet cleaning",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back! Let's keep those carpets fresh and your schedule packed. Ready to manage your jobs and grow your client base?",
+    "quickActions": [
+      {"label": "Schedule a cleaning", "prompt": "Help me schedule a new carpet cleaning job for a client."},
+      {"label": "Send an estimate", "prompt": "Help me create and send an estimate for carpet cleaning."},
+      {"label": "Follow up on leads", "prompt": "Show me my recent leads that need follow-up."},
+      {"label": "Check today's jobs", "prompt": "What carpet cleaning jobs are scheduled for today?"},
+      {"label": "Request a review", "prompt": "Help me send a review request to a recent client."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a carpet cleaning business. You help manage cleaning appointments, coordinate technicians and equipment, handle estimates based on room count and carpet type, and grow the business through reputation management and advertising."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We'll get your carpets looking and smelling like new. Are you looking to schedule a carpet cleaning or get a quote?",
+    "commonReasons": [
+      "Get a quote for carpet cleaning",
+      "Schedule a carpet cleaning",
+      "Ask about stain removal",
+      "Inquire about upholstery cleaning",
+      "Ask about pet odor treatment",
+      "Reschedule an appointment",
+      "Ask about area rug cleaning"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"target": "#business-name", "title": "Name your carpet cleaning business", "body": "Enter the name clients will see when you send estimates and invoices.", "position": "bottom"},
+      {"target": "#service-area", "title": "Set your service area", "body": "Define the neighborhoods or zip codes where your technicians operate.", "position": "bottom"},
+      {"target": "#service-types", "title": "Add your cleaning services", "body": "List the services you offer: steam cleaning, dry cleaning, stain removal, pet odor treatment, upholstery, etc.", "position": "right"},
+      {"target": "#pricing", "title": "Set your pricing", "body": "Configure pricing per room, per square foot, or by service type.", "position": "right"},
+      {"target": "#team", "title": "Add your technicians", "body": "Add team members so you can assign and schedule cleaning jobs efficiently.", "position": "left"},
+      {"target": "#go-live", "title": "Go live!", "body": "Your carpet cleaning business is set up. Start capturing leads and booking jobs!", "position": "bottom"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Whole-house carpet cleaning",
+      "Room carpet cleaning",
+      "Stain removal",
+      "Pet odor treatment",
+      "Upholstery cleaning",
+      "Area rug cleaning",
+      "Commercial carpet cleaning",
+      "Tile and grout cleaning",
+      "Scotchgard protection"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a carpet cleaning business.",
+    "capabilities": [
+      "Schedule and manage carpet cleaning appointments",
+      "Create estimates based on room count and service type",
+      "Coordinate technician assignments and routes",
+      "Track equipment maintenance and cleaning solution inventory",
+      "Send automated appointment reminders to clients",
+      "Generate invoices after completed jobs",
+      "Monitor online reviews and respond to feedback",
+      "Manage upsell opportunities for stain protection and add-on services",
+      "Handle before-and-after photo documentation",
+      "Analyze revenue by service type and property size"
+    ],
+    "terminology": {
+      "job": "cleaning job",
+      "client": "client",
+      "worker": "technician",
+      "team": "team",
+      "estimate": "estimate",
+      "service_area": "service area"
+    }
+  }
+}

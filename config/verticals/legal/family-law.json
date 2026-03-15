@@ -1,0 +1,95 @@
+{
+  "id": "family-law",
+  "industry": "Legal",
+  "niche": "Family Law",
+  "icon": "Heart",
+  "sidebar": {
+    "nicheLabel": "Family Law",
+    "tabs": [
+      {"id": "cases", "label": "Case intake", "icon": "Briefcase", "component": "CaseIntake"},
+      {"id": "clients", "label": "Client portal", "icon": "Users", "component": "ClientPortal"},
+      {"id": "documents", "label": "Document management", "icon": "FileText", "component": "DocumentManagement"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "cases", "label": "Active cases", "icon": "Briefcase", "defaultValue": "0", "subtitle": "total open"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Cases active", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, counselor! Let's check on your family law matters and make sure all court dates and filings are on track.",
+    "quickActions": [
+      "Log a new divorce or custody case",
+      "Prepare custody schedule proposal",
+      "Draft marital asset inventory",
+      "Schedule mediation session",
+      "File motion for temporary orders"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for a family law firm. You help manage divorce, custody, child support, adoption, and domestic relations cases. You understand court filing deadlines, custody schedules, asset division, and the emotional sensitivity required when working with families in transition."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling the law offices of {company_name}. We handle family law matters including divorce, custody, and support with compassion and dedication. How can I help you today?",
+    "commonReasons": [
+      "New case consultation",
+      "Case status update",
+      "Custody schedule question",
+      "Court date inquiry",
+      "Child support modification",
+      "Document request"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "firm-info", "title": "Firm Information", "description": "Enter your law firm name, address, and contact details"},
+      {"id": "practice-areas", "title": "Family Law Services", "description": "Select the family law matters you handle (divorce, custody, adoption, prenuptial agreements, etc.)"},
+      {"id": "intake-process", "title": "Case Intake Process", "description": "Configure your intake questionnaire, conflict checks, and consultation scheduling"},
+      {"id": "fee-structure", "title": "Fee Structure", "description": "Set your hourly rates, retainer amounts, and flat fee services"},
+      {"id": "integrations", "title": "Integrations", "description": "Connect your case management software, court filing systems, and calendar"},
+      {"id": "branding", "title": "Branding & Website", "description": "Upload your logo, set firm colors, and configure your client-facing website"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Divorce",
+      "Child custody",
+      "Child support",
+      "Spousal support / alimony",
+      "Prenuptial agreement",
+      "Postnuptial agreement",
+      "Adoption",
+      "Paternity",
+      "Domestic violence / protective order",
+      "Modification of orders"
+    ],
+    "statusLabels": ["New inquiry", "Consultation", "Retained", "Active case", "Closed"],
+    "sourceLabels": ["Google Ads", "Avvo", "Referral", "Phone call", "Website form", "Bar association"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for a family law firm.",
+    "capabilities": [
+      "Track divorce, custody, and support cases from intake through resolution",
+      "Monitor court dates, filing deadlines, and response windows",
+      "Manage custody schedule proposals and parenting plan drafts",
+      "Track marital asset and debt inventories for equitable division",
+      "Coordinate mediation and collaborative law sessions",
+      "Generate financial declarations and discovery responses",
+      "Schedule depositions, hearings, and client meetings",
+      "Track retainer balances and hourly billing",
+      "Manage sensitive client communication with discretion",
+      "Monitor online reviews and reputation across legal directories"
+    ],
+    "terminology": {
+      "client": "client",
+      "case": "case",
+      "consultation": "consultation",
+      "retainer": "retainer"
+    }
+  }
+}

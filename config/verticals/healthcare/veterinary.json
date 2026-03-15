@@ -1,0 +1,99 @@
+{
+  "id": "veterinary",
+  "industry": "Healthcare",
+  "niche": "Veterinary",
+  "icon": "Dog",
+  "sidebar": {
+    "nicheLabel": "Veterinary",
+    "tabs": [
+      {"id": "scheduling", "label": "Patient scheduling", "icon": "Calendar", "component": "PatientScheduling"},
+      {"id": "insurance", "label": "Insurance & billing", "icon": "FileText", "component": "InsuranceBilling"},
+      {"id": "portal", "label": "Patient portal", "icon": "Users", "component": "PatientPortal"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "appointments", "label": "Appointments", "icon": "Calendar", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Appointments today", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, Doctor! Let's keep your veterinary practice thriving. Ready to check today's patient schedule or review vaccination reminders?",
+    "quickActions": [
+      "Show today's appointment schedule",
+      "Check overdue vaccination reminders",
+      "Review pending lab results",
+      "Send wellness exam reminders",
+      "View pharmacy inventory"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for a veterinary practice. You help manage pet patient scheduling, vaccination tracking, prescription management, client communication, and practice growth. You understand veterinary terminology including wellness exams, vaccinations, spay/neuter, dental cleanings, and emergency care. Patients are pets and their owners are clients."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your trusted veterinary care provider. How may I help you and your pet today?",
+    "commonReasons": [
+      "Schedule appointment",
+      "Pet emergency",
+      "Vaccination question",
+      "Prescription refill",
+      "Reschedule or cancel",
+      "Billing inquiry",
+      "New patient registration",
+      "Lab results inquiry"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "practice-info", "title": "Practice information", "description": "Enter your veterinary practice name, address, and contact details"},
+      {"id": "providers", "title": "Veterinarians & staff", "description": "Add your veterinarians, vet techs, and support staff"},
+      {"id": "services", "title": "Veterinary services", "description": "Select the veterinary services and specialties you offer"},
+      {"id": "species", "title": "Species treated", "description": "Indicate which animal species your practice treats"},
+      {"id": "hours", "title": "Clinic hours", "description": "Set your practice hours, emergency availability, and appointment slots"},
+      {"id": "branding", "title": "Practice branding", "description": "Upload your logo and customize your client-facing pages"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Wellness exam",
+      "Vaccination",
+      "Spay or neuter",
+      "Dental cleaning",
+      "Emergency visit",
+      "Surgery consultation",
+      "Grooming",
+      "Boarding inquiry"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Insurance referral"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for a veterinary practice.",
+    "capabilities": [
+      "Manage pet patient appointments and wellness visits",
+      "Track vaccination schedules and send reminders",
+      "Manage prescription refills and pharmacy inventory",
+      "Monitor client retention and reactivation",
+      "Handle new patient and pet registration",
+      "Generate production and collection reports",
+      "Coordinate specialist referrals",
+      "Manage reviews and online reputation",
+      "Track lab results and follow-up care",
+      "Send appointment reminders and pet care tips"
+    ],
+    "terminology": {
+      "customer": "client",
+      "job": "appointment",
+      "business": "practice",
+      "estimate": "treatment estimate",
+      "invoice": "statement",
+      "worker": "veterinarian",
+      "booking": "appointment",
+      "service": "procedure"
+    }
+  }
+}

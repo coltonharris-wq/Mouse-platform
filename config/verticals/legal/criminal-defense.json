@@ -1,0 +1,95 @@
+{
+  "id": "criminal-defense",
+  "industry": "Legal",
+  "niche": "Criminal Defense",
+  "icon": "Shield",
+  "sidebar": {
+    "nicheLabel": "Criminal Defense",
+    "tabs": [
+      {"id": "cases", "label": "Case intake", "icon": "Briefcase", "component": "CaseIntake"},
+      {"id": "clients", "label": "Client portal", "icon": "Users", "component": "ClientPortal"},
+      {"id": "documents", "label": "Document management", "icon": "FileText", "component": "DocumentManagement"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "cases", "label": "Active cases", "icon": "Briefcase", "defaultValue": "0", "subtitle": "total open"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Cases active", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, counselor! Let's review your criminal defense docket and ensure every client's rights are fully protected.",
+    "quickActions": [
+      "Log a new criminal case",
+      "Check upcoming court appearances",
+      "File motion to suppress evidence",
+      "Review plea offer details",
+      "Schedule jail or client visit"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for a criminal defense law firm. You help manage felony and misdemeanor cases, track court dates and bail hearings, coordinate with prosecutors, and ensure timely filings. You understand the criminal justice process from arraignment through trial or plea, and you prioritize protecting clients' constitutional rights."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling the law offices of {company_name}. We aggressively defend the rights of individuals facing criminal charges. How can I help you today?",
+    "commonReasons": [
+      "New case consultation",
+      "Case status update",
+      "Court date inquiry",
+      "Bail or bond question",
+      "Attorney visit request",
+      "Payment or retainer question"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "firm-info", "title": "Firm Information", "description": "Enter your law firm name, address, and contact details"},
+      {"id": "practice-areas", "title": "Defense Areas", "description": "Select the types of criminal cases you defend (felonies, misdemeanors, drug offenses, white-collar, etc.)"},
+      {"id": "intake-process", "title": "Case Intake Process", "description": "Configure your intake questionnaire, conflict checks, and emergency consultation availability"},
+      {"id": "fee-structure", "title": "Fee Structure", "description": "Set your flat fees by case type, retainer amounts, and hourly rates for trial work"},
+      {"id": "integrations", "title": "Integrations", "description": "Connect your case management software, court docket systems, and calendar"},
+      {"id": "branding", "title": "Branding & Website", "description": "Upload your logo, set firm colors, and configure your client-facing website"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Felony defense",
+      "Misdemeanor defense",
+      "Drug charges",
+      "Assault / violent crimes",
+      "Theft / property crimes",
+      "White-collar crimes",
+      "Domestic violence defense",
+      "Weapons charges",
+      "Probation violation",
+      "Expungement / record sealing"
+    ],
+    "statusLabels": ["New inquiry", "Consultation", "Retained", "Active case", "Closed"],
+    "sourceLabels": ["Google Ads", "Avvo", "Referral", "Phone call", "Website form", "Bar association"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for a criminal defense law firm.",
+    "capabilities": [
+      "Track criminal cases from arrest through disposition",
+      "Monitor court dates, arraignments, and hearing schedules",
+      "Manage discovery documents and evidence review",
+      "Track plea negotiations and offer deadlines",
+      "Coordinate jail visits and client communication",
+      "Generate motions to suppress, dismiss, or compel",
+      "Monitor bail and bond conditions for all clients",
+      "Track flat fee and retainer billing by case type",
+      "Manage confidential client files with strict access controls",
+      "Monitor online reviews and reputation across legal directories"
+    ],
+    "terminology": {
+      "client": "client",
+      "case": "case",
+      "consultation": "consultation",
+      "retainer": "retainer"
+    }
+  }
+}

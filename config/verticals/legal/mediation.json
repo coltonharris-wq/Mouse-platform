@@ -1,0 +1,99 @@
+{
+  "id": "mediation",
+  "industry": "Legal",
+  "niche": "Mediation Services",
+  "icon": "Handshake",
+  "sidebar": {
+    "nicheLabel": "Mediation Services",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Sessions today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your mediation practice operations manager. I keep your sessions scheduled, your client intake moving, and your calendar balanced. What can I help with today?",
+    "quickActions": [
+      {"label": "Schedule a mediation session", "prompt": "Help me schedule a mediation session with both parties for a family dispute case this week."},
+      {"label": "Create a fee agreement", "prompt": "Draft a fee estimate for a commercial contract mediation expected to take 3 sessions."},
+      {"label": "Check intake pipeline", "prompt": "Show me all new client inquiries that haven't had their initial consultation scheduled yet."},
+      {"label": "View today's sessions", "prompt": "Show me today's mediation session schedule with case types and party names."},
+      {"label": "Send session prep reminders", "prompt": "Send preparation reminders to all parties scheduled for mediation sessions this week."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a mediation services practice. You understand divorce and family mediation, commercial and business dispute resolution, workplace mediation, elder care mediation, community mediation, and court-referred mediation. You help manage client intake, schedule sessions coordinating multiple parties, generate fee agreements, track case progress through mediation stages, and handle confidential communications. Always emphasize neutrality, confidentiality, and voluntary participation as core mediation principles."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, professional mediation and dispute resolution services. How can I help you today?",
+    "commonReasons": [
+      "Schedule an initial consultation",
+      "Inquire about divorce or family mediation",
+      "Ask about commercial dispute mediation",
+      "Get information about mediation fees",
+      "Schedule a follow-up mediation session",
+      "Ask about workplace conflict resolution",
+      "Inquire about court-ordered mediation",
+      "Request information about the mediation process"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Practice details", "description": "Enter your mediation practice name, address, service area, and contact information."},
+      {"id": "services", "title": "Mediation specialties", "description": "Select your mediation areas: family, divorce, commercial, workplace, elder care, community, and court-referred."},
+      {"id": "team", "title": "Your mediators", "description": "Add your certified mediators with their specialties, credentials, and session availability."},
+      {"id": "pricing", "title": "Fee structure", "description": "Set your rates for initial consultations, hourly session fees, flat-rate packages, and retainer options."},
+      {"id": "integrations", "title": "Connect your tools", "description": "Link your Google Business Profile, payment processor, video conferencing platform, and calendar."},
+      {"id": "go-live", "title": "Go live", "description": "Review your setup, activate your AI receptionist, and start capturing mediation client leads."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Divorce Mediation",
+      "Family Dispute Mediation",
+      "Child Custody Mediation",
+      "Commercial Contract Dispute",
+      "Business Partnership Dispute",
+      "Workplace Conflict Resolution",
+      "Elder Care Mediation",
+      "Court-Referred Mediation",
+      "Community Dispute Mediation"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a mediation services practice.",
+    "capabilities": [
+      "Schedule mediation sessions coordinating availability of all parties",
+      "Generate fee agreements and invoices for mediation engagements",
+      "Manage client intake from initial inquiry through case opening",
+      "Track case progress through pre-mediation, active sessions, and resolution",
+      "Send session preparation materials and reminders to all parties",
+      "Coordinate virtual mediation sessions via video conferencing links",
+      "Maintain strict confidentiality protocols for all case communications",
+      "Send review requests to clients after successful case resolution",
+      "Manage mediator caseload balance and scheduling availability",
+      "Analyze settlement rates and average case duration by dispute type"
+    ],
+    "terminology": {
+      "customer": "Client",
+      "appointment": "Session",
+      "job": "Case",
+      "estimate": "Fee agreement",
+      "service": "Mediation service",
+      "team_member": "Mediator",
+      "location": "Office"
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "id": "bbq",
+  "industry": "Food & Drink",
+  "niche": "BBQ",
+  "icon": "Beef",
+  "sidebar": {
+    "nicheLabel": "BBQ",
+    "tabs": [
+      {"id": "orders", "label": "Order management", "icon": "ShoppingCart", "component": "OrderManagement"},
+      {"id": "menu", "label": "Menu builder", "icon": "BookOpen", "component": "MenuBuilder"},
+      {"id": "reservations", "label": "Reservations", "icon": "Calendar", "component": "Reservations"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "orders", "label": "Orders today", "icon": "ShoppingCart", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "reservations", "label": "Reservations", "icon": "Calendar", "defaultValue": "0", "subtitle": "today"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Orders today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, pitmaster! Let's check on the smokers and get today's operation running smooth. Want to see what's selling, check the brisket timer, or review catering orders?",
+    "quickActions": [
+      "Check today's smoker schedule",
+      "View incoming orders and sell-out status",
+      "Update the daily meat board",
+      "Review upcoming catering orders",
+      "Post a smoker shot to social media"
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a BBQ business. You help manage smoker schedules, meat inventory, daily sell-out tracking, catering operations, and pitmaster workflows. You understand low-and-slow cooking timelines, wood and fuel sourcing, meat yield percentages, side dish prep, and the sell-until-gone model that defines great BBQ."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We can help you place an order, check what meats we're still serving today, or set up catering for your next event.",
+    "commonReasons": [
+      "Order for pickup",
+      "What's still available today",
+      "Catering inquiry",
+      "Large party order",
+      "Hours of operation",
+      "Menu and pricing",
+      "Bulk meat order"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      "Tell us about your BBQ joint and smoking style",
+      "Build your menu with smoked meats, sides, and platters",
+      "Set up your daily smoker schedule and sell-out tracking",
+      "Configure online ordering for pickup and catering",
+      "Set your hours and special event smoking schedule",
+      "Customize your website with pitmaster story and food photos"
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Event catering",
+      "Whole brisket order",
+      "Corporate BBQ lunch",
+      "Wedding rehearsal dinner",
+      "Tailgate party catering",
+      "Bulk smoked meat order",
+      "BBQ competition sponsorship",
+      "Holiday smoked turkey order"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google", "Yelp", "Instagram", "Word of mouth", "DoorDash", "UberEats"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a BBQ business.",
+    "capabilities": [
+      "Manage smoker schedules and low-and-slow cooking timelines",
+      "Track daily meat inventory and sell-out times",
+      "Update the meat board and daily specials in real time",
+      "Handle catering orders for events and large parties",
+      "Coordinate wood, fuel, and raw meat procurement",
+      "Promote daily cooks and behind-the-scenes content on social media",
+      "Monitor reviews on Yelp, Google, and BBQ community forums",
+      "Manage online ordering for pickup and delivery",
+      "Analyze meat yield percentages and food cost by cut",
+      "Generate daily sell-through and weekly revenue reports"
+    ],
+    "terminology": {
+      "client": "customer",
+      "job": "order",
+      "booking": "reservation",
+      "project": "catering job",
+      "invoice": "receipt",
+      "team": "pit crew"
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "id": "roofing",
+  "industry": "Construction",
+  "niche": "Roofing",
+  "icon": "HardHat",
+  "sidebar": {
+    "nicheLabel": "Roofing",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your roofing operations manager. I can help you schedule roof inspections, follow up on storm damage leads, send shingle and flat roof estimates, and keep your crews on track across every job site.",
+    "quickActions": [
+      {"label": "Send roof inspection estimate", "prompt": "Draft an estimate for a residential roof inspection including checking for missing shingles, flashing damage, and gutter condition."},
+      {"label": "Follow up on storm damage lead", "prompt": "Write a follow-up message to a homeowner who called about storm damage to their roof after recent severe weather."},
+      {"label": "Schedule a re-roof job", "prompt": "Help me schedule a full re-roof job including tear-off, underlayment, and shingle installation for a 2,000 sq ft home."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a recent roofing customer to leave us a Google review after we completed their roof replacement."},
+      {"label": "Create roof maintenance plan", "prompt": "Create a seasonal roof maintenance plan I can offer to existing customers as a recurring revenue service."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a roofing business. You speak the language of roofing contractors — tear-offs, re-roofs, ridge caps, drip edges, ice and water shield, architectural shingles, TPO, EPDM, standing seam metal, flashing, valleys, soffits, fascia, and storm damage claims. You help manage leads from storm chasers and homeowners, schedule crews for inspections and installs, generate estimates with accurate square footage pricing, and follow up on insurance restoration work. You understand roofing seasons, weather delays, and the importance of quick response to storm damage leads."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your trusted local roofing experts. Whether you need a roof inspection, repair, or full replacement, we're here to help. How can I assist you today?",
+    "commonReasons": ["Roof inspection request", "Storm damage estimate", "Roof leak repair", "Full roof replacement quote", "Gutter installation or repair", "Insurance claim assistance", "Schedule a crew visit", "Warranty question"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Roofing Company", "description": "Tell us your company name, location, and how many roofing crews you run."},
+      {"id": "services", "title": "Roofing Services", "description": "Select the roofing services you offer — shingle, metal, flat roof, repairs, gutters, storm restoration."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your roofing service area by zip codes, cities, or drive-time radius."},
+      {"id": "ai-receptionist", "title": "Roof Call Handling", "description": "Set up your AI receptionist to answer roofing inquiries, qualify storm damage leads, and book inspections."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor roofing reviews and request feedback after completed jobs."},
+      {"id": "go-live", "title": "Launch Your Roofing Hub", "description": "Review your settings and go live. Your roofing command center is ready to capture leads and schedule crews."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Roof inspection", "Shingle roof replacement", "Metal roof installation", "Flat roof repair", "Storm damage restoration", "Gutter installation", "Skylight installation", "Roof leak repair", "Commercial roofing"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a roofing business.",
+    "capabilities": [
+      "Schedule roof inspections and crew assignments across multiple job sites",
+      "Generate detailed roofing estimates with material and labor breakdowns",
+      "Track storm damage leads and insurance restoration pipeline",
+      "Follow up with homeowners after inspections with repair recommendations",
+      "Monitor weather forecasts to plan crew schedules and avoid delays",
+      "Request and manage Google reviews from completed roofing jobs",
+      "Create and optimize roofing-specific Google Ads campaigns",
+      "Send automated appointment reminders for scheduled roof inspections",
+      "Track shingle, metal, and flat roof inventory and material orders",
+      "Generate revenue reports broken down by residential vs commercial roofing"
+    ],
+    "terminology": {
+      "customer": "homeowner",
+      "appointment": "roof inspection",
+      "job": "roofing job",
+      "estimate": "roof estimate",
+      "service": "roofing service",
+      "team_member": "crew member",
+      "location": "job site"
+    }
+  }
+}

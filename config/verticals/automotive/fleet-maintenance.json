@@ -1,0 +1,97 @@
+{
+  "id": "fleet-maintenance",
+  "industry": "Automotive",
+  "niche": "Fleet Maintenance",
+  "icon": "ClipboardList",
+  "sidebar": {
+    "nicheLabel": "Fleet Maintenance",
+    "tabs": [
+      {"id": "tickets", "label": "Service tickets", "icon": "Clipboard", "component": "ServiceTickets"},
+      {"id": "parts", "label": "Parts inventory", "icon": "Package", "component": "PartsInventory"},
+      {"id": "vehicles", "label": "Customer vehicles", "icon": "Car", "component": "CustomerVehicles"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "tickets", "label": "Open tickets", "icon": "Clipboard", "defaultValue": "0", "subtitle": "in progress"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Services today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! Your fleet maintenance operation is running on schedule. Let's keep those vehicles compliant, maintained, and on the road.",
+    "quickActions": [
+      "Create a preventive maintenance ticket",
+      "Check fleet vehicles overdue for service",
+      "Generate a fleet compliance report",
+      "Order bulk parts for scheduled PM",
+      "View fleet-wide service schedule"
+    ],
+    "systemPrompt": "You are King Mouse, an AI shop manager for a fleet maintenance business. You help manage preventive maintenance schedules, track fleet vehicle service history, coordinate bulk parts ordering, ensure DOT compliance, and handle fleet account communication. You understand fleet services including PM schedules, DOT inspections, brake service, tire management, fluid services, and vehicle lifecycle tracking."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your fleet maintenance and service partner. How can we assist you today?",
+    "commonReasons": [
+      "Schedule fleet vehicle service",
+      "Report a vehicle breakdown",
+      "Check PM schedule for a fleet",
+      "Ask about fleet maintenance contracts",
+      "Inquire about DOT inspection availability",
+      "Get a fleet service estimate"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Business details", "description": "Enter your fleet maintenance business name, address, and contact info"},
+      {"id": "services", "title": "Services offered", "description": "Select your fleet services (PM, DOT inspections, brakes, tires, etc.)"},
+      {"id": "fleet-types", "title": "Fleet types", "description": "What fleet vehicle types do you service (light duty, medium, heavy, specialty)?"},
+      {"id": "hours", "title": "Operating hours", "description": "Set your shop hours and emergency service availability"},
+      {"id": "branding", "title": "Brand & website", "description": "Upload your logo and set up your fleet portal"},
+      {"id": "integrations", "title": "Connect tools", "description": "Link your fleet management system, parts suppliers, and compliance tools"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Preventive maintenance",
+      "DOT inspection",
+      "Brake service",
+      "Tire rotation and replacement",
+      "Oil and fluid service",
+      "Electrical system repair",
+      "AC and heating service",
+      "Suspension repair",
+      "Fleet onboarding",
+      "Emergency breakdown repair"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website", "RepairPal", "AutoMD"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI shop manager for a fleet maintenance business.",
+    "capabilities": [
+      "Create and manage fleet service tickets by account",
+      "Track PM schedules and send overdue alerts",
+      "Monitor fleet vehicle service history and compliance",
+      "Schedule preventive maintenance by mileage or time interval",
+      "Generate fleet compliance and DOT inspection reports",
+      "Coordinate bulk parts ordering for scheduled PMs",
+      "Monitor online reviews and reputation",
+      "Run fleet cost-per-mile and downtime reports",
+      "Manage fleet account billing and contracts",
+      "Track vehicle lifecycle and replacement planning"
+    ],
+    "terminology": {
+      "service": "service",
+      "vehicle": "vehicle",
+      "ticket": "ticket",
+      "customer": "customer",
+      "worker": "technician",
+      "location": "shop"
+    }
+  }
+}

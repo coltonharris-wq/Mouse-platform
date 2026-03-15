@@ -1,0 +1,99 @@
+{
+  "id": "mosquito-control",
+  "industry": "Home Services",
+  "niche": "Mosquito & Pest Control",
+  "icon": "Bug",
+  "sidebar": {
+    "nicheLabel": "Mosquito & Pest Control",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your mosquito and pest control operations manager. I keep your spray schedules locked in, your recurring customers on track, and new leads flowing. What can I help with today?",
+    "quickActions": [
+      {"label": "Schedule a yard treatment", "prompt": "Help me schedule a barrier spray treatment for a residential customer this week."},
+      {"label": "Create a seasonal plan quote", "prompt": "Draft an estimate for a seasonal mosquito control package covering April through October."},
+      {"label": "Check recurring service schedule", "prompt": "Show me all customers due for their next recurring spray treatment in the next 7 days."},
+      {"label": "View today's spray route", "prompt": "Show me today's treatment schedule and the most efficient route for my technicians."},
+      {"label": "Send reactivation offers", "prompt": "Send a reactivation offer to last year's seasonal customers who haven't signed up yet this year."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a mosquito and pest control business. You understand barrier spray treatments, misting system installation, larvicide applications, tick and flea yard treatments, special event spraying, recurring service plans, and integrated pest management principles. You help schedule spray technicians, manage recurring treatment cycles, generate seasonal package quotes, and handle customer communication. Always be mindful of weather conditions affecting spray schedules and EPA-registered product guidelines."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your local mosquito and pest control experts. How can I help you today?",
+    "commonReasons": [
+      "Schedule a mosquito barrier spray",
+      "Get a quote for a seasonal treatment plan",
+      "Ask about tick and flea yard treatment",
+      "Schedule a special event spray",
+      "Inquire about misting system installation",
+      "Report a pest issue on property",
+      "Ask about organic or natural treatment options",
+      "Renew a recurring service plan"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Business details", "description": "Enter your pest control company name, address, service area, and contact information."},
+      {"id": "services", "title": "Services offered", "description": "Select the pest control services you provide: barrier sprays, misting systems, larvicide, tick treatments, event spraying, and more."},
+      {"id": "team", "title": "Your crew", "description": "Add your licensed spray technicians and assign their certifications, territories, and availability."},
+      {"id": "pricing", "title": "Pricing & estimates", "description": "Set your rates for one-time treatments, seasonal packages, and recurring service plans by yard size."},
+      {"id": "integrations", "title": "Connect your tools", "description": "Link your Google Business Profile, payment processor, and any route optimization or CRM tools you use."},
+      {"id": "go-live", "title": "Go live", "description": "Review your setup, activate your AI receptionist, and start capturing pest control leads."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Mosquito Barrier Spray",
+      "Seasonal Treatment Package",
+      "Tick & Flea Yard Treatment",
+      "Special Event Spray",
+      "Misting System Installation",
+      "Misting System Maintenance",
+      "Larvicide Application",
+      "Organic Pest Treatment",
+      "Commercial Property Treatment"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a mosquito and pest control business.",
+    "capabilities": [
+      "Schedule and dispatch barrier spray and treatment jobs",
+      "Generate quotes for seasonal packages and one-time treatments",
+      "Manage recurring treatment cycles and send service reminders",
+      "Track weather conditions and flag days unsuitable for spraying",
+      "Optimize daily spray routes for field technicians",
+      "Send automated review requests after completed treatments",
+      "Manage seasonal customer reactivation campaigns",
+      "Track product usage and inventory for EPA-registered treatments",
+      "Handle special event spray bookings with date-sensitive scheduling",
+      "Analyze customer retention rates and recurring plan conversions"
+    ],
+    "terminology": {
+      "customer": "Homeowner",
+      "appointment": "Treatment visit",
+      "job": "Spray job",
+      "estimate": "Quote",
+      "service": "Treatment",
+      "team_member": "Technician",
+      "location": "Property"
+    }
+  }
+}

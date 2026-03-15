@@ -1,0 +1,95 @@
+{
+  "id": "employment-law",
+  "industry": "Legal",
+  "niche": "Employment Law",
+  "icon": "Briefcase",
+  "sidebar": {
+    "nicheLabel": "Employment Law",
+    "tabs": [
+      {"id": "cases", "label": "Case intake", "icon": "Briefcase", "component": "CaseIntake"},
+      {"id": "clients", "label": "Client portal", "icon": "Users", "component": "ClientPortal"},
+      {"id": "documents", "label": "Document management", "icon": "FileText", "component": "DocumentManagement"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "cases", "label": "Active cases", "icon": "Briefcase", "defaultValue": "0", "subtitle": "total open"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Cases active", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, counselor! Let's review your employment law cases and make sure every worker's rights are vigorously protected.",
+    "quickActions": [
+      "Log a new employment dispute",
+      "File EEOC charge of discrimination",
+      "Draft demand letter to employer",
+      "Review severance agreement for client",
+      "Schedule deposition or mediation"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for an employment law firm. You help manage wrongful termination, discrimination, harassment, wage and hour, and retaliation cases. You understand EEOC procedures, state labor boards, class and collective actions, and employment litigation from administrative complaints through trial or settlement."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling the law offices of {company_name}. We protect the rights of employees who have experienced workplace discrimination, harassment, or wrongful termination. How can I help you today?",
+    "commonReasons": [
+      "New employment case consultation",
+      "Case status update",
+      "EEOC filing question",
+      "Settlement negotiation inquiry",
+      "Severance review request",
+      "Appointment scheduling"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "firm-info", "title": "Firm Information", "description": "Enter your law firm name, address, and contact details"},
+      {"id": "practice-areas", "title": "Employment Law Services", "description": "Select the employment matters you handle (discrimination, harassment, wage theft, wrongful termination, etc.)"},
+      {"id": "intake-process", "title": "Case Intake Process", "description": "Configure your intake questionnaire, screening criteria, and consultation scheduling"},
+      {"id": "fee-structure", "title": "Fee Structure", "description": "Set your contingency fee percentages, hourly rates, and hybrid fee arrangements"},
+      {"id": "integrations", "title": "Integrations", "description": "Connect your case management software, EEOC filing tools, and calendar"},
+      {"id": "branding", "title": "Branding & Website", "description": "Upload your logo, set firm colors, and configure your client-facing website"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Wrongful termination",
+      "Workplace discrimination",
+      "Sexual harassment",
+      "Wage and hour violations",
+      "Retaliation / whistleblower",
+      "FMLA / leave violations",
+      "Severance agreement review",
+      "Non-compete / restrictive covenant",
+      "Class / collective action",
+      "Workplace accommodation (ADA)"
+    ],
+    "statusLabels": ["New inquiry", "Consultation", "Retained", "Active case", "Closed"],
+    "sourceLabels": ["Google Ads", "Avvo", "Referral", "Phone call", "Website form", "Bar association"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for an employment law firm.",
+    "capabilities": [
+      "Track employment cases from intake through settlement or verdict",
+      "Monitor EEOC charge filing deadlines and right-to-sue letter timelines",
+      "Manage discovery document collection from clients and employers",
+      "Track administrative complaint proceedings at state and federal agencies",
+      "Coordinate depositions, mediations, and settlement conferences",
+      "Generate demand letters and settlement proposals",
+      "Calculate damages including lost wages, benefits, and emotional distress",
+      "Track contingency fee and hourly billing arrangements",
+      "Manage class and collective action opt-in tracking",
+      "Monitor online reviews and reputation across legal directories"
+    ],
+    "terminology": {
+      "client": "client",
+      "case": "case",
+      "consultation": "consultation",
+      "retainer": "retainer"
+    }
+  }
+}

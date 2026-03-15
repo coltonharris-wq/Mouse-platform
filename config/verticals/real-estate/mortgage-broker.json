@@ -1,0 +1,95 @@
+{
+  "id": "mortgage-broker",
+  "industry": "Real estate",
+  "niche": "Mortgage Broker",
+  "icon": "Landmark",
+  "sidebar": {
+    "nicheLabel": "Mortgage Broker",
+    "tabs": [
+      {"id": "listings", "label": "Listing manager", "icon": "Building2", "component": "ListingManager"},
+      {"id": "pipeline", "label": "Lead pipeline", "icon": "Users", "component": "LeadPipeline"},
+      {"id": "openhouses", "label": "Open houses", "icon": "DoorOpen", "component": "OpenHouses"},
+      {"id": "transactions", "label": "Transaction tracker", "icon": "FileText", "component": "TransactionTracker"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "listings", "label": "Active listings", "icon": "Building2", "defaultValue": "0", "subtitle": "on market"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "volume", "label": "Volume", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Showings today", "revenueLabel": "Volume"}
+  },
+  "kingMouse": {
+    "greeting": "Let's get those loans funded! Check your pipeline, rate lock deadlines, and borrower applications today.",
+    "quickActions": [
+      "Pre-qualify a new borrower",
+      "Compare current mortgage rates",
+      "Send a loan status update to a borrower",
+      "Calculate monthly payment scenarios",
+      "Follow up with a real estate agent partner"
+    ],
+    "systemPrompt": "You are King Mouse, an AI assistant for a mortgage broker. You help manage loan applications, pre-qualify borrowers, track loan pipelines from application to funding, compare rates from multiple lenders, and build referral relationships with real estate agents. You understand loan programs, underwriting guidelines, compliance requirements, and the closing process."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We help borrowers find the best mortgage rates and loan programs. How can I assist you today?",
+    "commonReasons": [
+      "Get pre-qualified for a mortgage",
+      "Ask about current interest rates",
+      "Check on a loan application status",
+      "Inquire about refinancing options",
+      "Discuss down payment assistance programs",
+      "Request a rate lock"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business", "title": "Your practice", "description": "Tell us about your mortgage brokerage and NMLS licensing."},
+      {"id": "services", "title": "Loan programs", "description": "Select the loan programs you offer: conventional, FHA, VA, jumbo, etc."},
+      {"id": "listings", "title": "Active loans", "description": "Import your current loan pipeline and applications in progress."},
+      {"id": "pipeline", "title": "Referral sources", "description": "Connect your referral networks including real estate agents and financial advisors."},
+      {"id": "branding", "title": "Brand & compliance", "description": "Upload your logo and configure required compliance disclosures."},
+      {"id": "phone", "title": "Phone setup", "description": "Configure your AI receptionist to handle borrower and agent inquiries."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Conventional loan",
+      "FHA loan",
+      "VA loan",
+      "Jumbo loan",
+      "Refinance",
+      "Home equity / HELOC",
+      "First-time buyer program",
+      "Investment property loan"
+    ],
+    "statusLabels": ["New lead", "Showing", "Offer", "Under contract", "Closed"],
+    "sourceLabels": ["Zillow", "Realtor.com", "Referral", "Open house", "Google Ads", "Social media"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI assistant for a mortgage broker.",
+    "capabilities": [
+      "Pre-qualify borrowers and calculate affordability",
+      "Compare rates and terms across multiple lenders",
+      "Track loan applications through the pipeline to funding",
+      "Generate payment scenarios and amortization schedules",
+      "Monitor rate lock deadlines and expiration dates",
+      "Manage referral relationships with real estate agents",
+      "Ensure compliance with RESPA and lending regulations",
+      "Coordinate with underwriters, appraisers, and title companies",
+      "Send automated status updates to borrowers",
+      "Build and maintain online reviews and reputation"
+    ],
+    "terminology": {
+      "listing": "loan listing",
+      "appointment": "consultation",
+      "customer": "borrower",
+      "completion": "closing",
+      "product": "loan program",
+      "revenue": "volume"
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "id": "commercial-agent",
+  "industry": "Real estate",
+  "niche": "Commercial Agent",
+  "icon": "Building",
+  "sidebar": {
+    "nicheLabel": "Commercial Agent",
+    "tabs": [
+      {"id": "listings", "label": "Listing manager", "icon": "Building2", "component": "ListingManager"},
+      {"id": "pipeline", "label": "Lead pipeline", "icon": "Users", "component": "LeadPipeline"},
+      {"id": "openhouses", "label": "Open houses", "icon": "DoorOpen", "component": "OpenHouses"},
+      {"id": "transactions", "label": "Transaction tracker", "icon": "FileText", "component": "TransactionTracker"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "listings", "label": "Active listings", "icon": "Building2", "defaultValue": "0", "subtitle": "on market"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "volume", "label": "Volume", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Showings today", "revenueLabel": "Volume"}
+  },
+  "kingMouse": {
+    "greeting": "Ready to close some commercial deals! Let's review your active listings and tenant prospects.",
+    "quickActions": [
+      "Create a commercial property listing",
+      "Schedule a property tour for a tenant",
+      "Run a cap rate analysis on a property",
+      "Draft a letter of intent for a lease",
+      "Generate a commercial market report"
+    ],
+    "systemPrompt": "You are King Mouse, an AI assistant for a commercial real estate agent. You help manage office, retail, industrial, and mixed-use property listings, coordinate property tours, analyze cap rates and NOI, track lease and sale transactions, and build the agent's professional reputation. You understand commercial leases, zoning, tenant improvements, and investment metrics."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We specialize in commercial real estate including office, retail, and industrial properties. How can I assist you today?",
+    "commonReasons": [
+      "Inquire about available commercial space",
+      "Schedule a property tour",
+      "Discuss listing a commercial property",
+      "Ask about lease terms",
+      "Get a commercial property valuation",
+      "Inquire about tenant representation"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business", "title": "Your practice", "description": "Tell us about your commercial real estate practice and specializations."},
+      {"id": "services", "title": "Property types", "description": "Select the commercial property types you focus on: office, retail, industrial, mixed-use."},
+      {"id": "listings", "title": "Active listings", "description": "Import or add your current commercial property listings."},
+      {"id": "pipeline", "title": "Lead sources", "description": "Connect your lead sources like LoopNet, CoStar, and referral networks."},
+      {"id": "branding", "title": "Brand identity", "description": "Upload your logo and configure your professional branding."},
+      {"id": "phone", "title": "Phone setup", "description": "Configure your AI receptionist to handle commercial property inquiries."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Office space",
+      "Retail space",
+      "Industrial / Warehouse",
+      "Mixed-use",
+      "Land / Development",
+      "Medical office",
+      "Restaurant / Hospitality",
+      "Flex space"
+    ],
+    "statusLabels": ["New lead", "Showing", "Offer", "Under contract", "Closed"],
+    "sourceLabels": ["Zillow", "Realtor.com", "Referral", "Open house", "Google Ads", "Social media"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI assistant for a commercial real estate agent.",
+    "capabilities": [
+      "Create and manage commercial property listings",
+      "Schedule and coordinate property tours",
+      "Analyze cap rates, NOI, and investment returns",
+      "Track lease and sale transactions through closing",
+      "Generate commercial market reports and comparables",
+      "Draft letters of intent and lease proposals",
+      "Manage tenant and landlord relationships",
+      "Monitor zoning and land use regulations",
+      "Build and maintain professional reputation online",
+      "Coordinate due diligence and inspections"
+    ],
+    "terminology": {
+      "listing": "listing",
+      "appointment": "showing",
+      "customer": "tenant/landlord",
+      "completion": "closing",
+      "product": "property",
+      "revenue": "volume"
+    }
+  }
+}

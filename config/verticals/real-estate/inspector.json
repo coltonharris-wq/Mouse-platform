@@ -1,0 +1,95 @@
+{
+  "id": "inspector",
+  "industry": "Real estate",
+  "niche": "Inspector",
+  "icon": "Search",
+  "sidebar": {
+    "nicheLabel": "Inspector",
+    "tabs": [
+      {"id": "listings", "label": "Listing manager", "icon": "Building2", "component": "ListingManager"},
+      {"id": "pipeline", "label": "Lead pipeline", "icon": "Users", "component": "LeadPipeline"},
+      {"id": "openhouses", "label": "Open houses", "icon": "DoorOpen", "component": "OpenHouses"},
+      {"id": "transactions", "label": "Transaction tracker", "icon": "FileText", "component": "TransactionTracker"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "listings", "label": "Active listings", "icon": "Building2", "defaultValue": "0", "subtitle": "on market"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "volume", "label": "Volume", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Showings today", "revenueLabel": "Volume"}
+  },
+  "kingMouse": {
+    "greeting": "Ready to inspect! Let's review your scheduled inspections, pending reports, and new booking requests.",
+    "quickActions": [
+      "Schedule a home inspection",
+      "Generate an inspection report",
+      "Send a completed report to a buyer",
+      "Follow up with an agent for referrals",
+      "Check your inspection calendar for the week"
+    ],
+    "systemPrompt": "You are King Mouse, an AI assistant for a home inspector. You help manage inspection bookings, generate detailed reports, track scheduling, build referral relationships with agents, and maintain professional credentials. You understand building systems, structural components, code requirements, and inspection standards of practice."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We provide thorough home inspections to protect your investment. How can I help you today?",
+    "commonReasons": [
+      "Schedule a home inspection",
+      "Ask about inspection services and pricing",
+      "Check on an inspection report status",
+      "Inquire about radon or mold testing",
+      "Reschedule an existing inspection",
+      "Ask about inspector qualifications"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business", "title": "Your business", "description": "Tell us about your inspection business and certifications."},
+      {"id": "services", "title": "Inspection types", "description": "Select the inspections you offer: general, radon, mold, sewer scope, etc."},
+      {"id": "listings", "title": "Upcoming inspections", "description": "Add your scheduled inspections and pending reports."},
+      {"id": "pipeline", "title": "Agent network", "description": "Connect your referral network of real estate agents and brokerages."},
+      {"id": "branding", "title": "Brand & credentials", "description": "Upload your logo and highlight your certifications and licenses."},
+      {"id": "phone", "title": "Phone setup", "description": "Configure your AI receptionist to handle inspection booking calls."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "General home inspection",
+      "Pre-listing inspection",
+      "Radon testing",
+      "Mold inspection",
+      "Sewer scope",
+      "Termite / Pest inspection",
+      "New construction inspection",
+      "Commercial inspection"
+    ],
+    "statusLabels": ["New lead", "Showing", "Offer", "Under contract", "Closed"],
+    "sourceLabels": ["Zillow", "Realtor.com", "Referral", "Open house", "Google Ads", "Social media"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI assistant for a home inspector.",
+    "capabilities": [
+      "Schedule and manage inspection appointments",
+      "Generate detailed inspection reports with findings",
+      "Track inspection bookings and calendar availability",
+      "Build referral relationships with real estate agents",
+      "Manage add-on services like radon, mold, and sewer scope",
+      "Send reports and summaries to buyers and agents",
+      "Maintain certifications and continuing education records",
+      "Handle invoicing and payment collection",
+      "Monitor client reviews and online reputation",
+      "Analyze business metrics and booking trends"
+    ],
+    "terminology": {
+      "listing": "inspection order",
+      "appointment": "inspection",
+      "customer": "buyer/agent",
+      "completion": "report delivery",
+      "product": "inspection service",
+      "revenue": "volume"
+    }
+  }
+}

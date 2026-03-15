@@ -1,0 +1,97 @@
+{
+  "id": "handyman",
+  "industry": "Home services",
+  "niche": "Handyman",
+  "icon": "Wrench",
+  "sidebar": {
+    "nicheLabel": "Handyman",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back! Let's keep your jobs organized and your clients happy. Ready to tackle today's fix-it list?",
+    "quickActions": [
+      {"label": "Schedule a job", "prompt": "Help me schedule a new handyman job for a client."},
+      {"label": "Send an estimate", "prompt": "Help me create and send an estimate for a handyman job."},
+      {"label": "Follow up on leads", "prompt": "Show me my recent leads that need follow-up."},
+      {"label": "Check today's jobs", "prompt": "What handyman jobs are scheduled for today?"},
+      {"label": "Request a review", "prompt": "Help me send a review request to a recent client."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a handyman business. You help manage a wide variety of repair and maintenance jobs, coordinate scheduling, handle estimates for residential and commercial clients, and grow the business through reputation management and advertising."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We handle all kinds of home repairs and odd jobs. What can we help you fix today?",
+    "commonReasons": [
+      "Schedule a repair",
+      "Get a quote for a project",
+      "Reschedule a job",
+      "Ask about services offered",
+      "Inquire about availability",
+      "Report an issue with previous work",
+      "Ask about hourly rates"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"target": "#business-name", "title": "Name your handyman business", "body": "Enter the name clients will see when you send estimates and invoices.", "position": "bottom"},
+      {"target": "#service-area", "title": "Set your service area", "body": "Define the neighborhoods or zip codes where you take on jobs.", "position": "bottom"},
+      {"target": "#service-types", "title": "Add your services", "body": "List the types of jobs you handle: plumbing, drywall, painting, furniture assembly, etc.", "position": "right"},
+      {"target": "#pricing", "title": "Set your pricing", "body": "Configure your hourly rate, minimum job charge, and flat fees for common tasks.", "position": "right"},
+      {"target": "#team", "title": "Add your team", "body": "Add team members or subcontractors so you can assign and schedule jobs efficiently.", "position": "left"},
+      {"target": "#go-live", "title": "Go live!", "body": "Your handyman business is set up. Start capturing leads and booking jobs!", "position": "bottom"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "General repairs",
+      "Drywall repair",
+      "Painting",
+      "Plumbing fixes",
+      "Electrical fixes",
+      "Furniture assembly",
+      "Door and window repair",
+      "Shelving and mounting",
+      "Deck and fence repair",
+      "Odd jobs"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a handyman business.",
+    "capabilities": [
+      "Schedule and manage repair and maintenance jobs",
+      "Create estimates for a wide variety of home repair tasks",
+      "Coordinate daily job schedules and routes",
+      "Track materials and parts needed for each job",
+      "Send automated appointment reminders to clients",
+      "Generate invoices after completed jobs",
+      "Monitor online reviews and respond to feedback",
+      "Manage repeat clients and their property histories",
+      "Analyze revenue by job type and client"
+    ],
+    "terminology": {
+      "job": "job",
+      "client": "client",
+      "worker": "handyman",
+      "team": "team",
+      "estimate": "estimate",
+      "service_area": "service area"
+    }
+  }
+}

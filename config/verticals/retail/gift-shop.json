@@ -1,0 +1,77 @@
+{
+  "id": "gift-shop",
+  "industry": "Retail",
+  "niche": "Gift shop",
+  "icon": "Gift",
+  "sidebar": {
+    "nicheLabel": "Gift shop",
+    "tabs": [
+      {"id": "inventory", "label": "Inventory manager", "icon": "Package", "component": "InventoryManager"},
+      {"id": "pos", "label": "POS integration", "icon": "CreditCard", "component": "POSIntegration"},
+      {"id": "loyalty", "label": "Customer loyalty", "icon": "Heart", "component": "CustomerLoyalty"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "sales", "label": "Sales today", "icon": "ShoppingBag", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "customers", "label": "Customers", "icon": "Users", "defaultValue": "0", "subtitle": "today"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Sales today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome to your gift shop dashboard! Let's keep your shelves full of delightful finds and your customers gifting with confidence.",
+    "quickActions": [
+      "Check best-selling gift items",
+      "Log a new artisan product arrival",
+      "Create a holiday gift guide",
+      "View gift wrapping service queue",
+      "Update gift basket configurations"
+    ],
+    "systemPrompt": "You are King Mouse, an AI store manager for a gift shop business. You help manage a diverse and rotating inventory of unique gifts, track seasonal and holiday-driven demand, coordinate gift wrapping and personalization services, and curate product collections. You understand gift retail including impulse purchasing, gift basket assembly, and the importance of visual merchandising and discovery."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We love helping people find the perfect gift for any occasion. How can we help you today?",
+    "commonReasons": ["Product availability", "Store hours", "Return/exchange", "Gift wrapping services", "Custom gift baskets", "Corporate gift orders", "Shipping inquiries"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "store-info", "title": "Store information", "description": "Enter your gift shop name, location, and contact details"},
+      {"id": "categories", "title": "Product categories", "description": "Select the gift categories you carry (home decor, candles, stationery, gourmet, handmade)"},
+      {"id": "services", "title": "Gift services", "description": "Configure gift wrapping, personalization, and gift basket assembly services"},
+      {"id": "pos-setup", "title": "POS setup", "description": "Connect your point-of-sale system for real-time sales tracking"},
+      {"id": "online-presence", "title": "Online presence", "description": "Set up your website and social media profiles"},
+      {"id": "loyalty-program", "title": "Loyalty program", "description": "Configure your frequent shopper rewards and birthday reminders"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Home decor & accents", "Candles & fragrances", "Stationery & cards", "Gourmet food gifts", "Handmade & artisan", "Custom gift baskets", "Corporate gifts", "Seasonal collections"],
+    "statusLabels": ["New", "Interested", "Ready to buy", "Purchased", "Return"],
+    "sourceLabels": ["Walk-in", "Google", "Instagram", "Facebook", "Referral", "Website"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI store manager for a gift shop.",
+    "capabilities": [
+      "Track diverse inventory across many small product categories",
+      "Monitor seasonal trends and holiday-driven demand spikes",
+      "Manage gift wrapping and personalization services",
+      "Coordinate custom gift basket assembly and pricing",
+      "Handle corporate and bulk gift orders",
+      "Track artisan and local vendor relationships",
+      "Analyze best sellers by occasion and price point",
+      "Generate gift guide content for social media",
+      "Manage consignment items from local makers",
+      "Coordinate shipping for online and phone orders"
+    ],
+    "terminology": {
+      "sale": "sale",
+      "customer": "customer",
+      "product": "product",
+      "sku": "SKU"
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "id": "locksmith",
+  "industry": "Home services",
+  "niche": "Locksmith",
+  "icon": "Key",
+  "sidebar": {
+    "nicheLabel": "Locksmith",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back! Let's keep your locksmith business running smoothly. Ready to manage your service calls and unlock new opportunities?",
+    "quickActions": [
+      {"label": "Schedule a service call", "prompt": "Help me schedule a new locksmith service call for a client."},
+      {"label": "Send an estimate", "prompt": "Help me create and send an estimate for locksmith service."},
+      {"label": "Follow up on leads", "prompt": "Show me my recent leads that need follow-up."},
+      {"label": "Check today's jobs", "prompt": "What locksmith jobs are scheduled for today?"},
+      {"label": "Request a review", "prompt": "Help me send a review request to a recent client."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a locksmith business. You help manage emergency and scheduled service calls, coordinate technicians for residential, commercial, and automotive lockouts, handle estimates, and grow the business through reputation management and advertising."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We're here to help with lockouts, rekeying, and all your lock needs. Are you locked out right now or looking to schedule a service?",
+    "commonReasons": [
+      "Emergency lockout",
+      "Schedule a rekeying",
+      "Get a quote for new locks",
+      "Car lockout assistance",
+      "Commercial lock service",
+      "Key duplication",
+      "Safe opening or repair"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"target": "#business-name", "title": "Name your locksmith business", "body": "Enter the name clients will see when you send estimates and invoices.", "position": "bottom"},
+      {"target": "#service-area", "title": "Set your service area", "body": "Define the neighborhoods or zip codes where you respond to service calls.", "position": "bottom"},
+      {"target": "#service-types", "title": "Add your locksmith services", "body": "List the services you offer: lockouts, rekeying, lock installation, automotive, commercial, etc.", "position": "right"},
+      {"target": "#pricing", "title": "Set your pricing", "body": "Configure pricing for emergency calls, standard service, and after-hours rates.", "position": "right"},
+      {"target": "#team", "title": "Add your technicians", "body": "Add team members so you can dispatch and schedule service calls efficiently.", "position": "left"},
+      {"target": "#go-live", "title": "Go live!", "body": "Your locksmith business is set up. Start capturing leads and responding to service calls!", "position": "bottom"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Residential lockout",
+      "Commercial lockout",
+      "Automotive lockout",
+      "Lock rekeying",
+      "Lock installation",
+      "Key duplication",
+      "Master key system",
+      "Safe opening",
+      "Access control installation"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a locksmith business.",
+    "capabilities": [
+      "Dispatch technicians for emergency lockout calls",
+      "Schedule rekeying and lock installation appointments",
+      "Create estimates for residential, commercial, and automotive services",
+      "Track technician availability and response times",
+      "Send automated follow-ups after service calls",
+      "Generate invoices after completed jobs",
+      "Monitor online reviews and respond to feedback",
+      "Manage parts inventory for locks, keys, and hardware",
+      "Coordinate after-hours and weekend emergency coverage",
+      "Analyze revenue by service type and urgency level"
+    ],
+    "terminology": {
+      "job": "service call",
+      "client": "client",
+      "worker": "technician",
+      "team": "team",
+      "estimate": "estimate",
+      "service_area": "service area"
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "id": "oil-change",
+  "industry": "Automotive",
+  "niche": "Oil Change",
+  "icon": "Droplet",
+  "sidebar": {
+    "nicheLabel": "Oil Change",
+    "tabs": [
+      {"id": "tickets", "label": "Service tickets", "icon": "Clipboard", "component": "ServiceTickets"},
+      {"id": "parts", "label": "Parts inventory", "icon": "Package", "component": "PartsInventory"},
+      {"id": "vehicles", "label": "Customer vehicles", "icon": "Car", "component": "CustomerVehicles"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "tickets", "label": "Open tickets", "icon": "Clipboard", "defaultValue": "0", "subtitle": "in progress"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Services today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! Your lube shop is flowing smooth. Let's keep those oil changes fast, customers happy, and that throughput high.",
+    "quickActions": [
+      "Create a quick lube ticket",
+      "Check oil and filter inventory",
+      "Send service-due reminders",
+      "View today's vehicle throughput",
+      "Run a daily revenue snapshot"
+    ],
+    "systemPrompt": "You are King Mouse, an AI shop manager for an oil change business. You help manage quick lube service tickets, track oil and filter inventory, schedule services, send maintenance reminders, and maximize throughput. You understand oil change services including conventional, synthetic blend, full synthetic, high-mileage oil, filter replacement, and fluid top-offs."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your fast and friendly oil change shop. How can we help you today?",
+    "commonReasons": [
+      "Ask about oil change pricing",
+      "Check wait time or schedule service",
+      "Inquire about synthetic vs conventional oil",
+      "Ask about additional services offered",
+      "Check if appointment is needed",
+      "Ask about fleet or multi-vehicle discounts"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Shop details", "description": "Enter your oil change shop name, address, and contact info"},
+      {"id": "services", "title": "Services offered", "description": "Select your services (conventional, synthetic, fluid checks, filters, etc.)"},
+      {"id": "pricing", "title": "Pricing tiers", "description": "Set up your oil change packages and add-on pricing"},
+      {"id": "hours", "title": "Operating hours", "description": "Set your shop hours and walk-in vs appointment policy"},
+      {"id": "branding", "title": "Brand & website", "description": "Upload your logo and set up your online presence"},
+      {"id": "integrations", "title": "Connect tools", "description": "Link your oil suppliers, payment processor, and review platforms"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Conventional oil change",
+      "Synthetic blend oil change",
+      "Full synthetic oil change",
+      "High-mileage oil change",
+      "Oil filter replacement",
+      "Air filter replacement",
+      "Fluid top-off",
+      "Tire pressure check",
+      "Wiper blade replacement",
+      "Multi-point inspection"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website", "RepairPal", "AutoMD"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI shop manager for an oil change business.",
+    "capabilities": [
+      "Create and manage quick lube service tickets",
+      "Track oil, filter, and fluid inventory levels",
+      "Send mileage-based service reminders",
+      "Schedule appointments and manage walk-in flow",
+      "Generate daily throughput and revenue reports",
+      "Upsell premium oil and add-on services",
+      "Monitor online reviews and reputation",
+      "Manage coupon and loyalty program tracking",
+      "Track vehicle service history and intervals",
+      "Run inventory reorder alerts for supplies"
+    ],
+    "terminology": {
+      "service": "service",
+      "vehicle": "vehicle",
+      "ticket": "ticket",
+      "customer": "customer",
+      "worker": "technician",
+      "location": "shop"
+    }
+  }
+}

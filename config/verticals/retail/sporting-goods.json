@@ -1,0 +1,77 @@
+{
+  "id": "sporting-goods",
+  "industry": "Retail",
+  "niche": "Sporting goods",
+  "icon": "Trophy",
+  "sidebar": {
+    "nicheLabel": "Sporting goods",
+    "tabs": [
+      {"id": "inventory", "label": "Inventory manager", "icon": "Package", "component": "InventoryManager"},
+      {"id": "pos", "label": "POS integration", "icon": "CreditCard", "component": "POSIntegration"},
+      {"id": "loyalty", "label": "Customer loyalty", "icon": "Heart", "component": "CustomerLoyalty"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "sales", "label": "Sales today", "icon": "ShoppingBag", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "customers", "label": "Customers", "icon": "Users", "defaultValue": "0", "subtitle": "today"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Sales today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome to your sporting goods dashboard! Let's keep your athletes equipped and your inventory game-ready.",
+    "quickActions": [
+      "Check seasonal gear stock levels",
+      "Log a new equipment shipment",
+      "Create a back-to-sport sale",
+      "View team order requests",
+      "Update rental equipment status"
+    ],
+    "systemPrompt": "You are King Mouse, an AI store manager for a sporting goods business. You help manage athletic equipment and apparel inventory across sports and seasons, coordinate team sales and bulk orders, handle equipment rentals and trade-ins, and drive seasonal promotions. You understand sporting goods retail including sport-specific sizing, equipment fitting, and seasonal demand cycles."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! Whether you need gear for the big game or advice on the right equipment, we're here to help. How can we assist you?",
+    "commonReasons": ["Product availability", "Store hours", "Return/exchange", "Team order inquiries", "Equipment fitting", "Rental availability", "Warranty claims"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "store-info", "title": "Store information", "description": "Enter your sporting goods store name, location, and contact details"},
+      {"id": "sports", "title": "Sports categories", "description": "Select the sports and activities you stock equipment for"},
+      {"id": "services", "title": "In-store services", "description": "Configure equipment fitting, stringing, sharpening, and rental services"},
+      {"id": "pos-setup", "title": "POS setup", "description": "Connect your point-of-sale system for real-time sales tracking"},
+      {"id": "online-presence", "title": "Online presence", "description": "Set up your website and social media profiles"},
+      {"id": "loyalty-program", "title": "Loyalty program", "description": "Configure your athlete rewards and team discount programs"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Team sports equipment", "Fitness & training gear", "Outdoor & camping", "Water sports", "Winter sports", "Athletic footwear", "Sports apparel", "Equipment rentals"],
+    "statusLabels": ["New", "Interested", "Ready to buy", "Purchased", "Return"],
+    "sourceLabels": ["Walk-in", "Google", "Instagram", "Facebook", "Referral", "Website"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI store manager for a sporting goods shop.",
+    "capabilities": [
+      "Track inventory across sports categories and seasonal gear",
+      "Manage team orders and bulk discount pricing",
+      "Coordinate equipment fitting and customization services",
+      "Handle rental equipment tracking and maintenance",
+      "Monitor seasonal demand and pre-season stocking",
+      "Track warranty claims and manufacturer returns",
+      "Analyze sales trends by sport and season",
+      "Generate action-oriented content for social media",
+      "Manage league and school partnership accounts",
+      "Coordinate clearance cycles for end-of-season gear"
+    ],
+    "terminology": {
+      "sale": "sale",
+      "customer": "customer",
+      "product": "product",
+      "sku": "SKU"
+    }
+  }
+}

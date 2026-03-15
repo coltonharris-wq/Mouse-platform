@@ -1,0 +1,96 @@
+{
+  "id": "ice-cream-shop",
+  "industry": "Food & Drink",
+  "niche": "Ice cream shop",
+  "icon": "IceCream2",
+  "sidebar": {
+    "nicheLabel": "Ice cream shop",
+    "tabs": [
+      {"id": "orders", "label": "Order management", "icon": "ShoppingCart", "component": "OrderManagement"},
+      {"id": "menu", "label": "Menu builder", "icon": "BookOpen", "component": "MenuBuilder"},
+      {"id": "reservations", "label": "Reservations", "icon": "Calendar", "component": "Reservations"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "orders", "label": "Orders today", "icon": "ShoppingCart", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "reservations", "label": "Reservations", "icon": "Calendar", "defaultValue": "0", "subtitle": "today"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Orders today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey there, scoop star! Let's make today sweet. Want to check on custom cake orders, update the flavor board, or see which flavors are trending this week?",
+    "quickActions": [
+      "Update today's flavor board",
+      "Check custom ice cream cake orders",
+      "View catering and party requests",
+      "Post the flavor of the week",
+      "Review weekend sales forecast"
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for an ice cream shop business. You help manage flavor rotations, custom cake orders, catering requests, and seasonal promotions. You understand batch freezing schedules, flavor development, topping inventory, waffle cone production, and the seasonal peaks of ice cream sales."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We'd love to help you with a custom ice cream cake, party order, or let you know what flavors we're scooping today!",
+    "commonReasons": [
+      "Custom cake order",
+      "Today's flavors",
+      "Party or event catering",
+      "Allergen information",
+      "Gift card purchase",
+      "Hours of operation",
+      "Bulk order for event"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      "Tell us about your ice cream shop and what makes your scoops special",
+      "Build your flavor menu with descriptions and allergen info",
+      "Set up custom cake ordering with sizes and lead times",
+      "Configure online ordering for pickup and delivery",
+      "Set your hours and seasonal flavor rotation calendar",
+      "Customize your website with flavor photos and your shop story"
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Custom ice cream cake",
+      "Birthday party catering",
+      "Wedding dessert service",
+      "School event ice cream social",
+      "Corporate event catering",
+      "Sundae bar setup",
+      "Festival booth",
+      "Wholesale pint orders"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google", "Yelp", "Instagram", "Word of mouth", "DoorDash", "UberEats"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for an ice cream shop.",
+    "capabilities": [
+      "Manage daily flavor board and seasonal rotations",
+      "Process custom ice cream cake orders and lead times",
+      "Handle catering requests for parties and events",
+      "Track ingredient and topping inventory levels",
+      "Promote new flavors and specials on social media",
+      "Coordinate batch freezing and production schedules",
+      "Monitor reviews on Yelp, Google, and social platforms",
+      "Manage online ordering for pickup and delivery",
+      "Analyze best-selling flavors and seasonal sales trends",
+      "Generate daily and weekly sales and inventory reports"
+    ],
+    "terminology": {
+      "client": "customer",
+      "job": "order",
+      "booking": "party booking",
+      "project": "custom cake",
+      "invoice": "receipt",
+      "team": "scoop crew"
+    }
+  }
+}

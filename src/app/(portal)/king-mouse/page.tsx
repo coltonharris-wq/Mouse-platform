@@ -177,6 +177,169 @@ function formatTimestamp(dateStr: string) {
 /* ================================================================== */
 /*  Main Component                                                     */
 /* ================================================================== */
+/* ------------------------------------------------------------------ */
+/*  Install progress overlay                                           */
+/* ------------------------------------------------------------------ */
+const INSTALL_STAGES = [
+  { pct: 5, label: 'Booting up your dedicated server...' },
+  { pct: 15, label: 'Connecting to your workspace...' },
+  { pct: 30, label: 'Downloading King Mouse...' },
+  { pct: 50, label: 'Installing dependencies...' },
+  { pct: 65, label: 'Training on your business data...' },
+  { pct: 80, label: 'Configuring your AI employee...' },
+  { pct: 90, label: 'Running final checks...' },
+  { pct: 95, label: 'Almost ready...' },
+];
+
+function InstallOverlay({ vmStatus, elapsedSeconds }: { vmStatus: string; elapsedSeconds: number }) {
+  // Calculate simulated progress based on elapsed time (max 10 min = 600s)
+  // Progress ramps up over time, pausing at 95% until actually ready
+  const timeProgress = Math.min(95, (elapsedSeconds / 480) * 95); // reach 95% at ~8 min
+  const currentStage = INSTALL_STAGES.reduce((prev, stage) =>
+    timeProgress >= stage.pct ? stage : prev, INSTALL_STAGES[0]);
+  const pct = Math.round(timeProgress);
+  const showPhone = elapsedSeconds >= 600; // 10 minutes
+
+  const statusLabel = vmStatus === 'provisioning'
+    ? 'Setting up your server'
+    : vmStatus === 'installing'
+    ? 'Installing King Mouse'
+    : 'Preparing your AI employee';
+
+  return (
+    <div style={{
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '40px 24px',
+    }}>
+      {/* Pulsing M logo */}
+      <div style={{
+        width: 72,
+        height: 72,
+        borderRadius: '50%',
+        background: 'linear-gradient(135deg, #F07020, #d85a10)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 28,
+        animation: 'installPulse 2s ease-in-out infinite',
+      }}>
+        <span style={{ fontSize: 32, fontWeight: 800, color: '#fff' }}>M</span>
+      </div>
+
+      <h2 style={{
+        fontSize: 22,
+        fontWeight: 600,
+        color: '#fff',
+        margin: '0 0 6px',
+      }}>
+        {statusLabel}
+      </h2>
+
+      <p style={{
+        fontSize: 14,
+        color: '#999',
+        margin: '0 0 28px',
+        textAlign: 'center',
+        maxWidth: 400,
+      }}>
+        {currentStage.label}
+      </p>
+
+      {/* Progress bar */}
+      <div style={{
+        width: '100%',
+        maxWidth: 360,
+        height: 8,
+        background: '#2a2a34',
+        borderRadius: 4,
+        overflow: 'hidden',
+        marginBottom: 12,
+      }}>
+        <div style={{
+          width: `${pct}%`,
+          height: '100%',
+          background: 'linear-gradient(90deg, #F07020, #1D9E75)',
+          borderRadius: 4,
+          transition: 'width 1s ease-out',
+        }} />
+      </div>
+
+      {/* Percentage */}
+      <p style={{
+        fontSize: 13,
+        color: '#888',
+        margin: '0 0 32px',
+        fontVariantNumeric: 'tabular-nums',
+      }}>
+        {pct}% complete
+      </p>
+
+      {/* Timer / support info */}
+      {!showPhone ? (
+        <p style={{
+          fontSize: 13,
+          color: '#666',
+          textAlign: 'center',
+          maxWidth: 340,
+          lineHeight: 1.5,
+        }}>
+          King Mouse is being customized for your business.
+          <br />
+          This usually finishes within a few minutes.
+        </p>
+      ) : (
+        <div style={{
+          textAlign: 'center',
+          maxWidth: 380,
+          padding: '20px 24px',
+          background: 'rgba(240,112,32,0.08)',
+          borderRadius: 12,
+          border: '1px solid rgba(240,112,32,0.2)',
+        }}>
+          <p style={{
+            fontSize: 14,
+            color: '#fff',
+            margin: '0 0 12px',
+            lineHeight: 1.5,
+          }}>
+            This is taking longer than expected.
+            <br />
+            Call us and we will get this sorted out for you right now.
+          </p>
+          <a
+            href="tel:9105158927"
+            style={{
+              display: 'inline-block',
+              padding: '12px 28px',
+              background: '#F07020',
+              color: '#fff',
+              fontSize: 16,
+              fontWeight: 600,
+              borderRadius: 10,
+              textDecoration: 'none',
+              transition: 'background 0.15s',
+            }}
+          >
+            Call (910) 515-8927
+          </a>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes installPulse {
+          0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(240, 112, 32, 0.4); }
+          50% { transform: scale(1.05); box-shadow: 0 0 0 16px rgba(240, 112, 32, 0); }
+          100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(240, 112, 32, 0); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 export default function KingMousePage() {
   /* ---- State ---- */
   const [messages, setMessages] = useState<Message[]>([]);
@@ -190,12 +353,16 @@ export default function KingMousePage() {
   const [configLoaded, setConfigLoaded] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [voiceState, setVoiceState] = useState<'idle' | 'listening' | 'thinking' | 'speaking'>('idle');
+  const [vmStatus, setVmStatus] = useState<'checking' | 'provisioning' | 'installing' | 'ready' | 'none'>('checking');
+  const [installElapsed, setInstallElapsed] = useState(0);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const tokenRef = useRef<string | null>(null);
+  const vmIdRef = useRef<string | null>(null);
+  const installStartRef = useRef<number>(Date.now());
 
   /* ---- Scroll to bottom on new messages ---- */
   useEffect(() => {
@@ -210,7 +377,7 @@ export default function KingMousePage() {
     }
   }, [inputText]);
 
-  /* ---- Init: get auth token, load config + conversations ---- */
+  /* ---- Init: get auth token, check VM status, load config + conversations ---- */
   useEffect(() => {
     async function init() {
       const { createBrowserClient } = await import('@/lib/supabase-browser');
@@ -220,6 +387,35 @@ export default function KingMousePage() {
 
       const headers: Record<string, string> = {};
       if (tokenRef.current) headers['Authorization'] = `Bearer ${tokenRef.current}`;
+
+      // Check VM status first — find the user's VM via Supabase
+      try {
+        const { data: vms } = await supabase
+          .from('vms')
+          .select('id, status, provision_started_at')
+          .in('status', ['provisioning', 'installing', 'ready'])
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        const vm = vms?.[0];
+        if (vm) {
+          vmIdRef.current = vm.id;
+          if (vm.status === 'ready') {
+            setVmStatus('ready');
+          } else {
+            setVmStatus(vm.status as 'provisioning' | 'installing');
+            if (vm.provision_started_at) {
+              const started = new Date(vm.provision_started_at).getTime();
+              installStartRef.current = started;
+              setInstallElapsed(Math.floor((Date.now() - started) / 1000));
+            }
+          }
+        } else {
+          setVmStatus('none');
+        }
+      } catch {
+        setVmStatus('none');
+      }
 
       // Load config
       try {
@@ -251,6 +447,43 @@ export default function KingMousePage() {
     }
     init();
   }, []);
+
+  /* ---- Poll VM status while installing ---- */
+  useEffect(() => {
+    if (vmStatus !== 'provisioning' && vmStatus !== 'installing') return;
+
+    const statusInterval = setInterval(async () => {
+      const token = tokenRef.current;
+      const vmId = vmIdRef.current;
+      if (!token || !vmId) return;
+
+      try {
+        const res = await fetch(`/api/vm/status?vm_id=${vmId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.data?.status === 'ready') {
+            setVmStatus('ready');
+          } else if (data.data?.status === 'installing') {
+            setVmStatus('installing');
+          }
+        }
+      } catch {
+        // Keep polling
+      }
+    }, 4000);
+
+    // Tick elapsed time every second
+    const timerInterval = setInterval(() => {
+      setInstallElapsed(Math.floor((Date.now() - installStartRef.current) / 1000));
+    }, 1000);
+
+    return () => {
+      clearInterval(statusInterval);
+      clearInterval(timerInterval);
+    };
+  }, [vmStatus]);
 
   /* ---- Load messages for a conversation ---- */
   const loadMessages = useCallback(async (conversationId: string) => {
@@ -461,6 +694,7 @@ export default function KingMousePage() {
   };
 
   /* ---- Derived ---- */
+  const isInstalling = vmStatus === 'provisioning' || vmStatus === 'installing';
   const hasMessages = messages.length > 0;
   const conversationGroups = groupConversationsByDate(conversations);
 
@@ -731,8 +965,13 @@ export default function KingMousePage() {
           </div>
         )}
 
+        {/* ----- Install progress overlay ----- */}
+        {isInstalling && (
+          <InstallOverlay vmStatus={vmStatus} elapsedSeconds={installElapsed} />
+        )}
+
         {/* ----- Empty state (no messages) ----- */}
-        {!hasMessages && (
+        {!isInstalling && !hasMessages && (
           <div
             style={{
               flex: 1,
@@ -830,7 +1069,7 @@ export default function KingMousePage() {
         )}
 
         {/* ----- Messages area ----- */}
-        {hasMessages && (
+        {!isInstalling && hasMessages && (
           <div
             style={{
               flex: 1,
@@ -898,6 +1137,9 @@ export default function KingMousePage() {
             width: '100%',
             maxWidth: hasMessages ? 768 : 640,
             margin: '0 auto',
+            opacity: isInstalling ? 0.3 : 1,
+            pointerEvents: isInstalling ? 'none' : 'auto',
+            transition: 'opacity 0.3s',
           }}
         >
           <div

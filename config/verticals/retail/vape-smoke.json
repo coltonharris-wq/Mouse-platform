@@ -1,0 +1,77 @@
+{
+  "id": "vape-smoke",
+  "industry": "Retail",
+  "niche": "Vape/smoke",
+  "icon": "Cloud",
+  "sidebar": {
+    "nicheLabel": "Vape/smoke",
+    "tabs": [
+      {"id": "inventory", "label": "Inventory manager", "icon": "Package", "component": "InventoryManager"},
+      {"id": "pos", "label": "POS integration", "icon": "CreditCard", "component": "POSIntegration"},
+      {"id": "loyalty", "label": "Customer loyalty", "icon": "Heart", "component": "CustomerLoyalty"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "sales", "label": "Sales today", "icon": "ShoppingBag", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "customers", "label": "Customers", "icon": "Users", "defaultValue": "0", "subtitle": "today"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Sales today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome to your vape and smoke shop dashboard! Let's keep your inventory compliant, stocked, and your regulars coming back.",
+    "quickActions": [
+      "Check e-liquid and coil stock levels",
+      "Log a new product shipment",
+      "Verify age compliance records",
+      "View top-selling flavors this week",
+      "Update product pricing and promotions"
+    ],
+    "systemPrompt": "You are King Mouse, an AI store manager for a vape and smoke shop business. You help manage regulated product inventory including devices, e-liquids, and accessories, track compliance with age verification and local regulations, monitor flavor and nicotine strength trends, and build repeat customer relationships. You understand the vape and smoke retail industry including regulatory requirements, product safety, and customer preference tracking."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We carry a wide selection of vape and smoke products. How can we help you today?",
+    "commonReasons": ["Product availability", "Store hours", "Return/exchange", "New flavor arrivals", "Device compatibility", "Coil and accessory stock", "Loyalty point balance"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "store-info", "title": "Store information", "description": "Enter your vape/smoke shop name, location, and contact details"},
+      {"id": "categories", "title": "Product categories", "description": "Select the product categories you carry (devices, e-liquids, coils, accessories, glass)"},
+      {"id": "compliance", "title": "Compliance setup", "description": "Configure age verification, local regulatory compliance, and product tracking"},
+      {"id": "pos-setup", "title": "POS setup", "description": "Connect your point-of-sale system with age verification integration"},
+      {"id": "online-presence", "title": "Online presence", "description": "Set up your website and social media profiles within advertising regulations"},
+      {"id": "loyalty-program", "title": "Loyalty program", "description": "Configure your rewards program and repeat customer incentives"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Vape devices & mods", "E-liquids & juices", "Coils & pods", "Batteries & chargers", "Glass pieces", "Rolling accessories", "CBD products", "Starter kits"],
+    "statusLabels": ["New", "Interested", "Ready to buy", "Purchased", "Return"],
+    "sourceLabels": ["Walk-in", "Google", "Instagram", "Facebook", "Referral", "Website"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI store manager for a vape and smoke shop.",
+    "capabilities": [
+      "Track inventory across devices, liquids, and accessories",
+      "Monitor age verification compliance and audit logs",
+      "Manage flavor and nicotine strength variant tracking",
+      "Coordinate with distributors on regulated product ordering",
+      "Handle device compatibility matching for customers",
+      "Track customer flavor preferences and reorder patterns",
+      "Analyze sales trends by product category and brand",
+      "Manage loyalty rewards within regulatory guidelines",
+      "Monitor local and state regulatory changes",
+      "Track expiration dates on perishable products"
+    ],
+    "terminology": {
+      "sale": "sale",
+      "customer": "customer",
+      "product": "product",
+      "sku": "SKU"
+    }
+  }
+}

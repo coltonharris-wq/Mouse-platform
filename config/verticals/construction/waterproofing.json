@@ -1,0 +1,80 @@
+{
+  "id": "waterproofing",
+  "industry": "Construction",
+  "niche": "Waterproofing",
+  "icon": "Droplets",
+  "sidebar": {
+    "nicheLabel": "Waterproofing",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your waterproofing operations manager. I can help you schedule basement inspections, follow up on foundation leak leads, manage sump pump installations, and keep your crews dispatched to the right jobs every day.",
+    "quickActions": [
+      {"label": "Send basement waterproofing estimate", "prompt": "Draft an estimate for interior basement waterproofing including drain tile installation, sump pump, vapor barrier, and wall sealant for a 1,500 sq ft basement."},
+      {"label": "Follow up on foundation leak lead", "prompt": "Write a follow-up message to a homeowner who called about water seeping into their basement after heavy rainfall."},
+      {"label": "Schedule a crawl space job", "prompt": "Help me schedule a crawl space encapsulation job including vapor barrier, dehumidifier installation, and drainage mat."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a homeowner to leave a Google review after we waterproofed their basement and resolved their water intrusion issues."},
+      {"label": "Create rainy season campaign", "prompt": "Create a seasonal marketing campaign targeting homeowners in our service area before the rainy season with free basement inspections."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a waterproofing business. You speak the language of waterproofing contractors — interior and exterior waterproofing, French drain systems, drain tile, sump pump installation, battery backup systems, vapor barriers, crawl space encapsulation, dehumidifiers, foundation crack injection, epoxy and polyurethane injection, exterior membrane coating, grading and drainage, downspout extensions, window well drains, and hydrostatic pressure. You help manage leads from homeowners with wet basements and foundation leaks, schedule inspections and crew deployments, generate estimates with material and labor breakdowns, and follow up after heavy rain events. You understand seasonal demand patterns, water table issues, and the urgency homeowners feel when water enters their home."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your local waterproofing experts. Whether you have a wet basement, foundation cracks, or crawl space moisture issues, we can help keep your home dry and protected. How can I assist you today?",
+    "commonReasons": ["Wet basement inspection", "Foundation crack repair", "Sump pump installation", "Crawl space encapsulation", "Exterior waterproofing quote", "French drain installation", "Emergency water intrusion", "Warranty or service follow-up"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Waterproofing Company", "description": "Tell us your company name, location, and how many waterproofing crews you operate."},
+      {"id": "services", "title": "Waterproofing Services", "description": "Select the services you offer — interior systems, exterior waterproofing, crawl space, sump pumps, crack injection, and drainage solutions."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your waterproofing service area by zip codes, cities, or drive-time radius."},
+      {"id": "ai-receptionist", "title": "Call Handling", "description": "Set up your AI receptionist to qualify water intrusion calls, collect basement details, and book free inspections."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor waterproofing reviews and request feedback after completed projects."},
+      {"id": "go-live", "title": "Launch Your Waterproofing Hub", "description": "Review your settings and go live. Your waterproofing command center is ready to capture leads and keep basements dry."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Interior basement waterproofing", "Exterior waterproofing", "Foundation crack injection", "Sump pump installation", "Crawl space encapsulation", "French drain system", "Basement dehumidifier", "Window well drainage", "Commercial waterproofing"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a waterproofing business.",
+    "capabilities": [
+      "Schedule basement inspections and waterproofing crew assignments across job sites",
+      "Generate detailed waterproofing estimates with material, labor, and equipment breakdowns",
+      "Track weather forecasts to anticipate lead volume spikes after rain events",
+      "Follow up with homeowners after inspections with customized waterproofing recommendations",
+      "Manage sump pump, dehumidifier, and drainage material inventory",
+      "Request and manage Google reviews from completed waterproofing projects",
+      "Create and optimize Google Ads campaigns targeting homeowners with wet basements",
+      "Send automated appointment reminders for scheduled inspections and installations",
+      "Coordinate excavation equipment for exterior waterproofing and drainage projects",
+      "Generate revenue reports broken down by service type — interior, exterior, crawl space, and repair"
+    ],
+    "terminology": {
+      "customer": "homeowner",
+      "appointment": "basement inspection",
+      "job": "waterproofing job",
+      "estimate": "waterproofing estimate",
+      "service": "waterproofing service",
+      "team_member": "crew member",
+      "location": "job site"
+    }
+  }
+}

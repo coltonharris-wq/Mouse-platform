@@ -1,0 +1,80 @@
+{
+  "id": "drywall",
+  "industry": "Construction",
+  "niche": "Drywall",
+  "icon": "Layers",
+  "sidebar": {
+    "nicheLabel": "Drywall",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your drywall operations manager. I can help you schedule hang and finish crews, manage patch and repair leads, bid new construction drywall packages, and keep your tapers moving from one job to the next.",
+    "quickActions": [
+      {"label": "Bid a drywall package", "prompt": "Draft a bid for a full drywall package on a 2,200 sq ft new construction home including hang, tape, mud, texture, and final sand."},
+      {"label": "Follow up on a repair lead", "prompt": "Write a follow-up message to a homeowner who called about drywall repair from water damage in their ceiling."},
+      {"label": "Schedule a hang crew", "prompt": "Help me schedule a drywall hanging crew for a commercial tenant improvement with 4,000 sq ft of wall and ceiling board."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a general contractor to leave a Google review after we completed drywall on their custom home build."},
+      {"label": "Create texture matching promo", "prompt": "Draft a promotional message for drywall repair and texture matching services for homeowners with damaged walls and ceilings."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a drywall contracting business. You speak the language of drywall — hang, tape, bed, float, texture, orange peel, knockdown, smooth finish, Level 4, Level 5, corner bead, mud, joint compound, sanding, moisture-resistant board, fire-rated board, stilts, banjo, flat box, and ceiling work. You help manage bids for new construction, remodels, and repair work, schedule hanging and finishing crews, generate per-sheet and per-square-foot estimates, and ensure smooth finishes that are ready for paint."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your professional drywall contractor. Whether you need drywall for a new build, a remodel, or a patch and repair, our crews deliver smooth, paint-ready finishes. How can I assist you today?",
+    "commonReasons": ["Drywall bid for new construction", "Remodel drywall estimate", "Drywall repair or patch", "Water damage drywall", "Texture matching", "Commercial drywall", "Ceiling repair", "Popcorn ceiling removal"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Drywall Company", "description": "Tell us your company name, location, and how many hanging and finishing crews you run."},
+      {"id": "services", "title": "Drywall Services", "description": "Select the drywall services you offer — hang, tape and finish, texture, repair, commercial, popcorn removal, soundproofing."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your drywall service area by zip codes, cities, or drive-time radius."},
+      {"id": "ai-receptionist", "title": "Drywall Call Handling", "description": "Set up your AI receptionist to field drywall inquiries from builders and homeowners, qualify by scope, and schedule walkthroughs."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to collect reviews from builders and homeowners after drywall projects."},
+      {"id": "go-live", "title": "Launch Your Drywall Hub", "description": "Review your settings and go live. Your drywall command center is ready to manage bids and crew schedules."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["New construction drywall", "Remodel drywall", "Drywall repair and patch", "Water damage drywall", "Texture application", "Popcorn ceiling removal", "Commercial drywall", "Soundproof drywall"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a drywall contracting business.",
+    "capabilities": [
+      "Schedule hanging and finishing crews across new construction and remodel jobs",
+      "Generate per-sheet and per-square-foot drywall bids with material breakdowns",
+      "Coordinate material deliveries — board, mud, tape, corner bead, screws",
+      "Follow up with builders and homeowners requesting drywall bids",
+      "Track crew productivity — sheets hung per day and finish quality",
+      "Request and monitor reviews from general contractors and homeowners",
+      "Manage repair and patch leads from water damage and renovations",
+      "Send job start confirmations and completion notifications",
+      "Track joint compound, tape, and board inventory for active jobs",
+      "Generate revenue reports by project type — new build, remodel, repair, commercial"
+    ],
+    "terminology": {
+      "customer": "builder",
+      "appointment": "walkthrough",
+      "job": "drywall job",
+      "estimate": "drywall bid",
+      "service": "drywall work",
+      "team_member": "finisher",
+      "location": "job site"
+    }
+  }
+}

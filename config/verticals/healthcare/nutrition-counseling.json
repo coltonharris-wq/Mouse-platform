@@ -1,0 +1,99 @@
+{
+  "id": "nutrition-counseling",
+  "industry": "Healthcare",
+  "niche": "Nutrition Counseling",
+  "icon": "Apple",
+  "sidebar": {
+    "nicheLabel": "Nutrition Counseling",
+    "tabs": [
+      {"id": "scheduling", "label": "Client scheduling", "icon": "Calendar", "component": "PatientScheduling"},
+      {"id": "insurance", "label": "Insurance & billing", "icon": "FileText", "component": "InsuranceBilling"},
+      {"id": "portal", "label": "Client portal", "icon": "Users", "component": "PatientPortal"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "appointments", "label": "Sessions", "icon": "Calendar", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Sessions today", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your nutrition counseling practice manager. Ready to check today's client sessions, review meal plan follow-ups, or see how your group programs are enrolling?",
+    "quickActions": [
+      {"label": "Show today's sessions", "prompt": "Show me today's nutrition counseling sessions with client names and session types"},
+      {"label": "Check meal plan follow-ups", "prompt": "Show me clients who need meal plan check-ins or progress reviews this week"},
+      {"label": "Review group program enrollment", "prompt": "Show current enrollment numbers for all active group nutrition programs"},
+      {"label": "Send session reminders", "prompt": "Send appointment reminders to clients scheduled for sessions this week"},
+      {"label": "View new client inquiries", "prompt": "Show me all new client inquiries and initial consultation requests"}
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for a nutrition counseling practice. You help manage client sessions, meal plan tracking, group program enrollment, and practice growth. You understand registered dietitian workflows, medical nutrition therapy, macro tracking, food sensitivities, evidence-based dietary interventions, insurance billing for MNT, and the importance of personalized nutrition guidance."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We'd be happy to help you schedule a nutrition consultation, learn about our programs, or assist with insurance verification for medical nutrition therapy.",
+    "commonReasons": [
+      "Schedule a consultation",
+      "New client intake",
+      "Insurance verification for MNT",
+      "Meal plan question",
+      "Group program inquiry",
+      "Reschedule or cancel",
+      "Billing inquiry",
+      "Physician referral follow-up"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "practice-info", "title": "Practice information", "description": "Enter your nutrition counseling practice name, address, and contact details"},
+      {"id": "practitioners", "title": "Dietitians & counselors", "description": "Add your registered dietitians, nutritionists, and support staff"},
+      {"id": "services", "title": "Services & programs", "description": "Select your offerings including individual counseling, group programs, and meal planning"},
+      {"id": "insurance", "title": "Insurance plans", "description": "Add insurance plans you accept for medical nutrition therapy coverage"},
+      {"id": "hours", "title": "Office hours", "description": "Set your session hours and telehealth availability windows"},
+      {"id": "branding", "title": "Practice branding", "description": "Upload your logo and customize your client-facing pages"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Initial nutrition assessment",
+      "Weight management program",
+      "Diabetes nutrition therapy",
+      "Food allergy counseling",
+      "Sports nutrition plan",
+      "Prenatal nutrition guidance",
+      "Eating disorder recovery support",
+      "Corporate wellness program",
+      "Group nutrition workshop"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Insurance referral", "Physician referral"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for a nutrition counseling practice.",
+    "capabilities": [
+      "Manage client sessions and dietitian schedules",
+      "Track meal plan adherence and client progress notes",
+      "Coordinate group nutrition program enrollment and logistics",
+      "Verify insurance eligibility for medical nutrition therapy",
+      "Handle new client intake forms and dietary assessments",
+      "Generate billing reports for individual and group sessions",
+      "Manage physician referrals and care coordination",
+      "Monitor reviews and online reputation on health platforms",
+      "Send session reminders and meal plan check-in messages",
+      "Analyze client retention, outcomes, and program effectiveness"
+    ],
+    "terminology": {
+      "customer": "client",
+      "appointment": "session",
+      "job": "consultation",
+      "estimate": "program plan",
+      "service": "nutrition service",
+      "team_member": "dietitian",
+      "location": "practice"
+    }
+  }
+}

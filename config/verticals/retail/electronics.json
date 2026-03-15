@@ -1,0 +1,77 @@
+{
+  "id": "electronics",
+  "industry": "Retail",
+  "niche": "Electronics",
+  "icon": "Laptop",
+  "sidebar": {
+    "nicheLabel": "Electronics",
+    "tabs": [
+      {"id": "inventory", "label": "Inventory manager", "icon": "Package", "component": "InventoryManager"},
+      {"id": "pos", "label": "POS integration", "icon": "CreditCard", "component": "POSIntegration"},
+      {"id": "loyalty", "label": "Customer loyalty", "icon": "Heart", "component": "CustomerLoyalty"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "sales", "label": "Sales today", "icon": "ShoppingBag", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "customers", "label": "Customers", "icon": "Users", "defaultValue": "0", "subtitle": "today"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Sales today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome to your electronics store dashboard! Let's keep your tech inventory current and your customers plugged in.",
+    "quickActions": [
+      "Check stock on trending devices",
+      "Log a new product shipment",
+      "Create a bundle deal promotion",
+      "View warranty claims this week",
+      "Update price matching records"
+    ],
+    "systemPrompt": "You are King Mouse, an AI store manager for an electronics business. You help manage tech inventory with serial numbers and warranties, track product lifecycles, coordinate trade-in programs, and stay on top of new product launches. You understand electronics retail margins, accessory attach rates, and extended warranty sales."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! Whether you need the latest tech or support with a recent purchase, we're here to help. How can we assist you?",
+    "commonReasons": ["Product availability", "Store hours", "Return/exchange", "Warranty support", "Price matching", "Trade-in value", "Repair services"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "store-info", "title": "Store information", "description": "Enter your electronics store name, location, and contact details"},
+      {"id": "categories", "title": "Product categories", "description": "Select the electronics categories you carry (computers, phones, audio, gaming)"},
+      {"id": "serial-tracking", "title": "Serial number tracking", "description": "Configure serial number and warranty tracking for high-value items"},
+      {"id": "pos-setup", "title": "POS setup", "description": "Connect your point-of-sale system for real-time sales tracking"},
+      {"id": "online-presence", "title": "Online presence", "description": "Set up your website and social media profiles"},
+      {"id": "loyalty-program", "title": "Loyalty program", "description": "Configure your customer rewards and trade-in credit program"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Computers & laptops", "Smartphones & tablets", "Audio equipment", "Gaming consoles", "TV & home theater", "Smart home devices", "Accessories & cables", "Repair services"],
+    "statusLabels": ["New", "Interested", "Ready to buy", "Purchased", "Return"],
+    "sourceLabels": ["Walk-in", "Google", "Instagram", "Facebook", "Referral", "Website"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI store manager for an electronics shop.",
+    "capabilities": [
+      "Track inventory with serial numbers and model variants",
+      "Monitor product lifecycles and end-of-life transitions",
+      "Manage warranty registrations and claims",
+      "Coordinate trade-in programs and refurbished stock",
+      "Track accessory attach rates per device sale",
+      "Handle price matching requests against competitors",
+      "Analyze sales trends by product category and brand",
+      "Generate comparison content for social media",
+      "Manage pre-order lists for new product launches",
+      "Track repair service tickets and turnaround times"
+    ],
+    "terminology": {
+      "sale": "sale",
+      "customer": "customer",
+      "product": "product",
+      "sku": "SKU"
+    }
+  }
+}

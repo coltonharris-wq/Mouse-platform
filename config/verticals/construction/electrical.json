@@ -1,0 +1,80 @@
+{
+  "id": "electrical",
+  "industry": "Construction",
+  "niche": "Electrical",
+  "icon": "Zap",
+  "sidebar": {
+    "nicheLabel": "Electrical",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your electrical operations manager. I can help you dispatch electricians, manage panel upgrade leads, send wiring estimates, track permits and inspections, and keep your service calls flowing smoothly.",
+    "quickActions": [
+      {"label": "Send panel upgrade estimate", "prompt": "Draft an estimate for a 200-amp electrical panel upgrade for a residential home including the panel, breakers, permit, and inspection."},
+      {"label": "Follow up on a service call lead", "prompt": "Write a follow-up message to a homeowner who called about flickering lights and potential wiring issues."},
+      {"label": "Schedule an electrical inspection", "prompt": "Help me schedule a rough-in electrical inspection for a new construction project with the local building department."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a customer to leave a Google review after we completed their whole-house rewire."},
+      {"label": "Create EV charger promotion", "prompt": "Draft a promotional message for residential EV charger installation services including Level 2 charger options."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for an electrical contracting business. You speak the language of electricians — panel upgrades, circuit breakers, romex, conduit, wire gauges, GFCI outlets, AFCI protection, load calculations, rough-ins, trim-outs, EV charger installs, generator hookups, and code compliance. You help manage leads for residential and commercial electrical work, dispatch journeymen and apprentices, generate estimates with accurate material pricing, track permits and inspections, and ensure jobs pass code on the first inspection."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your licensed electrical contractor. Whether you need an outlet repaired, a panel upgraded, or a full rewire, our team is ready to help. How can I assist you today?",
+    "commonReasons": ["Panel upgrade quote", "Outlet or switch repair", "Whole-house rewire estimate", "EV charger installation", "Generator hookup", "Electrical inspection", "Commercial electrical work", "Lighting installation", "Emergency electrical issue"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Electrical Company", "description": "Tell us your company name, license number, location, and how many electricians are on your team."},
+      {"id": "services", "title": "Electrical Services", "description": "Select the electrical services you offer — panel upgrades, rewires, EV chargers, generators, commercial, lighting."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your service area by zip codes, cities, or drive-time radius."},
+      {"id": "ai-receptionist", "title": "Electrical Call Handling", "description": "Set up your AI receptionist to answer electrical inquiries, triage emergency calls, and book service appointments."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor reviews and request feedback after completed electrical jobs."},
+      {"id": "go-live", "title": "Launch Your Electrical Hub", "description": "Review your settings and go live. Your electrical contracting command center is ready to dispatch and manage jobs."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Panel upgrade", "Whole-house rewire", "EV charger installation", "Generator installation", "Outlet and switch repair", "Lighting installation", "Ceiling fan installation", "Commercial electrical", "Knob-and-tube replacement"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for an electrical contracting business.",
+    "capabilities": [
+      "Dispatch electricians to service calls and new construction projects",
+      "Generate detailed electrical estimates with material and labor line items",
+      "Track permits, rough-in inspections, and final inspection schedules",
+      "Follow up with leads requesting panel upgrades and rewiring quotes",
+      "Manage EV charger installation pipeline from inquiry to completion",
+      "Request and monitor Google reviews from satisfied electrical customers",
+      "Run Google Ads targeting homeowners searching for electricians",
+      "Send appointment reminders and job completion follow-ups",
+      "Track wire, panel, and breaker inventory for common jobs",
+      "Generate revenue reports by service type — residential, commercial, new construction"
+    ],
+    "terminology": {
+      "customer": "homeowner",
+      "appointment": "service call",
+      "job": "electrical job",
+      "estimate": "electrical estimate",
+      "service": "electrical service",
+      "team_member": "electrician",
+      "location": "job site"
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "id": "flooring",
+  "industry": "Construction",
+  "niche": "Flooring",
+  "icon": "Grid3x3",
+  "sidebar": {
+    "nicheLabel": "Flooring",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your flooring operations manager. I can help you schedule install crews, manage hardwood and tile leads, send per-square-foot estimates, track material orders, and keep your flooring calendar packed.",
+    "quickActions": [
+      {"label": "Send hardwood floor estimate", "prompt": "Draft an estimate for 1,200 sq ft of engineered hardwood flooring installation including subfloor prep, underlayment, material, installation, and transitions."},
+      {"label": "Follow up on a tile lead", "prompt": "Write a follow-up message to a homeowner who requested a quote for tile flooring in their kitchen, bathrooms, and laundry room."},
+      {"label": "Schedule a floor install", "prompt": "Help me schedule an LVP flooring installation crew for a 3-bedroom home including furniture moving coordination."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a customer to leave a Google review after we installed their new hardwood floors."},
+      {"label": "Promote refinishing services", "prompt": "Draft a promotional message for hardwood floor sanding and refinishing services to restore original beauty."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a flooring business. You speak the language of floor installers — hardwood, engineered wood, LVP, laminate, tile, porcelain, ceramic, natural stone, carpet, subfloor prep, underlayment, transitions, baseboards, grout, thinset, leveling compound, sanding, refinishing, staining, and moisture testing. You help manage leads from homeowners and builders, schedule install crews, generate per-square-foot estimates with material and labor, and coordinate material orders from suppliers and showrooms."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your professional flooring experts. Whether you need hardwood, tile, LVP, or carpet installed, we offer free in-home estimates. How can I assist you today?",
+    "commonReasons": ["Hardwood floor estimate", "Tile installation quote", "LVP or laminate install", "Carpet installation", "Floor refinishing", "Subfloor repair", "Commercial flooring", "Showroom visit scheduling"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Flooring Company", "description": "Tell us your company name, location, and how many flooring installation crews you run."},
+      {"id": "services", "title": "Flooring Services", "description": "Select the flooring types you install — hardwood, tile, LVP, laminate, carpet, natural stone, refinishing, commercial."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your flooring service area by zip codes, cities, or drive-time radius."},
+      {"id": "ai-receptionist", "title": "Flooring Call Handling", "description": "Set up your AI receptionist to answer flooring inquiries, qualify by material type and square footage, and book in-home estimates."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor reviews and request feedback after flooring installations."},
+      {"id": "go-live", "title": "Launch Your Flooring Hub", "description": "Review your settings and go live. Your flooring command center is ready to manage estimates and install crews."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Hardwood floor installation", "Tile installation", "LVP installation", "Laminate installation", "Carpet installation", "Hardwood refinishing", "Natural stone flooring", "Subfloor repair", "Commercial flooring"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a flooring business.",
+    "capabilities": [
+      "Schedule flooring installation crews across residential and commercial jobs",
+      "Generate per-square-foot estimates with material, labor, and prep costs",
+      "Coordinate material orders from suppliers and track delivery dates",
+      "Follow up with homeowners requesting flooring installation quotes",
+      "Manage showroom appointment scheduling and sample requests",
+      "Request and monitor Google reviews from completed flooring installations",
+      "Run Google Ads targeting homeowners searching for flooring installers",
+      "Send appointment reminders and install-day preparation instructions",
+      "Track material inventory — hardwood, tile, LVP, underlayment, adhesives",
+      "Generate revenue reports by flooring type — hardwood, tile, LVP, carpet, refinish"
+    ],
+    "terminology": {
+      "customer": "homeowner",
+      "appointment": "in-home estimate",
+      "job": "flooring install",
+      "estimate": "flooring estimate",
+      "service": "flooring service",
+      "team_member": "installer",
+      "location": "job site"
+    }
+  }
+}

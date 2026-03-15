@@ -1,0 +1,77 @@
+{
+  "id": "toy-store",
+  "industry": "Retail",
+  "niche": "Toy store",
+  "icon": "Dice",
+  "sidebar": {
+    "nicheLabel": "Toy store",
+    "tabs": [
+      {"id": "inventory", "label": "Inventory manager", "icon": "Package", "component": "InventoryManager"},
+      {"id": "pos", "label": "POS integration", "icon": "CreditCard", "component": "POSIntegration"},
+      {"id": "loyalty", "label": "Customer loyalty", "icon": "Heart", "component": "CustomerLoyalty"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "sales", "label": "Sales today", "icon": "ShoppingBag", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "customers", "label": "Customers", "icon": "Users", "defaultValue": "0", "subtitle": "today"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Sales today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome to your toy store dashboard! Let's keep the fun stocked, the demos running, and the kids (and parents) smiling.",
+    "quickActions": [
+      "Check trending toy stock levels",
+      "Log a new toy shipment",
+      "Schedule a demo day event",
+      "View birthday registry requests",
+      "Create a holiday toy guide"
+    ],
+    "systemPrompt": "You are King Mouse, an AI store manager for a toy store business. You help manage toy inventory across age groups and categories, track trending toys and seasonal demand spikes, coordinate in-store demos and birthday events, and build family-friendly customer experiences. You understand toy retail including age-appropriate product safety, holiday rush planning, and the importance of interactive displays and play areas."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We love helping families find the perfect toy for every age. How can we help you today?",
+    "commonReasons": ["Product availability", "Store hours", "Return/exchange", "Birthday registry", "Gift recommendations by age", "In-store events", "Gift wrapping"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "store-info", "title": "Store information", "description": "Enter your toy store name, location, and contact details"},
+      {"id": "categories", "title": "Product categories", "description": "Select the toy categories you carry (action figures, board games, STEM, dolls, outdoor, building sets)"},
+      {"id": "events", "title": "Events & demos", "description": "Configure in-store demo days, birthday party packages, and play area management"},
+      {"id": "pos-setup", "title": "POS setup", "description": "Connect your point-of-sale system for real-time sales tracking"},
+      {"id": "online-presence", "title": "Online presence", "description": "Set up your website with gift finder tool and social media profiles"},
+      {"id": "loyalty-program", "title": "Loyalty program", "description": "Configure your family rewards and birthday club program"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Action figures & dolls", "Board games & puzzles", "STEM & educational", "Building sets", "Outdoor & active play", "Arts & crafts kits", "Baby & toddler toys", "Video games & electronics"],
+    "statusLabels": ["New", "Interested", "Ready to buy", "Purchased", "Return"],
+    "sourceLabels": ["Walk-in", "Google", "Instagram", "Facebook", "Referral", "Website"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI store manager for a toy store shop.",
+    "capabilities": [
+      "Track toy inventory by age group, brand, and category",
+      "Monitor trending toys and viral product demand",
+      "Manage birthday registry and wish list programs",
+      "Coordinate in-store demo events and play areas",
+      "Handle gift wrapping and personalization services",
+      "Track product safety recalls and compliance",
+      "Analyze sales trends by age group and season",
+      "Generate fun product showcase content for social media",
+      "Manage holiday rush pre-orders and layaway programs",
+      "Coordinate birthday party packages and event bookings"
+    ],
+    "terminology": {
+      "sale": "sale",
+      "customer": "customer",
+      "product": "product",
+      "sku": "SKU"
+    }
+  }
+}

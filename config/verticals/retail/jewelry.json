@@ -1,0 +1,77 @@
+{
+  "id": "jewelry",
+  "industry": "Retail",
+  "niche": "Jewelry",
+  "icon": "Gem",
+  "sidebar": {
+    "nicheLabel": "Jewelry",
+    "tabs": [
+      {"id": "inventory", "label": "Inventory manager", "icon": "Package", "component": "InventoryManager"},
+      {"id": "pos", "label": "POS integration", "icon": "CreditCard", "component": "POSIntegration"},
+      {"id": "loyalty", "label": "Customer loyalty", "icon": "Heart", "component": "CustomerLoyalty"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "sales", "label": "Sales today", "icon": "ShoppingBag", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "customers", "label": "Customers", "icon": "Users", "defaultValue": "0", "subtitle": "today"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Sales today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome to your jewelry store dashboard! Let's keep your cases sparkling and your customers dazzled.",
+    "quickActions": [
+      "Check high-value inventory status",
+      "Log a custom order request",
+      "Create an anniversary sale event",
+      "View repair and resizing queue",
+      "Update appraisal records"
+    ],
+    "systemPrompt": "You are King Mouse, an AI store manager for a jewelry business. You help manage precious inventory with appraisals and certifications, track custom orders and repairs, coordinate seasonal promotions around holidays and engagements, and maintain high-touch customer relationships. You understand jewelry retail including gemstone grading, metal pricing, and insurance requirements."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! Whether you're looking for the perfect piece or need a repair, we'd love to help. How can we assist you today?",
+    "commonReasons": ["Product availability", "Store hours", "Return/exchange", "Custom order status", "Repair and resizing", "Appraisal services", "Engraving requests"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "store-info", "title": "Store information", "description": "Enter your jewelry store name, location, and contact details"},
+      {"id": "categories", "title": "Product categories", "description": "Select the jewelry categories you carry (rings, necklaces, bracelets, watches)"},
+      {"id": "certifications", "title": "Certifications & appraisals", "description": "Configure gemstone certification tracking and appraisal workflows"},
+      {"id": "pos-setup", "title": "POS setup", "description": "Connect your point-of-sale system for real-time sales tracking"},
+      {"id": "online-presence", "title": "Online presence", "description": "Set up your website and social media profiles"},
+      {"id": "loyalty-program", "title": "Loyalty program", "description": "Configure your VIP customer program and milestone rewards"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Engagement rings", "Wedding bands", "Necklaces & pendants", "Bracelets", "Earrings", "Watches", "Custom designs", "Repair & resizing"],
+    "statusLabels": ["New", "Interested", "Ready to buy", "Purchased", "Return"],
+    "sourceLabels": ["Walk-in", "Google", "Instagram", "Facebook", "Referral", "Website"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI store manager for a jewelry shop.",
+    "capabilities": [
+      "Track precious inventory with certifications and appraisals",
+      "Manage custom order workflows from design to delivery",
+      "Coordinate repair, resizing, and engraving services",
+      "Monitor metal and gemstone market pricing",
+      "Handle insurance documentation and valuations",
+      "Track customer wish lists and anniversary reminders",
+      "Analyze sales trends by category and price point",
+      "Generate elegant product photography for social media",
+      "Manage consignment and estate jewelry intake",
+      "Coordinate seasonal promotions around holidays"
+    ],
+    "terminology": {
+      "sale": "sale",
+      "customer": "customer",
+      "product": "product",
+      "sku": "SKU"
+    }
+  }
+}

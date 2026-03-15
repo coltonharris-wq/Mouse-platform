@@ -1,0 +1,99 @@
+{
+  "id": "wine-bar",
+  "industry": "Food & Drink",
+  "niche": "Wine Bar",
+  "icon": "Wine",
+  "sidebar": {
+    "nicheLabel": "Wine Bar",
+    "tabs": [
+      {"id": "orders", "label": "Order management", "icon": "ShoppingCart", "component": "OrderManagement"},
+      {"id": "menu", "label": "Menu builder", "icon": "BookOpen", "component": "MenuBuilder"},
+      {"id": "reservations", "label": "Reservations", "icon": "Calendar", "component": "Reservations"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "orders", "label": "Orders today", "icon": "ShoppingCart", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "reservations", "label": "Reservations", "icon": "Calendar", "defaultValue": "0", "subtitle": "tonight"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Reservations tonight", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your wine bar operations manager. Want to check tonight's reservations, update the wine-by-the-glass list, or see how last weekend's tasting event performed?",
+    "quickActions": [
+      {"label": "Check tonight's reservations", "prompt": "Show me all reservations for tonight with party size and any special requests"},
+      {"label": "Update wine list", "prompt": "Help me update the wine-by-the-glass and bottle selections for this week"},
+      {"label": "Review cellar inventory", "prompt": "Show current inventory levels for our most popular wines by region"},
+      {"label": "Plan tasting event", "prompt": "Help me plan a wine tasting event including pairings, pricing, and promotion"},
+      {"label": "Check weekend sales", "prompt": "Show me last weekend's sales breakdown by wine type, glass vs bottle, and food pairings"}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a wine bar. You help manage reservations, wine inventory, tasting events, food pairings, and customer experience. You understand wine varietals, regions, vintages, proper storage, tasting notes, sommeliers, and the art of curating a wine list that balances accessible pours with premium selections."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We'd be happy to help you with a reservation, wine selection, private event, or any questions about our wine list.",
+    "commonReasons": [
+      "Make a reservation",
+      "Wine list or menu inquiry",
+      "Private event booking",
+      "Wine tasting event",
+      "Wine club membership",
+      "Gift card purchase",
+      "Bottle service inquiry",
+      "Catering or party request"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "bar-info", "title": "Wine bar information", "description": "Enter your wine bar name, address, and contact details"},
+      {"id": "wine-list", "title": "Wine list", "description": "Build your wine list with varietals, regions, vintages, and pricing by glass and bottle"},
+      {"id": "food-menu", "title": "Food & pairings", "description": "Create your small plates, charcuterie, and food pairing menu"},
+      {"id": "events", "title": "Events & tastings", "description": "Set up wine tasting events, private bookings, and wine club programs"},
+      {"id": "hours", "title": "Bar hours", "description": "Set your operating hours and happy hour schedules"},
+      {"id": "branding", "title": "Bar branding", "description": "Upload your logo and customize your reservation and event pages"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Private event booking",
+      "Wine tasting party",
+      "Corporate happy hour",
+      "Wine club signup",
+      "Wedding rehearsal dinner",
+      "Wine pairing dinner",
+      "Wholesale wine purchase",
+      "Holiday party venue",
+      "Wine education class"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google", "Yelp", "Instagram", "Word of mouth", "OpenTable", "Vivino", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a wine bar.",
+    "capabilities": [
+      "Manage reservations and table assignments for the evening",
+      "Track wine cellar inventory by varietal, region, and vintage",
+      "Curate and update wine-by-the-glass and bottle list selections",
+      "Plan and promote wine tasting events and pairing dinners",
+      "Manage wine club memberships, shipments, and renewals",
+      "Handle private event bookings and custom wine packages",
+      "Monitor reviews on Yelp, Google, and Vivino",
+      "Analyze sales by varietal, price point, and service format",
+      "Coordinate with distributors for new arrivals and allocations",
+      "Generate daily sales, pour cost, and inventory reports"
+    ],
+    "terminology": {
+      "customer": "guest",
+      "appointment": "reservation",
+      "job": "service",
+      "estimate": "quote",
+      "service": "wine service",
+      "team_member": "sommelier",
+      "location": "wine bar"
+    }
+  }
+}

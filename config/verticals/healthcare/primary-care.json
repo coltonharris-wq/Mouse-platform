@@ -1,0 +1,99 @@
+{
+  "id": "primary-care",
+  "industry": "Healthcare",
+  "niche": "Primary Care",
+  "icon": "Heart",
+  "sidebar": {
+    "nicheLabel": "Primary Care",
+    "tabs": [
+      {"id": "scheduling", "label": "Patient scheduling", "icon": "Calendar", "component": "PatientScheduling"},
+      {"id": "insurance", "label": "Insurance & billing", "icon": "FileText", "component": "InsuranceBilling"},
+      {"id": "portal", "label": "Patient portal", "icon": "Users", "component": "PatientPortal"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "appointments", "label": "Appointments", "icon": "Calendar", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Appointments today", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, Doctor! Let's keep your primary care practice healthy and efficient. Ready to review today's patient schedule or check on pending lab results?",
+    "quickActions": [
+      "Show today's patient schedule",
+      "Review pending lab results",
+      "Check annual wellness visit reminders",
+      "Send prescription refill notifications",
+      "View specialist referral status"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for a primary care practice. You help manage patient scheduling, wellness visit tracking, chronic disease management, prescription coordination, and practice growth. You understand primary care terminology including annual physicals, wellness visits, chronic care management, and preventive screenings. You refer to people as patients and track appointments, not jobs."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your primary care provider. How may I help you today?",
+    "commonReasons": [
+      "Schedule appointment",
+      "Insurance question",
+      "Prescription refill",
+      "Lab results inquiry",
+      "Reschedule or cancel",
+      "New patient registration",
+      "Referral request",
+      "Billing inquiry"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "practice-info", "title": "Practice information", "description": "Enter your primary care practice name, address, and contact details"},
+      {"id": "providers", "title": "Physicians & staff", "description": "Add your physicians, nurse practitioners, PAs, and nurses"},
+      {"id": "services", "title": "Medical services", "description": "Select the medical services and specialties you offer"},
+      {"id": "insurance", "title": "Insurance plans", "description": "Add the insurance plans and networks you participate in"},
+      {"id": "hours", "title": "Office hours", "description": "Set your practice hours and appointment availability"},
+      {"id": "branding", "title": "Practice branding", "description": "Upload your logo and customize your patient-facing pages"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Annual wellness visit",
+      "Sick visit",
+      "Chronic care management",
+      "Preventive screening",
+      "Physical exam",
+      "Immunization",
+      "Telehealth visit",
+      "New patient consultation"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Insurance referral"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for a primary care practice.",
+    "capabilities": [
+      "Manage patient appointments and visit schedules",
+      "Track chronic care management plans",
+      "Verify insurance eligibility and copays",
+      "Monitor preventive screening due dates",
+      "Handle new patient registration and intake",
+      "Generate production and billing reports",
+      "Coordinate specialist referrals and follow-ups",
+      "Manage reviews and online reputation",
+      "Track prescription refill requests",
+      "Send appointment reminders and health alerts"
+    ],
+    "terminology": {
+      "customer": "patient",
+      "job": "appointment",
+      "business": "practice",
+      "estimate": "treatment plan",
+      "invoice": "statement",
+      "worker": "physician",
+      "booking": "appointment",
+      "service": "visit"
+    }
+  }
+}

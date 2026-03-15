@@ -1,0 +1,98 @@
+{
+  "id": "appliance-repair",
+  "industry": "Home services",
+  "niche": "Appliance repair",
+  "icon": "Settings",
+  "sidebar": {
+    "nicheLabel": "Appliance repair",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back! Let's keep your repair schedule running like a well-oiled machine. Ready to manage your service calls and keep customers' appliances humming?",
+    "quickActions": [
+      {"label": "Schedule a repair", "prompt": "Help me schedule a new appliance repair call for a client."},
+      {"label": "Send an estimate", "prompt": "Help me create and send an estimate for an appliance repair."},
+      {"label": "Follow up on leads", "prompt": "Show me my recent leads that need follow-up."},
+      {"label": "Check today's calls", "prompt": "What appliance repair calls are scheduled for today?"},
+      {"label": "Request a review", "prompt": "Help me send a review request to a recent client."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for an appliance repair business. You help manage diagnostic and repair appointments, coordinate technicians, track parts ordering, handle estimates for residential and commercial repairs, and grow the business through reputation management and advertising."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We repair all major household appliances. What appliance is giving you trouble today?",
+    "commonReasons": [
+      "Schedule a repair appointment",
+      "Get a quote for a repair",
+      "Report a broken appliance",
+      "Check on a parts order",
+      "Ask about brands serviced",
+      "Follow up on a previous repair",
+      "Ask about warranty on repairs"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"target": "#business-name", "title": "Name your appliance repair business", "body": "Enter the name clients will see when you send estimates and invoices.", "position": "bottom"},
+      {"target": "#service-area", "title": "Set your service area", "body": "Define the neighborhoods or zip codes where your technicians make house calls.", "position": "bottom"},
+      {"target": "#service-types", "title": "Add your repair services", "body": "List the appliances you repair: refrigerators, washers, dryers, dishwashers, ovens, etc.", "position": "right"},
+      {"target": "#pricing", "title": "Set your pricing", "body": "Configure your diagnostic fee, hourly rate, and common flat-rate repairs.", "position": "right"},
+      {"target": "#team", "title": "Add your technicians", "body": "Add team members so you can assign and schedule repair calls efficiently.", "position": "left"},
+      {"target": "#go-live", "title": "Go live!", "body": "Your appliance repair business is set up. Start capturing leads and booking service calls!", "position": "bottom"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Refrigerator repair",
+      "Washer repair",
+      "Dryer repair",
+      "Dishwasher repair",
+      "Oven/range repair",
+      "Microwave repair",
+      "Freezer repair",
+      "Garbage disposal repair",
+      "Ice maker repair",
+      "Commercial appliance repair"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for an appliance repair business.",
+    "capabilities": [
+      "Schedule diagnostic and repair appointments",
+      "Create estimates for parts and labor",
+      "Coordinate technician assignments and routes",
+      "Track parts ordering and availability",
+      "Send automated appointment reminders to clients",
+      "Generate invoices after completed repairs",
+      "Monitor online reviews and respond to feedback",
+      "Manage warranty tracking for completed repairs",
+      "Handle follow-up calls for parts arrivals",
+      "Analyze revenue by appliance type and repair category"
+    ],
+    "terminology": {
+      "job": "service call",
+      "client": "client",
+      "worker": "technician",
+      "team": "team",
+      "estimate": "estimate",
+      "service_area": "service area"
+    }
+  }
+}

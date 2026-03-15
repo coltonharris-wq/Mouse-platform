@@ -1,0 +1,99 @@
+{
+  "id": "environmental-law",
+  "industry": "Legal",
+  "niche": "Environmental Law",
+  "icon": "TreePine",
+  "sidebar": {
+    "nicheLabel": "Environmental Law",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Consultations today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your environmental law firm operations manager. I keep your regulatory deadlines tracked, your client pipeline moving, and your compliance matters organized. What do you need?",
+    "quickActions": [
+      {"label": "Schedule a compliance consultation", "prompt": "Help me schedule an initial consultation for a business facing an EPA enforcement action this week."},
+      {"label": "Create a retainer estimate", "prompt": "Draft a retainer fee estimate for representing a client in a CERCLA Superfund matter."},
+      {"label": "Check regulatory deadlines", "prompt": "Show me all upcoming regulatory filing deadlines, comment periods, and court dates for the next 30 days."},
+      {"label": "View today's schedule", "prompt": "Show me today's client meetings, agency hearings, and internal case reviews."},
+      {"label": "Follow up on open inquiries", "prompt": "Show me all prospective client inquiries from the past week that still need consultation scheduling."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for an environmental law firm. You understand Clean Water Act enforcement, Clean Air Act compliance, CERCLA/Superfund liability, RCRA hazardous waste regulations, NEPA environmental impact review, endangered species litigation, brownfield redevelopment, environmental permitting, and toxic tort claims. You help manage client intake, track complex regulatory deadlines and public comment periods, schedule consultations and hearings, generate retainer agreements, and manage client communications. Always reference relevant federal and state environmental statutes and agency regulations when appropriate."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, experienced environmental law attorneys. How can I help you today?",
+    "commonReasons": [
+      "Respond to an EPA or state enforcement notice",
+      "Ask about environmental compliance requirements",
+      "Inquire about Superfund or CERCLA liability",
+      "Schedule an initial legal consultation",
+      "Ask about environmental permitting",
+      "Inquire about contamination and toxic tort claims",
+      "Ask about NEPA review or environmental impact statements",
+      "Discuss brownfield redevelopment legal needs"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Firm details", "description": "Enter your environmental law firm name, address, jurisdictions served, and contact information."},
+      {"id": "services", "title": "Practice areas", "description": "Select your environmental practice areas: Clean Water Act, Clean Air Act, CERCLA, RCRA, NEPA, endangered species, permitting, and toxic torts."},
+      {"id": "team", "title": "Your attorneys", "description": "Add your environmental attorneys and paralegals with their bar admissions, regulatory specialties, and availability."},
+      {"id": "pricing", "title": "Fee structure", "description": "Set your consultation fees, retainer amounts, hourly rates, and flat-fee options for common environmental matters."},
+      {"id": "integrations", "title": "Connect your tools", "description": "Link your Google Business Profile, payment processor, case management system, and regulatory tracking tools."},
+      {"id": "go-live", "title": "Go live", "description": "Review your setup, activate your AI receptionist, and start capturing environmental law client leads."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "EPA Enforcement Defense",
+      "Clean Water Act Compliance",
+      "Clean Air Act Compliance",
+      "CERCLA / Superfund Liability",
+      "RCRA Hazardous Waste Matter",
+      "NEPA Environmental Review",
+      "Environmental Permitting",
+      "Toxic Tort Litigation",
+      "Brownfield Redevelopment"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for an environmental law firm.",
+    "capabilities": [
+      "Schedule client consultations, agency hearings, and court appearances",
+      "Generate retainer agreements and fee estimates for environmental matters",
+      "Track regulatory filing deadlines, public comment periods, and compliance dates",
+      "Manage client intake from initial inquiry through case engagement",
+      "Coordinate with environmental consultants, engineers, and expert witnesses",
+      "Monitor EPA and state agency dockets for case-relevant actions",
+      "Send automated case status updates and deadline reminders to clients",
+      "Track case milestones across enforcement, compliance, and litigation matters",
+      "Send review requests to clients after successful case resolution",
+      "Analyze firm revenue and caseload by environmental practice area"
+    ],
+    "terminology": {
+      "customer": "Client",
+      "appointment": "Consultation",
+      "job": "Matter",
+      "estimate": "Retainer agreement",
+      "service": "Legal service",
+      "team_member": "Attorney",
+      "location": "Office"
+    }
+  }
+}

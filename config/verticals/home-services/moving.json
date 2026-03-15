@@ -1,0 +1,97 @@
+{
+  "id": "moving",
+  "industry": "Home services",
+  "niche": "Moving",
+  "icon": "Truck",
+  "sidebar": {
+    "nicheLabel": "Moving",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back! Let's keep your moves running on schedule. Ready to manage your crews and book more jobs?",
+    "quickActions": [
+      {"label": "Schedule a move", "prompt": "Help me schedule a new moving job for a client."},
+      {"label": "Send an estimate", "prompt": "Help me create and send a moving estimate for a client."},
+      {"label": "Follow up on leads", "prompt": "Show me my recent leads that need follow-up."},
+      {"label": "Check today's moves", "prompt": "What moving jobs are scheduled for today?"},
+      {"label": "Request a review", "prompt": "Help me send a review request to a recent client."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a moving company. You help manage local and long-distance moves, coordinate crews and trucks, handle estimates based on home size and distance, and grow the business through reputation management and advertising."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We're here to help make your move stress-free. Are you looking for a moving quote or want to book a move?",
+    "commonReasons": [
+      "Get a moving quote",
+      "Book a moving date",
+      "Reschedule a move",
+      "Ask about packing services",
+      "Inquire about storage options",
+      "Ask about pricing and rates",
+      "Check on move-day details"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"target": "#business-name", "title": "Name your moving company", "body": "Enter the name clients will see when you send estimates and invoices.", "position": "bottom"},
+      {"target": "#service-area", "title": "Set your service area", "body": "Define the areas and distances your moving company serves.", "position": "bottom"},
+      {"target": "#service-types", "title": "Add your moving services", "body": "List the services you offer: local moves, long-distance, packing, loading/unloading, storage, etc.", "position": "right"},
+      {"target": "#pricing", "title": "Set your pricing", "body": "Configure hourly rates, flat fees by home size, and additional charges for stairs, packing, etc.", "position": "right"},
+      {"target": "#team", "title": "Add your movers", "body": "Add team members so you can assign crews and schedule moves efficiently.", "position": "left"},
+      {"target": "#go-live", "title": "Go live!", "body": "Your moving company is set up. Start capturing leads and booking moves!", "position": "bottom"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Local move",
+      "Long-distance move",
+      "Apartment move",
+      "House move",
+      "Office/commercial move",
+      "Packing services",
+      "Loading/unloading only",
+      "Storage",
+      "Piano/specialty item move"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a moving company.",
+    "capabilities": [
+      "Schedule and coordinate moving jobs with crew assignments",
+      "Create estimates based on home size, distance, and services",
+      "Manage truck and equipment availability",
+      "Coordinate crew schedules and assignments",
+      "Send automated confirmations and reminders before move day",
+      "Generate invoices after completed moves",
+      "Monitor online reviews and respond to feedback",
+      "Track packing supplies and inventory",
+      "Manage follow-up for storage and additional services",
+      "Analyze revenue by move type and distance"
+    ],
+    "terminology": {
+      "job": "move",
+      "client": "client",
+      "worker": "mover",
+      "team": "crew",
+      "estimate": "estimate",
+      "service_area": "service area"
+    }
+  }
+}

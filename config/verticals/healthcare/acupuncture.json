@@ -1,0 +1,99 @@
+{
+  "id": "acupuncture",
+  "industry": "Healthcare",
+  "niche": "Acupuncture & TCM",
+  "icon": "Leaf",
+  "sidebar": {
+    "nicheLabel": "Acupuncture & TCM",
+    "tabs": [
+      {"id": "scheduling", "label": "Patient scheduling", "icon": "Calendar", "component": "PatientScheduling"},
+      {"id": "insurance", "label": "Insurance & billing", "icon": "FileText", "component": "InsuranceBilling"},
+      {"id": "portal", "label": "Patient portal", "icon": "Users", "component": "PatientPortal"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "appointments", "label": "Appointments", "icon": "Calendar", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Appointments today", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your acupuncture and TCM practice manager. Ready to check today's patient schedule, follow up on treatment plans, or see how your herbal dispensary sales are tracking?",
+    "quickActions": [
+      {"label": "Show today's schedule", "prompt": "Show me today's acupuncture appointments with patient names and treatment types"},
+      {"label": "Check treatment plans", "prompt": "Show me patients with active multi-session treatment plans and their progress"},
+      {"label": "Review herbal inventory", "prompt": "Show current stock levels for my most prescribed herbal formulas"},
+      {"label": "Send follow-up reminders", "prompt": "Send appointment reminders to patients due for their next session this week"},
+      {"label": "View new patient inquiries", "prompt": "Show me all new patient inquiries and consultation requests from this week"}
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for an acupuncture and Traditional Chinese Medicine practice. You help manage patient scheduling, treatment plan tracking, herbal dispensary inventory, and practice growth. You understand acupuncture meridians, TCM diagnosis patterns, herbal formula prescribing, cupping, moxibustion, insurance billing for acupuncture, and the holistic approach to patient wellness."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We'd be happy to help you schedule an acupuncture session, answer questions about our Traditional Chinese Medicine services, or assist with insurance verification.",
+    "commonReasons": [
+      "Schedule an appointment",
+      "New patient consultation",
+      "Insurance verification",
+      "Treatment plan question",
+      "Herbal formula refill",
+      "Reschedule or cancel",
+      "Billing inquiry",
+      "Request patient records"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "practice-info", "title": "Practice information", "description": "Enter your acupuncture practice name, address, and contact details"},
+      {"id": "practitioners", "title": "Practitioners", "description": "Add your licensed acupuncturists, TCM herbalists, and support staff"},
+      {"id": "services", "title": "Services & treatments", "description": "Select the treatments you offer including acupuncture, cupping, moxibustion, and herbal medicine"},
+      {"id": "insurance", "title": "Insurance plans", "description": "Add the insurance plans you accept for acupuncture coverage"},
+      {"id": "hours", "title": "Practice hours", "description": "Set your clinic hours and practitioner availability schedules"},
+      {"id": "branding", "title": "Practice branding", "description": "Upload your logo and customize your patient-facing pages"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Initial acupuncture consultation",
+      "Pain management program",
+      "Fertility acupuncture",
+      "Stress and anxiety treatment",
+      "Cupping therapy",
+      "Herbal medicine consultation",
+      "Sports injury recovery",
+      "Cosmetic acupuncture",
+      "Prenatal acupuncture"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Insurance referral", "Physician referral"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for an acupuncture and TCM clinic.",
+    "capabilities": [
+      "Manage patient appointments and practitioner schedules",
+      "Track multi-session treatment plans and patient progress",
+      "Maintain herbal dispensary inventory and formula prescriptions",
+      "Verify insurance eligibility for acupuncture coverage",
+      "Handle new patient intake forms and health histories",
+      "Generate billing reports for acupuncture and TCM services",
+      "Coordinate referrals from physicians and other providers",
+      "Manage reviews and online reputation on wellness platforms",
+      "Send session reminders and treatment follow-up messages",
+      "Analyze patient retention and treatment outcome trends"
+    ],
+    "terminology": {
+      "customer": "patient",
+      "appointment": "session",
+      "job": "treatment",
+      "estimate": "treatment plan",
+      "service": "therapy",
+      "team_member": "practitioner",
+      "location": "clinic"
+    }
+  }
+}

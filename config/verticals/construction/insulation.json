@@ -1,0 +1,80 @@
+{
+  "id": "insulation",
+  "industry": "Construction",
+  "niche": "Insulation",
+  "icon": "Shield",
+  "sidebar": {
+    "nicheLabel": "Insulation",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your insulation operations manager. I can help you schedule spray foam and blown-in crews, manage energy audit leads, send R-value upgrade estimates, and keep your insulation teams booked through every season.",
+    "quickActions": [
+      {"label": "Send attic insulation estimate", "prompt": "Draft an estimate for blown-in cellulose attic insulation to bring a 1,500 sq ft home up to R-49 including air sealing, baffles, and material."},
+      {"label": "Follow up on a spray foam lead", "prompt": "Write a follow-up message to a homeowner who requested a quote for closed-cell spray foam in their crawl space."},
+      {"label": "Schedule an energy audit", "prompt": "Help me schedule a home energy audit including blower door test, thermal imaging, and insulation inspection."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a homeowner to leave a Google review after we insulated their attic and they noticed lower energy bills."},
+      {"label": "Promote rebate programs", "prompt": "Draft a promotional message about available utility rebates and tax credits for home insulation upgrades."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for an insulation contractor. You speak the language of insulation pros — R-value, blown-in cellulose, fiberglass batts, open-cell spray foam, closed-cell spray foam, rigid board, air sealing, vapor barriers, baffles, attic insulation, wall insulation, crawl space encapsulation, blower door tests, thermal imaging, energy audits, and building envelope. You help manage leads from homeowners and builders, schedule insulation crews for new construction and retrofit jobs, generate estimates based on square footage and target R-values, and help customers understand energy savings and available rebates."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your professional insulation contractor. Whether you need attic insulation, spray foam, or a full energy audit, we help make your home more comfortable and energy-efficient. How can I assist you today?",
+    "commonReasons": ["Attic insulation estimate", "Spray foam quote", "Energy audit scheduling", "Crawl space insulation", "New construction insulation", "Wall insulation upgrade", "Rebate or tax credit question", "Old insulation removal"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Insulation Company", "description": "Tell us your company name, location, and how many insulation crews you run."},
+      {"id": "services", "title": "Insulation Services", "description": "Select the insulation services you offer — blown-in, spray foam, batts, rigid board, air sealing, energy audits, removal."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your insulation service area by zip codes, cities, or drive-time radius."},
+      {"id": "ai-receptionist", "title": "Insulation Call Handling", "description": "Set up your AI receptionist to answer insulation inquiries, qualify by home type and issue, and book energy assessments."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor reviews and request feedback after insulation upgrades."},
+      {"id": "go-live", "title": "Launch Your Insulation Hub", "description": "Review your settings and go live. Your insulation command center is ready to manage leads and schedule crews."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Attic blown-in insulation", "Spray foam insulation", "Fiberglass batt installation", "Crawl space encapsulation", "Wall insulation upgrade", "Air sealing", "Energy audit", "Old insulation removal", "New construction insulation"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for an insulation contractor.",
+    "capabilities": [
+      "Schedule blown-in, spray foam, and batt insulation crews across jobs",
+      "Generate per-square-foot estimates with R-value targets and material options",
+      "Manage energy audit leads and convert them into insulation upgrade projects",
+      "Follow up with homeowners requesting insulation and air sealing quotes",
+      "Track utility rebate programs and help customers claim available incentives",
+      "Request and monitor Google reviews from homeowners with lower energy bills",
+      "Run Google Ads targeting homeowners searching for insulation contractors",
+      "Send appointment reminders and pre-install preparation instructions",
+      "Track material inventory — cellulose, spray foam chemicals, batts, rigid board",
+      "Generate revenue reports by insulation type — blown-in, spray foam, batt, new construction"
+    ],
+    "terminology": {
+      "customer": "homeowner",
+      "appointment": "energy assessment",
+      "job": "insulation job",
+      "estimate": "insulation estimate",
+      "service": "insulation service",
+      "team_member": "installer",
+      "location": "job site"
+    }
+  }
+}

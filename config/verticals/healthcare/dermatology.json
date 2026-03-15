@@ -1,0 +1,100 @@
+{
+  "id": "dermatology",
+  "industry": "Healthcare",
+  "niche": "Dermatology",
+  "icon": "Droplet",
+  "sidebar": {
+    "nicheLabel": "Dermatology",
+    "tabs": [
+      {"id": "scheduling", "label": "Patient scheduling", "icon": "Calendar", "component": "PatientScheduling"},
+      {"id": "insurance", "label": "Insurance & billing", "icon": "FileText", "component": "InsuranceBilling"},
+      {"id": "portal", "label": "Patient portal", "icon": "Users", "component": "PatientPortal"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "appointments", "label": "Appointments", "icon": "Calendar", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Appointments today", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, Doctor! Let's keep your dermatology practice glowing. Ready to review today's patient schedule or check on biopsy results?",
+    "quickActions": [
+      "Show today's patient schedule",
+      "Review pending biopsy results",
+      "Check cosmetic consultation requests",
+      "Send skin check reminder campaign",
+      "View product inventory levels"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for a dermatology practice. You help manage patient scheduling, biopsy tracking, cosmetic procedure coordination, skincare product inventory, and practice growth. You understand dermatology terminology including skin exams, biopsies, Mohs surgery, acne treatment, and cosmetic procedures. You refer to people as patients and track appointments, not jobs."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your dermatology care provider. How may I help you today?",
+    "commonReasons": [
+      "Schedule appointment",
+      "Insurance question",
+      "Skin concern or new rash",
+      "Biopsy results inquiry",
+      "Cosmetic procedure consultation",
+      "Prescription refill",
+      "New patient registration",
+      "Billing inquiry"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "practice-info", "title": "Practice information", "description": "Enter your dermatology practice name, address, and contact details"},
+      {"id": "providers", "title": "Dermatologists & staff", "description": "Add your dermatologists, PAs, nurse practitioners, and aestheticians"},
+      {"id": "services", "title": "Dermatology services", "description": "Select the medical and cosmetic dermatology services you offer"},
+      {"id": "insurance", "title": "Insurance plans", "description": "Add the insurance plans and networks you accept"},
+      {"id": "hours", "title": "Office hours", "description": "Set your practice hours and appointment availability"},
+      {"id": "branding", "title": "Practice branding", "description": "Upload your logo and customize your patient-facing pages"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Skin cancer screening",
+      "Acne treatment",
+      "Cosmetic consultation",
+      "Mole evaluation",
+      "Psoriasis or eczema treatment",
+      "Laser treatment",
+      "Chemical peel",
+      "Botox or fillers",
+      "Mohs surgery consultation"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Insurance referral"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for a dermatology practice.",
+    "capabilities": [
+      "Manage patient appointments and exam schedules",
+      "Track biopsy submissions and pathology results",
+      "Verify insurance eligibility and pre-authorizations",
+      "Coordinate cosmetic procedure consultations",
+      "Handle new patient intake and medical histories",
+      "Generate production and collection reports",
+      "Manage skincare product inventory and sales",
+      "Manage reviews and online reputation",
+      "Track follow-up appointments for ongoing treatments",
+      "Send appointment reminders and skin health tips"
+    ],
+    "terminology": {
+      "customer": "patient",
+      "job": "appointment",
+      "business": "practice",
+      "estimate": "treatment plan",
+      "invoice": "statement",
+      "worker": "dermatologist",
+      "booking": "appointment",
+      "service": "procedure"
+    }
+  }
+}

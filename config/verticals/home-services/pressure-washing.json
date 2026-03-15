@@ -1,0 +1,97 @@
+{
+  "id": "pressure-washing",
+  "industry": "Home services",
+  "niche": "Pressure washing",
+  "icon": "Droplets",
+  "sidebar": {
+    "nicheLabel": "Pressure washing",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back! Let's blast through today's schedule. Ready to manage your pressure washing jobs and keep those surfaces sparkling?",
+    "quickActions": [
+      {"label": "Schedule a wash", "prompt": "Help me schedule a new pressure washing job for a client."},
+      {"label": "Send an estimate", "prompt": "Help me create and send an estimate for pressure washing service."},
+      {"label": "Follow up on leads", "prompt": "Show me my recent leads that need follow-up."},
+      {"label": "Check today's jobs", "prompt": "What pressure washing jobs are scheduled for today?"},
+      {"label": "Request a review", "prompt": "Help me send a review request to a recent client."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a pressure washing business. You help manage washing schedules, coordinate crews and equipment, handle estimates based on surface type and square footage, and grow the business through reputation management and advertising."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We specialize in making surfaces look brand new. Are you looking to get a pressure washing quote or schedule a service?",
+    "commonReasons": [
+      "Get a quote for pressure washing",
+      "Schedule a washing service",
+      "Ask about driveway cleaning",
+      "Inquire about house washing",
+      "Ask about deck or patio cleaning",
+      "Reschedule a service",
+      "Ask about commercial pressure washing"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"target": "#business-name", "title": "Name your pressure washing business", "body": "Enter the name clients will see when you send estimates and invoices.", "position": "bottom"},
+      {"target": "#service-area", "title": "Set your service area", "body": "Define the neighborhoods or zip codes where you take on jobs.", "position": "bottom"},
+      {"target": "#service-types", "title": "Add your washing services", "body": "List the surfaces you wash: driveways, house exteriors, decks, roofs, fences, commercial, etc.", "position": "right"},
+      {"target": "#pricing", "title": "Set your pricing", "body": "Configure pricing by square footage, surface type, or flat rate per job.", "position": "right"},
+      {"target": "#team", "title": "Add your crew", "body": "Add team members so you can assign and schedule washing jobs efficiently.", "position": "left"},
+      {"target": "#go-live", "title": "Go live!", "body": "Your pressure washing business is set up. Start capturing leads and booking jobs!", "position": "bottom"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Driveway washing",
+      "House/siding washing",
+      "Deck and patio cleaning",
+      "Roof soft washing",
+      "Fence cleaning",
+      "Concrete cleaning",
+      "Commercial pressure washing",
+      "Graffiti removal",
+      "Gutter brightening"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a pressure washing business.",
+    "capabilities": [
+      "Schedule and manage pressure washing jobs",
+      "Create estimates based on surface type and square footage",
+      "Coordinate crew and equipment assignments",
+      "Track equipment maintenance and chemical inventory",
+      "Send automated appointment confirmations and reminders",
+      "Generate invoices after completed jobs",
+      "Monitor online reviews and respond to feedback",
+      "Manage seasonal promotions for driveway and house washing",
+      "Handle before-and-after photo documentation",
+      "Analyze revenue by surface type and job size"
+    ],
+    "terminology": {
+      "job": "wash job",
+      "client": "client",
+      "worker": "technician",
+      "team": "crew",
+      "estimate": "estimate",
+      "service_area": "service area"
+    }
+  }
+}

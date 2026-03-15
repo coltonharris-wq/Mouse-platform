@@ -1,0 +1,80 @@
+{
+  "id": "plumbing",
+  "industry": "Construction",
+  "niche": "Plumbing",
+  "icon": "Wrench",
+  "sidebar": {
+    "nicheLabel": "Plumbing",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your plumbing operations manager. I can help you dispatch plumbers, manage drain cleaning and repipe leads, send estimates for water heater installs, and keep your service trucks rolling all day long.",
+    "quickActions": [
+      {"label": "Send water heater estimate", "prompt": "Draft an estimate for a 50-gallon tank water heater replacement including removal of the old unit, new supply lines, and code-compliant installation."},
+      {"label": "Follow up on a drain call", "prompt": "Write a follow-up message to a homeowner who called about a slow drain and potential sewer line issue."},
+      {"label": "Schedule a repipe job", "prompt": "Help me schedule a whole-house copper repipe job for a 1,500 sq ft home including drywall patch coordination."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a customer to leave a Google review after we fixed their emergency leak."},
+      {"label": "Create tankless promo", "prompt": "Draft a promotional message for tankless water heater upgrade specials including energy savings benefits."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a plumbing business. You speak the language of plumbers — drain cleaning, sewer lines, repipes, water heaters, tankless installs, garbage disposals, slab leaks, PEX, copper, ABS, cleanouts, PRV valves, backflow testing, and fixture installs. You help manage leads for emergency calls and planned plumbing work, dispatch technicians, generate estimates with flat-rate and hourly pricing, and ensure customers get quick response times for urgent leaks and backups."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your trusted local plumber. Whether you have a leak, a clogged drain, or need a water heater replaced, we're here to help 24/7. How can I assist you today?",
+    "commonReasons": ["Emergency leak", "Clogged drain or sewer", "Water heater replacement", "Toilet repair", "Faucet or fixture installation", "Repipe estimate", "Slab leak detection", "Garbage disposal replacement", "Backflow testing"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Plumbing Company", "description": "Tell us your company name, license number, location, and how many plumbing trucks you have on the road."},
+      {"id": "services", "title": "Plumbing Services", "description": "Select the plumbing services you offer — drain cleaning, repipes, water heaters, sewer repair, fixtures, commercial."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your plumbing service area by zip codes, cities, or drive-time radius."},
+      {"id": "ai-receptionist", "title": "Plumbing Call Handling", "description": "Set up your AI receptionist to triage emergency plumbing calls, qualify service requests, and book appointments."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor plumbing reviews and request feedback after service calls."},
+      {"id": "go-live", "title": "Launch Your Plumbing Hub", "description": "Review your settings and go live. Your plumbing command center is ready to dispatch trucks and manage service calls."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Drain cleaning", "Water heater replacement", "Tankless water heater install", "Whole-house repipe", "Sewer line repair", "Slab leak repair", "Toilet repair or replacement", "Faucet and fixture install", "Garbage disposal replacement"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a plumbing business.",
+    "capabilities": [
+      "Dispatch plumbing technicians to emergency and scheduled service calls",
+      "Generate flat-rate and itemized plumbing estimates",
+      "Triage urgent calls — leaks, backups, and no-hot-water situations",
+      "Follow up with leads requesting water heater and repipe quotes",
+      "Track parts inventory for common plumbing repairs",
+      "Request and monitor Google reviews from completed plumbing jobs",
+      "Run Google Ads targeting emergency plumbing searches in your area",
+      "Send appointment windows and technician ETA updates to customers",
+      "Manage recurring backflow testing and maintenance schedules",
+      "Generate revenue reports by service type — drain, water heater, repipe, sewer"
+    ],
+    "terminology": {
+      "customer": "homeowner",
+      "appointment": "service call",
+      "job": "plumbing job",
+      "estimate": "plumbing estimate",
+      "service": "plumbing service",
+      "team_member": "plumber",
+      "location": "job site"
+    }
+  }
+}

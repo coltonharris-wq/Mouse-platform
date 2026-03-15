@@ -1,0 +1,95 @@
+{
+  "id": "immigration",
+  "industry": "Legal",
+  "niche": "Immigration",
+  "icon": "Globe",
+  "sidebar": {
+    "nicheLabel": "Immigration",
+    "tabs": [
+      {"id": "cases", "label": "Case intake", "icon": "Briefcase", "component": "CaseIntake"},
+      {"id": "clients", "label": "Client portal", "icon": "Users", "component": "ClientPortal"},
+      {"id": "documents", "label": "Document management", "icon": "FileText", "component": "DocumentManagement"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "cases", "label": "Active cases", "icon": "Briefcase", "defaultValue": "0", "subtitle": "total open"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Cases active", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, counselor! Let's review your immigration caseload and make sure all petitions and filings are on schedule.",
+    "quickActions": [
+      "Log a new immigration case",
+      "Check USCIS processing times",
+      "Prepare visa petition package",
+      "Track RFE response deadline",
+      "Schedule naturalization interview prep"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for an immigration law firm. You help manage visa petitions, green card applications, naturalization cases, asylum claims, and deportation defense. You understand USCIS processing timelines, filing requirements, priority dates, and the complexities of navigating immigration law for individuals and families."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling the law offices of {company_name}. We help individuals and families navigate the immigration process with experienced, compassionate legal guidance. How can I help you today?",
+    "commonReasons": [
+      "New case consultation",
+      "Case status update",
+      "USCIS receipt or notice question",
+      "Document submission inquiry",
+      "Visa or green card timeline",
+      "Appointment scheduling"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "firm-info", "title": "Firm Information", "description": "Enter your law firm name, address, and contact details"},
+      {"id": "practice-areas", "title": "Immigration Services", "description": "Select the immigration matters you handle (family-based, employment-based, asylum, deportation defense, etc.)"},
+      {"id": "intake-process", "title": "Case Intake Process", "description": "Configure your intake questionnaire, document checklists, and consultation scheduling"},
+      {"id": "fee-structure", "title": "Fee Structure", "description": "Set your flat fees by petition type, retainer amounts, and payment plan options"},
+      {"id": "integrations", "title": "Integrations", "description": "Connect your case management software, USCIS tracking tools, and calendar"},
+      {"id": "branding", "title": "Branding & Website", "description": "Upload your logo, set firm colors, and configure your multilingual client-facing website"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Family-based green card",
+      "Employment-based visa (H-1B, L-1)",
+      "Naturalization / citizenship",
+      "Asylum / refugee status",
+      "DACA renewal",
+      "Deportation / removal defense",
+      "Adjustment of status",
+      "Consular processing",
+      "TPS / humanitarian relief",
+      "Business / investor visa (EB-5, E-2)"
+    ],
+    "statusLabels": ["New inquiry", "Consultation", "Retained", "Active case", "Closed"],
+    "sourceLabels": ["Google Ads", "Avvo", "Referral", "Phone call", "Website form", "Bar association"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for an immigration law firm.",
+    "capabilities": [
+      "Track immigration cases from intake through approval or hearing",
+      "Monitor USCIS receipt notices, RFEs, and processing timelines",
+      "Manage document collection checklists for visa petitions",
+      "Track priority dates and visa bulletin updates",
+      "Coordinate interview preparation for clients",
+      "Generate filing cover letters and petition summaries",
+      "Schedule consulate appointments and biometrics reminders",
+      "Track flat fee billing and payment plans by case type",
+      "Manage multilingual client communication",
+      "Monitor online reviews and reputation across legal directories"
+    ],
+    "terminology": {
+      "client": "client",
+      "case": "case",
+      "consultation": "consultation",
+      "retainer": "retainer"
+    }
+  }
+}

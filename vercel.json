@@ -1,9 +1,12 @@
 {
-  "version": 2,
-  "name": "mouse-platform",
-  "framework": "nextjs",
-  "buildCommand": "cd mouse-platform/frontend && npm run build",
-  "outputDirectory": "mouse-platform/frontend/.next",
-  "installCommand": "npm install && cd mouse-platform/frontend && npm install",
-  "devCommand": "cd mouse-platform/frontend && npm run dev"
+  "crons": [
+    {
+      "path": "/api/cron/health-check?secret=${CRON_SECRET}",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/meta-agent?secret=${CRON_SECRET}",
+      "schedule": "* * * * *"
+    }
+  ]
 }

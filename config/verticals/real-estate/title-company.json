@@ -1,0 +1,95 @@
+{
+  "id": "title-company",
+  "industry": "Real estate",
+  "niche": "Title Company",
+  "icon": "FileCheck",
+  "sidebar": {
+    "nicheLabel": "Title Company",
+    "tabs": [
+      {"id": "listings", "label": "Listing manager", "icon": "Building2", "component": "ListingManager"},
+      {"id": "pipeline", "label": "Lead pipeline", "icon": "Users", "component": "LeadPipeline"},
+      {"id": "openhouses", "label": "Open houses", "icon": "DoorOpen", "component": "OpenHouses"},
+      {"id": "transactions", "label": "Transaction tracker", "icon": "FileText", "component": "TransactionTracker"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "listings", "label": "Active listings", "icon": "Building2", "defaultValue": "0", "subtitle": "on market"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "volume", "label": "Volume", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Showings today", "revenueLabel": "Volume"}
+  },
+  "kingMouse": {
+    "greeting": "Let's keep closings on track! Review your title orders, pending searches, and upcoming closing schedules.",
+    "quickActions": [
+      "Open a new title order",
+      "Schedule a closing appointment",
+      "Check the status of a title search",
+      "Send closing documents to a buyer",
+      "Follow up with an agent on a pending file"
+    ],
+    "systemPrompt": "You are King Mouse, an AI assistant for a title company. You help manage title orders, coordinate title searches and insurance, schedule closings, prepare settlement statements, and maintain relationships with real estate agents and lenders. You understand title insurance, escrow procedures, closing processes, and recording requirements."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We provide title insurance, escrow services, and seamless closings. How can I help you today?",
+    "commonReasons": [
+      "Open a new title order",
+      "Check on a title search status",
+      "Schedule a closing appointment",
+      "Request a closing cost estimate",
+      "Ask about title insurance policies",
+      "Inquire about wire transfer instructions"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business", "title": "Your company", "description": "Tell us about your title company, underwriters, and service area."},
+      {"id": "services", "title": "Services offered", "description": "Define your services: title search, title insurance, escrow, closings, mobile notary."},
+      {"id": "listings", "title": "Active files", "description": "Import your open title orders and upcoming closings."},
+      {"id": "pipeline", "title": "Referral sources", "description": "Connect your network of real estate agents, lenders, and attorneys."},
+      {"id": "branding", "title": "Company branding", "description": "Upload your logo and configure your professional brand identity."},
+      {"id": "phone", "title": "Phone setup", "description": "Configure your AI receptionist to handle title and closing inquiries."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Residential closing",
+      "Commercial closing",
+      "Refinance closing",
+      "Title search",
+      "Title insurance",
+      "Escrow services",
+      "Mobile notary",
+      "Short sale / Foreclosure"
+    ],
+    "statusLabels": ["New lead", "Showing", "Offer", "Under contract", "Closed"],
+    "sourceLabels": ["Zillow", "Realtor.com", "Referral", "Open house", "Google Ads", "Social media"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI assistant for a title company.",
+    "capabilities": [
+      "Open and manage title orders from start to recording",
+      "Coordinate title searches and resolve title defects",
+      "Issue title insurance commitments and policies",
+      "Schedule and manage closing appointments",
+      "Prepare settlement statements and closing documents",
+      "Manage escrow accounts and disbursements",
+      "Build referral relationships with agents and lenders",
+      "Ensure compliance with state and federal regulations",
+      "Track file milestones and closing deadlines",
+      "Handle post-closing recording and document delivery"
+    ],
+    "terminology": {
+      "listing": "title order",
+      "appointment": "closing",
+      "customer": "buyer/seller",
+      "completion": "recording",
+      "product": "title insurance",
+      "revenue": "volume"
+    }
+  }
+}

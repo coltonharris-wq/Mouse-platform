@@ -1,0 +1,97 @@
+{
+  "id": "auto-repair",
+  "industry": "Automotive",
+  "niche": "Auto Repair",
+  "icon": "Wrench",
+  "sidebar": {
+    "nicheLabel": "Auto Repair",
+    "tabs": [
+      {"id": "tickets", "label": "Service tickets", "icon": "Clipboard", "component": "ServiceTickets"},
+      {"id": "parts", "label": "Parts inventory", "icon": "Package", "component": "PartsInventory"},
+      {"id": "vehicles", "label": "Customer vehicles", "icon": "Car", "component": "CustomerVehicles"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "tickets", "label": "Open tickets", "icon": "Clipboard", "defaultValue": "0", "subtitle": "in progress"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Services today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, boss! Your auto repair shop is running strong. Let's keep those bays busy and customers rolling out happy.",
+    "quickActions": [
+      "Create a new repair ticket",
+      "Check parts availability",
+      "Send service reminder to overdue customers",
+      "Generate end-of-day revenue report",
+      "Look up vehicle repair history"
+    ],
+    "systemPrompt": "You are King Mouse, an AI shop manager for an auto repair business. You help manage service tickets, track parts inventory, schedule repairs, communicate with customers, and keep the shop running efficiently. You understand common automotive repairs including brakes, engines, electrical systems, suspension, and diagnostics."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your trusted auto repair shop. How can we help you today?",
+    "commonReasons": [
+      "Schedule a repair appointment",
+      "Get a repair estimate",
+      "Check on vehicle status",
+      "Ask about warranty coverage",
+      "Request a diagnostic inspection",
+      "Inquire about pricing"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Shop details", "description": "Enter your auto repair shop name, address, and contact info"},
+      {"id": "services", "title": "Services offered", "description": "Select the repair services you provide (brakes, engine, electrical, etc.)"},
+      {"id": "bays", "title": "Shop capacity", "description": "How many service bays and technicians do you have?"},
+      {"id": "hours", "title": "Operating hours", "description": "Set your shop hours and appointment availability"},
+      {"id": "branding", "title": "Brand & website", "description": "Upload your logo and customize your online presence"},
+      {"id": "integrations", "title": "Connect tools", "description": "Link your parts suppliers, payment processor, and review platforms"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Brake repair",
+      "Engine diagnostics",
+      "Oil change",
+      "Transmission service",
+      "Electrical repair",
+      "Suspension work",
+      "AC repair",
+      "Check engine light",
+      "Tune-up",
+      "General maintenance"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website", "RepairPal", "AutoMD"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI shop manager for an auto repair business.",
+    "capabilities": [
+      "Create and manage service repair tickets",
+      "Track parts inventory and reorder alerts",
+      "Look up customer vehicle history",
+      "Schedule repair appointments",
+      "Generate repair estimates",
+      "Send service reminders and follow-ups",
+      "Monitor online reviews and reputation",
+      "Run daily revenue and productivity reports",
+      "Manage technician bay assignments",
+      "Handle warranty claim tracking"
+    ],
+    "terminology": {
+      "service": "service",
+      "vehicle": "vehicle",
+      "ticket": "ticket",
+      "customer": "customer",
+      "worker": "technician",
+      "location": "shop"
+    }
+  }
+}

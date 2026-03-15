@@ -1,0 +1,96 @@
+{
+  "id": "food-truck",
+  "industry": "Food & Drink",
+  "niche": "Food truck",
+  "icon": "Truck",
+  "sidebar": {
+    "nicheLabel": "Food truck",
+    "tabs": [
+      {"id": "orders", "label": "Order management", "icon": "ShoppingCart", "component": "OrderManagement"},
+      {"id": "menu", "label": "Menu builder", "icon": "BookOpen", "component": "MenuBuilder"},
+      {"id": "reservations", "label": "Reservations", "icon": "Calendar", "component": "Reservations"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "orders", "label": "Orders today", "icon": "ShoppingCart", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "reservations", "label": "Reservations", "icon": "Calendar", "defaultValue": "0", "subtitle": "today"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Orders today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey there, road warrior! Let's make today's stops a success. Ready to check your route schedule, update the menu board, or see what's trending on your socials?",
+    "quickActions": [
+      "View today's location schedule",
+      "Update the menu board",
+      "Post your location to social media",
+      "Check pending mobile orders",
+      "Review event booking requests"
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a food truck business. You help manage location schedules, mobile ordering, menu updates, event bookings, and social media promotion. You understand route planning, commissary logistics, permit compliance, and the fast-paced nature of mobile food service."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! Want to know where we'll be today, place a pre-order, or book us for your next event? We're happy to help!",
+    "commonReasons": [
+      "Location schedule",
+      "Pre-order",
+      "Event booking",
+      "Menu inquiry",
+      "Catering request",
+      "Private event hire",
+      "Festival inquiry"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      "Tell us about your food truck concept and cuisine style",
+      "Set up your core menu and rotating specials",
+      "Configure your weekly location schedule and route",
+      "Connect your mobile ordering and payment system",
+      "Set up your event booking and catering options",
+      "Customize your website with your truck story and schedule map"
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Private event hire",
+      "Festival booking",
+      "Corporate lunch service",
+      "Wedding food truck",
+      "Birthday party",
+      "Brewery partnership",
+      "Community event",
+      "Office park regular stop"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google", "Yelp", "Instagram", "Word of mouth", "DoorDash", "UberEats"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a food truck.",
+    "capabilities": [
+      "Manage daily location schedule and route planning",
+      "Process mobile and pre-orders in real time",
+      "Update menu items and rotating daily specials",
+      "Book private events, festivals, and corporate stops",
+      "Post real-time location updates to social media",
+      "Track daily revenue and compare location performance",
+      "Monitor reviews on Yelp, Google, and social platforms",
+      "Manage commissary logistics and ingredient prep lists",
+      "Coordinate with event organizers and venue contacts",
+      "Generate weekly revenue and foot traffic reports"
+    ],
+    "terminology": {
+      "client": "customer",
+      "job": "order",
+      "booking": "event booking",
+      "project": "stop",
+      "invoice": "receipt",
+      "team": "crew"
+    }
+  }
+}

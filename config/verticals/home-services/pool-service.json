@@ -1,0 +1,97 @@
+{
+  "id": "pool-service",
+  "industry": "Home services",
+  "niche": "Pool service",
+  "icon": "Waves",
+  "sidebar": {
+    "nicheLabel": "Pool service",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back! Let's keep those pools crystal clear. Ready to manage your service routes and keep clients happy?",
+    "quickActions": [
+      {"label": "Schedule a pool service", "prompt": "Help me schedule a new pool service visit for a client."},
+      {"label": "Send an estimate", "prompt": "Help me create and send an estimate for pool service."},
+      {"label": "Follow up on leads", "prompt": "Show me my recent leads that need follow-up."},
+      {"label": "Check today's route", "prompt": "What pool service jobs are scheduled for today?"},
+      {"label": "Request a review", "prompt": "Help me send a review request to a recent client."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a pool service business. You help manage weekly pool maintenance routes, equipment repairs, coordinate technicians, handle estimates for residential and commercial pools, and grow the business through reputation management and advertising."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We're here to help with all your pool needs. Are you looking for regular pool maintenance or do you need a repair?",
+    "commonReasons": [
+      "Schedule pool cleaning",
+      "Get a quote for pool service",
+      "Report a pool equipment issue",
+      "Request pool opening or closing",
+      "Ask about chemical balancing",
+      "Inquire about recurring service plans",
+      "Reschedule a service visit"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"target": "#business-name", "title": "Name your pool service business", "body": "Enter the name clients will see when you send estimates and invoices.", "position": "bottom"},
+      {"target": "#service-area", "title": "Set your service area", "body": "Define the neighborhoods or zip codes where your technicians operate.", "position": "bottom"},
+      {"target": "#service-types", "title": "Add your pool services", "body": "List the services you offer: weekly cleaning, chemical balancing, equipment repair, pool opening/closing, etc.", "position": "right"},
+      {"target": "#pricing", "title": "Set your pricing", "body": "Configure pricing for weekly maintenance, one-time cleanings, and repairs.", "position": "right"},
+      {"target": "#team", "title": "Add your technicians", "body": "Add team members so you can assign service routes and schedule jobs efficiently.", "position": "left"},
+      {"target": "#go-live", "title": "Go live!", "body": "Your pool service business is set up. Start capturing leads and booking service visits!", "position": "bottom"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Weekly pool maintenance",
+      "One-time pool cleaning",
+      "Chemical balancing",
+      "Pool equipment repair",
+      "Pool opening",
+      "Pool closing/winterization",
+      "Green pool recovery",
+      "Filter cleaning",
+      "Tile and surface cleaning"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a pool service business.",
+    "capabilities": [
+      "Schedule and manage weekly pool maintenance routes",
+      "Create estimates for cleaning, repairs, and seasonal services",
+      "Coordinate technician assignments and daily routes",
+      "Track chemical readings and water quality logs",
+      "Send automated reminders for upcoming service days",
+      "Generate invoices after completed visits",
+      "Monitor online reviews and respond to feedback",
+      "Manage seasonal pool opening and closing schedules",
+      "Track equipment repair history per client",
+      "Analyze revenue by service type and route"
+    ],
+    "terminology": {
+      "job": "service visit",
+      "client": "client",
+      "worker": "technician",
+      "team": "team",
+      "estimate": "estimate",
+      "service_area": "service area"
+    }
+  }
+}

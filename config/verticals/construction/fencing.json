@@ -1,0 +1,80 @@
+{
+  "id": "fencing",
+  "industry": "Construction",
+  "niche": "Fencing",
+  "icon": "Fence",
+  "sidebar": {
+    "nicheLabel": "Fencing",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your fencing operations manager. I can help you schedule fence installs, manage wood and vinyl fence leads, send per-linear-foot estimates, and keep your install crews booked out weeks in advance.",
+    "quickActions": [
+      {"label": "Send wood fence estimate", "prompt": "Draft an estimate for 150 linear feet of 6-foot cedar privacy fence including posts, rails, pickets, concrete footings, and a walk gate."},
+      {"label": "Follow up on a vinyl fence lead", "prompt": "Write a follow-up message to a homeowner who requested a quote for white vinyl privacy fencing around their backyard."},
+      {"label": "Schedule a fence install", "prompt": "Help me schedule a fence installation crew for a 200 linear foot chain link fence with a double swing gate."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a customer to leave a Google review after we installed their new cedar privacy fence."},
+      {"label": "Create storm repair promo", "prompt": "Draft a promotional message offering fast fence repair services for homeowners with storm-damaged fencing."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a fencing contractor. You speak the language of fence installers — privacy fence, picket fence, chain link, vinyl, cedar, treated pine, wrought iron, aluminum, post holes, concrete footings, rails, pickets, gate hardware, tension wire, swing gates, sliding gates, and HOA compliance. You help manage leads from homeowners and property managers, schedule install crews, generate per-linear-foot estimates with material breakdowns, and handle the surge of fence repair requests after storms."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your professional fence installation experts. Whether you need a privacy fence, vinyl fence, chain link, or custom gate, we offer free estimates. How can I assist you today?",
+    "commonReasons": ["Privacy fence estimate", "Vinyl fence quote", "Chain link fence quote", "Gate installation", "Fence repair", "Storm damage repair", "Commercial fencing", "HOA-compliant fence inquiry"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Fencing Company", "description": "Tell us your company name, location, and how many fence installation crews you run."},
+      {"id": "services", "title": "Fencing Services", "description": "Select the fencing types you install — wood privacy, vinyl, chain link, iron, aluminum, gates, commercial, farm fence."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your fencing service area by zip codes, cities, or drive-time radius."},
+      {"id": "ai-receptionist", "title": "Fencing Call Handling", "description": "Set up your AI receptionist to answer fencing inquiries, qualify by fence type and linear footage, and book free estimates."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor reviews and request feedback after fence installations."},
+      {"id": "go-live", "title": "Launch Your Fencing Hub", "description": "Review your settings and go live. Your fencing command center is ready to manage estimates and install schedules."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Wood privacy fence", "Vinyl fence installation", "Chain link fence", "Iron or aluminum fence", "Gate installation", "Fence repair", "Commercial fencing", "Farm and ranch fencing", "Pool fence"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a fencing contractor.",
+    "capabilities": [
+      "Schedule fence installation crews across multiple residential and commercial jobs",
+      "Generate per-linear-foot estimates with material and gate pricing",
+      "Manage storm damage repair leads with fast-response follow-ups",
+      "Follow up with homeowners requesting fence installation quotes",
+      "Track material inventory — cedar boards, vinyl panels, chain link rolls, posts, concrete",
+      "Request and monitor Google reviews from completed fence installations",
+      "Run Google Ads targeting homeowners searching for fence installers",
+      "Send estimate confirmations and install date reminders",
+      "Verify property lines and coordinate with utility locators before digging",
+      "Generate revenue reports by fence type — wood, vinyl, chain link, iron"
+    ],
+    "terminology": {
+      "customer": "homeowner",
+      "appointment": "estimate walkthrough",
+      "job": "fence install",
+      "estimate": "fence estimate",
+      "service": "fencing service",
+      "team_member": "installer",
+      "location": "property"
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "id": "donut-shop",
+  "industry": "Food & Drink",
+  "niche": "Donut Shop",
+  "icon": "Cookie",
+  "sidebar": {
+    "nicheLabel": "Donut Shop",
+    "tabs": [
+      {"id": "orders", "label": "Order management", "icon": "ShoppingCart", "component": "OrderManagement"},
+      {"id": "menu", "label": "Menu builder", "icon": "BookOpen", "component": "MenuBuilder"},
+      {"id": "reservations", "label": "Reservations", "icon": "Calendar", "component": "Reservations"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "orders", "label": "Orders today", "icon": "ShoppingCart", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "preorders", "label": "Pre-orders", "icon": "Calendar", "defaultValue": "0", "subtitle": "tomorrow"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Orders today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your donut shop operations manager. Want to check today's batch schedule, review pre-orders for tomorrow, or see which flavors are flying off the rack?",
+    "quickActions": [
+      {"label": "Check today's batch schedule", "prompt": "Show me today's frying and glazing schedule with batch sizes for each flavor"},
+      {"label": "Review pre-orders", "prompt": "Show me all pre-orders for tomorrow including custom dozen boxes"},
+      {"label": "Update daily flavors", "prompt": "Help me update the daily flavor board with today's fresh donut lineup"},
+      {"label": "Post to social media", "prompt": "Draft an Instagram post showcasing today's specialty donuts fresh out of the fryer"},
+      {"label": "Check inventory levels", "prompt": "Show me current stock levels for flour, sugar, glaze, and specialty toppings"}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a donut shop. You help manage daily donut production, pre-orders, ingredient inventory, and social media marketing. You understand yeast doughs, cake batters, frying techniques, glazing, topping application, early morning production schedules, and the importance of fresh-daily presentation and seasonal limited-edition flavors."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We'd love to help you place a donut order, arrange a custom box for an event, or answer any questions about today's flavors.",
+    "commonReasons": [
+      "Place a donut order",
+      "Custom dozen or party box",
+      "Today's available flavors",
+      "Catering for office or event",
+      "Allergen and ingredient info",
+      "Gift card purchase",
+      "Wholesale donut order",
+      "Wedding donut wall inquiry"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "shop-info", "title": "Shop information", "description": "Enter your donut shop name, address, and contact details"},
+      {"id": "menu", "title": "Donut menu", "description": "Build your menu with classic, specialty, filled, and seasonal donut varieties"},
+      {"id": "beverages", "title": "Beverages & extras", "description": "Add coffee, tea, milk, and other accompaniments to your menu"},
+      {"id": "ordering", "title": "Ordering & pre-orders", "description": "Set up walk-in, mobile, and pre-order systems for custom boxes"},
+      {"id": "hours", "title": "Shop hours", "description": "Set your operating hours and early morning production schedule"},
+      {"id": "branding", "title": "Shop branding", "description": "Upload your logo and customize your online ordering and pre-order pages"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Office donut delivery",
+      "Wedding donut wall",
+      "Corporate catering order",
+      "Birthday party dozen box",
+      "School fundraiser supply",
+      "Holiday pre-order batch",
+      "Custom branded donuts",
+      "Food truck event booking",
+      "Wholesale supply agreement"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google", "Yelp", "Instagram", "Word of mouth", "DoorDash", "UberEats", "TikTok"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a donut shop.",
+    "capabilities": [
+      "Manage daily donut production batches and frying schedules",
+      "Process walk-in, mobile, and pre-orders for custom boxes",
+      "Track inventory for flour, sugar, glaze, fillings, and toppings",
+      "Update daily flavor boards and seasonal limited-edition lineups",
+      "Create and schedule social media posts featuring fresh donuts",
+      "Handle catering orders for offices, weddings, and events",
+      "Monitor reviews on Yelp, Google, and food delivery platforms",
+      "Analyze best-selling flavors and daily production waste",
+      "Manage supplier orders for specialty ingredients and packaging",
+      "Generate daily production, sales, and cost reports"
+    ],
+    "terminology": {
+      "customer": "customer",
+      "appointment": "order",
+      "job": "order",
+      "estimate": "quote",
+      "service": "donut order",
+      "team_member": "baker",
+      "location": "shop"
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "id": "art-gallery",
+  "industry": "Retail",
+  "niche": "Art gallery",
+  "icon": "Palette",
+  "sidebar": {
+    "nicheLabel": "Art gallery",
+    "tabs": [
+      {"id": "inventory", "label": "Inventory manager", "icon": "Package", "component": "InventoryManager"},
+      {"id": "pos", "label": "POS integration", "icon": "CreditCard", "component": "POSIntegration"},
+      {"id": "loyalty", "label": "Customer loyalty", "icon": "Heart", "component": "CustomerLoyalty"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "sales", "label": "Sales today", "icon": "ShoppingBag", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "customers", "label": "Customers", "icon": "Users", "defaultValue": "0", "subtitle": "today"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Sales today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome to your art gallery dashboard! Let's keep your exhibitions curated, your artists represented, and your collectors engaged.",
+    "quickActions": [
+      "Review current exhibition inventory",
+      "Log a new artwork consignment",
+      "Schedule an opening reception",
+      "View collector inquiry list",
+      "Update artist commission records"
+    ],
+    "systemPrompt": "You are King Mouse, an AI store manager for an art gallery business. You help manage artwork inventory with provenance and pricing, coordinate exhibitions and opening receptions, maintain artist relationships and commission structures, and cultivate collector networks. You understand art retail including consignment agreements, framing services, art advisory, and the importance of exhibition programming and artist representation."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! Whether you're an art lover, a collector, or an artist, we'd love to connect. How can we assist you today?",
+    "commonReasons": ["Exhibition information", "Gallery hours", "Artwork inquiries", "Artist representation", "Commissioning artwork", "Framing services", "Private viewings"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "gallery-info", "title": "Gallery information", "description": "Enter your gallery name, location, and contact details"},
+      {"id": "mediums", "title": "Art mediums", "description": "Select the art mediums you feature (painting, sculpture, photography, mixed media, prints)"},
+      {"id": "artists", "title": "Artist management", "description": "Configure artist representation agreements, consignment terms, and commission structures"},
+      {"id": "pos-setup", "title": "POS setup", "description": "Connect your point-of-sale system with artwork provenance tracking"},
+      {"id": "online-presence", "title": "Online presence", "description": "Set up your website with virtual gallery tours and social media profiles"},
+      {"id": "collector-program", "title": "Collector program", "description": "Configure your collector database, VIP preview access, and art advisory services"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Original paintings", "Sculpture", "Photography", "Prints & editions", "Mixed media", "Custom commissions", "Framing services", "Art advisory"],
+    "statusLabels": ["New", "Interested", "Ready to buy", "Purchased", "Return"],
+    "sourceLabels": ["Walk-in", "Google", "Instagram", "Facebook", "Referral", "Website"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI store manager for an art gallery shop.",
+    "capabilities": [
+      "Track artwork inventory with provenance and authentication",
+      "Manage artist representation and consignment agreements",
+      "Coordinate exhibition schedules and installation logistics",
+      "Handle collector relationships and private viewing requests",
+      "Monitor artwork pricing and secondary market values",
+      "Track commission structures and artist payouts",
+      "Analyze sales by medium, price range, and artist",
+      "Generate exhibition and artwork content for social media",
+      "Manage framing and art handling services",
+      "Coordinate opening receptions and VIP collector events"
+    ],
+    "terminology": {
+      "sale": "sale",
+      "customer": "customer",
+      "product": "product",
+      "sku": "SKU"
+    }
+  }
+}

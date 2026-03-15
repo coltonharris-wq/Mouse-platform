@@ -1,0 +1,95 @@
+{
+  "id": "intellectual-property",
+  "industry": "Legal",
+  "niche": "Intellectual Property",
+  "icon": "Lightbulb",
+  "sidebar": {
+    "nicheLabel": "Intellectual Property",
+    "tabs": [
+      {"id": "cases", "label": "Case intake", "icon": "Briefcase", "component": "CaseIntake"},
+      {"id": "clients", "label": "Client portal", "icon": "Users", "component": "ClientPortal"},
+      {"id": "documents", "label": "Document management", "icon": "FileText", "component": "DocumentManagement"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "cases", "label": "Active cases", "icon": "Briefcase", "defaultValue": "0", "subtitle": "total open"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Cases active", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, counselor! Let's review your IP portfolio and make sure every trademark, patent, and copyright is properly protected.",
+    "quickActions": [
+      "Log a new IP matter",
+      "File trademark application with USPTO",
+      "Conduct patent prior art search",
+      "Send cease and desist for infringement",
+      "Track IP registration renewal dates"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for an intellectual property law firm. You help manage trademark registrations, patent applications, copyright filings, trade secret protection, and IP litigation. You understand USPTO procedures, international IP filings, licensing agreements, and enforcement strategies to protect clients' innovations and brands."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling the law offices of {company_name}. We protect innovations, brands, and creative works through comprehensive intellectual property legal services. How can I help you today?",
+    "commonReasons": [
+      "New IP consultation",
+      "Trademark or patent status",
+      "Infringement concern",
+      "Licensing agreement question",
+      "Registration renewal inquiry",
+      "Appointment scheduling"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "firm-info", "title": "Firm Information", "description": "Enter your law firm name, address, and contact details"},
+      {"id": "practice-areas", "title": "IP Services", "description": "Select the IP services you provide (trademarks, patents, copyrights, trade secrets, licensing, etc.)"},
+      {"id": "intake-process", "title": "Matter Intake Process", "description": "Configure your intake questionnaire, invention disclosure forms, and consultation scheduling"},
+      {"id": "fee-structure", "title": "Fee Structure", "description": "Set your flat fees for filings, hourly rates for prosecution and litigation, and retainer policies"},
+      {"id": "integrations", "title": "Integrations", "description": "Connect your docketing software, USPTO tools, and calendar"},
+      {"id": "branding", "title": "Branding & Website", "description": "Upload your logo, set firm colors, and configure your client-facing website"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Trademark registration",
+      "Patent application (utility / design)",
+      "Copyright registration",
+      "Trade secret protection",
+      "IP licensing agreement",
+      "Trademark infringement",
+      "Patent infringement",
+      "IP portfolio audit",
+      "Domain name dispute (UDRP)",
+      "International IP filing"
+    ],
+    "statusLabels": ["New inquiry", "Consultation", "Retained", "Active case", "Closed"],
+    "sourceLabels": ["Google Ads", "Avvo", "Referral", "Phone call", "Website form", "Bar association"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for an intellectual property law firm.",
+    "capabilities": [
+      "Track IP matters from initial search through registration or litigation",
+      "Monitor USPTO office action deadlines and response windows",
+      "Manage trademark and patent docketing with renewal reminders",
+      "Track prior art searches and patentability opinions",
+      "Coordinate international filings and foreign associate correspondence",
+      "Generate cease and desist letters and licensing agreements",
+      "Schedule USPTO hearings, TTAB proceedings, and client meetings",
+      "Track flat fee filings and hourly billing for prosecution and litigation",
+      "Manage IP portfolio summaries across multiple clients",
+      "Monitor online reviews and reputation across legal directories"
+    ],
+    "terminology": {
+      "client": "client",
+      "case": "case",
+      "consultation": "consultation",
+      "retainer": "retainer"
+    }
+  }
+}

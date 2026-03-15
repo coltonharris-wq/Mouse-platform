@@ -1,0 +1,95 @@
+{
+  "id": "civil-litigation",
+  "industry": "Legal",
+  "niche": "Civil Litigation",
+  "icon": "Gavel",
+  "sidebar": {
+    "nicheLabel": "Civil Litigation",
+    "tabs": [
+      {"id": "cases", "label": "Case intake", "icon": "Briefcase", "component": "CaseIntake"},
+      {"id": "clients", "label": "Client portal", "icon": "Users", "component": "ClientPortal"},
+      {"id": "documents", "label": "Document management", "icon": "FileText", "component": "DocumentManagement"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "cases", "label": "Active cases", "icon": "Briefcase", "defaultValue": "0", "subtitle": "total open"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Cases active", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, counselor! Let's review your litigation docket and make sure every case is trial-ready and on schedule.",
+    "quickActions": [
+      "Log a new litigation matter",
+      "Draft complaint or answer",
+      "Schedule deposition",
+      "Prepare discovery requests",
+      "File motion for summary judgment"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for a civil litigation law firm. You help manage lawsuits, arbitrations, and dispute resolution across all civil practice areas. You understand pleading requirements, discovery procedures, motion practice, trial preparation, and appellate timelines from filing through judgment and collection."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling the law offices of {company_name}. We represent clients in civil disputes and litigation matters with aggressive, results-driven advocacy. How can I help you today?",
+    "commonReasons": [
+      "New case consultation",
+      "Case status update",
+      "Court date inquiry",
+      "Discovery or deposition question",
+      "Settlement discussion request",
+      "Document request"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "firm-info", "title": "Firm Information", "description": "Enter your law firm name, address, and contact details"},
+      {"id": "practice-areas", "title": "Litigation Areas", "description": "Select the civil litigation areas you handle (contract disputes, business torts, collections, appeals, etc.)"},
+      {"id": "intake-process", "title": "Case Intake Process", "description": "Configure your intake questionnaire, conflict checks, and case evaluation criteria"},
+      {"id": "fee-structure", "title": "Fee Structure", "description": "Set your hourly rates, contingency fees, hybrid arrangements, and retainer policies"},
+      {"id": "integrations", "title": "Integrations", "description": "Connect your case management software, e-discovery tools, court filing systems, and calendar"},
+      {"id": "branding", "title": "Branding & Website", "description": "Upload your logo, set firm colors, and configure your client-facing website"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Contract dispute",
+      "Business tort / fraud",
+      "Collections / judgment enforcement",
+      "Insurance coverage dispute",
+      "Real property dispute",
+      "Partnership / shareholder dispute",
+      "Professional malpractice",
+      "Construction litigation",
+      "Arbitration / mediation",
+      "Appellate practice"
+    ],
+    "statusLabels": ["New inquiry", "Consultation", "Retained", "Active case", "Closed"],
+    "sourceLabels": ["Google Ads", "Avvo", "Referral", "Phone call", "Website form", "Bar association"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for a civil litigation law firm.",
+    "capabilities": [
+      "Track litigation cases from intake through judgment or settlement",
+      "Monitor court deadlines, filing dates, and statute of limitations",
+      "Manage discovery workflows including interrogatories, document requests, and depositions",
+      "Track motion practice deadlines and briefing schedules",
+      "Coordinate expert witness retention and report deadlines",
+      "Generate pleadings, motions, and discovery templates",
+      "Schedule hearings, depositions, mediations, and trial dates",
+      "Track hourly billing, contingency fees, and retainer balances",
+      "Manage multi-party litigation with complex docket tracking",
+      "Monitor online reviews and reputation across legal directories"
+    ],
+    "terminology": {
+      "client": "client",
+      "case": "case",
+      "consultation": "consultation",
+      "retainer": "retainer"
+    }
+  }
+}

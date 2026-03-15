@@ -1,0 +1,95 @@
+{
+  "id": "residential-agent",
+  "industry": "Real estate",
+  "niche": "Residential Agent",
+  "icon": "Home",
+  "sidebar": {
+    "nicheLabel": "Residential Agent",
+    "tabs": [
+      {"id": "listings", "label": "Listing manager", "icon": "Building2", "component": "ListingManager"},
+      {"id": "pipeline", "label": "Lead pipeline", "icon": "Users", "component": "LeadPipeline"},
+      {"id": "openhouses", "label": "Open houses", "icon": "DoorOpen", "component": "OpenHouses"},
+      {"id": "transactions", "label": "Transaction tracker", "icon": "FileText", "component": "TransactionTracker"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "listings", "label": "Active listings", "icon": "Building2", "defaultValue": "0", "subtitle": "on market"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "volume", "label": "Volume", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Showings today", "revenueLabel": "Volume"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back! Let's get your residential listings moving and your buyers into their dream homes today.",
+    "quickActions": [
+      "Schedule a showing for a buyer",
+      "Create a new residential listing",
+      "Draft a comparative market analysis",
+      "Send a follow-up to an open house lead",
+      "Prepare a listing presentation for a seller"
+    ],
+    "systemPrompt": "You are King Mouse, an AI assistant for a residential real estate agent. You help manage home listings, coordinate showings, nurture buyer and seller leads, track transactions from offer to closing, and grow the agent's reputation. You understand MLS systems, residential contracts, home valuations, and neighborhood market trends."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We specialize in helping buyers find their perfect home and sellers get top dollar. How can I help you today?",
+    "commonReasons": [
+      "Schedule a home showing",
+      "Get a home valuation",
+      "Ask about a listed property",
+      "Inquire about selling a home",
+      "Check on a transaction status",
+      "Request neighborhood information"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business", "title": "Your brokerage", "description": "Tell us about your real estate practice and brokerage affiliation."},
+      {"id": "services", "title": "Service areas", "description": "Define the neighborhoods and property types you specialize in."},
+      {"id": "listings", "title": "Current listings", "description": "Import or add your active residential listings."},
+      {"id": "pipeline", "title": "Lead sources", "description": "Connect your lead sources like Zillow, Realtor.com, and your website."},
+      {"id": "branding", "title": "Brand & marketing", "description": "Upload your headshot, logo, and set your brand colors."},
+      {"id": "phone", "title": "Phone setup", "description": "Configure your AI receptionist to handle buyer and seller inquiries."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Single-family home",
+      "Condo / Townhouse",
+      "Multi-family",
+      "New construction",
+      "Luxury home",
+      "First-time buyer",
+      "Relocation",
+      "Downsizing"
+    ],
+    "statusLabels": ["New lead", "Showing", "Offer", "Under contract", "Closed"],
+    "sourceLabels": ["Zillow", "Realtor.com", "Referral", "Open house", "Google Ads", "Social media"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI assistant for a residential real estate agent.",
+    "capabilities": [
+      "Create and manage residential property listings",
+      "Schedule and coordinate home showings",
+      "Track buyer and seller leads through the pipeline",
+      "Generate comparative market analyses",
+      "Monitor transaction progress from offer to closing",
+      "Plan and promote open houses",
+      "Draft listing descriptions and marketing materials",
+      "Manage client reviews and online reputation",
+      "Analyze neighborhood market trends",
+      "Coordinate with lenders, inspectors, and title companies"
+    ],
+    "terminology": {
+      "listing": "listing",
+      "appointment": "showing",
+      "customer": "buyer/seller",
+      "completion": "closing",
+      "product": "property",
+      "revenue": "volume"
+    }
+  }
+}

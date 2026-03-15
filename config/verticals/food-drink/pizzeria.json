@@ -1,0 +1,96 @@
+{
+  "id": "pizzeria",
+  "industry": "Food & Drink",
+  "niche": "Pizzeria",
+  "icon": "Pizza",
+  "sidebar": {
+    "nicheLabel": "Pizzeria",
+    "tabs": [
+      {"id": "orders", "label": "Order management", "icon": "ShoppingCart", "component": "OrderManagement"},
+      {"id": "menu", "label": "Menu builder", "icon": "BookOpen", "component": "MenuBuilder"},
+      {"id": "reservations", "label": "Reservations", "icon": "Calendar", "component": "Reservations"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "orders", "label": "Orders today", "icon": "ShoppingCart", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "reservations", "label": "Reservations", "icon": "Calendar", "defaultValue": "0", "subtitle": "today"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Orders today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back, pizza boss! Let's keep those pies flying out the oven. Want to check incoming orders, update tonight's specials, or see how delivery is performing?",
+    "quickActions": [
+      "View incoming delivery and pickup orders",
+      "Update today's pizza specials",
+      "Check dough prep inventory",
+      "Review delivery driver assignments",
+      "Post a pizza photo to social media"
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a pizzeria business. You help manage dine-in, delivery, and pickup orders, pizza menu customization, dough production schedules, and delivery logistics. You understand oven capacity, dough fermentation timing, topping cost management, slice vs. whole pie economics, and high-volume delivery operations."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! Ready to place an order for pickup or delivery, make a reservation, or ask about our menu? We're here to help!",
+    "commonReasons": [
+      "Delivery order",
+      "Pickup order",
+      "Reservation",
+      "Menu and pricing",
+      "Catering for parties",
+      "Allergen information",
+      "Large order for event"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      "Tell us about your pizzeria and pizza-making style",
+      "Build your menu with pizza sizes, toppings, and specialty pies",
+      "Set up online ordering for delivery and pickup",
+      "Configure your delivery zones, fees, and driver management",
+      "Set your hours and daily specials schedule",
+      "Customize your website with pizza photos and your story"
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Large party order",
+      "Corporate lunch delivery",
+      "School fundraiser",
+      "Sports team order",
+      "Wedding rehearsal dinner",
+      "Office pizza party",
+      "Recurring weekly order",
+      "Catering for event"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google", "Yelp", "Instagram", "Word of mouth", "DoorDash", "UberEats"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a pizzeria.",
+    "capabilities": [
+      "Manage dine-in, delivery, and pickup orders in real time",
+      "Update pizza menus, toppings, and daily specials",
+      "Coordinate delivery driver routes and assignments",
+      "Track dough production, sauce inventory, and topping supplies",
+      "Handle large party and catering order logistics",
+      "Promote specials and new pizzas on social media",
+      "Monitor reviews on Yelp, Google, and delivery platforms",
+      "Manage online ordering integrations with delivery apps",
+      "Analyze order volume by type and optimize oven throughput",
+      "Generate daily and weekly sales and cost reports"
+    ],
+    "terminology": {
+      "client": "customer",
+      "job": "order",
+      "booking": "reservation",
+      "project": "catering order",
+      "invoice": "receipt",
+      "team": "pizza crew"
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "id": "chimney-sweep",
+  "industry": "Home Services",
+  "niche": "Chimney Sweep",
+  "icon": "Flame",
+  "sidebar": {
+    "nicheLabel": "Chimney Sweep",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your chimney sweep operations manager. I keep your scheduling tight, your customers happy, and your flues clean. Let me know what you need \u2014 inspections, cleanings, relining jobs, or cap installs \u2014 I\u2019m on it.",
+    "quickActions": [
+      {"label": "Schedule a chimney inspection", "prompt": "Help me schedule a Level 1 chimney inspection for a customer this week."},
+      {"label": "Create a cleaning estimate", "prompt": "Draft an estimate for a standard chimney cleaning with creosote removal."},
+      {"label": "Follow up on open leads", "prompt": "Show me all open leads that haven't been contacted in the last 48 hours."},
+      {"label": "Check today's route", "prompt": "Show me today's job schedule and the most efficient route for my technicians."},
+      {"label": "Request a review", "prompt": "Send a review request to customers whose jobs were completed this week."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a chimney sweep business. You understand chimney inspection levels (Level 1, 2, 3), creosote buildup grades, flue relining, chimney cap installation, masonry repair, and seasonal demand spikes before winter. You help schedule technicians, generate estimates, follow up with leads, and manage customer relationships. Always be practical and safety-conscious, referencing NFPA 211 standards and CSIA certification best practices when relevant."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your trusted chimney professionals. How can I help you today?",
+    "commonReasons": [
+      "Schedule a chimney inspection",
+      "Get a quote for chimney cleaning",
+      "Report a chimney fire or smoke issue",
+      "Ask about chimney cap installation",
+      "Inquire about flue relining",
+      "Schedule masonry or crown repair",
+      "Request a Level 2 inspection for home sale",
+      "Ask about annual maintenance plans"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Business details", "description": "Enter your chimney sweep company name, address, service area, and contact information."},
+      {"id": "services", "title": "Services offered", "description": "Select the chimney services you provide: inspections, cleanings, relining, cap installs, masonry repair, and more."},
+      {"id": "team", "title": "Your crew", "description": "Add your certified chimney technicians and assign their specialties and availability."},
+      {"id": "pricing", "title": "Pricing & estimates", "description": "Set your base rates for inspections, cleanings, and common repair jobs."},
+      {"id": "integrations", "title": "Connect your tools", "description": "Link your Google Business Profile, payment processor, and any scheduling tools you already use."},
+      {"id": "go-live", "title": "Go live", "description": "Review your setup, activate your AI receptionist, and start capturing chimney service leads."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Level 1 Inspection",
+      "Level 2 Inspection",
+      "Level 3 Inspection",
+      "Standard Chimney Cleaning",
+      "Creosote Removal",
+      "Chimney Cap Installation",
+      "Flue Relining",
+      "Crown & Masonry Repair",
+      "Chimney Waterproofing"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a chimney sweep business.",
+    "capabilities": [
+      "Schedule and dispatch chimney inspection and cleaning jobs",
+      "Generate estimates for chimney sweeping, relining, and masonry repair",
+      "Track lead status from initial inquiry through completed job",
+      "Send automated review requests after service completion",
+      "Manage seasonal scheduling surges before heating season",
+      "Monitor technician routes and optimize daily job assignments",
+      "Provide NFPA 211 and CSIA-aligned safety recommendations",
+      "Track creosote buildup records and recommend cleaning intervals",
+      "Manage customer communication for appointment reminders and follow-ups",
+      "Analyze revenue trends and identify top-performing service categories"
+    ],
+    "terminology": {
+      "customer": "Homeowner",
+      "appointment": "Service call",
+      "job": "Sweep job",
+      "estimate": "Estimate",
+      "service": "Chimney service",
+      "team_member": "Technician",
+      "location": "Property"
+    }
+  }
+}

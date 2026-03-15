@@ -1,0 +1,97 @@
+{
+  "id": "motorcycle",
+  "industry": "Automotive",
+  "niche": "Motorcycle",
+  "icon": "Bike",
+  "sidebar": {
+    "nicheLabel": "Motorcycle",
+    "tabs": [
+      {"id": "tickets", "label": "Service tickets", "icon": "Clipboard", "component": "ServiceTickets"},
+      {"id": "parts", "label": "Parts inventory", "icon": "Package", "component": "PartsInventory"},
+      {"id": "vehicles", "label": "Customer vehicles", "icon": "Car", "component": "CustomerVehicles"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "tickets", "label": "Open tickets", "icon": "Clipboard", "defaultValue": "0", "subtitle": "in progress"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Services today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! Your motorcycle shop is revving up. Let's keep those bikes tuned, riders happy, and the shop humming.",
+    "quickActions": [
+      "Create a motorcycle service ticket",
+      "Check parts availability for a bike",
+      "Schedule a seasonal tune-up",
+      "Send spring riding season reminders",
+      "Look up a bike's service history"
+    ],
+    "systemPrompt": "You are King Mouse, an AI shop manager for a motorcycle repair and service business. You help manage motorcycle service tickets, track parts inventory, schedule maintenance, and handle customer communication. You understand motorcycle services including engine tune-ups, tire changes, chain and sprocket service, brake service, carburetor work, electrical diagnostics, and seasonal storage prep."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your local motorcycle service experts. How can we help you today?",
+    "commonReasons": [
+      "Schedule a motorcycle service",
+      "Get a repair estimate",
+      "Ask about tire replacement",
+      "Inquire about seasonal tune-ups",
+      "Check on bike repair status",
+      "Ask about parts availability"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Shop details", "description": "Enter your motorcycle shop name, address, and contact info"},
+      {"id": "services", "title": "Services offered", "description": "Select your services (tune-ups, tires, brakes, engine, custom work, etc.)"},
+      {"id": "brands", "title": "Brands serviced", "description": "Which motorcycle brands do you service (Harley, Honda, Yamaha, etc.)?"},
+      {"id": "hours", "title": "Operating hours", "description": "Set your shop hours and appointment availability"},
+      {"id": "branding", "title": "Brand & website", "description": "Upload your logo and showcase your work on bikes"},
+      {"id": "integrations", "title": "Connect tools", "description": "Link your parts suppliers, payment processor, and review platforms"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Engine tune-up",
+      "Tire replacement",
+      "Brake service",
+      "Chain and sprocket replacement",
+      "Oil change",
+      "Carburetor service",
+      "Electrical diagnostics",
+      "Suspension service",
+      "Custom exhaust install",
+      "Seasonal storage prep"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website", "RepairPal", "AutoMD"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI shop manager for a motorcycle repair and service business.",
+    "capabilities": [
+      "Create and manage motorcycle service tickets",
+      "Track motorcycle parts and accessories inventory",
+      "Look up parts by bike year, make, and model",
+      "Schedule service and maintenance appointments",
+      "Send seasonal riding prep reminders",
+      "Generate repair estimates for motorcycle work",
+      "Monitor online reviews and reputation",
+      "Run revenue and service volume reports",
+      "Manage warranty and recall tracking",
+      "Track customer bike profiles and service history"
+    ],
+    "terminology": {
+      "service": "service",
+      "vehicle": "vehicle",
+      "ticket": "ticket",
+      "customer": "customer",
+      "worker": "technician",
+      "location": "shop"
+    }
+  }
+}

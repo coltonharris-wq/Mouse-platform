@@ -1,0 +1,97 @@
+{
+  "id": "window-cleaning",
+  "industry": "Home services",
+  "niche": "Window cleaning",
+  "icon": "Wind",
+  "sidebar": {
+    "nicheLabel": "Window cleaning",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back! Let's keep your window cleaning business crystal clear. Ready to manage your routes and book more jobs?",
+    "quickActions": [
+      {"label": "Schedule a cleaning", "prompt": "Help me schedule a new window cleaning job for a client."},
+      {"label": "Send an estimate", "prompt": "Help me create and send an estimate for window cleaning."},
+      {"label": "Follow up on leads", "prompt": "Show me my recent leads that need follow-up."},
+      {"label": "Check today's jobs", "prompt": "What window cleaning jobs are scheduled for today?"},
+      {"label": "Request a review", "prompt": "Help me send a review request to a recent client."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a window cleaning business. You help manage residential and commercial window cleaning schedules, coordinate crews, handle estimates based on window count and building size, and grow the business through reputation management and advertising."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We make windows sparkle inside and out. Are you looking for a window cleaning quote or want to schedule a service?",
+    "commonReasons": [
+      "Get a quote for window cleaning",
+      "Schedule a window cleaning",
+      "Reschedule an appointment",
+      "Ask about interior and exterior cleaning",
+      "Inquire about commercial window cleaning",
+      "Ask about screen cleaning",
+      "Request a recurring schedule"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"target": "#business-name", "title": "Name your window cleaning business", "body": "Enter the name clients will see when you send estimates and invoices.", "position": "bottom"},
+      {"target": "#service-area", "title": "Set your service area", "body": "Define the neighborhoods or zip codes where your crews operate.", "position": "bottom"},
+      {"target": "#service-types", "title": "Add your window services", "body": "List the services you offer: interior, exterior, screens, tracks, skylights, storm windows, etc.", "position": "right"},
+      {"target": "#pricing", "title": "Set your pricing", "body": "Configure pricing per pane, per window, or by home/building size.", "position": "right"},
+      {"target": "#team", "title": "Add your crew", "body": "Add team members so you can assign routes and schedule jobs efficiently.", "position": "left"},
+      {"target": "#go-live", "title": "Go live!", "body": "Your window cleaning business is set up. Start capturing leads and booking jobs!", "position": "bottom"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Interior window cleaning",
+      "Exterior window cleaning",
+      "Interior and exterior combo",
+      "Screen cleaning",
+      "Track and sill cleaning",
+      "Skylight cleaning",
+      "Storm window cleaning",
+      "Commercial window cleaning",
+      "Post-construction window cleaning"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a window cleaning business.",
+    "capabilities": [
+      "Schedule and manage window cleaning jobs",
+      "Create estimates based on window count and building type",
+      "Coordinate crew assignments and daily routes",
+      "Track recurring cleaning schedules for repeat clients",
+      "Send automated appointment reminders to clients",
+      "Generate invoices after completed jobs",
+      "Monitor online reviews and respond to feedback",
+      "Manage equipment and supply inventory",
+      "Handle weather-related rescheduling",
+      "Analyze revenue by property type and service level"
+    ],
+    "terminology": {
+      "job": "cleaning job",
+      "client": "client",
+      "worker": "cleaner",
+      "team": "crew",
+      "estimate": "estimate",
+      "service_area": "service area"
+    }
+  }
+}

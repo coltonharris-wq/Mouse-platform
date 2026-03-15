@@ -1,0 +1,97 @@
+{
+  "id": "ev-service",
+  "industry": "Automotive",
+  "niche": "EV Service",
+  "icon": "Zap",
+  "sidebar": {
+    "nicheLabel": "EV Service",
+    "tabs": [
+      {"id": "tickets", "label": "Service tickets", "icon": "Clipboard", "component": "ServiceTickets"},
+      {"id": "parts", "label": "Parts inventory", "icon": "Package", "component": "PartsInventory"},
+      {"id": "vehicles", "label": "Customer vehicles", "icon": "Car", "component": "CustomerVehicles"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "tickets", "label": "Open tickets", "icon": "Clipboard", "defaultValue": "0", "subtitle": "in progress"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Services today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! Your EV service shop is fully charged. Let's keep those electric vehicles running clean and customers plugged into great service.",
+    "quickActions": [
+      "Create an EV diagnostic ticket",
+      "Schedule a battery health check",
+      "Check EV parts and component inventory",
+      "Send charging system service reminders",
+      "Generate an EV repair estimate"
+    ],
+    "systemPrompt": "You are King Mouse, an AI shop manager for an EV service business. You help manage EV repair and maintenance tickets, track high-voltage parts inventory, schedule services, and handle customer communication. You understand EV services including battery diagnostics, charging system service, electric motor repair, regenerative braking, thermal management, software updates, and hybrid system service."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your electric vehicle service specialists. How can we help you today?",
+    "commonReasons": [
+      "Schedule an EV service appointment",
+      "Ask about battery health diagnostics",
+      "Get a repair estimate",
+      "Inquire about charging system issues",
+      "Check on vehicle repair status",
+      "Ask about EV maintenance schedules"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Shop details", "description": "Enter your EV service shop name, address, and contact info"},
+      {"id": "services", "title": "Services offered", "description": "Select your EV services (battery, charging, motor, brakes, software, etc.)"},
+      {"id": "certifications", "title": "Certifications", "description": "Which EV manufacturer certifications and training do your techs hold?"},
+      {"id": "hours", "title": "Operating hours", "description": "Set your shop hours and appointment availability"},
+      {"id": "branding", "title": "Brand & website", "description": "Upload your logo and highlight your EV expertise"},
+      {"id": "integrations", "title": "Connect tools", "description": "Link your EV diagnostic tools, parts suppliers, and review platforms"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Battery health diagnostic",
+      "Battery replacement",
+      "Charging system repair",
+      "Electric motor service",
+      "Regenerative braking service",
+      "Thermal management service",
+      "Software update",
+      "High-voltage system inspection",
+      "Tire service for EVs",
+      "Hybrid system service"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website", "RepairPal", "AutoMD"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI shop manager for an EV service business.",
+    "capabilities": [
+      "Create and manage EV repair and maintenance tickets",
+      "Track high-voltage parts and component inventory",
+      "Schedule EV service and diagnostic appointments",
+      "Generate repair estimates for EV-specific work",
+      "Send maintenance and software update reminders",
+      "Monitor online reviews and reputation",
+      "Track battery health reports and degradation data",
+      "Run revenue and service volume reports",
+      "Manage EV manufacturer warranty claims",
+      "Educate customers on EV maintenance best practices"
+    ],
+    "terminology": {
+      "service": "service",
+      "vehicle": "vehicle",
+      "ticket": "ticket",
+      "customer": "customer",
+      "worker": "technician",
+      "location": "shop"
+    }
+  }
+}

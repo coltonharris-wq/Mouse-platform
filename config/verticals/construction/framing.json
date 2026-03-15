@@ -1,0 +1,80 @@
+{
+  "id": "framing",
+  "industry": "Construction",
+  "niche": "Framing",
+  "icon": "Ruler",
+  "sidebar": {
+    "nicheLabel": "Framing",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your framing operations manager. I can help you bid framing packages, schedule crews for new builds and additions, manage lumber deliveries, and keep your framers moving from one project to the next.",
+    "quickActions": [
+      {"label": "Bid a framing package", "prompt": "Draft a framing bid for a 2,400 sq ft single-story custom home including walls, roof trusses, floor joists, and sheathing."},
+      {"label": "Follow up with a builder", "prompt": "Write a follow-up message to a general contractor who requested a framing bid for a new subdivision of 12 homes."},
+      {"label": "Schedule a framing crew", "prompt": "Help me schedule a framing crew for a two-story addition including wall framing, floor system, and roof framing."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a general contractor to leave a Google review after we completed framing on their custom home build."},
+      {"label": "Send lumber order list", "prompt": "Generate a lumber takeoff list for framing a 1,800 sq ft two-story home including studs, plates, headers, joists, and sheathing."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a framing contractor. You speak the language of framers — studs, plates, headers, cripples, king studs, jack studs, rafters, trusses, joists, rim boards, sheathing, blocking, LVLs, engineered lumber, Simpson ties, nail guns, and blueprints. You help manage bids for new construction, additions, and tract housing, schedule framing crews across multiple job sites, coordinate lumber deliveries, and ensure framing passes inspection with proper nailing patterns and code-compliant engineering."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your professional framing contractor. Whether you need framing for a custom home, addition, or multi-unit project, we deliver quality rough framing on schedule. How can I assist you today?",
+    "commonReasons": ["Framing bid request", "New construction framing", "Addition or remodel framing", "Tract home framing", "Multi-family framing", "Deck framing", "Schedule a walkthrough", "Lumber pricing question"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Framing Company", "description": "Tell us your company name, location, and how many framing crews you run."},
+      {"id": "services", "title": "Framing Services", "description": "Select the framing work you do — custom homes, tract homes, additions, multi-family, commercial, decks, remodel framing."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your framing service area by zip codes, cities, or drive-time radius."},
+      {"id": "ai-receptionist", "title": "Framing Call Handling", "description": "Set up your AI receptionist to field calls from builders and GCs, qualify projects by size and timeline, and schedule walkthroughs."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to collect reviews from builders and general contractors you frame for."},
+      {"id": "go-live", "title": "Launch Your Framing Hub", "description": "Review your settings and go live. Your framing command center is ready to manage bids and crew schedules."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Custom home framing", "Tract home framing", "Addition framing", "Multi-family framing", "Commercial framing", "Deck framing", "Remodel framing", "Roof truss installation"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a framing contractor.",
+    "capabilities": [
+      "Schedule framing crews across multiple new construction and remodel job sites",
+      "Generate per-square-foot framing bids with lumber and labor breakdowns",
+      "Coordinate lumber deliveries and material staging for upcoming pours and frames",
+      "Follow up with builders and GCs who requested framing bids",
+      "Track crew productivity and square footage completed per day",
+      "Request and monitor reviews from general contractors and builders",
+      "Manage inspector schedules for framing and shear wall inspections",
+      "Send job start confirmations and crew assignment notifications",
+      "Track lumber costs and price fluctuations for accurate bidding",
+      "Generate revenue reports by project type — custom, tract, addition, commercial"
+    ],
+    "terminology": {
+      "customer": "builder",
+      "appointment": "walkthrough",
+      "job": "framing job",
+      "estimate": "framing bid",
+      "service": "framing work",
+      "team_member": "framer",
+      "location": "job site"
+    }
+  }
+}

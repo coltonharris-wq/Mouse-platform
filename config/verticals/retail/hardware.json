@@ -1,0 +1,77 @@
+{
+  "id": "hardware",
+  "industry": "Retail",
+  "niche": "Hardware",
+  "icon": "Hammer",
+  "sidebar": {
+    "nicheLabel": "Hardware",
+    "tabs": [
+      {"id": "inventory", "label": "Inventory manager", "icon": "Package", "component": "InventoryManager"},
+      {"id": "pos", "label": "POS integration", "icon": "CreditCard", "component": "POSIntegration"},
+      {"id": "loyalty", "label": "Customer loyalty", "icon": "Heart", "component": "CustomerLoyalty"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "sales", "label": "Sales today", "icon": "ShoppingBag", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "customers", "label": "Customers", "icon": "Users", "defaultValue": "0", "subtitle": "today"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Sales today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome to your hardware store dashboard! Let's keep your aisles stocked and your contractors supplied.",
+    "quickActions": [
+      "Check fastener and lumber stock",
+      "Log a supplier delivery",
+      "Create a weekend DIY sale",
+      "View special order requests",
+      "Update contractor account pricing"
+    ],
+    "systemPrompt": "You are King Mouse, an AI store manager for a hardware store business. You help manage thousands of SKUs across tools, fasteners, lumber, plumbing, electrical, and paint, coordinate with suppliers and manage special orders, serve both DIY homeowners and professional contractors, and run seasonal promotions. You understand hardware retail including bulk pricing, contractor accounts, and the importance of knowledgeable staff for project advice."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! Whether you're tackling a DIY project or need supplies for the job site, we're here to help. How can we assist you?",
+    "commonReasons": ["Product availability", "Store hours", "Return/exchange", "Special orders", "Contractor pricing", "Tool rental", "Paint matching"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "store-info", "title": "Store information", "description": "Enter your hardware store name, location, and contact details"},
+      {"id": "departments", "title": "Departments", "description": "Select the departments you operate (tools, lumber, plumbing, electrical, paint, garden)"},
+      {"id": "services", "title": "In-store services", "description": "Configure key cutting, paint mixing, pipe threading, and tool rental services"},
+      {"id": "pos-setup", "title": "POS setup", "description": "Connect your point-of-sale system with contractor account integration"},
+      {"id": "online-presence", "title": "Online presence", "description": "Set up your website and social media profiles"},
+      {"id": "loyalty-program", "title": "Loyalty program", "description": "Configure your DIY rewards and contractor discount tiers"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Power tools", "Hand tools", "Lumber & building materials", "Plumbing supplies", "Electrical supplies", "Paint & stain", "Fasteners & hardware", "Garden & outdoor"],
+    "statusLabels": ["New", "Interested", "Ready to buy", "Purchased", "Return"],
+    "sourceLabels": ["Walk-in", "Google", "Instagram", "Facebook", "Referral", "Website"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI store manager for a hardware store shop.",
+    "capabilities": [
+      "Track thousands of SKUs across multiple departments",
+      "Manage contractor accounts and bulk pricing tiers",
+      "Coordinate special orders and vendor lead times",
+      "Handle in-store services like key cutting and paint mixing",
+      "Monitor seasonal demand for garden and outdoor products",
+      "Track tool rental inventory and return schedules",
+      "Analyze sales by department and customer type",
+      "Generate DIY project content for social media",
+      "Manage lumber yard inventory and cut-to-order services",
+      "Coordinate with local contractors and tradespeople"
+    ],
+    "terminology": {
+      "sale": "sale",
+      "customer": "customer",
+      "product": "product",
+      "sku": "SKU"
+    }
+  }
+}

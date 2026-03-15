@@ -1,0 +1,96 @@
+{
+  "id": "coffee-shop",
+  "industry": "Food & Drink",
+  "niche": "Coffee shop",
+  "icon": "Coffee",
+  "sidebar": {
+    "nicheLabel": "Coffee shop",
+    "tabs": [
+      {"id": "orders", "label": "Order management", "icon": "ShoppingCart", "component": "OrderManagement"},
+      {"id": "menu", "label": "Menu builder", "icon": "BookOpen", "component": "MenuBuilder"},
+      {"id": "reservations", "label": "Reservations", "icon": "Calendar", "component": "Reservations"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "social", "label": "Social media", "icon": "Share2", "component": "SocialMedia"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "orders", "label": "Orders today", "icon": "ShoppingCart", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "reservations", "label": "Reservations", "icon": "Calendar", "defaultValue": "0", "subtitle": "today"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Orders today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Good morning, barista boss! Let's brew up a great day. Want to check mobile orders, update the seasonal drinks menu, or see how the morning rush went?",
+    "quickActions": [
+      "Check pending mobile orders",
+      "Update seasonal drink specials",
+      "Post the latte art of the day",
+      "Review this morning's sales",
+      "Check coffee bean inventory levels"
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a coffee shop business. You help manage mobile and walk-in orders, drink menus, loyalty programs, and daily operations. You understand espresso drink recipes, bean sourcing, morning rush workflows, pastry pairings, and the rhythm of a cafe throughout the day."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}! We'd love to help you with a mobile order, catering request, or any questions about our coffee and menu offerings.",
+    "commonReasons": [
+      "Mobile order",
+      "Catering inquiry",
+      "Loyalty program",
+      "Menu inquiry",
+      "Gift card purchase",
+      "Wholesale bean sales",
+      "Private event booking"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      "Tell us about your coffee shop and roasting style",
+      "Build your drink menu with espresso, brewed, and specialty items",
+      "Set up your mobile ordering and loyalty program",
+      "Configure your pastry and food menu offerings",
+      "Set your hours and seasonal drink rotation schedule",
+      "Customize your website with your cafe story and bean origins"
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Coffee catering",
+      "Office coffee service",
+      "Wholesale bean order",
+      "Private event booking",
+      "Corporate meeting catering",
+      "Wedding coffee bar",
+      "Gift basket order",
+      "Subscription service"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google", "Yelp", "Instagram", "Word of mouth", "DoorDash", "UberEats"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a coffee shop.",
+    "capabilities": [
+      "Process mobile and walk-in orders in real time",
+      "Update drink menus and seasonal specialty offerings",
+      "Manage loyalty program enrollment and rewards",
+      "Track bean inventory and schedule roaster orders",
+      "Coordinate pastry supplier deliveries and freshness",
+      "Promote daily specials and new drinks on social media",
+      "Monitor reviews on Yelp, Google, and coffee platforms",
+      "Handle wholesale and office coffee service accounts",
+      "Analyze peak hour traffic and optimize barista scheduling",
+      "Generate daily and weekly sales performance reports"
+    ],
+    "terminology": {
+      "client": "customer",
+      "job": "order",
+      "booking": "reservation",
+      "project": "service",
+      "invoice": "receipt",
+      "team": "baristas"
+    }
+  }
+}

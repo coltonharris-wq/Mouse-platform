@@ -1,0 +1,97 @@
+{
+  "id": "detailing",
+  "industry": "Automotive",
+  "niche": "Detailing",
+  "icon": "Sparkles",
+  "sidebar": {
+    "nicheLabel": "Detailing",
+    "tabs": [
+      {"id": "tickets", "label": "Service tickets", "icon": "Clipboard", "component": "ServiceTickets"},
+      {"id": "parts", "label": "Parts inventory", "icon": "Package", "component": "PartsInventory"},
+      {"id": "vehicles", "label": "Customer vehicles", "icon": "Car", "component": "CustomerVehicles"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "tickets", "label": "Open tickets", "icon": "Clipboard", "defaultValue": "0", "subtitle": "in progress"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Services today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "What's up, boss! Your detailing shop is sparkling. Let's keep those vehicles looking showroom-fresh and customers coming back.",
+    "quickActions": [
+      "Book a detail appointment",
+      "Create a ceramic coating ticket",
+      "Check detailing supply levels",
+      "Send a membership renewal reminder",
+      "View today's detail schedule"
+    ],
+    "systemPrompt": "You are King Mouse, an AI shop manager for an auto detailing business. You help manage detail appointments, track supplies and products, schedule services, handle membership packages, and maintain quality. You understand detailing services including wash, wax, polish, ceramic coating, paint correction, interior detailing, and paint protection film."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, where we make your vehicle shine. How can we help you today?",
+    "commonReasons": [
+      "Book a detail appointment",
+      "Ask about detailing packages",
+      "Get a quote for ceramic coating",
+      "Inquire about membership plans",
+      "Check appointment availability",
+      "Ask about paint protection film"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Shop details", "description": "Enter your detailing business name, address, and contact info"},
+      {"id": "services", "title": "Services offered", "description": "Select your detail services (wash, wax, ceramic coating, interior, etc.)"},
+      {"id": "packages", "title": "Packages & pricing", "description": "Set up your detailing packages and membership tiers"},
+      {"id": "hours", "title": "Operating hours", "description": "Set your hours and appointment slot durations"},
+      {"id": "branding", "title": "Brand & website", "description": "Upload your logo and showcase your best detail work"},
+      {"id": "integrations", "title": "Connect tools", "description": "Link your product suppliers, payment processor, and review platforms"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Full detail",
+      "Interior detail",
+      "Exterior wash and wax",
+      "Ceramic coating",
+      "Paint correction",
+      "Paint protection film",
+      "Headlight restoration",
+      "Engine bay cleaning",
+      "Odor removal",
+      "Monthly membership"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website", "RepairPal", "AutoMD"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI shop manager for an auto detailing business.",
+    "capabilities": [
+      "Create and manage detailing service tickets",
+      "Track detailing supplies and product inventory",
+      "Schedule detail appointments and bay assignments",
+      "Manage membership and package subscriptions",
+      "Send appointment reminders and follow-ups",
+      "Monitor online reviews and reputation",
+      "Generate revenue and service volume reports",
+      "Handle before-and-after photo documentation",
+      "Upsell premium services to existing customers",
+      "Track repeat customer visit frequency"
+    ],
+    "terminology": {
+      "service": "service",
+      "vehicle": "vehicle",
+      "ticket": "ticket",
+      "customer": "customer",
+      "worker": "detailer",
+      "location": "shop"
+    }
+  }
+}

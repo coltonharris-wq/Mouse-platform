@@ -1,0 +1,80 @@
+{
+  "id": "concrete",
+  "industry": "Construction",
+  "niche": "Concrete",
+  "icon": "Square",
+  "sidebar": {
+    "nicheLabel": "Concrete",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Jobs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your concrete operations manager. I can help you schedule pours, manage driveway and patio leads, send flatwork estimates, coordinate ready-mix deliveries, and keep your crews productive between curing times.",
+    "quickActions": [
+      {"label": "Send driveway estimate", "prompt": "Draft an estimate for a 600 sq ft stamped concrete driveway including excavation, gravel base, rebar, pour, stamping, and sealer."},
+      {"label": "Follow up on a patio lead", "prompt": "Write a follow-up message to a homeowner who requested a quote for a decorative concrete patio with a firepit pad."},
+      {"label": "Schedule a concrete pour", "prompt": "Help me schedule a foundation pour including ready-mix delivery time, pump truck, and crew assignments for a 1,200 sq ft slab."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a customer to leave a Google review after we completed their new stamped concrete patio."},
+      {"label": "Create winter concrete promo", "prompt": "Draft a promotional message for off-season concrete specials on garage floors and basement slabs."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for a concrete contracting business. You speak the language of concrete work — flatwork, stamped concrete, exposed aggregate, broom finish, foundations, footings, retaining walls, ready-mix, PSI ratings, rebar, wire mesh, form work, control joints, expansion joints, curing compounds, and sealers. You help manage leads for driveways, patios, sidewalks, and commercial slabs, schedule pours around weather windows, coordinate ready-mix deliveries, and ensure jobs are estimated by the square foot with accurate material calculations."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your local concrete experts. Whether you need a new driveway, patio, foundation, or decorative concrete work, we'd love to give you a free estimate. How can I assist you today?",
+    "commonReasons": ["Driveway estimate", "Patio or walkway quote", "Foundation pour", "Stamped concrete inquiry", "Retaining wall estimate", "Concrete repair or replacement", "Commercial slab work", "Sidewalk replacement"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Concrete Company", "description": "Tell us your company name, location, and how many concrete crews you run."},
+      {"id": "services", "title": "Concrete Services", "description": "Select the concrete services you offer — flatwork, stamped, foundations, retaining walls, decorative, commercial slabs."},
+      {"id": "service-area", "title": "Service Territory", "description": "Define your concrete service area by zip codes, cities, or drive-time radius."},
+      {"id": "ai-receptionist", "title": "Concrete Call Handling", "description": "Set up your AI receptionist to answer concrete inquiries, qualify projects by size and finish type, and book site visits."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor reviews and request feedback after completed concrete pours."},
+      {"id": "go-live", "title": "Launch Your Concrete Hub", "description": "Review your settings and go live. Your concrete command center is ready to schedule pours and manage estimates."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Driveway pour", "Patio installation", "Stamped concrete", "Foundation pour", "Sidewalk replacement", "Retaining wall", "Garage floor", "Commercial slab", "Concrete repair"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for a concrete contracting business.",
+    "capabilities": [
+      "Schedule concrete pours and coordinate ready-mix delivery windows",
+      "Generate per-square-foot estimates for flatwork, stamped, and decorative concrete",
+      "Monitor weather forecasts to plan pours and avoid rain or freeze delays",
+      "Follow up with leads requesting driveway, patio, and foundation quotes",
+      "Coordinate pump truck and equipment rentals for large pour days",
+      "Request and monitor Google reviews from completed concrete projects",
+      "Run Google Ads targeting homeowners searching for concrete contractors",
+      "Send site visit confirmations and pour-day schedules to customers",
+      "Track material costs — ready-mix, rebar, forms, sealers, stamp mats",
+      "Generate revenue reports by project type — residential flatwork, commercial, foundations"
+    ],
+    "terminology": {
+      "customer": "homeowner",
+      "appointment": "site visit",
+      "job": "concrete job",
+      "estimate": "concrete estimate",
+      "service": "concrete work",
+      "team_member": "crew member",
+      "location": "job site"
+    }
+  }
+}

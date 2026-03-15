@@ -1,0 +1,99 @@
+{
+  "id": "mental-health",
+  "industry": "Healthcare",
+  "niche": "Mental Health",
+  "icon": "Brain",
+  "sidebar": {
+    "nicheLabel": "Mental Health",
+    "tabs": [
+      {"id": "scheduling", "label": "Patient scheduling", "icon": "Calendar", "component": "PatientScheduling"},
+      {"id": "insurance", "label": "Insurance & billing", "icon": "FileText", "component": "InsuranceBilling"},
+      {"id": "portal", "label": "Patient portal", "icon": "Users", "component": "PatientPortal"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "referrals", "label": "Referral tracker", "icon": "UserPlus", "component": "ReferralTracker"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "appointments", "label": "Appointments", "icon": "Calendar", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Billings", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Appointments today", "revenueLabel": "Billings"}
+  },
+  "kingMouse": {
+    "greeting": "Welcome back! Let's keep your practice running smoothly so you can focus on what matters most -- your patients. Ready to check today's sessions or review intake requests?",
+    "quickActions": [
+      "Show today's session schedule",
+      "Review new intake requests",
+      "Check insurance authorizations",
+      "Send session reminders",
+      "View waitlist status"
+    ],
+    "systemPrompt": "You are King Mouse, an AI practice manager for a mental health practice. You help manage patient scheduling, session tracking, insurance authorizations, intake coordination, and practice growth. You understand mental health terminology including therapy sessions, psychiatric evaluations, treatment plans, and telehealth visits. You maintain strict confidentiality awareness and refer to people as patients or clients."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We are here to help. How may I assist you today?",
+    "commonReasons": [
+      "Schedule appointment",
+      "Insurance question",
+      "New patient intake",
+      "Reschedule or cancel",
+      "Medication refill request",
+      "Crisis or urgent concern",
+      "Billing inquiry",
+      "Telehealth setup question"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "practice-info", "title": "Practice information", "description": "Enter your mental health practice name, address, and contact details"},
+      {"id": "providers", "title": "Clinicians & therapists", "description": "Add your therapists, psychiatrists, and counselors"},
+      {"id": "services", "title": "Services offered", "description": "Select the therapy modalities and services you provide"},
+      {"id": "insurance", "title": "Insurance panels", "description": "Add the insurance panels and EAP programs you accept"},
+      {"id": "hours", "title": "Practice hours", "description": "Set your session hours and availability including telehealth"},
+      {"id": "branding", "title": "Practice branding", "description": "Upload your logo and customize your patient-facing pages"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Individual therapy",
+      "Couples counseling",
+      "Family therapy",
+      "Psychiatric evaluation",
+      "Group therapy",
+      "Child and adolescent therapy",
+      "Substance abuse counseling",
+      "Telehealth session"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Insurance referral"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI practice manager for a mental health practice.",
+    "capabilities": [
+      "Manage patient appointments and therapy sessions",
+      "Track session frequency and treatment plans",
+      "Verify insurance benefits and authorizations",
+      "Coordinate new patient intake and assessments",
+      "Handle waitlist management and scheduling",
+      "Generate billing and session reports",
+      "Manage telehealth session logistics",
+      "Manage reviews and online reputation",
+      "Track clinician caseloads and availability",
+      "Send appointment reminders with HIPAA compliance"
+    ],
+    "terminology": {
+      "customer": "patient",
+      "job": "session",
+      "business": "practice",
+      "estimate": "treatment plan",
+      "invoice": "statement",
+      "worker": "clinician",
+      "booking": "appointment",
+      "service": "session"
+    }
+  }
+}

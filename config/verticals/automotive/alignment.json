@@ -1,0 +1,97 @@
+{
+  "id": "alignment",
+  "industry": "Automotive",
+  "niche": "Alignment",
+  "icon": "ArrowUpDown",
+  "sidebar": {
+    "nicheLabel": "Alignment",
+    "tabs": [
+      {"id": "tickets", "label": "Service tickets", "icon": "Clipboard", "component": "ServiceTickets"},
+      {"id": "parts", "label": "Parts inventory", "icon": "Package", "component": "PartsInventory"},
+      {"id": "vehicles", "label": "Customer vehicles", "icon": "Car", "component": "CustomerVehicles"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "tickets", "label": "Open tickets", "icon": "Clipboard", "defaultValue": "0", "subtitle": "in progress"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Services today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! Your alignment shop is dialed in. Let's keep those wheels straight, tires wearing even, and customers driving smooth.",
+    "quickActions": [
+      "Create an alignment service ticket",
+      "Schedule a four-wheel alignment",
+      "Check suspension parts inventory",
+      "Send alignment-due reminders",
+      "View today's alignment rack schedule"
+    ],
+    "systemPrompt": "You are King Mouse, an AI shop manager for a wheel alignment business. You help manage alignment service tickets, track suspension parts inventory, schedule rack time, and handle customer communication. You understand alignment services including two-wheel alignment, four-wheel alignment, thrust angle correction, suspension inspection, steering component replacement, and ride height adjustment."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your wheel alignment and suspension experts. How can we help you today?",
+    "commonReasons": [
+      "Schedule an alignment appointment",
+      "Ask about alignment pricing",
+      "Report pulling or uneven tire wear",
+      "Inquire about suspension inspection",
+      "Check appointment availability",
+      "Ask about alignment after hitting a pothole"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Shop details", "description": "Enter your alignment shop name, address, and contact info"},
+      {"id": "services", "title": "Services offered", "description": "Select your services (2-wheel, 4-wheel alignment, suspension, steering, etc.)"},
+      {"id": "equipment", "title": "Equipment setup", "description": "What alignment machines and racks do you use?"},
+      {"id": "hours", "title": "Operating hours", "description": "Set your shop hours and rack appointment availability"},
+      {"id": "branding", "title": "Brand & website", "description": "Upload your logo and set up your online presence"},
+      {"id": "integrations", "title": "Connect tools", "description": "Link your parts suppliers, alignment software, and review platforms"}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Two-wheel alignment",
+      "Four-wheel alignment",
+      "Thrust angle alignment",
+      "Suspension inspection",
+      "Tie rod replacement",
+      "Ball joint replacement",
+      "Control arm replacement",
+      "Steering rack service",
+      "Ride height adjustment",
+      "Performance alignment"
+    ],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website", "RepairPal", "AutoMD"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI shop manager for a wheel alignment business.",
+    "capabilities": [
+      "Create and manage alignment service tickets",
+      "Track suspension and steering parts inventory",
+      "Schedule alignment rack appointments",
+      "Store and compare before-and-after alignment specs",
+      "Send alignment interval reminders to customers",
+      "Generate repair estimates for suspension work",
+      "Monitor online reviews and reputation",
+      "Run revenue and daily alignment count reports",
+      "Manage alignment machine calibration schedules",
+      "Educate customers on alignment symptoms and benefits"
+    ],
+    "terminology": {
+      "service": "service",
+      "vehicle": "vehicle",
+      "ticket": "ticket",
+      "customer": "customer",
+      "worker": "technician",
+      "location": "shop"
+    }
+  }
+}

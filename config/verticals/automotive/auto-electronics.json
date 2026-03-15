@@ -1,0 +1,80 @@
+{
+  "id": "auto-electronics",
+  "industry": "Automotive",
+  "niche": "Auto Electronics & Accessories",
+  "icon": "Cpu",
+  "sidebar": {
+    "nicheLabel": "Auto Electronics",
+    "tabs": [
+      {"id": "leads", "label": "Lead funnel", "icon": "Users", "component": "LeadFunnel"},
+      {"id": "estimates", "label": "Estimates & invoices", "icon": "FileText", "component": "EstimatesInvoices"},
+      {"id": "scheduler", "label": "Job scheduler", "icon": "Calendar", "component": "JobScheduler"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "ads", "label": "Ads manager", "icon": "Globe", "component": "AdsManager"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "leads", "label": "New leads", "icon": "Users", "defaultValue": "0", "subtitle": "this week"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "revenue", "label": "Revenue", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Installs today", "revenueLabel": "Revenue"}
+  },
+  "kingMouse": {
+    "greeting": "Hey boss! King Mouse here, your auto electronics operations manager. I can help you schedule installations, track parts orders, follow up on custom audio and remote start leads, and keep your install bays booked solid.",
+    "quickActions": [
+      {"label": "Send car stereo install estimate", "prompt": "Draft an estimate for a full car stereo system upgrade including head unit, speakers, amplifier, and subwoofer installation."},
+      {"label": "Follow up on remote start lead", "prompt": "Write a follow-up message to a customer who inquired about getting a remote start system installed in their vehicle."},
+      {"label": "Schedule a dash cam install", "prompt": "Help me schedule a hardwired dash cam installation including front and rear cameras with parking mode."},
+      {"label": "Request a Google review", "prompt": "Draft a message asking a customer to leave a Google review after we completed their custom audio system installation."},
+      {"label": "Create accessory bundle promo", "prompt": "Create a promotional bundle combining popular accessories like remote start, window tint, and dash cam at a discounted package price."}
+    ],
+    "systemPrompt": "You are King Mouse, an AI operations manager for an auto electronics and accessories shop. You speak the language of mobile electronics installers — head units, CarPlay and Android Auto, amplifiers, subwoofers, component speakers, tweeters, remote start systems, keyless entry, dash cams, backup cameras, GPS trackers, LED lighting, window tint, and custom wiring harnesses. You help manage installation appointments, generate estimates for audio builds and accessory installs, track parts inventory and supplier orders, and follow up with customers on custom project quotes. You understand install bay scheduling, vehicle compatibility, wiring complexity, and the importance of clean professional installations."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}, your local auto electronics and accessories experts. Whether you need a new stereo system, remote start, dash cam, or custom installation, we've got you covered. How can I help you today?",
+    "commonReasons": ["Car stereo or audio upgrade", "Remote start installation", "Dash cam installation", "Backup camera install", "LED lighting or accessories", "Window tint appointment", "Custom audio build quote", "Check on parts order status"]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business-info", "title": "Your Auto Electronics Shop", "description": "Tell us your shop name, location, and how many install bays you operate."},
+      {"id": "services", "title": "Products & Installations", "description": "Select the electronics and accessories you install — audio, remote start, dash cams, lighting, tint, and more."},
+      {"id": "service-area", "title": "Service Area", "description": "Define your service area by zip codes, cities, or drive-time radius."},
+      {"id": "ai-receptionist", "title": "Call Handling", "description": "Set up your AI receptionist to answer product questions, provide install pricing, and book appointments."},
+      {"id": "reviews", "title": "Reputation & Reviews", "description": "Connect your Google Business Profile to monitor reviews and request feedback after completed installations."},
+      {"id": "go-live", "title": "Launch Your Electronics Hub", "description": "Review your settings and go live. Your auto electronics command center is ready to capture leads and fill install bays."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": ["Car stereo upgrade", "Remote start install", "Dash cam installation", "Backup camera install", "Amplifier and subwoofer", "LED lighting package", "Window tint", "GPS tracker install", "Custom audio build"],
+    "statusLabels": ["New", "Warm", "Hot", "Converted", "Lost"],
+    "sourceLabels": ["Google Ads", "Facebook", "Referral", "Phone call", "Website form", "Yelp", "Nextdoor"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI operations manager for an auto electronics and accessories business.",
+    "capabilities": [
+      "Schedule installation appointments and manage install bay availability",
+      "Generate detailed estimates for audio builds and accessory installations",
+      "Track parts inventory and manage supplier and distributor orders",
+      "Follow up with customers on custom project quotes and build progress",
+      "Monitor install bay productivity and technician utilization rates",
+      "Request and manage Google reviews from completed installation jobs",
+      "Create and optimize Google Ads campaigns for auto electronics services",
+      "Send automated appointment reminders and job completion notifications",
+      "Track vehicle compatibility and recommend correct parts and harnesses",
+      "Generate revenue reports broken down by product category and install type"
+    ],
+    "terminology": {
+      "customer": "customer",
+      "appointment": "install appointment",
+      "job": "installation",
+      "estimate": "install estimate",
+      "service": "installation service",
+      "team_member": "installer",
+      "location": "install bay"
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "id": "investment",
+  "industry": "Real estate",
+  "niche": "Investment",
+  "icon": "TrendingUp",
+  "sidebar": {
+    "nicheLabel": "Investment",
+    "tabs": [
+      {"id": "listings", "label": "Listing manager", "icon": "Building2", "component": "ListingManager"},
+      {"id": "pipeline", "label": "Lead pipeline", "icon": "Users", "component": "LeadPipeline"},
+      {"id": "openhouses", "label": "Open houses", "icon": "DoorOpen", "component": "OpenHouses"},
+      {"id": "transactions", "label": "Transaction tracker", "icon": "FileText", "component": "TransactionTracker"},
+      {"id": "reviews", "label": "Reviews & reputation", "icon": "Star", "component": "ReviewsReputation"},
+      {"id": "website", "label": "Website builder", "icon": "Layout", "component": "WebsiteBuilder"}
+    ]
+  },
+  "dashboard": {
+    "metrics": [
+      {"id": "calls", "label": "Calls today", "icon": "Phone", "defaultValue": "0", "subtitle": "vs yesterday"},
+      {"id": "listings", "label": "Active listings", "icon": "Building2", "defaultValue": "0", "subtitle": "on market"},
+      {"id": "reviews", "label": "Reviews", "icon": "Star", "defaultValue": "0", "subtitle": "avg rating"},
+      {"id": "volume", "label": "Volume", "icon": "CreditCard", "defaultValue": "$0", "subtitle": "this month"}
+    ],
+    "activityLabels": {"jobsLabel": "Showings today", "revenueLabel": "Volume"}
+  },
+  "kingMouse": {
+    "greeting": "Let's find your next deal! Review your investment pipeline, analyze property returns, and track your portfolio performance.",
+    "quickActions": [
+      "Analyze a new investment property",
+      "Calculate cash-on-cash return for a deal",
+      "Run a rental income projection",
+      "Compare investment opportunities side by side",
+      "Send a deal summary to an investor client"
+    ],
+    "systemPrompt": "You are King Mouse, an AI assistant for a real estate investment professional. You help analyze investment properties, calculate returns like cap rate, cash-on-cash, and IRR, manage investor client relationships, track portfolio performance, and source deals. You understand investment analysis, syndication, 1031 exchanges, financing strategies, and market cycle analysis."
+  },
+  "receptionist": {
+    "defaultGreeting": "Thank you for calling {company_name}. We specialize in real estate investment opportunities and portfolio management. How can I assist you today?",
+    "commonReasons": [
+      "Inquire about investment opportunities",
+      "Ask about a specific investment property",
+      "Discuss portfolio strategy",
+      "Learn about 1031 exchange options",
+      "Check on a deal in progress",
+      "Request an investment analysis"
+    ]
+  },
+  "wizard": {
+    "steps": [
+      {"id": "business", "title": "Your practice", "description": "Tell us about your real estate investment business and focus areas."},
+      {"id": "services", "title": "Investment types", "description": "Select your focus: fix-and-flip, buy-and-hold, syndication, wholesale, BRRRR."},
+      {"id": "listings", "title": "Active deals", "description": "Add your current investment properties and deals in progress."},
+      {"id": "pipeline", "title": "Deal sources", "description": "Connect your deal sources: MLS, off-market, auctions, wholesalers, direct mail."},
+      {"id": "branding", "title": "Brand identity", "description": "Upload your logo and position your investment brand."},
+      {"id": "phone", "title": "Phone setup", "description": "Configure your AI receptionist to handle investor and deal inquiries."}
+    ]
+  },
+  "leads": {
+    "serviceTypes": [
+      "Fix-and-flip",
+      "Buy-and-hold rental",
+      "Multi-family investment",
+      "Commercial investment",
+      "Wholesale deal",
+      "1031 Exchange",
+      "Syndication opportunity",
+      "BRRRR strategy"
+    ],
+    "statusLabels": ["New lead", "Showing", "Offer", "Under contract", "Closed"],
+    "sourceLabels": ["Zillow", "Realtor.com", "Referral", "Open house", "Google Ads", "Social media"]
+  },
+  "soul": {
+    "role": "You are King Mouse, an AI assistant for a real estate investment professional.",
+    "capabilities": [
+      "Analyze investment properties with cap rate, NOI, and cash-on-cash returns",
+      "Source and evaluate off-market and on-market deals",
+      "Calculate rehab costs and after-repair values for flips",
+      "Track portfolio performance and rental income",
+      "Manage investor client relationships and communications",
+      "Model financing scenarios and leverage strategies",
+      "Guide 1031 exchange timelines and requirements",
+      "Generate deal summaries and investment memos",
+      "Monitor market trends and emerging investment areas",
+      "Coordinate due diligence, inspections, and closings"
+    ],
+    "terminology": {
+      "listing": "deal",
+      "appointment": "showing",
+      "customer": "investor/seller",
+      "completion": "closing",
+      "product": "investment property",
+      "revenue": "volume"
+    }
+  }
+}
