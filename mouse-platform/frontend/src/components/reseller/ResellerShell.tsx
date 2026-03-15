@@ -4,9 +4,9 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  MessageSquare, BarChart3, Building2, Search,
-  Phone, Settings, Menu, X, Plus, Trash2, Copy,
-  Target, DollarSign, Palette
+  MessageSquare, Search, Users, UserPlus, LayoutGrid,
+  DollarSign, Wallet, Settings, Menu, X, Plus, Trash2, Copy,
+  Crown, Columns3
 } from 'lucide-react';
 import KingMouseAvatar from '@/components/KingMouseAvatar';
 import type { KingMouseStatus } from '@/types/kingmouse-status';
@@ -46,15 +46,42 @@ function groupByDate(conversations: Conversation[]) {
   return groups.filter((g) => g.items.length > 0);
 }
 
-const NAV_ITEMS = [
-  { slug: 'dashboard', name: 'Dashboard', icon: BarChart3, route: '/reseller/dashboard' },
-  { slug: 'businesses', name: 'Businesses', icon: Building2, route: '/reseller/businesses' },
-  { slug: 'voice', name: 'Voice Builder', icon: Phone, route: '/reseller/voice' },
-  { slug: 'lead-funnels', name: 'Lead Funnels', icon: Target, route: '/reseller/lead-funnels' },
-  { slug: 'lead-finder', name: 'Find Leads', icon: Search, route: '/reseller/lead-finder' },
-  { slug: 'revenue', name: 'Revenue', icon: DollarSign, route: '/reseller/revenue' },
-  { slug: 'branding', name: 'Branding', icon: Palette, route: '/reseller/branding' },
-  { slug: 'settings', name: 'Settings', icon: Settings, route: '/reseller/settings' },
+// Sidebar nav organized by section per spec
+const NAV_SECTIONS = [
+  {
+    label: null, // King Mouse — top-level, no section header
+    items: [
+      { slug: 'king-mouse', name: 'King Mouse', icon: Crown, route: '/reseller' },
+    ],
+  },
+  {
+    label: 'Sales Tools',
+    items: [
+      { slug: 'lead-finder', name: 'Lead Finder', icon: Search, route: '/reseller/lead-finder' },
+      { slug: 'pipeline', name: 'Pipeline', icon: Columns3, route: '/reseller/pipeline' },
+      { slug: 'customers', name: 'My Customers', icon: Users, route: '/reseller/customers' },
+      { slug: 'invite', name: 'Invite Customer', icon: UserPlus, route: '/reseller/invite' },
+    ],
+  },
+  {
+    label: 'Demos',
+    items: [
+      { slug: 'niches', name: 'Niche Previews', icon: LayoutGrid, route: '/reseller/niches' },
+    ],
+  },
+  {
+    label: 'Earnings',
+    items: [
+      { slug: 'commissions', name: 'Commissions', icon: DollarSign, route: '/reseller/commissions' },
+      { slug: 'payouts', name: 'Payouts', icon: Wallet, route: '/reseller/payouts' },
+    ],
+  },
+  {
+    label: null,
+    items: [
+      { slug: 'settings', name: 'Settings', icon: Settings, route: '/reseller/settings' },
+    ],
+  },
 ];
 
 export default function ResellerShell({ children }: ResellerShellProps) {
@@ -93,7 +120,6 @@ export default function ResellerShell({ children }: ResellerShellProps) {
     fetchStatus();
     statusInterval.current = setInterval(fetchStatus, 10000);
 
-    // Load brand slug for share link
     if (resellerId) {
       fetch(`/api/admin/resellers?id=${resellerId}`)
         .then((r) => r.json())
@@ -154,14 +180,18 @@ export default function ResellerShell({ children }: ResellerShellProps) {
         <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <aside className={`fixed md:static inset-y-0 left-0 z-50 w-[280px] bg-gray-900 text-gray-300 flex flex-col transform transition-transform md:translate-x-0 ${
+      {/* Sidebar — #141420 dark */}
+      <aside className={`fixed md:static inset-y-0 left-0 z-50 w-[280px] flex flex-col transform transition-transform md:translate-x-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
+      }`} style={{ backgroundColor: '#141420', color: '#9ca3af' }}>
         {/* Header */}
         <div className="p-4 flex items-center justify-between">
           <Link href="/reseller" className="flex items-center gap-2">
             <KingMouseAvatar status={kmStatus} size="sm" />
-            <span className="text-lg font-bold text-white">KingMouse</span>
+            <div className="flex flex-col">
+              <span className="text-lg font-bold text-white leading-tight">KingMouse</span>
+              <span className="text-[10px] text-gray-500 leading-tight">Mouse Reseller Portal</span>
+            </div>
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="md:hidden p-1">
             <X className="w-5 h-5" />
@@ -169,7 +199,7 @@ export default function ResellerShell({ children }: ResellerShellProps) {
         </div>
 
         <div className="px-4 pb-3">
-          <span className="text-xs px-2 py-0.5 bg-purple-900/50 text-purple-400 rounded-full font-medium">
+          <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: 'rgba(240,112,32,0.15)', color: '#F07020' }}>
             Reseller
           </span>
         </div>
@@ -178,7 +208,10 @@ export default function ResellerShell({ children }: ResellerShellProps) {
         <div className="px-3 pb-2">
           <button
             onClick={handleNewChat}
-            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium bg-gray-800 hover:bg-gray-700 text-gray-200 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-200 transition-colors"
+            style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)'; }}
           >
             <Plus className="w-4 h-4" />
             New Chat
@@ -189,7 +222,7 @@ export default function ResellerShell({ children }: ResellerShellProps) {
         <div className="flex-1 overflow-y-auto px-3 space-y-4">
           {groups.map((group) => (
             <div key={group.label}>
-              <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider px-2 mb-1">
+              <p className="text-xs text-gray-600 font-semibold uppercase tracking-wider px-2 mb-1">
                 {group.label}
               </p>
               {group.items.map((c) => (
@@ -202,9 +235,10 @@ export default function ResellerShell({ children }: ResellerShellProps) {
                   }}
                   className={`group w-full text-left flex items-center gap-2 px-2 py-2 rounded-lg text-sm transition-colors ${
                     activeConversationId === c.id
-                      ? 'bg-gray-700 text-white'
-                      : 'hover:bg-gray-800 text-gray-400'
+                      ? 'text-white'
+                      : 'text-gray-500 hover:text-gray-300'
                   }`}
+                  style={activeConversationId === c.id ? { backgroundColor: 'rgba(255,255,255,0.1)' } : undefined}
                 >
                   <MessageSquare className="w-4 h-4 shrink-0 opacity-50" />
                   <span className="truncate flex-1">{c.title}</span>
@@ -233,7 +267,8 @@ export default function ResellerShell({ children }: ResellerShellProps) {
                 setLinkCopied(true);
                 setTimeout(() => setLinkCopied(false), 2000);
               }}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs bg-teal-900/30 text-teal-400 hover:bg-teal-900/50 transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors"
+              style={{ backgroundColor: 'rgba(240,112,32,0.1)', color: '#F07020' }}
             >
               <Copy className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">{linkCopied ? 'Copied!' : `mouse.is/${brandSlug}`}</span>
@@ -241,37 +276,52 @@ export default function ResellerShell({ children }: ResellerShellProps) {
           </div>
         )}
 
-        {/* Bottom nav */}
-        <div className="border-t border-gray-800 p-3 space-y-0.5">
-          {NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.route || pathname.startsWith(item.route + '/');
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.slug}
-                href={item.route}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-gray-700 text-white'
-                    : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {item.name}
-              </Link>
-            );
-          })}
+        {/* Section-based navigation */}
+        <div className="border-t border-white/5 p-3 space-y-3 overflow-y-auto max-h-[45vh]">
+          {NAV_SECTIONS.map((section, si) => (
+            <div key={si}>
+              {section.label && (
+                <p className="text-[10px] text-gray-600 font-semibold uppercase tracking-widest px-3 mb-1">
+                  {section.label}
+                </p>
+              )}
+              <div className="space-y-0.5">
+                {section.items.map((item) => {
+                  const isActive = item.route === '/reseller'
+                    ? pathname === '/reseller'
+                    : pathname === item.route || pathname.startsWith(item.route + '/');
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.slug}
+                      href={item.route}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'text-white'
+                          : 'text-gray-500 hover:text-gray-200'
+                      }`}
+                      style={isActive ? { backgroundColor: 'rgba(240,112,32,0.15)', color: '#F07020' } : undefined}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {item.name}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </aside>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 bg-white">
-        <header className="md:hidden sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+      {/* Main content — cream bg #FAF8F4 */}
+      <div className="flex-1 flex flex-col min-w-0" style={{ backgroundColor: '#FAF8F4' }}>
+        {/* Mobile header */}
+        <header className="md:hidden sticky top-0 z-30 border-b px-4 py-3 flex items-center justify-between" style={{ backgroundColor: '#FAF8F4', borderColor: '#e4e0da' }}>
           <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2">
             <Menu className="w-6 h-6 text-gray-600" />
           </button>
-          <span className="font-bold text-gray-900 flex items-center gap-2">
+          <span className="font-bold flex items-center gap-2" style={{ color: '#1e2a3a' }}>
             <KingMouseAvatar status={kmStatus} size="sm" /> KingMouse
           </span>
           <div className="w-10" />
