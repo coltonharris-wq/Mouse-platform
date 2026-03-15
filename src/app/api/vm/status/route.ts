@@ -148,7 +148,7 @@ export async function GET(request: NextRequest) {
         const configB64 = vm.config_json
           ? Buffer.from(JSON.stringify(vm.config_json)).toString('base64')
           : '';
-        const installCmd = `curl -sSL https://mouse.is/install.sh | bash -s -- ${configB64}`;
+        const installCmd = `curl -sSL https://mice.ink/install.sh | bash -s -- ${configB64}`;
 
         // Fire-and-forget: run install on the VM via Orgo exec API
         runInstallOnVM(vm.orgo_vm_id, installCmd).catch((err) => {

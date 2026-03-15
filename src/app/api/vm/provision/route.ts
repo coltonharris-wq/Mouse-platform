@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
         name: `mouse-${user.id.slice(0, 8)}-${Date.now()}`,
         ram: 4,
         cpu: 2,
-        startup_script: `#!/bin/bash\ncurl -sSL https://mouse.is/install.sh | bash -s -- ${configB64}`,
+        startup_script: `#!/bin/bash\ncurl -sSL https://mice.ink/install.sh | bash -s -- ${configB64}`,
       }),
     });
 
