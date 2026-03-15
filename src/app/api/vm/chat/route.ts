@@ -178,19 +178,26 @@ export async function POST(request: NextRequest) {
     let assistantResponse: string;
 
     if (vm?.orgo_vm_id) {
-      // VM is ready - proxy chat via Orgo exec (ports not externally exposed)
+      // VM is ready — run agent CLI via Orgo exec (gateway is WebSocket-only)
       try {
-        const chatPayload = JSON.stringify({
-          messages,
-          user_id: user.id,
-          profile: {
-            company_name: profile?.company_name,
-            industry: profile?.industry,
-            niche: profile?.niche,
-          },
-        });
-        const payloadB64 = Buffer.from(chatPayload).toString('base64');
-        const pythonCode = `import subprocess,base64,json;payload=base64.b64decode("${payloadB64}");r=subprocess.run(["curl","-sf","-X","POST","-H","Content-Type: application/json","-d",payload.decode(),"http://127.0.0.1:${vm.port}/chat"],capture_output=True,text=True,timeout=30);print(r.stdout if r.returncode==0 else "ERROR:"+r.stderr[-500:])`;
+        const lastUserMsg = message;
+        const sessionId = activeConversationId || 'default';
+        const moonshotKey = process.env.MOONSHOT_API_KEY || '';
+
+        // Build Python code that runs the mouse agent CLI with env vars
+        const msgB64 = Buffer.from(lastUserMsg).toString('base64');
+        const pythonCode = [
+          'import subprocess,json,base64,os,sys',
+          `os.environ['MOONSHOT_API_KEY']='${moonshotKey}'`,
+          `msg=base64.b64decode('${msgB64}').decode()`,
+          `r=subprocess.run(['node','/opt/king-mouse/openclaw.mjs','agent','--message',msg,'--json','--agent','main','--session-id','${sessionId}','--timeout','45'],capture_output=True,text=True,timeout=55,cwd='/opt/king-mouse')`,
+          'if r.returncode==0:',
+          '  data=json.loads(r.stdout)',
+          '  text=data.get("payloads",[{}])[0].get("text","No response")',
+          '  print(json.dumps({"response":text}))',
+          'else:',
+          '  print(json.dumps({"error":r.stderr[-500:]}))',
+        ].join('\n');
 
         const execRes = await fetch(`${ORGO_BASE}/computers/${vm.orgo_vm_id}/exec`, {
           method: 'POST',
@@ -199,7 +206,7 @@ export async function POST(request: NextRequest) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ code: pythonCode }),
-          signal: AbortSignal.timeout(60000),
+          signal: AbortSignal.timeout(90000),
         });
 
         if (!execRes.ok) {
@@ -207,12 +214,15 @@ export async function POST(request: NextRequest) {
         }
 
         const execData = await execRes.json();
-        if (!execData.success || execData.output?.startsWith('ERROR:')) {
-          throw new Error(`VM chat failed: ${execData.output?.slice(0, 200)}`);
+        if (!execData.success) {
+          throw new Error(`Orgo exec failed: ${execData.output?.slice(0, 200)}`);
         }
 
         const vmData = JSON.parse(execData.output.trim());
-        assistantResponse = vmData.response || vmData.content || vmData.message;
+        if (vmData.error) {
+          throw new Error(`Agent error: ${vmData.error.slice(0, 200)}`);
+        }
+        assistantResponse = vmData.response;
       } catch (vmErr) {
         console.error('VM chat failed:', vmErr);
         return NextResponse.json({
