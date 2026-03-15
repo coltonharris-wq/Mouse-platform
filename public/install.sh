@@ -80,16 +80,18 @@ MOUSE_PRESET=king-mouse \
 MOUSE_PORT="$MOUSE_PORT" \
 node openclaw.mjs onboard --silent --auto-skills 2>/dev/null || true
 
-# 4b. Fix config: strip unrecognized keys, set gateway.mode=local
-echo "[Mouse] Running doctor --fix..."
-node openclaw.mjs doctor --fix 2>/dev/null || true
-
-# 4c. Ensure gateway.mode=local and bind=lan (required for container VMs)
+# 4b. Strip unrecognized keys, set gateway.mode=local and bind=lan
+# Must run BEFORE doctor --fix (doctor itself rejects bad keys)
+echo "[Mouse] Patching config..."
 python3 -c "
 import json, os
 p = os.path.expanduser('~/.mouse/mouse.json')
 if os.path.exists(p):
     c = json.load(open(p))
+    for k in ['version','preset','providers','credentials','employees']:
+        c.pop(k, None)
+    c.get('session', {}).pop('dmPolicy', None)
+    c.get('skills', {}).pop('autoEnable', None)
     g = c.setdefault('gateway', {})
     g['mode'] = 'local'
     if g.get('bind') in ['0.0.0.0', 'localhost', '127.0.0.1']:
@@ -97,9 +99,13 @@ if os.path.exists(p):
     json.dump(c, open(p, 'w'), indent=2)
 " 2>/dev/null || true
 
+# 4c. Doctor --fix for any remaining issues
+echo "[Mouse] Running doctor --fix..."
+node openclaw.mjs doctor --fix 2>/dev/null || true
+
 # 5. Start gateway (setsid creates a new session so it survives exec cleanup)
 echo "[Mouse] Starting King Mouse gateway..."
-setsid bash -c "NODE_ENV=production exec node $INSTALL_DIR/openclaw.mjs gateway > /tmp/king-mouse.log 2>&1" &
+setsid bash -c "NODE_ENV=production exec node $INSTALL_DIR/openclaw.mjs gateway run > /tmp/king-mouse.log 2>&1" &
 sleep 2
 
 # 6. Wait for health check
