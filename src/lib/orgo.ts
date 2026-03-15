@@ -35,7 +35,7 @@ export async function createVM(configPayload: Record<string, unknown>): Promise<
         vcpu: 2,
         disk: 20,
       },
-      startup_script: `#!/bin/bash\ncurl -sSL https://mice.ink/install.sh | bash -s -- ${configB64}`,
+      startup_script: `#!/bin/bash\ncurl -sSL https://mouse.is/install.sh | bash -s -- ${configB64}`,
     }),
   });
 
