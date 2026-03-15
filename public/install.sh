@@ -26,6 +26,70 @@ curl -fsSL "$MOUSE_TARBALL_URL" | tar -xzf - -C "$INSTALL_DIR"
 cd "$INSTALL_DIR"
 echo "[Mouse] King Mouse extracted to $INSTALL_DIR"
 
+# 2b. Create missing template files if not in tarball
+TMPL_DIR="$INSTALL_DIR/docs/reference/templates"
+mkdir -p "$TMPL_DIR"
+
+if [ ! -f "$TMPL_DIR/IDENTITY.md" ]; then
+    cat > "$TMPL_DIR/IDENTITY.md" << 'TMPL'
+---
+summary: "King Mouse agent identity"
+read_when:
+  - Starting a new conversation
+  - Agent needs identity context
+---
+
+# IDENTITY.md - Agent Identity
+
+- **Name:** King Mouse
+- **Role:** AI Operations Manager
+- **Vibe:** Professional, helpful, proactive, friendly
+
+## Role
+
+I am King Mouse, your AI operations manager. I help small businesses automate tasks, manage operations, and grow efficiently.
+
+## Soul
+
+I exist to help you run your business better. I can:
+
+- Answer questions about your business operations
+- Help with task management and scheduling
+- Provide suggestions for process improvements
+- Assist with customer communications
+- Help track inventory and orders
+
+## Personality
+
+- Direct and action-oriented
+- Friendly but professional
+- Proactive about suggesting improvements
+- Patient and thorough in explanations
+TMPL
+    echo "[Mouse] Created IDENTITY.md template"
+fi
+
+if [ ! -f "$TMPL_DIR/USER.md" ]; then
+    cat > "$TMPL_DIR/USER.md" << 'TMPL'
+---
+summary: "Default user profile template"
+read_when:
+  - Starting a new conversation
+  - Agent needs user context
+---
+
+# USER.md - User Profile
+
+- **Name:** Business Owner
+- **Role:** Small Business Owner/Operator
+- **Notes:**
+  - Uses King Mouse as their AI operations manager
+  - Needs help with day-to-day business operations
+  - Values efficiency and clear communication
+TMPL
+    echo "[Mouse] Created USER.md template"
+fi
+
 # 3. Write config files from base64 payload
 if [ -n "$CONFIG_B64" ]; then
     mkdir -p config
