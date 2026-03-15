@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase-server';
 import { getVerticalConfig } from '@/lib/config-loader';
-import { extractVmIp } from '@/lib/orgo';
 
+const ORGO_BASE = process.env.ORGO_BASE_URL || 'https://www.orgo.ai/api';
 const HOURS_PER_MESSAGE = 0.002;
 
 function slugify(text: string): string {
@@ -177,29 +177,41 @@ export async function POST(request: NextRequest) {
 
     let assistantResponse: string;
 
-    if (vm?.ip_address) {
-      // VM is ready - proxy to VM
+    if (vm?.orgo_vm_id) {
+      // VM is ready - proxy chat via Orgo exec (ports not externally exposed)
       try {
-        const vmResponse = await fetch(`http://${extractVmIp(vm.ip_address)}:${vm.port}/chat`, {
+        const chatPayload = JSON.stringify({
+          messages,
+          user_id: user.id,
+          profile: {
+            company_name: profile?.company_name,
+            industry: profile?.industry,
+            niche: profile?.niche,
+          },
+        });
+        const payloadB64 = Buffer.from(chatPayload).toString('base64');
+        const pythonCode = `import subprocess,base64,json;payload=base64.b64decode("${payloadB64}");r=subprocess.run(["curl","-sf","-X","POST","-H","Content-Type: application/json","-d",payload.decode(),"http://127.0.0.1:${vm.port}/chat"],capture_output=True,text=True,timeout=30);print(r.stdout if r.returncode==0 else "ERROR:"+r.stderr[-500:])`;
+
+        const execRes = await fetch(`${ORGO_BASE}/computers/${vm.orgo_vm_id}/exec`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages,
-            user_id: user.id,
-            profile: {
-              company_name: profile?.company_name,
-              industry: profile?.industry,
-              niche: profile?.niche,
-            },
-          }),
-          signal: AbortSignal.timeout(30000),
+          headers: {
+            'Authorization': `Bearer ${process.env.ORGO_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ code: pythonCode }),
+          signal: AbortSignal.timeout(60000),
         });
 
-        if (!vmResponse.ok) {
-          throw new Error(`VM responded with status ${vmResponse.status}`);
+        if (!execRes.ok) {
+          throw new Error(`Orgo exec (${execRes.status})`);
         }
 
-        const vmData = await vmResponse.json();
+        const execData = await execRes.json();
+        if (!execData.success || execData.output?.startsWith('ERROR:')) {
+          throw new Error(`VM chat failed: ${execData.output?.slice(0, 200)}`);
+        }
+
+        const vmData = JSON.parse(execData.output.trim());
         assistantResponse = vmData.response || vmData.content || vmData.message;
       } catch (vmErr) {
         console.error('VM chat failed:', vmErr);

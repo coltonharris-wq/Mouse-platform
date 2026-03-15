@@ -1,24 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase-server';
-import { extractVmIp } from '@/lib/orgo';
 
 const ORGO_BASE = process.env.ORGO_BASE_URL || 'https://www.orgo.ai/api';
 
-async function runInstallOnVM(orgoVmId: string, bashCommand: string): Promise<void> {
-  // Orgo exec API expects Python code. We base64-encode the bash command
-  // and write it to a file on the VM, then run it in background.
-  // This avoids multi-layer quoting issues with JSON → Python → bash.
-  const scriptB64 = Buffer.from(
-    `#!/bin/bash\nset -euo pipefail\nexec > /tmp/mouse-install.log 2>&1\n${bashCommand}\n`
-  ).toString('base64');
-
-  const pythonCode = [
-    'import base64, subprocess',
-    `open("/tmp/run-install.sh","wb").write(base64.b64decode("${scriptB64}"))`,
-    'subprocess.Popen(["bash","/tmp/run-install.sh"])',
-    'print("install started in background")',
-  ].join('; ');
-
+/** Run a command on the VM via Orgo exec API (Python wrapper around bash) */
+async function execOnVM(orgoVmId: string, pythonCode: string): Promise<{ success: boolean; output: string }> {
   const res = await fetch(`${ORGO_BASE}/computers/${orgoVmId}/exec`, {
     method: 'POST',
     headers: {
@@ -30,9 +16,35 @@ async function runInstallOnVM(orgoVmId: string, bashCommand: string): Promise<vo
   });
 
   if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`Orgo exec (${res.status}): ${errText.slice(0, 300)}`);
+    return { success: false, output: `HTTP ${res.status}` };
   }
+  const data = await res.json();
+  return { success: data.success ?? false, output: data.output ?? '' };
+}
+
+async function runInstallOnVM(orgoVmId: string, bashCommand: string): Promise<void> {
+  const scriptB64 = Buffer.from(
+    `#!/bin/bash\nset -euo pipefail\nexec > /tmp/mouse-install.log 2>&1\n${bashCommand}\n`
+  ).toString('base64');
+
+  const pythonCode = [
+    'import base64, subprocess',
+    `open("/tmp/run-install.sh","wb").write(base64.b64decode("${scriptB64}"))`,
+    'subprocess.Popen(["bash","/tmp/run-install.sh"])',
+    'print("install started in background")',
+  ].join('; ');
+
+  const result = await execOnVM(orgoVmId, pythonCode);
+  if (!result.success) {
+    throw new Error(`Orgo exec failed: ${result.output}`);
+  }
+}
+
+/** Check gateway health via Orgo exec (internal curl) since VM ports aren't externally exposed */
+async function checkHealthViaExec(orgoVmId: string, port: number): Promise<boolean> {
+  const pythonCode = `import subprocess; r = subprocess.run(["curl", "-sf", "http://127.0.0.1:${port}/health"], capture_output=True, text=True, timeout=5); print("HEALTHY" if r.returncode == 0 else "DOWN")`;
+  const result = await execOnVM(orgoVmId, pythonCode);
+  return result.success && result.output.includes('HEALTHY');
 }
 
 export async function GET(request: NextRequest) {
@@ -103,19 +115,14 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // If VM is provisioning and has an IP, try to trigger install and check health
-    if ((vm.status === 'provisioning' || vm.status === 'installing') && vm.ip_address) {
-      // First check if gateway is already healthy (install already completed)
-      const bareIp = extractVmIp(vm.ip_address);
+    // If VM is provisioning/installing, check health via exec and trigger install if needed
+    if ((vm.status === 'provisioning' || vm.status === 'installing') && vm.ip_address && vm.orgo_vm_id) {
+      // Check health via Orgo exec (internal curl) — ports aren't exposed externally
       let gatewayUp = false;
       try {
-        const healthResponse = await fetch(
-          `http://${bareIp}:${vm.port}/health`,
-          { signal: AbortSignal.timeout(5000) }
-        );
-        gatewayUp = healthResponse.ok;
+        gatewayUp = await checkHealthViaExec(vm.orgo_vm_id, vm.port);
       } catch {
-        // Gateway not up yet
+        // Exec failed — VM may still be booting
       }
 
       if (gatewayUp) {
@@ -159,18 +166,11 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // If VM is ready, ping the health endpoint
-    if (vm.status === 'ready' && vm.ip_address && healthStatus === null) {
+    // If VM is ready, check health via exec
+    if (vm.status === 'ready' && vm.orgo_vm_id && healthStatus === null) {
       try {
-        const bareIp = extractVmIp(vm.ip_address);
-        const healthResponse = await fetch(
-          `http://${bareIp}:${vm.port}/health`,
-          { signal: AbortSignal.timeout(5000) }
-        );
-
-        healthStatus = healthResponse.ok ? 'healthy' : 'unhealthy';
-
-        // Update last health check
+        const healthy = await checkHealthViaExec(vm.orgo_vm_id, vm.port);
+        healthStatus = healthy ? 'healthy' : 'unhealthy';
         await supabase
           .from('vms')
           .update({ last_health_check: new Date().toISOString() })

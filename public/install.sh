@@ -8,7 +8,7 @@ set -euo pipefail
 CONFIG_B64="${1:-}"
 MOUSE_TARBALL_URL="${MOUSE_TARBALL_URL:-https://github.com/coltonharris-wq/mouse/releases/download/v1/mouse-os.tar.gz}"
 INSTALL_DIR="/opt/king-mouse"
-MOUSE_PORT="${MOUSE_PORT:-8080}"
+MOUSE_PORT="${MOUSE_PORT:-18789}"
 
 echo "[Mouse] Setting up King Mouse on VM..."
 
@@ -75,10 +75,6 @@ fi
 
 # 4. Run silent onboard (writes mouse.json, sets up gateway config)
 echo "[Mouse] Running silent onboard..."
-# Kill desktop-api on port 8080 so King Mouse can use it (externally accessible)
-pkill -f desktop-api 2>/dev/null || true
-sleep 1
-
 MOUSE_SILENT=1 \
 MOUSE_PRESET=king-mouse \
 MOUSE_PORT="$MOUSE_PORT" \
@@ -101,12 +97,10 @@ if os.path.exists(p):
     json.dump(c, open(p, 'w'), indent=2)
 " 2>/dev/null || true
 
-# 5. Start gateway (nohup — Orgo VMs are containers without systemd)
+# 5. Start gateway (setsid creates a new session so it survives exec cleanup)
 echo "[Mouse] Starting King Mouse gateway..."
-NODE_ENV=production nohup node "$INSTALL_DIR/openclaw.mjs" gateway \
-    > /tmp/king-mouse.log 2>&1 &
-GATEWAY_PID=$!
-echo "[Mouse] Gateway PID: $GATEWAY_PID"
+setsid bash -c "NODE_ENV=production exec node $INSTALL_DIR/openclaw.mjs gateway > /tmp/king-mouse.log 2>&1" &
+sleep 2
 
 # 6. Wait for health check
 for i in $(seq 1 30); do
@@ -117,5 +111,5 @@ for i in $(seq 1 30); do
     sleep 2
 done
 
-echo "[Mouse] WARNING: Gateway may still be starting. PID: $GATEWAY_PID"
+echo "[Mouse] WARNING: Gateway may still be starting."
 exit 0
