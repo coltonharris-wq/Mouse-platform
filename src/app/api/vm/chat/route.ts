@@ -159,22 +159,6 @@ export async function POST(request: NextRequest) {
       activeConversationId = newConversation.id;
     }
 
-    // Get conversation history for context
-    const { data: history } = await supabase
-      .from('messages')
-      .select('role, content')
-      .eq('conversation_id', activeConversationId)
-      .order('created_at', { ascending: true })
-      .limit(50);
-
-    const messages = [
-      ...(history || []).map((m: { role: string; content: string }) => ({
-        role: m.role,
-        content: m.content,
-      })),
-      { role: 'user', content: message },
-    ];
-
     let assistantResponse: string;
 
     if (vm?.orgo_vm_id) {
