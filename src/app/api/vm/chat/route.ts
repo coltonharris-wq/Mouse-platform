@@ -5,6 +5,9 @@ import { getVerticalConfig } from '@/lib/config-loader';
 const ORGO_BASE = process.env.ORGO_BASE_URL || 'https://www.orgo.ai/api';
 const HOURS_PER_MESSAGE = 0.002;
 
+// Allow up to 60s for agent CLI responses
+export const maxDuration = 60;
+
 function slugify(text: string): string {
   return text.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
@@ -209,13 +212,15 @@ export async function POST(request: NextRequest) {
         }
         assistantResponse = vmData.response;
       } catch (vmErr) {
-        console.error('VM chat failed:', vmErr);
+        const errMsg = vmErr instanceof Error ? vmErr.message : String(vmErr);
+        console.error('VM chat failed:', errMsg);
         return NextResponse.json({
           reply: null,
           conversation_id: activeConversationId,
           error: 'king_mouse_down',
           support_message: 'King Mouse is temporarily unavailable. Please call (910) 515-8927 for immediate human support to get this back online for you ASAP.',
           support_phone: '9105158927',
+          debug: errMsg,
         }, { status: 503 });
       }
     } else {
