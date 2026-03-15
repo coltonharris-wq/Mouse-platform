@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
       kingMouse: verticalConfig?.kingMouse || {},
       receptionist: verticalConfig?.receptionist || {},
       leads: verticalConfig?.leads || {},
+      moonshot_api_key: process.env.MOONSHOT_API_KEY || '',
     };
 
     // Base64 encode config for the install script

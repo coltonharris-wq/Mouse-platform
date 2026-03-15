@@ -31,6 +31,16 @@ if [ -n "$CONFIG_B64" ]; then
     mkdir -p config
     echo "$CONFIG_B64" | base64 -d > config/config.json
 
+    # Write API key file if present in config
+    python3 -c "
+import json
+config = json.load(open('config/config.json'))
+key = config.get('moonshot_api_key', '')
+if key:
+    open('$INSTALL_DIR/.moonshot-key', 'w').write(key)
+    print('[Mouse] API key written')
+" 2>/dev/null || true
+
     # Extract and write SOUL.md, USER.md, agents.md from config payload
     python3 -c "
 import json, sys, os

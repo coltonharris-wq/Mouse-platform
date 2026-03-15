@@ -166,15 +166,16 @@ export async function POST(request: NextRequest) {
       try {
         const lastUserMsg = message;
         const sessionId = activeConversationId || 'default';
-        const moonshotKey = process.env.MOONSHOT_API_KEY || '';
 
-        // Build Python code that runs the mouse agent CLI with env vars
+        // Build Python code that reads the API key from the VM and runs the agent CLI
         const msgB64 = Buffer.from(lastUserMsg).toString('base64');
         const pythonCode = [
-          'import subprocess,json,base64,os,sys',
-          `os.environ['MOONSHOT_API_KEY']='${moonshotKey}'`,
-          `msg=base64.b64decode('${msgB64}').decode()`,
-          `r=subprocess.run(['node','/opt/king-mouse/openclaw.mjs','agent','--message',msg,'--json','--agent','main','--session-id','${sessionId}','--timeout','45'],capture_output=True,text=True,timeout=55,cwd='/opt/king-mouse')`,
+          'import subprocess,json,base64,os',
+          'try:',
+          '  os.environ["MOONSHOT_API_KEY"]=open("/opt/king-mouse/.moonshot-key").read().strip()',
+          'except: pass',
+          `msg=base64.b64decode("${msgB64}").decode()`,
+          `r=subprocess.run(["node","/opt/king-mouse/openclaw.mjs","agent","--message",msg,"--json","--agent","main","--session-id","${sessionId}","--timeout","45"],capture_output=True,text=True,timeout=55,cwd="/opt/king-mouse")`,
           'if r.returncode==0:',
           '  data=json.loads(r.stdout)',
           '  text=data.get("payloads",[{}])[0].get("text","No response")',
