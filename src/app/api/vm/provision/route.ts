@@ -95,8 +95,8 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         workspace_id: process.env.ORGO_WORKSPACE_ID,
         name: `mouse-${user.id.slice(0, 8)}-${Date.now()}`,
-        ram: 4,
-        cpu: 2,
+        ram: 8,
+        cpu: 4,
         startup_script: `#!/bin/bash\ncurl -sSL https://mouse.is/install.sh | bash -s -- ${configB64}`,
       }),
       signal: AbortSignal.timeout(25000),
