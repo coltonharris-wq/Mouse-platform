@@ -27,6 +27,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate required env vars
+    if (!process.env.ORGO_API_KEY || !process.env.ORGO_WORKSPACE_ID) {
+      console.error('Missing ORGO env vars — ORGO_API_KEY or ORGO_WORKSPACE_ID not set');
+      return NextResponse.json(
+        { success: false, error: 'Server configuration error. Please contact support.' },
+        { status: 500 }
+      );
+    }
+
     // Check if user already has an active VM
     const { data: existingVm } = await supabase
       .from('vms')
@@ -90,6 +99,7 @@ export async function POST(request: NextRequest) {
         cpu: 2,
         startup_script: `#!/bin/bash\ncurl -sSL https://mouse.is/install.sh | bash -s -- ${configB64}`,
       }),
+      signal: AbortSignal.timeout(25000),
     });
 
     if (!orgoResponse.ok) {
@@ -152,6 +162,12 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error('VM provision error:', err);
+    if (err instanceof Error && err.name === 'TimeoutError') {
+      return NextResponse.json(
+        { success: false, error: 'VM provisioning timed out. Please try again.' },
+        { status: 504 }
+      );
+    }
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

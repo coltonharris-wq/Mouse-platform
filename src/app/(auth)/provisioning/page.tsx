@@ -71,6 +71,14 @@ export default function ProvisioningPage() {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
+        if (!provisionRes.ok) {
+          const text = await provisionRes.text();
+          let errorMsg = `Provisioning failed (${provisionRes.status})`;
+          try { errorMsg = JSON.parse(text).error || errorMsg; } catch {}
+          setError(errorMsg + '. Please try again or call (910) 515-8927.');
+          return;
+        }
+
         const provisionData = await provisionRes.json();
 
         if (provisionData.success && provisionData.data?.vm_id) {
@@ -89,7 +97,8 @@ export default function ProvisioningPage() {
         }
       } catch (err) {
         console.error('Provisioning error:', err);
-        setError('Something went wrong. Please refresh and try again.');
+        const msg = err instanceof Error ? err.message : 'Unknown error';
+        setError(`Something went wrong (${msg}). Please try again or call (910) 515-8927.`);
       }
     }
 
