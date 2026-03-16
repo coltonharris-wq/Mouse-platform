@@ -30,28 +30,32 @@ fi
 
 echo "[Mouse] Setting up display server..."
 export DEBIAN_FRONTEND=noninteractive
-apt-get update -qq
-apt-get install -y -qq xvfb x11-utils xdotool fluxbox chromium-browser 2>/dev/null || \
-apt-get install -y -qq xvfb x11-utils xdotool fluxbox chromium 2>/dev/null || true
 
-# Start Xvfb virtual display
-if ! pgrep -f "Xvfb :99" >/dev/null 2>&1; then
-    echo "[Mouse] Starting Xvfb display..."
-    Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset &
-    sleep 1
-fi
-export DISPLAY=:99
+# Orgo base images ship with Xvnc on :99 — detect and reuse it
+if DISPLAY=:99 xdpyinfo >/dev/null 2>&1; then
+    echo "[Mouse] Orgo display already running on :99, reusing it"
+    export DISPLAY=:99
+else
+    # No existing display — start our own
+    apt-get update -qq
+    apt-get install -y -qq xvfb x11-utils xdotool chromium-browser 2>/dev/null || \
+    apt-get install -y -qq xvfb x11-utils xdotool chromium 2>/dev/null || true
 
-# Start fluxbox window manager
-if ! pgrep -f fluxbox >/dev/null 2>&1; then
-    echo "[Mouse] Starting fluxbox..."
-    DISPLAY=:99 fluxbox &
-    sleep 1
+    if ! pgrep -f "Xvfb :99" >/dev/null 2>&1; then
+        echo "[Mouse] Starting Xvfb display..."
+        Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset &
+        sleep 1
+    fi
+    export DISPLAY=:99
 fi
+
+# Install xdotool and chromium if not present (needed even with Orgo display)
+apt-get install -y -qq xdotool chromium-browser 2>/dev/null || \
+apt-get install -y -qq xdotool chromium 2>/dev/null || true
 
 # Verify display
 if DISPLAY=:99 xdpyinfo >/dev/null 2>&1; then
-    echo "[Mouse] Display server ready (1920x1080)"
+    echo "[Mouse] Display server ready"
 else
     echo "[Mouse] WARNING: Display server may not be running"
 fi
@@ -62,21 +66,27 @@ echo "[Mouse] Installing OpenClaw (standard)..."
 mkdir -p "$INSTALL_DIR"
 
 # Try npm global install first, then curl installer
-if npm install -g openclaw@latest 2>/dev/null; then
-    echo "[Mouse] OpenClaw installed via npm"
-elif curl -fsSL https://openclaw.ai/install.sh | bash 2>/dev/null; then
-    echo "[Mouse] OpenClaw installed via curl"
+# Note: installers may return non-zero even on success (interactive prompts),
+# so we verify with `which openclaw` after each attempt.
+npm install -g openclaw@latest 2>/dev/null || true
+
+if ! command -v openclaw >/dev/null 2>&1; then
+    echo "[Mouse] npm install didn't land openclaw on PATH, trying curl installer..."
+    curl -fsSL https://openclaw.ai/install.sh | bash 2>/dev/null || true
+fi
+
+if command -v openclaw >/dev/null 2>&1; then
+    echo "[Mouse] OpenClaw installed: $(openclaw --version 2>/dev/null)"
 else
-    echo "[Mouse] WARNING: OpenClaw install failed, falling back to tarball"
-    MOUSE_TARBALL_URL="${MOUSE_TARBALL_URL:-https://github.com/coltonharris-wq/mouse/releases/download/v1/mouse-os.tar.gz}"
-    curl -fsSL "$MOUSE_TARBALL_URL" | tar -xzf - -C "$INSTALL_DIR"
+    echo "[Mouse] ERROR: OpenClaw not found after install attempts"
+    exit 1
 fi
 
 cd "$INSTALL_DIR"
 
-# Run silent onboard
+# Run silent onboard — pipe "y" to bypass interactive security prompt added in v2026.3.13
 echo "[Mouse] Running onboard..."
-MOUSE_SILENT=1 \
+echo "y" | MOUSE_SILENT=1 \
 MOUSE_PRESET=king-mouse \
 MOUSE_PORT="$MOUSE_PORT" \
 DISPLAY=:99 \
@@ -178,40 +188,48 @@ fi
 
 # ── Phase 3b: Patch config for full autonomy ─────────────────────────
 
-echo "[Mouse] Patching config..."
+echo "[Mouse] Writing clean v2026.3+ config (replacing legacy config)..."
 python3 -c "
 import json, os
-# Try both possible config locations
+
+# Read API key from file written by Phase 3
+api_key = ''
+key_path = '$INSTALL_DIR/.moonshot-key'
+if os.path.exists(key_path):
+    api_key = open(key_path).read().strip()
+
+# Find config path (delete legacy, write fresh)
+config_path = os.path.expanduser('~/.mouse/mouse.json')
 for p in [os.path.expanduser('~/.mouse/mouse.json'), os.path.expanduser('~/.openclaw/config.json'), '$INSTALL_DIR/openclaw.json']:
     if os.path.exists(p):
-        c = json.load(open(p))
-        for k in ['version','preset','providers','credentials','employees']:
-            c.pop(k, None)
-        c.get('session', {}).pop('dmPolicy', None)
-        c.get('skills', {}).pop('autoEnable', None)
-        g = c.setdefault('gateway', {})
-        g['mode'] = 'local'
-        if g.get('bind') in ['0.0.0.0', 'localhost', '127.0.0.1']:
-            g['bind'] = 'lan'
-        # Full exec access
-        t = c.setdefault('tools', {})
-        e = t.setdefault('exec', {})
-        e['host'] = 'gateway'
-        e['security'] = 'full'
-        e['ask'] = 'off'
-        # Disable sandbox
-        a = c.setdefault('agents', {})
-        d = a.setdefault('defaults', {})
-        s = d.setdefault('sandbox', {})
-        s['mode'] = 'off'
-        # Enable browser
-        b = c.setdefault('browser', {})
-        b['enabled'] = True
-        # Set model
-        c.setdefault('agent', {})['model'] = 'anthropic/claude-opus-4-6'
-        json.dump(c, open(p, 'w'), indent=2)
-        print(f'[Mouse] Patched {p}')
+        config_path = p
         break
+
+os.makedirs(os.path.dirname(config_path), exist_ok=True)
+
+# Write ONLY valid v2026.3+ keys — no version, preset, providers, credentials,
+# employees, session.dmPolicy, or skills.autoEnable
+config = {
+    'gateway': {
+        'port': int('$MOUSE_PORT'),
+        'bind': 'lan',
+        'controlUi': {'allowedOrigins': ['*']},
+    },
+    'agents': {
+        'defaults': {
+            'model': {'primary': {'provider': 'moonshot', 'name': 'kimi-k2.5'}},
+            'provider': {'apiKey': api_key},
+            'sandbox': {'mode': 'off'},
+        },
+    },
+    'tools': {
+        'exec': {'host': 'local', 'security': 'permissive', 'ask': False},
+    },
+    'browser': {'enabled': True},
+}
+
+json.dump(config, open(config_path, 'w'), indent=2)
+print(f'[Mouse] Config written to {config_path}')
 " 2>/dev/null || true
 
 # Run doctor fix
@@ -277,9 +295,9 @@ fi
 echo "[Mouse] Starting King Mouse gateway..."
 GATEWAY_CMD=""
 if command -v openclaw >/dev/null 2>&1; then
-    GATEWAY_CMD="DISPLAY=:99 NODE_ENV=production openclaw gateway run"
+    GATEWAY_CMD="DISPLAY=:99 NODE_ENV=production openclaw gateway run --allow-unconfigured"
 elif [ -f "$INSTALL_DIR/openclaw.mjs" ]; then
-    GATEWAY_CMD="DISPLAY=:99 NODE_ENV=production node $INSTALL_DIR/openclaw.mjs gateway run"
+    GATEWAY_CMD="DISPLAY=:99 NODE_ENV=production node $INSTALL_DIR/openclaw.mjs gateway run --allow-unconfigured"
 fi
 
 if [ -n "$GATEWAY_CMD" ]; then
@@ -309,6 +327,9 @@ fi
 if pgrep -f "chromium" >/dev/null 2>&1; then
     echo "[Mouse] Chromium running"
 fi
+
+# Signal that provisioning is complete (polled by /api/vm/status and /api/vm/chat)
+touch "$INSTALL_DIR/.provision-complete"
 
 echo "[Mouse] King Mouse is ready on port $MOUSE_PORT"
 exit 0
