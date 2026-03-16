@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseQuery } from '@/lib/supabase-server';
 import { bashExec } from '@/lib/orgo';
 import { checkBalance, deductHours, BILLING_RATES } from '@/lib/billing';
+import { verifyAuth, requireCustomerAccess } from '@/lib/auth';
 
 /**
  * Check if the VM has finished provisioning by looking for the
@@ -31,6 +32,10 @@ export async function GET(request: NextRequest) {
   if (!customerId) {
     return NextResponse.json({ error: 'customer_id required' }, { status: 400 });
   }
+
+  const auth = await verifyAuth(request);
+  const accessError = requireCustomerAccess(auth, customerId);
+  if (accessError) return accessError;
 
   try {
     const logs = await supabaseQuery(
@@ -62,6 +67,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const auth = await verifyAuth(request);
+    const accessError = requireCustomerAccess(auth, customer_id);
+    if (accessError) return accessError;
 
     // ── HOUR ENFORCEMENT ──
     const balanceError = await checkBalance(customer_id, BILLING_RATES.CHAT_MESSAGE);

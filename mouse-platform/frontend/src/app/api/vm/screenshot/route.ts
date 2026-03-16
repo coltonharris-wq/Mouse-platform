@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { takeScreenshot, getComputer } from '@/lib/orgo';
 import { supabaseQuery } from '@/lib/supabase-server';
+import { verifyAuth, requireCustomerAccess } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   const customerId = request.nextUrl.searchParams.get('customer_id');
@@ -13,6 +14,10 @@ export async function GET(request: NextRequest) {
   if (!customerId) {
     return NextResponse.json({ error: 'customer_id required' }, { status: 400 });
   }
+
+  const auth = await verifyAuth(request);
+  const accessError = requireCustomerAccess(auth, customerId);
+  if (accessError) return accessError;
 
   try {
     // Get customer's VM info

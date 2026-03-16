@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseQuery } from '@/lib/supabase-server';
 import { bashExec } from '@/lib/orgo';
 import { checkBalance, deductHours, BILLING_RATES } from '@/lib/billing';
+import { verifyAuth, requireCustomerAccess } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
@@ -42,6 +43,10 @@ export async function POST(
     if (!customer_id || !content) {
       return NextResponse.json({ error: 'customer_id and content required' }, { status: 400 });
     }
+
+    const auth = await verifyAuth(request);
+    const accessError = requireCustomerAccess(auth, customer_id);
+    if (accessError) return accessError;
 
     // ── HOUR ENFORCEMENT ──
     const balanceError = await checkBalance(customer_id, BILLING_RATES.CHAT_MESSAGE);

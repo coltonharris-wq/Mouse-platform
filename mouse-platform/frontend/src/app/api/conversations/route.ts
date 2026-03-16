@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseQuery } from '@/lib/supabase-server';
+import { verifyAuth, requireCustomerAccess } from '@/lib/auth';
 
 /** Resolve customer_id (may be customers.id or auth user_id) to auth user_id */
 async function resolveUserId(customerId: string): Promise<string> {
@@ -35,6 +36,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'customer_id required' }, { status: 400 });
     }
 
+    const auth = await verifyAuth(request);
+    const accessError = requireCustomerAccess(auth, customer_id);
+    if (accessError) return accessError;
+
     const userId = await resolveUserId(customer_id);
 
     const rows = await supabaseQuery('conversations', 'POST', {
@@ -58,6 +63,10 @@ export async function GET(request: NextRequest) {
     if (!customerId) {
       return NextResponse.json({ error: 'customer_id required' }, { status: 400 });
     }
+
+    const auth = await verifyAuth(request);
+    const accessError = requireCustomerAccess(auth, customerId);
+    if (accessError) return accessError;
 
     const userId = await resolveUserId(customerId);
 

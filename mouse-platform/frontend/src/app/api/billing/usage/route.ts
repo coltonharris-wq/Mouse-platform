@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseQuery } from '@/lib/supabase-server';
+import { verifyAuth, requireCustomerAccess } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,6 +17,10 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const auth = await verifyAuth(request);
+    const accessError = requireCustomerAccess(auth, customerId);
+    if (accessError) return accessError;
 
     // Get customer plan info
     const customers = await supabaseQuery(

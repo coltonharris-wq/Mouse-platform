@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getComputer, bashExec } from '@/lib/orgo';
 import { supabaseQuery } from '@/lib/supabase-server';
+import { verifyAuth, requireCustomerAccess } from '@/lib/auth';
 
 /**
  * Check if the VM has finished provisioning by looking for the
@@ -31,6 +32,10 @@ export async function GET(request: NextRequest) {
   if (!customerId) {
     return NextResponse.json({ error: 'customer_id required' }, { status: 400 });
   }
+
+  const auth = await verifyAuth(request);
+  const accessError = requireCustomerAccess(auth, customerId);
+  if (accessError) return accessError;
 
   try {
     // Get customer's VM info
