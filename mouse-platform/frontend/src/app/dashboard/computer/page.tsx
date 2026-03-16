@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Monitor, Maximize, RotateCcw, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
+import { apiFetch } from '@/lib/api-client';
 
 type VMStatus = 'working' | 'idle' | 'offline';
 
@@ -22,7 +23,7 @@ export default function ComputerPage() {
 
   const fetchScreenshot = useCallback(async () => {
     try {
-      const res = await fetch(`/api/vm/screenshot?customer_id=${customerId}`);
+      const res = await apiFetch(`/api/vm/screenshot?customer_id=${customerId}`);
       const data = await res.json();
       if (data.image) setImageUrl(data.image);
       if (data.status) setStatus(data.status as VMStatus);
@@ -42,7 +43,7 @@ export default function ComputerPage() {
   const handleRestart = async () => {
     setRestarting(true);
     try {
-      await fetch(`/api/vm/restart?customer_id=${customerId}`, { method: 'POST' });
+      await apiFetch(`/api/vm/restart?customer_id=${customerId}`, { method: 'POST' });
       // Wait a moment then resume polling
       setTimeout(() => {
         setRestarting(false);

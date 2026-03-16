@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { apiFetch } from '@/lib/api-client';
 
 const STEPS = [
   { label: 'Setting up your workspace...', key: 'workspace' },
@@ -67,7 +68,7 @@ function ProvisioningContent() {
 
     try {
       // Fetch customer info for provisioning
-      const infoRes = await fetch(`/api/vm/status?customer_id=${customerId}`);
+      const infoRes = await apiFetch(`/api/vm/status?customer_id=${customerId}`);
       const infoData = await infoRes.json();
 
       // If already running/ready, redirect immediately
@@ -85,7 +86,7 @@ function ProvisioningContent() {
         // Fetch full customer data from API
         let customerData: Record<string, unknown> = {};
         try {
-          const custRes = await fetch(`/api/customers/${customerId}`);
+          const custRes = await apiFetch(`/api/customers/${customerId}`);
           if (custRes.ok) {
             customerData = await custRes.json();
           }
@@ -94,7 +95,7 @@ function ProvisioningContent() {
         }
 
         // Fire-and-forget: start provisioning without blocking poll
-        fetch('/api/vm/provision', {
+        apiFetch('/api/vm/provision', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -122,7 +123,7 @@ function ProvisioningContent() {
       // Start polling
       pollRef.current = setInterval(async () => {
         try {
-          const res = await fetch(`/api/vm/status?customer_id=${customerId}`);
+          const res = await apiFetch(`/api/vm/status?customer_id=${customerId}`);
           const data = await res.json();
 
           if (data.status === 'running' || data.status === 'ready') {

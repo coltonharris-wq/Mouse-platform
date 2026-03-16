@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Clock, TrendingUp, CreditCard, ArrowUpRight, FileText, Download, AlertTriangle, BarChart3, Loader2, ShoppingCart } from 'lucide-react';
 import { SUBSCRIPTION_PLANS } from '@/lib/plans';
+import { apiFetch } from '@/lib/api-client';
 
 interface UsageData {
   plan: string;
@@ -47,9 +48,9 @@ export default function BillingPage() {
 
     // Fetch usage, invoices, and daily usage in parallel
     Promise.all([
-      fetch(`/api/billing/usage?customer_id=${customerId}`).then((r) => r.json()).catch(() => null),
-      fetch(`/api/billing/invoices?customer_id=${customerId}`).then((r) => r.json()).catch(() => ({ invoices: [] })),
-      fetch(`/api/billing/usage-daily?customer_id=${customerId}`).then((r) => r.json()).catch(() => ({ daily: [] })),
+      apiFetch(`/api/billing/usage?customer_id=${customerId}`).then((r) => r.json()).catch(() => null),
+      apiFetch(`/api/billing/invoices?customer_id=${customerId}`).then((r) => r.json()).catch(() => ({ invoices: [] })),
+      apiFetch(`/api/billing/usage-daily?customer_id=${customerId}`).then((r) => r.json()).catch(() => ({ daily: [] })),
     ]).then(([usageData, invoiceData, dailyData]) => {
       if (usageData) setUsage(usageData);
       setInvoices(invoiceData?.invoices || []);
@@ -216,7 +217,7 @@ export default function BillingPage() {
                 const customerId = sessionStorage.getItem('customer_id') || 'demo';
                 setBuyingHours(pkg.key);
                 try {
-                  const res = await fetch('/api/billing/checkout', {
+                  const res = await apiFetch('/api/billing/checkout', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ customer_id: customerId, topup: pkg.key }),

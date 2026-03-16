@@ -148,12 +148,13 @@ rm -f "\$CONFIG_PATH"
 mkdir -p "\\$(dirname "\$CONFIG_PATH")"
 
 # Persist API key as environment variable (OpenClaw reads MOONSHOT_API_KEY from env)
-echo "MOONSHOT_API_KEY=\$MOONSHOT_KEY" >> /etc/environment
+echo "export MOONSHOT_API_KEY=\$MOONSHOT_KEY" >> /etc/environment
 echo "export MOONSHOT_API_KEY=\$MOONSHOT_KEY" >> /root/.bashrc
 
 cat > "\$CONFIG_PATH" << CONFIGEOF
 {
   "gateway": {
+    "mode": "local",
     "port": \$MOUSE_PORT,
     "bind": "lan",
     "controlUi": { "allowedOrigins": ["*"] }

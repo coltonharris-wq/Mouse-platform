@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Plug, Check, X, Mail, Phone, Calendar, MessageSquare, FileText, Cloud, Camera, ShoppingBag, Briefcase, Loader2, ExternalLink } from 'lucide-react';
+import { apiFetch } from '@/lib/api-client';
 
 interface ConnectionDef {
   key: string;
@@ -35,6 +36,18 @@ interface ConnectionStatus {
 }
 
 export default function ConnectionsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-10 h-10 text-[#0F6B6E] animate-spin" />
+      </div>
+    }>
+      <ConnectionsContent />
+    </Suspense>
+  );
+}
+
+function ConnectionsContent() {
   const searchParams = useSearchParams();
   const [statuses, setStatuses] = useState<Record<string, ConnectionStatus>>({});
   const [loading, setLoading] = useState(true);
@@ -48,7 +61,7 @@ export default function ConnectionsPage() {
 
   const loadStatuses = useCallback(async () => {
     try {
-      const res = await fetch(`/api/connections?customer_id=${customerId}`);
+      const res = await apiFetch(`/api/connections?customer_id=${customerId}`);
       const data = await res.json();
       if (data.connections) {
         setStatuses(data.connections);
@@ -90,7 +103,7 @@ export default function ConnectionsPage() {
     setError(null);
 
     try {
-      const res = await fetch('/api/connections', {
+      const res = await apiFetch('/api/connections', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ customer_id: customerId, service: key, action: 'connect' }),
@@ -129,7 +142,7 @@ export default function ConnectionsPage() {
     setError(null);
 
     try {
-      await fetch('/api/connections', {
+      await apiFetch('/api/connections', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ customer_id: customerId, service: key, action: 'disconnect' }),

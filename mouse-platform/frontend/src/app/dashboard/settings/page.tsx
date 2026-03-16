@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { Save, User, Bell, Users, Check, Download, FileText, Trash2, AlertTriangle, X } from 'lucide-react';
+import { apiFetch } from '@/lib/api-client';
 
 interface AccountInfo {
   business_name: string;
@@ -41,8 +42,8 @@ export default function SettingsPage() {
     setLoading(true);
     try {
       const [accRes, prefRes] = await Promise.all([
-        fetch(`/api/settings/account?customer_id=${customerId}`),
-        fetch(`/api/notifications/preferences?customer_id=${customerId}`),
+        apiFetch(`/api/settings/account?customer_id=${customerId}`),
+        apiFetch(`/api/notifications/preferences?customer_id=${customerId}`),
       ]);
 
       const accData = await accRes.json();
@@ -73,7 +74,7 @@ export default function SettingsPage() {
     setSavingAccount(true);
     setAccountSaved(false);
     try {
-      await fetch('/api/settings/account', {
+      await apiFetch('/api/settings/account', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -100,7 +101,7 @@ export default function SettingsPage() {
     setSavingPrefs(true);
     setPrefsSaved(false);
     try {
-      await fetch('/api/notifications/preferences', {
+      await apiFetch('/api/notifications/preferences', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -372,7 +373,7 @@ function ExportButton({
   const handleExport = async () => {
     setDownloading(true);
     try {
-      const res = await fetch(url);
+      const res = await apiFetch(url);
       const blob = await res.blob();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -413,7 +414,7 @@ function DangerZone({ customerId }: { customerId: string }) {
   const handleCancelSubscription = async () => {
     setCancelling(true);
     try {
-      await fetch(`/api/customers?customer_id=${customerId}&confirmation=DELETE`, {
+      await apiFetch(`/api/customers?customer_id=${customerId}&confirmation=DELETE`, {
         method: 'DELETE',
       });
       setShowCancelModal(false);
@@ -429,7 +430,7 @@ function DangerZone({ customerId }: { customerId: string }) {
     if (deleteInput !== 'DELETE') return;
     setDeleting(true);
     try {
-      await fetch(`/api/customers?customer_id=${customerId}&confirmation=DELETE`, {
+      await apiFetch(`/api/customers?customer_id=${customerId}&confirmation=DELETE`, {
         method: 'DELETE',
       });
       sessionStorage.clear();

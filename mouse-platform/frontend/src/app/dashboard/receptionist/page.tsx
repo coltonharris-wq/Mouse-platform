@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Phone, PhoneCall, Check, Volume2, Send, X, Loader2, ArrowRight, ArrowLeft, Calendar, MessageSquare, Clock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { apiFetch } from '@/lib/api-client';
 
 interface PhoneNumber {
   phone_number: string;
@@ -111,7 +112,7 @@ export default function ReceptionistPage() {
 
   // --- Data loading ---
   useEffect(() => {
-    fetch(`/api/receptionist/config?customer_id=${customerId}`)
+    apiFetch(`/api/receptionist/config?customer_id=${customerId}`)
       .then((r) => r.json())
       .then((data) => {
         if (data.config) setConfig(data.config);
@@ -120,17 +121,17 @@ export default function ReceptionistPage() {
       })
       .catch(() => setLoading(false));
 
-    fetch(`/api/receptionist/calls?customer_id=${customerId}`)
+    apiFetch(`/api/receptionist/calls?customer_id=${customerId}`)
       .then((r) => r.json())
       .then((data) => setCalls(data.calls || []))
       .catch(() => {});
 
-    fetch(`/api/receptionist/appointments?customer_id=${customerId}`)
+    apiFetch(`/api/receptionist/appointments?customer_id=${customerId}`)
       .then((r) => r.json())
       .then((data) => setAppointments(data.appointments || []))
       .catch(() => {});
 
-    fetch(`/api/receptionist/messages?customer_id=${customerId}`)
+    apiFetch(`/api/receptionist/messages?customer_id=${customerId}`)
       .then((r) => r.json())
       .then((data) => setMessages(data.messages || []))
       .catch(() => {});
@@ -148,7 +149,7 @@ export default function ReceptionistPage() {
     if (!areaCode || areaCode.length !== 3) return;
     setSearching(true);
     try {
-      const res = await fetch(`/api/receptionist/phone-numbers/search?area_code=${areaCode}`);
+      const res = await apiFetch(`/api/receptionist/phone-numbers/search?area_code=${areaCode}`);
       const data = await res.json();
       setAvailableNumbers((data.numbers || []).slice(0, 4));
     } catch { /* ignore */ }
@@ -158,7 +159,7 @@ export default function ReceptionistPage() {
   const handlePurchase = async (phoneNumber: string) => {
     setPurchasing(true);
     try {
-      const res = await fetch('/api/receptionist/phone-numbers/purchase', {
+      const res = await apiFetch('/api/receptionist/phone-numbers/purchase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ customer_id: customerId, phone_number: phoneNumber }),
@@ -167,7 +168,7 @@ export default function ReceptionistPage() {
       if (data.success) {
         setOwnedNumbers([{ id: 'new', phone_number: data.phone_number, friendly_name: data.phone_number, status: 'active' }]);
         setWizardStep(3);
-        const configRes = await fetch(`/api/receptionist/config?customer_id=${customerId}`);
+        const configRes = await apiFetch(`/api/receptionist/config?customer_id=${customerId}`);
         const configData = await configRes.json();
         if (configData.config) setConfig(configData.config);
       }
@@ -181,7 +182,7 @@ export default function ReceptionistPage() {
     if (!config) return;
     setSaving(true);
     try {
-      await fetch('/api/receptionist/config', {
+      await apiFetch('/api/receptionist/config', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ customer_id: customerId, ...config }),
@@ -193,7 +194,7 @@ export default function ReceptionistPage() {
   const handleSaveVoiceAndGreeting = async () => {
     setSaving(true);
     try {
-      await fetch('/api/receptionist/config', {
+      await apiFetch('/api/receptionist/config', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -218,7 +219,7 @@ export default function ReceptionistPage() {
     }
     setPreviewingVoice(voiceId);
     try {
-      const res = await fetch('/api/receptionist/voice-preview', {
+      const res = await apiFetch('/api/receptionist/voice-preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ voice_id: voiceId }),
@@ -243,7 +244,7 @@ export default function ReceptionistPage() {
 
   const handleMarkRead = async (messageId: string) => {
     try {
-      await fetch('/api/receptionist/messages', {
+      await apiFetch('/api/receptionist/messages', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message_id: messageId }),
@@ -260,7 +261,7 @@ export default function ReceptionistPage() {
     setHelperMessages((prev) => [...prev, { role: 'user', content: msg }]);
     setHelperSending(true);
     try {
-      const res = await fetch('/api/demo/chat', {
+      const res = await apiFetch('/api/demo/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { RotateCcw, ChevronDown, ChevronUp, Mail, MessageSquare, Loader2, CheckCircle } from 'lucide-react';
+import { apiFetch } from '@/lib/api-client';
 
 const FAQ_ITEMS = [
   {
@@ -47,7 +48,7 @@ export default function HelpPage() {
     setRestarting(true);
     setRestartSuccess(false);
     try {
-      const res = await fetch(`/api/vm/restart?customer_id=${customerId}`, { method: 'POST' });
+      const res = await apiFetch(`/api/vm/restart?customer_id=${customerId}`, { method: 'POST' });
       const data = await res.json();
       if (data.success) {
         setRestartSuccess(true);

@@ -3,18 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Send } from 'lucide-react';
 
-const RESELLER_SYSTEM_PROMPT = `You are KingMouse, a reseller operations assistant. You help resellers:
-- Find and qualify leads
-- Set up new businesses on the platform
-- Track customer performance
-- Set your hourly rate ($4.98-$8.98/hr) and keep the markup
-- Generate branded links
-
-You have access to lead search, business management, and analytics.
-
-When asked about the platform, explain that KingMouse provides AI employees for small businesses across 30 industries, starting at $97/month. Resellers set their own hourly rate between $4.98 and $8.98/hr, and keep the difference above our $4.98/hr base rate.
-
-Keep responses concise — 2-3 paragraphs max.`;
+const RESELLER_SYSTEM_PROMPT = `You are King Mouse, an AI sales assistant for a Mouse Platform reseller. Your job is to help them find leads, write sales scripts, close deals, and maximize their earnings. You have access to their pipeline, customer list, and commission data. Be direct, actionable, and focused on helping them make money. Speak like a sales coach, not a chatbot.`;
 
 interface ChatMessage {
   id: string;
@@ -186,22 +175,22 @@ export default function ResellerChatPage() {
         {messages.length === 0 && !conversationId ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center max-w-md px-4">
-              <div className="text-6xl mb-4">{'\u{1F42D}'}</div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Reseller Command Center</h2>
+              <div className="text-8xl mb-6">{'\u{1F42D}'}</div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">What can I help you sell?</h2>
               <p className="text-gray-500 mb-8">
-                I&apos;m KingMouse, your reseller operations assistant. I can help you find leads, manage businesses, and grow your portfolio.
+                I&apos;m King Mouse, your AI sales assistant. I find leads, write scripts, and help you close.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3">
                 {[
-                  'Find appliance repair businesses in my area',
-                  'How do I set up custom pricing for a client?',
-                  'Show me my profit breakdown',
-                  'Help me create an invite link for a new business',
+                  'Find me hot leads',
+                  'Write a cold call script for a [niche]',
+                  'What deals should I follow up on today?',
+                  'Show me my earnings projection',
                 ].map((suggestion) => (
                   <button
                     key={suggestion}
                     onClick={() => setInput(suggestion)}
-                    className="text-left p-3 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                    className="text-left p-3 rounded-xl border border-gray-200 border-l-2 border-l-[#F07020] text-sm text-gray-600 hover:bg-orange-50 hover:border-gray-300 transition-colors"
                   >
                     {suggestion}
                   </button>
@@ -220,7 +209,7 @@ export default function ResellerChatPage() {
                 )}
                 <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                   msg.role === 'user'
-                    ? 'bg-[#0F6B6E] text-white'
+                    ? 'bg-[#F07020] text-white'
                     : 'bg-gray-100 text-gray-900'
                 }`}>
                   {msg.id === 'typing' ? (
@@ -244,26 +233,26 @@ export default function ResellerChatPage() {
 
       <div className="border-t border-gray-200 bg-white p-4">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-end gap-2 bg-gray-50 rounded-2xl border border-gray-200 px-4 py-2 focus-within:border-[#0F6B6E] focus-within:ring-1 focus-within:ring-[#0F6B6E]">
+          <div className="flex items-end gap-2 bg-gray-50 rounded-2xl border border-gray-200 px-4 py-2 focus-within:border-[#F07020] focus-within:ring-1 focus-within:ring-[#F07020]">
             <textarea
               ref={textareaRef}
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder="Message KingMouse..."
+              placeholder="Message King Mouse..."
               rows={1}
               className="flex-1 bg-transparent resize-none outline-none text-sm text-gray-900 placeholder-gray-400 py-1.5 max-h-[150px]"
             />
             <button
               onClick={handleSend}
               disabled={!input.trim() || sending}
-              className="p-2 rounded-xl bg-[#0F6B6E] text-white disabled:opacity-30 hover:bg-[#0B5456] transition-colors shrink-0"
+              className="p-2 rounded-xl bg-[#F07020] text-white disabled:opacity-30 hover:bg-[#d85f18] transition-colors shrink-0"
             >
               <Send className="w-4 h-4" />
             </button>
           </div>
           <p className="text-xs text-gray-400 text-center mt-2">
-            KingMouse helps you find leads, manage businesses, and grow your reseller portfolio.
+            King Mouse helps you find leads, write scripts, and close deals.
           </p>
         </div>
       </div>

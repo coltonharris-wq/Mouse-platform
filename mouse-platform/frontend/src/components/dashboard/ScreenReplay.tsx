@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Play, Pause, SkipBack, SkipForward, X, Gauge } from 'lucide-react';
+import { apiFetch } from '@/lib/api-client';
 
 interface Screenshot {
   id: string;
@@ -29,7 +30,7 @@ export default function ScreenReplay({ taskId, onClose }: ScreenReplayProps) {
     : 'demo';
 
   useEffect(() => {
-    fetch(`/api/vm/replay/${taskId}?customer_id=${customerId}`)
+    apiFetch(`/api/vm/replay/${taskId}?customer_id=${customerId}`)
       .then((r) => r.json())
       .then((data) => {
         setScreenshots(data.screenshots || []);
