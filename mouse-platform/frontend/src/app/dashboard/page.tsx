@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Send, BarChart3, X, Wifi, WifiOff } from 'lucide-react';
+import { Send, BarChart3, X, Wifi, WifiOff, Phone } from 'lucide-react';
+import Link from 'next/link';
 import DailyWins from '@/components/dashboard/DailyWins';
 import GettingStarted from '@/components/dashboard/GettingStarted';
 import { WIDGET_REGISTRY, DEFAULT_WIDGET_CONFIGS } from '@/components/dashboard/widgets';
@@ -142,7 +143,14 @@ export default function DashboardChatPage() {
         // Remove typing indicator
         setMessages((prev) => prev.filter((m) => m.id !== 'typing'));
 
-        if (res.status === 503) {
+        if (res.status === 402) {
+          setMessages((prev) => [...prev, {
+            id: `sys-${Date.now()}`,
+            role: 'system',
+            content: 'You have no remaining hours. Please go to Billing to purchase more hours before continuing.',
+            created_at: new Date().toISOString(),
+          }]);
+        } else if (res.status === 503) {
           setVmStatus('offline');
           setMessages((prev) => [...prev, {
             id: `sys-${Date.now()}`,
@@ -223,6 +231,37 @@ export default function DashboardChatPage() {
       return <span key={i} dangerouslySetInnerHTML={{ __html: html }} />;
     });
   };
+
+  // Receptionist status for CTA card
+  const [receptionistStatus, setReceptionistStatus] = useState<'loading' | 'none' | 'active'>('loading');
+  const [receptionistPhone, setReceptionistPhone] = useState('');
+  const [receptionistCallsToday, setReceptionistCallsToday] = useState(0);
+
+  useEffect(() => {
+    if (customerId === 'demo') { setReceptionistStatus('none'); return; }
+    fetch(`/api/receptionist/config?customer_id=${customerId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.phone_numbers?.length > 0) {
+          setReceptionistStatus('active');
+          setReceptionistPhone(data.phone_numbers[0].phone_number);
+          // Get today's call count
+          fetch(`/api/receptionist/calls?customer_id=${customerId}`)
+            .then((r) => r.json())
+            .then((cData) => {
+              const today = new Date().toDateString();
+              const todayCalls = (cData.calls || []).filter((c: { created_at: string }) =>
+                new Date(c.created_at).toDateString() === today
+              );
+              setReceptionistCallsToday(todayCalls.length);
+            })
+            .catch(() => {});
+        } else {
+          setReceptionistStatus('none');
+        }
+      })
+      .catch(() => setReceptionistStatus('none'));
+  }, [customerId]);
 
   // Dynamic suggestions from engagement engine
   const [suggestions, setSuggestions] = useState<{ emoji: string; text: string; message: string }[]>([]);
@@ -318,6 +357,45 @@ export default function DashboardChatPage() {
           <div className="overflow-y-auto h-full">
             <div className="max-w-4xl mx-auto px-4 py-8">
               <DailyWins />
+
+              {/* Receptionist CTA Card */}
+              {receptionistStatus === 'none' && (
+                <Link href="/dashboard/receptionist" className="block mb-6">
+                  <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-2xl p-6 hover:shadow-lg transition-shadow">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center shrink-0">
+                        <Phone className="w-7 h-7 text-orange-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-gray-900">Enable AI Receptionist</h3>
+                        <p className="text-lg text-gray-600 mt-0.5">King Mouse answers your calls 24/7. Set up in 60 seconds.</p>
+                      </div>
+                      <span className="text-[#0F6B6E] font-bold text-lg shrink-0">Set up &rarr;</span>
+                    </div>
+                  </div>
+                </Link>
+              )}
+              {receptionistStatus === 'active' && (
+                <Link href="/dashboard/receptionist" className="block mb-6">
+                  <div className="bg-green-50 border border-green-200 rounded-2xl p-5 hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 bg-green-500 rounded-full" />
+                        <Phone className="w-5 h-5 text-green-700" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-lg font-bold text-green-900">{receptionistPhone}</p>
+                        <p className="text-base text-green-700">
+                          {receptionistCallsToday > 0
+                            ? `${receptionistCallsToday} call${receptionistCallsToday !== 1 ? 's' : ''} today`
+                            : 'AI Receptionist active'}
+                        </p>
+                      </div>
+                      <span className="text-green-700 font-semibold text-base">Manage &rarr;</span>
+                    </div>
+                  </div>
+                </Link>
+              )}
 
               {/* Dashboard header with business name */}
               <div className="text-center mb-8">

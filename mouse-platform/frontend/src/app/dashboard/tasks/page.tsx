@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Loader2, Zap, Clock, CheckCircle, ListTodo, PlayCircle } from 'lucide-react';
+import { Loader2, Zap, Clock, CheckCircle, ListTodo, PlayCircle, Plus, X, Send } from 'lucide-react';
 import ScreenReplay from '@/components/dashboard/ScreenReplay';
 
 type TaskTab = 'working' | 'scheduled' | 'completed';
 
 interface TaskItem {
   id: string;
+  title?: string;
   type: string;
   description: string;
   status: string;
@@ -21,27 +22,78 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true);
   const [replayTaskId, setReplayTaskId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const customerId = sessionStorage.getItem('customer_id') || 'demo';
+  // New task form
+  const [showNewTask, setShowNewTask] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newScheduleAt, setNewScheduleAt] = useState('');
+  const [creating, setCreating] = useState(false);
 
-    fetch(`/api/vm/telemetry?customer_id=${customerId}&limit=100`)
+  const customerId = typeof window !== 'undefined'
+    ? sessionStorage.getItem('customer_id') || 'demo'
+    : 'demo';
+
+  const loadTasks = () => {
+    setLoading(true);
+    fetch(`/api/tasks?customer_id=${customerId}`)
       .then((r) => r.json())
       .then((data) => {
-        const items: TaskItem[] = (data.sessions || []).map(
-          (s: { id: string; started_at: string; ended_at?: string; billed_hours: number; status?: string }) => ({
-            id: s.id,
-            type: 'task',
-            description: `Work session: ${(s.billed_hours || 0).toFixed(2)} hours`,
-            status: s.ended_at ? 'completed' : (s.status === 'scheduled' ? 'scheduled' : 'working'),
-            timestamp: s.started_at,
-            billed_hours: s.billed_hours,
+        const items: TaskItem[] = (data.tasks || []).map(
+          (t: { id: string; title?: string; description: string; status: string; timestamp: string; type: string; billed_hours?: number }) => ({
+            id: t.id,
+            title: t.title,
+            type: t.type || 'task',
+            description: t.description || 'Task',
+            status: t.status === 'pending' ? 'scheduled' : t.status === 'running' ? 'working' : t.status,
+            timestamp: t.timestamp,
+            billed_hours: t.billed_hours,
           })
         );
         setTasks(items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
         setLoading(false);
       })
       .catch(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadTasks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleCreateTask = async () => {
+    if (!newDescription.trim()) return;
+    setCreating(true);
+    try {
+      const body: Record<string, string> = {
+        customer_id: customerId,
+        title: newTitle.trim() || newDescription.trim().slice(0, 60),
+        description: newDescription.trim(),
+      };
+      if (newScheduleAt) {
+        body.schedule_at = new Date(newScheduleAt).toISOString();
+      }
+
+      const res = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setShowNewTask(false);
+        setNewTitle('');
+        setNewDescription('');
+        setNewScheduleAt('');
+        loadTasks();
+      } else {
+        alert(data.error || 'Failed to create task');
+      }
+    } catch {
+      alert('Something went wrong. Please try again.');
+    }
+    setCreating(false);
+  };
 
   const filtered = tasks.filter((t) => t.status === tab);
 
@@ -61,7 +113,74 @@ export default function TasksPage() {
 
   return (
     <div>
-      <h1 className="text-4xl font-bold text-[#0B1F3B] mb-8">Tasks</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-4xl font-bold text-[#0B1F3B]">Tasks</h1>
+        <button
+          onClick={() => setShowNewTask(true)}
+          className="flex items-center gap-2 bg-[#0F6B6E] text-white px-5 py-3 rounded-xl text-lg font-semibold hover:bg-[#0B5456] transition-colors"
+        >
+          <Plus className="w-5 h-5" />
+          New Task
+        </button>
+      </div>
+
+      {/* New Task Modal */}
+      {showNewTask && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 relative">
+            <button
+              onClick={() => setShowNewTask(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <h2 className="text-2xl font-bold text-[#0B1F3B] mb-6">Create a Task</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-lg font-medium text-gray-700 mb-1">Title (optional)</label>
+                <input
+                  type="text"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  placeholder="e.g., Send weekly report"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-[#0F6B6E]"
+                />
+              </div>
+              <div>
+                <label className="block text-lg font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  placeholder="Tell King Mouse what to do..."
+                  rows={3}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-[#0F6B6E]"
+                />
+              </div>
+              <div>
+                <label className="block text-lg font-medium text-gray-700 mb-1">Schedule (optional)</label>
+                <input
+                  type="datetime-local"
+                  value={newScheduleAt}
+                  onChange={(e) => setNewScheduleAt(e.target.value)}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-[#0F6B6E]"
+                />
+                <p className="text-base text-gray-400 mt-1">Leave empty to run immediately</p>
+              </div>
+              <button
+                onClick={handleCreateTask}
+                disabled={!newDescription.trim() || creating}
+                className="w-full bg-[#0F6B6E] text-white py-3 rounded-xl text-lg font-semibold hover:bg-[#0B5456] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {creating ? (
+                  <><Loader2 className="w-5 h-5 animate-spin" /> Creating...</>
+                ) : (
+                  <><Send className="w-5 h-5" /> {newScheduleAt ? 'Schedule Task' : 'Run Now'}</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toggle Tabs */}
       <div className="flex gap-2 mb-8">
@@ -122,7 +241,10 @@ export default function TasksPage() {
                    <CheckCircle className="w-5 h-5" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-lg text-gray-900">{task.description}</p>
+                  <p className="text-lg font-medium text-gray-900">{task.title || task.description}</p>
+                  {task.title && task.description !== task.title && (
+                    <p className="text-base text-gray-500 mt-0.5 truncate">{task.description}</p>
+                  )}
                   <p className="text-base text-gray-400 mt-1">
                     {new Date(task.timestamp).toLocaleString()}
                   </p>

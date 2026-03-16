@@ -6,24 +6,32 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { provisionVM } from '@/lib/vm-provision';
+import { supabaseQuery } from '@/lib/supabase-server';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { customer_id, pro_slug, business_name, owner_name, email, location, plan_slug, onboarding_answers } = body;
 
-    if (!customer_id || !pro_slug || !business_name || !owner_name) {
+    if (!customer_id || !pro_slug || !business_name) {
       return NextResponse.json(
-        { error: 'Missing required fields: customer_id, pro_slug, business_name, owner_name' },
+        { error: 'Missing required fields: customer_id, pro_slug, business_name' },
         { status: 400 }
       );
     }
+
+    const resolvedOwnerName = owner_name || 'Business Owner';
+
+    // Set provisioning status immediately so client poll sees it
+    await supabaseQuery('customers', 'PATCH', {
+      vm_status: 'provisioning',
+    }, `id=eq.${customer_id}`);
 
     const result = await provisionVM({
       customer_id,
       pro_slug,
       business_name,
-      owner_name,
+      owner_name: resolvedOwnerName,
       email: email || '',
       location: location || '',
       plan_slug: plan_slug || 'pro',

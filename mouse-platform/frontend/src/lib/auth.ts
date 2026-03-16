@@ -1,5 +1,8 @@
 /**
- * Auth helpers for API route protection
+ * Auth helpers for API route protection.
+ *
+ * Flow: verify JWT → get user_id → look up customer by user_id → verify
+ * the client-supplied customer_id matches.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -7,14 +10,13 @@ import { NextRequest, NextResponse } from 'next/server';
 interface AuthResult {
   authenticated: boolean;
   userId?: string;
-  role?: string;
   customerId?: string;
   error?: NextResponse;
 }
 
 /**
- * Verify Supabase auth from request headers
- * Returns user info or an error response
+ * Verify Supabase auth from request headers.
+ * Resolves the authenticated user's customer_id from the customers table.
  */
 export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
   const authHeader = request.headers.get('authorization');
@@ -38,7 +40,7 @@ export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
   }
 
   try {
-    // Verify token with Supabase
+    // Verify token with Supabase auth
     const res = await fetch(`${supabaseUrl}/auth/v1/user`, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -55,25 +57,30 @@ export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
 
     const user = await res.json();
 
-    // Get profile with role
-    const profileRes = await fetch(
-      `${supabaseUrl}/rest/v1/profiles?id=eq.${user.id}&select=role,customer_id,reseller_id`,
-      {
-        headers: {
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`,
-        },
+    // Resolve customer_id from customers table via user_id
+    let customerId: string | undefined;
+    try {
+      const custRes = await fetch(
+        `${supabaseUrl}/rest/v1/customers?user_id=eq.${user.id}&select=id&limit=1`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+          },
+        }
+      );
+      const customers = await custRes.json();
+      if (Array.isArray(customers) && customers.length > 0) {
+        customerId = customers[0].id;
       }
-    );
-
-    const profiles = await profileRes.json();
-    const profile = profiles?.[0];
+    } catch {
+      // Customer lookup failed — user exists but no customer record
+    }
 
     return {
       authenticated: true,
       userId: user.id,
-      role: profile?.role || 'customer',
-      customerId: profile?.customer_id,
+      customerId,
     };
   } catch {
     return {
@@ -84,24 +91,18 @@ export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
 }
 
 /**
- * Check if user is platform owner
+ * Check if user owns the customer_id they're requesting.
+ * The customer_id from the client must match the one resolved from their JWT.
  */
-export function requirePlatformOwner(auth: AuthResult): NextResponse | null {
+export function requireCustomerAccess(auth: AuthResult, requestedCustomerId: string): NextResponse | null {
   if (!auth.authenticated) return auth.error!;
-  if (auth.role !== 'platform_owner') {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-  }
-  return null;
-}
 
-/**
- * Check if user owns the customer_id
- */
-export function requireCustomerAccess(auth: AuthResult, customerId: string): NextResponse | null {
-  if (!auth.authenticated) return auth.error!;
-  if (auth.role === 'platform_owner') return null; // Admins can access everything
-  if (auth.customerId !== customerId) {
-    return NextResponse.json({ error: 'Access denied' }, { status: 403 });
-  }
-  return null;
+  // Allow if customer_id matches the auth user's customer
+  if (auth.customerId === requestedCustomerId) return null;
+
+  // Also allow if the requestedCustomerId IS their auth user_id
+  // (some routes pass user_id as customer_id)
+  if (auth.userId === requestedCustomerId) return null;
+
+  return NextResponse.json({ error: 'Access denied' }, { status: 403 });
 }
