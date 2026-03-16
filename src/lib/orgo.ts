@@ -100,3 +100,71 @@ export async function checkVMHealth(ipAddress: string, port: number = 18789): Pr
     return false;
   }
 }
+
+// ── Manus-style VM interaction helpers ─────────────────────────────
+
+/** Take a screenshot of the VM via Orgo API */
+export async function takeScreenshot(vmId: string): Promise<{ url?: string; screenshot_base64?: string }> {
+  // Try the /v1/computers/ endpoint first (matches reseller portal pattern)
+  const res = await fetch(`${ORGO_BASE_URL}/v1/computers/${vmId}/screenshot`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${ORGO_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Orgo screenshot error: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+/** Click at coordinates on VM screen */
+export async function clickOnVM(vmId: string, x: number, y: number, double: boolean = false): Promise<void> {
+  const res = await fetch(`${ORGO_BASE_URL}/v1/computers/${vmId}/click`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${ORGO_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ x, y, double }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Orgo click error: ${res.status}`);
+  }
+}
+
+/** Type text on VM */
+export async function typeOnVM(vmId: string, text: string): Promise<void> {
+  const res = await fetch(`${ORGO_BASE_URL}/v1/computers/${vmId}/type`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${ORGO_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ text }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Orgo type error: ${res.status}`);
+  }
+}
+
+/** Press a key on VM */
+export async function pressKeyOnVM(vmId: string, key: string): Promise<void> {
+  const res = await fetch(`${ORGO_BASE_URL}/v1/computers/${vmId}/key`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${ORGO_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ key }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Orgo key error: ${res.status}`);
+  }
+}

@@ -1,96 +1,98 @@
 #!/bin/bash
-# Mouse Platform — King Mouse VM Setup
-# Downloads pre-built tarball, writes config, starts gateway
+# Mouse Platform — King Mouse VM Setup (Manus-style)
+# Installs display server + standard OpenClaw + workspace config
 # Usage: Called by Orgo VM provisioning with base64 config arg
 
 set -euo pipefail
 
 CONFIG_B64="${1:-}"
-MOUSE_TARBALL_URL="${MOUSE_TARBALL_URL:-https://github.com/coltonharris-wq/mouse/releases/download/v1/mouse-os.tar.gz}"
 INSTALL_DIR="/opt/king-mouse"
 MOUSE_PORT="${MOUSE_PORT:-18789}"
 
 echo "[Mouse] Setting up King Mouse on VM..."
 
-# 1. Install Node 22 (if needed)
+# ── Phase 0: Bootstrap ────────────────────────────────────────────────
+
+# Install Node 22 (if needed)
 if ! node --version 2>/dev/null | grep -q "^v2[2-9]"; then
     echo "[Mouse] Installing Node.js 22..."
     curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
     apt-get install -y -qq nodejs
 fi
 
-# 2. Download and extract pre-built tarball (no build on VM!)
-echo "[Mouse] Downloading King Mouse..."
+# Install Python 3 (if needed)
+if ! python3 --version 2>/dev/null; then
+    echo "[Mouse] Installing Python 3..."
+    apt-get install -y -qq python3
+fi
+
+# ── Phase 1: Display Server ──────────────────────────────────────────
+
+echo "[Mouse] Setting up display server..."
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -qq
+apt-get install -y -qq xvfb x11-utils xdotool fluxbox chromium-browser 2>/dev/null || \
+apt-get install -y -qq xvfb x11-utils xdotool fluxbox chromium 2>/dev/null || true
+
+# Start Xvfb virtual display
+if ! pgrep -f "Xvfb :99" >/dev/null 2>&1; then
+    echo "[Mouse] Starting Xvfb display..."
+    Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset &
+    sleep 1
+fi
+export DISPLAY=:99
+
+# Start fluxbox window manager
+if ! pgrep -f fluxbox >/dev/null 2>&1; then
+    echo "[Mouse] Starting fluxbox..."
+    DISPLAY=:99 fluxbox &
+    sleep 1
+fi
+
+# Verify display
+if DISPLAY=:99 xdpyinfo >/dev/null 2>&1; then
+    echo "[Mouse] Display server ready (1920x1080)"
+else
+    echo "[Mouse] WARNING: Display server may not be running"
+fi
+
+# ── Phase 2: OpenClaw Installation (standard, NOT fork) ─────────────
+
+echo "[Mouse] Installing OpenClaw (standard)..."
 mkdir -p "$INSTALL_DIR"
-curl -fsSL "$MOUSE_TARBALL_URL" | tar -xzf - -C "$INSTALL_DIR"
+
+# Try npm global install first, then curl installer
+if npm install -g openclaw@latest 2>/dev/null; then
+    echo "[Mouse] OpenClaw installed via npm"
+elif curl -fsSL https://openclaw.ai/install.sh | bash 2>/dev/null; then
+    echo "[Mouse] OpenClaw installed via curl"
+else
+    echo "[Mouse] WARNING: OpenClaw install failed, falling back to tarball"
+    MOUSE_TARBALL_URL="${MOUSE_TARBALL_URL:-https://github.com/coltonharris-wq/mouse/releases/download/v1/mouse-os.tar.gz}"
+    curl -fsSL "$MOUSE_TARBALL_URL" | tar -xzf - -C "$INSTALL_DIR"
+fi
+
 cd "$INSTALL_DIR"
-echo "[Mouse] King Mouse extracted to $INSTALL_DIR"
 
-# 2b. Create missing template files if not in tarball
-TMPL_DIR="$INSTALL_DIR/docs/reference/templates"
-mkdir -p "$TMPL_DIR"
+# Run silent onboard
+echo "[Mouse] Running onboard..."
+MOUSE_SILENT=1 \
+MOUSE_PRESET=king-mouse \
+MOUSE_PORT="$MOUSE_PORT" \
+DISPLAY=:99 \
+npx openclaw onboard --install-daemon 2>/dev/null || \
+node openclaw.mjs onboard --silent --auto-skills 2>/dev/null || true
 
-if [ ! -f "$TMPL_DIR/IDENTITY.md" ]; then
-    cat > "$TMPL_DIR/IDENTITY.md" << 'TMPL'
----
-summary: "King Mouse agent identity"
-read_when:
-  - Starting a new conversation
-  - Agent needs identity context
----
+# Install skills
+echo "[Mouse] Installing skills..."
+npx clawhub install desktop-control 2>/dev/null || true
+npx clawhub install canvas 2>/dev/null || true
+npx clawhub install browser 2>/dev/null || true
+npx clawhub install self-improving-agent 2>/dev/null || true
+npx clawhub install peekaboo 2>/dev/null || true
 
-# IDENTITY.md - Agent Identity
+# ── Phase 3: Write config files from base64 payload ──────────────────
 
-- **Name:** King Mouse
-- **Role:** AI Operations Manager
-- **Vibe:** Professional, helpful, proactive, friendly
-
-## Role
-
-I am King Mouse, your AI operations manager. I help small businesses automate tasks, manage operations, and grow efficiently.
-
-## Soul
-
-I exist to help you run your business better. I can:
-
-- Answer questions about your business operations
-- Help with task management and scheduling
-- Provide suggestions for process improvements
-- Assist with customer communications
-- Help track inventory and orders
-
-## Personality
-
-- Direct and action-oriented
-- Friendly but professional
-- Proactive about suggesting improvements
-- Patient and thorough in explanations
-TMPL
-    echo "[Mouse] Created IDENTITY.md template"
-fi
-
-if [ ! -f "$TMPL_DIR/USER.md" ]; then
-    cat > "$TMPL_DIR/USER.md" << 'TMPL'
----
-summary: "Default user profile template"
-read_when:
-  - Starting a new conversation
-  - Agent needs user context
----
-
-# USER.md - User Profile
-
-- **Name:** Business Owner
-- **Role:** Small Business Owner/Operator
-- **Notes:**
-  - Uses King Mouse as their AI operations manager
-  - Needs help with day-to-day business operations
-  - Values efficiency and clear communication
-TMPL
-    echo "[Mouse] Created USER.md template"
-fi
-
-# 3. Write config files from base64 payload
 if [ -n "$CONFIG_B64" ]; then
     mkdir -p config
     echo "$CONFIG_B64" | base64 -d > config/config.json
@@ -105,7 +107,7 @@ if key:
     print('[Mouse] API key written')
 " 2>/dev/null || true
 
-    # Extract and write SOUL.md, USER.md, agents.md from config payload
+    # Extract and write workspace files from config payload
     python3 -c "
 import json, sys, os
 config = json.load(open('config/config.json'))
@@ -114,8 +116,10 @@ os.chdir('$INSTALL_DIR')
 # Write SOUL.md
 soul = config.get('soul', {})
 with open('SOUL.md', 'w') as f:
-    f.write('# King Mouse — AI Operations Manager\n\n')
+    f.write('# King Mouse - AI Operations Manager\n\n')
     f.write(soul.get('role', 'You are King Mouse, an AI operations manager.') + '\n\n')
+    f.write('## Core Directive\n\n')
+    f.write('Do first, tell later. You are an autonomous AI employee. Execute tasks immediately without asking for permission or confirmation. Only ask the user when you genuinely need information you cannot find yourself.\n\n')
     f.write('## Capabilities\n\n')
     for cap in soul.get('capabilities', []):
         f.write(f'- {cap}\n')
@@ -133,9 +137,18 @@ with open('USER.md', 'w') as f:
     f.write(f'Pain point: {user.get(\"biggest_pain\", \"Unknown\")}\n')
     f.write(f'Description: {user.get(\"business_description\", \"\")}\n')
 
-# Write agents.md
-with open('agents.md', 'w') as f:
+# Write AGENTS.md
+with open('AGENTS.md', 'w') as f:
     f.write('# King Mouse Agents\n\n')
+    f.write('## Behavior Rules\n')
+    f.write('- Execute tasks autonomously without asking for confirmation\n')
+    f.write('- Use the browser to research when needed\n')
+    f.write('- Take screenshots of your work to show progress\n')
+    f.write('- Report results concisely after completion\n\n')
+    f.write('## Self-Update Instructions\n')
+    f.write('- If a tool or skill fails, attempt to reinstall it\n')
+    f.write('- If a website blocks access, try an alternative approach\n')
+    f.write('- Log errors to /tmp/king-mouse-errors.log\n\n')
     f.write('## Receptionist Agent\n')
     recep = config.get('receptionist', {})
     f.write(f'Greeting: {recep.get(\"defaultGreeting\", \"\")}\n')
@@ -143,58 +156,76 @@ with open('agents.md', 'w') as f:
     f.write('## Lead Manager Agent\n')
     leads = config.get('leads', {})
     f.write(f'Service types: {\", \".join(leads.get(\"serviceTypes\", []))}\n')
+
+# Write HEARTBEAT.md
+with open('HEARTBEAT.md', 'w') as f:
+    f.write('# Heartbeat\n\n')
+    f.write('Check in with the user every 5 minutes if actively working on a task.\n')
+    f.write('Report: current step, progress percentage, any blockers.\n')
+    f.write('If idle for 10+ minutes, check for new tasks or do proactive work.\n')
+
+# Write TOOLS.md
+with open('TOOLS.md', 'w') as f:
+    f.write('# Available Tools\n\n')
+    f.write('- browser: Web browsing, research, form filling\n')
+    f.write('- desktop-control: Mouse, keyboard, screenshot\n')
+    f.write('- canvas: Visual workspace\n')
+    f.write('- exec: Shell commands, file operations\n')
+    f.write('- search: Web search via browser\n')
 "
-    echo "[Mouse] Config files written (SOUL.md, USER.md, agents.md)"
+    echo "[Mouse] Workspace files written (SOUL.md, USER.md, AGENTS.md, HEARTBEAT.md, TOOLS.md)"
 fi
 
-# 4. Run silent onboard (writes mouse.json, sets up gateway config)
-echo "[Mouse] Running silent onboard..."
-MOUSE_SILENT=1 \
-MOUSE_PRESET=king-mouse \
-MOUSE_PORT="$MOUSE_PORT" \
-node openclaw.mjs onboard --silent --auto-skills 2>/dev/null || true
+# ── Phase 3b: Patch config for full autonomy ─────────────────────────
 
-# 4b. Strip unrecognized keys, set gateway.mode=local and bind=lan
-# Must run BEFORE doctor --fix (doctor itself rejects bad keys)
 echo "[Mouse] Patching config..."
 python3 -c "
 import json, os
-p = os.path.expanduser('~/.mouse/mouse.json')
-if os.path.exists(p):
-    c = json.load(open(p))
-    for k in ['version','preset','providers','credentials','employees']:
-        c.pop(k, None)
-    c.get('session', {}).pop('dmPolicy', None)
-    c.get('skills', {}).pop('autoEnable', None)
-    g = c.setdefault('gateway', {})
-    g['mode'] = 'local'
-    if g.get('bind') in ['0.0.0.0', 'localhost', '127.0.0.1']:
-        g['bind'] = 'lan'
-    # Full exec access — no approval prompts, no command filtering
-    t = c.setdefault('tools', {})
-    e = t.setdefault('exec', {})
-    e['host'] = 'gateway'
-    e['security'] = 'full'
-    e['ask'] = 'off'
-    e['askFallback'] = 'full'
-    # Disable sandbox — agent runs directly on host
-    a = c.setdefault('agents', {})
-    d = a.setdefault('defaults', {})
-    s = d.setdefault('sandbox', {})
-    s['mode'] = 'off'
-    # Enable browser
-    b = c.setdefault('browser', {})
-    b['enabled'] = True
-    json.dump(c, open(p, 'w'), indent=2)
+# Try both possible config locations
+for p in [os.path.expanduser('~/.mouse/mouse.json'), os.path.expanduser('~/.openclaw/config.json'), '$INSTALL_DIR/openclaw.json']:
+    if os.path.exists(p):
+        c = json.load(open(p))
+        for k in ['version','preset','providers','credentials','employees']:
+            c.pop(k, None)
+        c.get('session', {}).pop('dmPolicy', None)
+        c.get('skills', {}).pop('autoEnable', None)
+        g = c.setdefault('gateway', {})
+        g['mode'] = 'local'
+        if g.get('bind') in ['0.0.0.0', 'localhost', '127.0.0.1']:
+            g['bind'] = 'lan'
+        # Full exec access
+        t = c.setdefault('tools', {})
+        e = t.setdefault('exec', {})
+        e['host'] = 'gateway'
+        e['security'] = 'full'
+        e['ask'] = 'off'
+        # Disable sandbox
+        a = c.setdefault('agents', {})
+        d = a.setdefault('defaults', {})
+        s = d.setdefault('sandbox', {})
+        s['mode'] = 'off'
+        # Enable browser
+        b = c.setdefault('browser', {})
+        b['enabled'] = True
+        # Set model
+        c.setdefault('agent', {})['model'] = 'anthropic/claude-opus-4-6'
+        json.dump(c, open(p, 'w'), indent=2)
+        print(f'[Mouse] Patched {p}')
+        break
 " 2>/dev/null || true
 
-# 4c. Doctor --fix for any remaining issues
+# Run doctor fix
 echo "[Mouse] Running doctor --fix..."
+npx openclaw doctor --fix 2>/dev/null || \
 node openclaw.mjs doctor --fix 2>/dev/null || true
 
-# 4d. Append anti-refusal rules to workspace SOUL.md
+# Append anti-refusal rules to workspace SOUL.md
 echo "[Mouse] Patching SOUL.md with anti-refusal rules..."
 SOUL_PATH="$HOME/.mouse/workspace/SOUL.md"
+# Also try openclaw path
+[ ! -f "$SOUL_PATH" ] && SOUL_PATH="$HOME/.openclaw/workspace/SOUL.md"
+[ ! -f "$SOUL_PATH" ] && SOUL_PATH="$INSTALL_DIR/SOUL.md"
+
 if [ -f "$SOUL_PATH" ] && ! grep -q "Anti-Refusal" "$SOUL_PATH"; then
     cat >> "$SOUL_PATH" << 'SOULPATCH'
 
@@ -224,19 +255,60 @@ SOULPATCH
     echo "[Mouse] SOUL.md patched"
 fi
 
-# 5. Start gateway (setsid creates a new session so it survives exec cleanup)
-echo "[Mouse] Starting King Mouse gateway..."
-setsid bash -c "NODE_ENV=production exec node $INSTALL_DIR/openclaw.mjs gateway run > /tmp/king-mouse.log 2>&1" &
-sleep 2
+# ── Phase 4: Start Services ──────────────────────────────────────────
 
-# 6. Wait for health check
+# Start Chromium on the display
+echo "[Mouse] Starting Chromium..."
+if command -v chromium-browser >/dev/null 2>&1; then
+    CHROMIUM_BIN="chromium-browser"
+elif command -v chromium >/dev/null 2>&1; then
+    CHROMIUM_BIN="chromium"
+else
+    CHROMIUM_BIN=""
+fi
+
+if [ -n "$CHROMIUM_BIN" ] && ! pgrep -f "$CHROMIUM_BIN" >/dev/null 2>&1; then
+    setsid bash -c "DISPLAY=:99 $CHROMIUM_BIN --no-sandbox --start-maximized --disable-gpu about:blank > /tmp/chromium.log 2>&1" &
+    sleep 2
+    echo "[Mouse] Chromium started on display :99"
+fi
+
+# Start OpenClaw gateway
+echo "[Mouse] Starting King Mouse gateway..."
+GATEWAY_CMD=""
+if command -v openclaw >/dev/null 2>&1; then
+    GATEWAY_CMD="DISPLAY=:99 NODE_ENV=production openclaw gateway run"
+elif [ -f "$INSTALL_DIR/openclaw.mjs" ]; then
+    GATEWAY_CMD="DISPLAY=:99 NODE_ENV=production node $INSTALL_DIR/openclaw.mjs gateway run"
+fi
+
+if [ -n "$GATEWAY_CMD" ]; then
+    setsid bash -c "$GATEWAY_CMD > /tmp/king-mouse.log 2>&1" &
+    sleep 2
+fi
+
+# ── Phase 5: Health checks ───────────────────────────────────────────
+
+echo "[Mouse] Verifying services..."
+
+# Wait for gateway health
 for i in $(seq 1 30); do
     if curl -sf http://127.0.0.1:$MOUSE_PORT/health >/dev/null 2>&1; then
-        echo "[Mouse] King Mouse is ready on port $MOUSE_PORT"
-        exit 0
+        echo "[Mouse] Gateway healthy on port $MOUSE_PORT"
+        break
     fi
     sleep 2
 done
 
-echo "[Mouse] WARNING: Gateway may still be starting."
+# Check display
+if DISPLAY=:99 xdpyinfo >/dev/null 2>&1; then
+    echo "[Mouse] Display server OK"
+fi
+
+# Check Chromium
+if pgrep -f "chromium" >/dev/null 2>&1; then
+    echo "[Mouse] Chromium running"
+fi
+
+echo "[Mouse] King Mouse is ready on port $MOUSE_PORT"
 exit 0

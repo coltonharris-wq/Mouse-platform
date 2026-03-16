@@ -309,11 +309,31 @@ export async function POST(request: NextRequest) {
       })
       .eq('user_id', user.id);
 
+    // Infer if King Mouse is doing computer work (browser, desktop, search, file ops)
+    const computerKeywords = ['search', 'brows', 'website', 'click', 'open', 'navigat', 'download', 'file', 'screen', 'desktop', 'type', 'url', 'google', 'research'];
+    const lowerResponse = assistantResponse.toLowerCase();
+    const lowerMessage = message.toLowerCase();
+    const computerActive = computerKeywords.some((kw) => lowerResponse.includes(kw) || lowerMessage.includes(kw));
+
+    // Generate task steps from the response (parse numbered steps or infer from content)
+    const steps: Array<{ name: string; status: string }> = [];
+    const stepMatches = assistantResponse.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*|[-*]\s+)(.+)/g);
+    if (stepMatches) {
+      stepMatches.slice(0, 8).forEach((match, i) => {
+        const name = match.replace(/^\s*(?:\d+[\.\)]\s*|[-*]\s+)/, '').trim();
+        if (name.length > 5 && name.length < 200) {
+          steps.push({ name, status: i === 0 ? 'in_progress' : 'pending' });
+        }
+      });
+    }
+
     return NextResponse.json({
       reply: assistantResponse,
       conversation_id: activeConversationId,
       hours_used: hoursUsed,
       hours_remaining: workHours.remaining - hoursUsed,
+      computer_active: computerActive,
+      steps: steps.length > 0 ? steps : undefined,
     });
   } catch (err) {
     console.error('Chat error:', err);

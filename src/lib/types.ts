@@ -191,6 +191,46 @@ export interface UsageEvent {
   created_at: string;
 }
 
+// ── Manus-style types ──────────────────────────────────────────────
+
+export interface VMActivity {
+  id: string;
+  action: 'search' | 'browse' | 'type' | 'click' | 'think' | 'file_op' | 'system';
+  description: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  timestamp: string;
+}
+
+export interface TaskStep {
+  name: string;
+  number: number;
+  total: number;
+  status: 'pending' | 'in_progress' | 'completed';
+  sub_actions: Array<{ icon: string; text: string }>;
+}
+
+export interface ScreenshotResponse {
+  image: string | null;
+  status: 'working' | 'idle' | 'offline';
+  current_task: string | null;
+  last_active: string | null;
+}
+
+export interface ActivityResponse {
+  activities: VMActivity[];
+  current_step: { name: string; number: number; total: number } | null;
+  elapsed_seconds: number;
+}
+
+export interface VMActionPayload {
+  type: 'click' | 'type' | 'key';
+  x?: number;
+  y?: number;
+  text?: string;
+  key?: string;
+  double?: boolean;
+}
+
 // Industry data for the landing page
 export const INDUSTRIES = [
   { id: 'construction', name: 'Construction', icon: 'HardHat', color: '#F07020' },
