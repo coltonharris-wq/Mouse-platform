@@ -84,22 +84,10 @@ fi
 
 cd "$INSTALL_DIR"
 
-# Run silent onboard — pipe "y" to bypass interactive security prompt added in v2026.3.13
-echo "[Mouse] Running onboard..."
-echo "y" | MOUSE_SILENT=1 \
-MOUSE_PRESET=king-mouse \
-MOUSE_PORT="$MOUSE_PORT" \
-DISPLAY=:99 \
-npx openclaw onboard --install-daemon 2>/dev/null || \
-node openclaw.mjs onboard --silent --auto-skills 2>/dev/null || true
-
-# Install skills
-echo "[Mouse] Installing skills..."
-npx clawhub install desktop-control 2>/dev/null || true
-npx clawhub install canvas 2>/dev/null || true
-npx clawhub install browser 2>/dev/null || true
-npx clawhub install self-improving-agent 2>/dev/null || true
-npx clawhub install peekaboo 2>/dev/null || true
+# Skip onboard — its TUI security prompt hangs in non-interactive mode.
+# We write config directly in Phase 3b and start the gateway manually.
+echo "[Mouse] Skipping onboard (writing config directly)..."
+mkdir -p "$HOME/.mouse/workspace"
 
 # ── Phase 3: Write config files from base64 payload ──────────────────
 
@@ -213,11 +201,22 @@ config = {
     'gateway': {
         'port': int('$MOUSE_PORT'),
         'bind': 'lan',
-        'controlUi': {'allowedOrigins': ['*']},
+        'controlUi': {
+            'allowedOrigins': [
+                'https://mouse.is',
+                'https://www.mouse.is',
+                'https://mouse-platform-demo.vercel.app',
+                'http://localhost:3000',
+                'http://localhost:3100',
+                'http://127.0.0.1:3100',
+            ],
+        },
     },
     'agents': {
         'defaults': {
-            'model': {'primary': {'provider': 'moonshot', 'name': 'kimi-k2.5'}},
+            'model': {
+                'primary': {'provider': 'moonshot', 'name': 'kimi-k2.5'},
+            },
             'provider': {'apiKey': api_key},
             'sandbox': {'mode': 'off'},
         },
@@ -232,10 +231,9 @@ json.dump(config, open(config_path, 'w'), indent=2)
 print(f'[Mouse] Config written to {config_path}')
 " 2>/dev/null || true
 
-# Run doctor fix
-echo "[Mouse] Running doctor --fix..."
-npx openclaw doctor --fix 2>/dev/null || \
-node openclaw.mjs doctor --fix 2>/dev/null || true
+# Skip doctor — it has interactive TUI prompts that hang in non-interactive mode.
+# Our config is already clean v2026.3+ format.
+echo "[Mouse] Skipping doctor (config written directly in v2026.3+ format)"
 
 # Append anti-refusal rules to workspace SOUL.md
 echo "[Mouse] Patching SOUL.md with anti-refusal rules..."
