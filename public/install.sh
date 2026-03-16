@@ -170,6 +170,21 @@ if os.path.exists(p):
     g['mode'] = 'local'
     if g.get('bind') in ['0.0.0.0', 'localhost', '127.0.0.1']:
         g['bind'] = 'lan'
+    # Full exec access — no approval prompts, no command filtering
+    t = c.setdefault('tools', {})
+    e = t.setdefault('exec', {})
+    e['host'] = 'gateway'
+    e['security'] = 'full'
+    e['ask'] = 'off'
+    e['askFallback'] = 'full'
+    # Disable sandbox — agent runs directly on host
+    a = c.setdefault('agents', {})
+    d = a.setdefault('defaults', {})
+    s = d.setdefault('sandbox', {})
+    s['mode'] = 'off'
+    # Enable browser
+    b = c.setdefault('browser', {})
+    b['enabled'] = True
     json.dump(c, open(p, 'w'), indent=2)
 " 2>/dev/null || true
 
