@@ -105,6 +105,15 @@ export async function POST(request: NextRequest) {
     if (!orgoResponse.ok) {
       const errorData = await orgoResponse.text();
       console.error(`Orgo create computer error (${orgoResponse.status}):`, errorData);
+
+      // Detect capacity exhaustion and return a specific error code
+      if (errorData.includes('no servers available')) {
+        return NextResponse.json(
+          { success: false, error: 'no_capacity' },
+          { status: 503 }
+        );
+      }
+
       return NextResponse.json(
         { success: false, error: `Failed to provision VM (${orgoResponse.status}): ${errorData.slice(0, 200)}` },
         { status: 502 }
