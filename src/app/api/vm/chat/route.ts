@@ -3,7 +3,12 @@ import { createServiceClient } from '@/lib/supabase-server';
 import { getVerticalConfig } from '@/lib/config-loader';
 
 const ORGO_BASE = process.env.ORGO_BASE_URL || 'https://www.orgo.ai/api';
-const HOURS_PER_MESSAGE = 0.002;
+
+// Token-based pricing
+const INPUT_COST_PER_MILLION = 6.00;   // $6.00 per 1M input tokens
+const OUTPUT_COST_PER_MILLION = 30.00; // $30.00 per 1M output tokens
+const DOLLARS_PER_HOUR = 4.98;         // 1 work hour = $4.98
+const CHARS_PER_TOKEN = 4;             // estimation fallback when provider returns 0
 
 // Allow up to 60s for agent CLI responses
 export const maxDuration = 60;
@@ -115,7 +120,7 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .single();
 
-    if (!workHours || workHours.remaining < HOURS_PER_MESSAGE) {
+    if (!workHours || workHours.remaining <= 0) {
       return NextResponse.json(
         { success: false, error: 'Insufficient work hours. Please purchase more hours.' },
         { status: 402 }
@@ -163,6 +168,8 @@ export async function POST(request: NextRequest) {
     }
 
     let assistantResponse: string;
+    let hoursUsed = 0;
+    let tokenUsage = { inputTokens: 0, outputTokens: 0, inputCost: 0, outputCost: 0 };
 
     if (vm?.orgo_vm_id) {
       // VM is ready — run agent CLI via Orgo exec (gateway is WebSocket-only)
@@ -182,7 +189,10 @@ export async function POST(request: NextRequest) {
           'if r.returncode==0:',
           '  data=json.loads(r.stdout)',
           '  text=data.get("payloads",[{}])[0].get("text","No response")',
-          '  print(json.dumps({"response":text}))',
+          '  meta=data.get("meta",{})',
+          '  usage=meta.get("agentMeta",{}).get("lastCallUsage",{})',
+          '  sp=meta.get("systemPromptReport",{}).get("systemPrompt",{})',
+          '  print(json.dumps({"response":text,"input_tokens":usage.get("input",0),"output_tokens":usage.get("output",0),"system_prompt_chars":sp.get("chars",0),"response_chars":len(text)}))',
           'else:',
           '  print(json.dumps({"error":r.stderr[-500:]}))',
         ].join('\n');
@@ -211,6 +221,25 @@ export async function POST(request: NextRequest) {
           throw new Error(`Agent error: ${vmData.error.slice(0, 200)}`);
         }
         assistantResponse = vmData.response;
+
+        // Extract token usage (estimate from chars if provider returns 0)
+        let inputTokens = vmData.input_tokens || 0;
+        let outputTokens = vmData.output_tokens || 0;
+
+        if (inputTokens === 0) {
+          const systemChars = vmData.system_prompt_chars || 0;
+          inputTokens = Math.ceil((systemChars + message.length) / CHARS_PER_TOKEN);
+        }
+        if (outputTokens === 0) {
+          const responseChars = vmData.response_chars || assistantResponse.length;
+          outputTokens = Math.ceil(responseChars / CHARS_PER_TOKEN);
+        }
+
+        // Calculate cost in dollars then convert to work hours
+        const inputCost = (inputTokens / 1_000_000) * INPUT_COST_PER_MILLION;
+        const outputCost = (outputTokens / 1_000_000) * OUTPUT_COST_PER_MILLION;
+        hoursUsed = (inputCost + outputCost) / DOLLARS_PER_HOUR;
+        tokenUsage = { inputTokens, outputTokens, inputCost, outputCost };
       } catch (vmErr) {
         const errMsg = vmErr instanceof Error ? vmErr.message : String(vmErr);
         console.error('VM chat failed:', errMsg);
@@ -260,22 +289,22 @@ export async function POST(request: NextRequest) {
       .update({ updated_at: new Date().toISOString() })
       .eq('id', activeConversationId);
 
-    // Log usage event
+    // Log usage event with token details
     await supabase
       .from('usage_events')
       .insert({
         user_id: user.id,
         service: 'king_mouse_chat',
-        description: `Chat message in conversation ${activeConversationId}`,
-        hours_used: HOURS_PER_MESSAGE,
+        description: `Chat message in conversation ${activeConversationId} (${tokenUsage.inputTokens} in / ${tokenUsage.outputTokens} out tokens)`,
+        hours_used: hoursUsed,
       });
 
     // Deduct work hours
     await supabase
       .from('work_hours')
       .update({
-        total_used: workHours.total_used + HOURS_PER_MESSAGE,
-        remaining: workHours.remaining - HOURS_PER_MESSAGE,
+        total_used: workHours.total_used + hoursUsed,
+        remaining: workHours.remaining - hoursUsed,
         updated_at: new Date().toISOString(),
       })
       .eq('user_id', user.id);
@@ -283,8 +312,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       reply: assistantResponse,
       conversation_id: activeConversationId,
-      hours_used: HOURS_PER_MESSAGE,
-      hours_remaining: workHours.remaining - HOURS_PER_MESSAGE,
+      hours_used: hoursUsed,
+      hours_remaining: workHours.remaining - hoursUsed,
     });
   } catch (err) {
     console.error('Chat error:', err);
