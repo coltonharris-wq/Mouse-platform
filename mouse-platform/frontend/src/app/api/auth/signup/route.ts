@@ -9,6 +9,7 @@ import { supabaseQuery } from '@/lib/supabase-server';
 
 export async function POST(request: NextRequest) {
   try {
+    const body = await request.json();
     const {
       email,
       password,
@@ -20,7 +21,19 @@ export async function POST(request: NextRequest) {
       pro_template_id: clientProTemplateId,
       session_token,
       demo_chat_transcript,
-    } = await request.json();
+      // Questionnaire fields (deployed signup flow)
+      full_name,
+      company_name,
+      team_size,
+      tools_used,
+      biggest_pain,
+      business_description,
+      location,
+    } = body;
+
+    // Bridge naming: deployed sends full_name/company_name, local sends owner_name/business_name
+    const resolvedOwnerName = owner_name || full_name || '';
+    const resolvedBusinessName = business_name || company_name || '';
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
@@ -49,8 +62,8 @@ export async function POST(request: NextRequest) {
         email,
         password,
         data: {
-          business_name: business_name || '',
-          owner_name: owner_name || '',
+          business_name: resolvedBusinessName,
+          owner_name: resolvedOwnerName,
           phone: phone || '',
         },
       }),
@@ -87,17 +100,28 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 3. Create customers row
+    // 3. Build onboarding_answers from questionnaire fields
+    const onboardingAnswers: Record<string, unknown> = {};
+    if (business_description) onboardingAnswers.business_description = business_description;
+    if (biggest_pain) onboardingAnswers.biggest_pain = biggest_pain;
+    if (tools_used) onboardingAnswers.tools_used = tools_used;
+    if (team_size) onboardingAnswers.team_size = team_size;
+
+    // 4. Create customers row
     const customerData: Record<string, unknown> = {
       user_id: userId,
       email,
-      business_name: business_name || '',
-      owner_name: owner_name || '',
+      business_name: resolvedBusinessName,
+      owner_name: resolvedOwnerName,
+      company_name: resolvedBusinessName,
       phone: phone || null,
       industry,
       niche,
+      location: location || null,
       pro_template_id: proTemplateId,
       demo_chat_transcript: demo_chat_transcript || [],
+      onboarding_answers: onboardingAnswers,
+      vm_status: 'pending',
       provisioning_status: 'pending',
       status: 'active',
     };
@@ -109,7 +133,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create customer record' }, { status: 500 });
     }
 
-    // 4. Link demo_session if session_token provided
+    // 5. Link demo_session if session_token provided
     if (session_token) {
       try {
         await supabaseQuery(
@@ -126,13 +150,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 5. Create profile row for auth
+    // 6. Create profile row for auth (with full questionnaire data for backward compat)
     try {
       await supabaseQuery('profiles', 'POST', {
         id: userId,
         role: 'customer',
         customer_id: customerId,
         email,
+        full_name: resolvedOwnerName,
+        company_name: resolvedBusinessName,
+        team_size: team_size || null,
+        tools_used: tools_used || null,
+        biggest_pain: biggest_pain || null,
+        business_description: business_description || null,
+        location: location || null,
       });
     } catch {
       // Profile may already exist via trigger

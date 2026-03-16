@@ -7,6 +7,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseQuery } from '@/lib/supabase-server';
 import { bashExec } from '@/lib/orgo';
+import { checkBalance, deductHours, BILLING_RATES } from '@/lib/billing';
+
+/**
+ * Check if the VM has finished provisioning by looking for the
+ * .provision-complete marker written by install.sh Phase 6.
+ */
+async function checkProvisionComplete(computerId: string): Promise<boolean> {
+  try {
+    const result = await bashExec(
+      computerId,
+      'cat /opt/king-mouse/.provision-complete 2>/dev/null',
+      5
+    );
+    return result.success && result.data?.output?.trim() === 'SUCCESS';
+  } catch {
+    return false;
+  }
+}
 
 export async function GET(request: NextRequest) {
   const customerId = request.nextUrl.searchParams.get('customer_id');
@@ -45,6 +63,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ── HOUR ENFORCEMENT ──
+    const balanceError = await checkBalance(customer_id, BILLING_RATES.CHAT_MESSAGE);
+    if (balanceError) {
+      return NextResponse.json(
+        { error: 'You have no remaining hours. Please purchase more hours to continue using King Mouse.', balance_error: true },
+        { status: 402 }
+      );
+    }
+
     // Look up customer and VM status
     const customers = await supabaseQuery(
       'customers',
@@ -62,12 +89,31 @@ export async function POST(request: NextRequest) {
 
     const customer = customers[0];
 
-    // If VM is not running, return error — NO fallback
-    if (customer.vm_status !== 'running') {
-      return NextResponse.json(
-        { error: 'Your AI employee is currently offline. Please contact support.' },
-        { status: 503 }
-      );
+    // If VM is not ready, check if provisioning just completed
+    if (customer.vm_status !== 'ready' && customer.vm_status !== 'running') {
+      if (
+        (customer.vm_status === 'provisioning' || customer.vm_status === 'installing') &&
+        customer.vm_computer_id
+      ) {
+        const complete = await checkProvisionComplete(customer.vm_computer_id);
+        if (complete) {
+          // Provisioning just finished — update status and proceed
+          await supabaseQuery('customers', 'PATCH',
+            { vm_status: 'ready' },
+            `id=eq.${customer_id}`
+          );
+        } else {
+          return NextResponse.json(
+            { error: 'Your AI employee is still being set up. Please wait a few minutes.' },
+            { status: 503 }
+          );
+        }
+      } else {
+        return NextResponse.json(
+          { error: 'Your AI employee is currently offline. Please contact support.' },
+          { status: 503 }
+        );
+      }
     }
 
     if (!customer.vm_computer_id) {
@@ -77,12 +123,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send message to VM via OpenClaw CLI on the VM
+    // Send message to VM via OpenClaw agent CLI on the VM
+    // v2026.3.13: 'openclaw chat' does not exist. Use 'openclaw agent --session-id --message --json'
     const escapedMessage = message.replace(/'/g, "'\\''").replace(/\\/g, '\\\\').replace(/\n/g, '\\n');
+    const sessionId = `km-${customer_id}`;
     const result = await bashExec(
       customer.vm_computer_id,
-      `cd /opt/kingmouse/workspace && timeout 30 openclaw chat -m '${escapedMessage}' --json 2>/dev/null || echo '${escapedMessage}' | openclaw chat --json 2>/dev/null || echo '{"response":"I am having trouble right now. Please try again in a moment.","error":true}'`,
-      35
+      `cd /opt/king-mouse/workspace && source /etc/environment 2>/dev/null; timeout 45 openclaw agent --session-id '${sessionId}' --message '${escapedMessage}' --json 2>&1 || echo '{"payloads":[{"text":"I am having trouble right now. Please try again in a moment."}],"error":true}'`,
+      50
     );
 
     if (!result.success || !result.data) {
@@ -98,13 +146,32 @@ export async function POST(request: NextRequest) {
     try {
       const parsed = JSON.parse(result.data.output);
       if (parsed.error === true) {
-        response = parsed.response || 'I am having trouble right now. Please try again.';
+        // Fallback error response
+        response = parsed.payloads?.[0]?.text || parsed.response || 'I am having trouble right now. Please try again.';
+      } else if (parsed.payloads) {
+        // OpenClaw v2026.3.13 agent --json format: { payloads: [{ text: "..." }], meta: {...} }
+        response = parsed.payloads.map((p: { text?: string }) => p.text).filter(Boolean).join('\n');
+        actionsTaken = parsed.meta?.agentMeta?.actions || [];
       } else {
         response = parsed.response || parsed.message || result.data.output;
         actionsTaken = parsed.actions_taken || [];
       }
     } catch {
+      // Raw text output
       response = result.data.output;
+    }
+
+    // ── DEDUCT HOURS ──
+    try {
+      await deductHours(
+        customer_id,
+        BILLING_RATES.CHAT_MESSAGE,
+        'king_mouse_chat',
+        `Chat: ${message.slice(0, 100)}`
+      );
+    } catch (billErr) {
+      console.error('[VM_CHAT] Hour deduction failed:', billErr);
+      // Still return response — deduction failure is logged, not user-facing
     }
 
     // Log chat to chat_logs

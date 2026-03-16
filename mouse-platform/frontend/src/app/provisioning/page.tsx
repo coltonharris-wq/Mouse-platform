@@ -34,11 +34,12 @@ export default function ProvisioningPage() {
 function ProvisioningContent() {
   const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(0);
-  const [status, setStatus] = useState<'provisioning' | 'running' | 'error'>('provisioning');
+  const [status, setStatus] = useState<'provisioning' | 'running' | 'error' | 'stuck'>('provisioning');
   const [tipIndex, setTipIndex] = useState(0);
   const [retried, setRetried] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const provisionStarted = useRef(false);
+  const provisioningStartedAt = useRef(Date.now());
 
   const customerId = searchParams.get('customer_id') || (typeof window !== 'undefined' ? sessionStorage.getItem('customer_id') : null);
 
@@ -62,14 +63,15 @@ function ProvisioningContent() {
   const startProvisioning = useCallback(async () => {
     if (!customerId || provisionStarted.current) return;
     provisionStarted.current = true;
+    provisioningStartedAt.current = Date.now();
 
     try {
       // Fetch customer info for provisioning
       const infoRes = await fetch(`/api/vm/status?customer_id=${customerId}`);
       const infoData = await infoRes.json();
 
-      // If already running, redirect immediately
-      if (infoData.status === 'running') {
+      // If already running/ready, redirect immediately
+      if (infoData.status === 'running' || infoData.status === 'ready') {
         setStatus('running');
         setCurrentStep(STEPS.length - 1);
         setTimeout(() => {
@@ -91,7 +93,8 @@ function ProvisioningContent() {
           // Fall back to sessionStorage below
         }
 
-        await fetch('/api/vm/provision', {
+        // Fire-and-forget: start provisioning without blocking poll
+        fetch('/api/vm/provision', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -104,6 +107,15 @@ function ProvisioningContent() {
             plan_slug: (customerData.plan as string) || (customerData.subscription_plan as string) || 'pro',
             onboarding_answers: customerData.onboarding_answers || {},
           }),
+        }).then(async (res) => {
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            console.error('[PROVISION] Request failed:', errData.error);
+            setStatus('error');
+            if (pollRef.current) clearInterval(pollRef.current);
+          }
+        }).catch(() => {
+          // Network error — poll will detect stuck state
         });
       }
 
@@ -113,7 +125,7 @@ function ProvisioningContent() {
           const res = await fetch(`/api/vm/status?customer_id=${customerId}`);
           const data = await res.json();
 
-          if (data.status === 'running') {
+          if (data.status === 'running' || data.status === 'ready') {
             setStatus('running');
             setCurrentStep(STEPS.length - 1);
             if (pollRef.current) clearInterval(pollRef.current);
@@ -125,11 +137,16 @@ function ProvisioningContent() {
               // Auto-retry once
               setRetried(true);
               provisionStarted.current = false;
+              provisioningStartedAt.current = Date.now();
               startProvisioning();
             } else {
               setStatus('error');
               if (pollRef.current) clearInterval(pollRef.current);
             }
+          } else if (Date.now() - provisioningStartedAt.current > 3 * 60 * 1000) {
+            // Stuck for >3 minutes — offer retry
+            setStatus('stuck');
+            if (pollRef.current) clearInterval(pollRef.current);
           }
         } catch {
           // Keep polling on network errors
@@ -166,16 +183,18 @@ function ProvisioningContent() {
         {/* Logo */}
         <div className="text-6xl mb-6">{'\u{1F42D}'}</div>
         <h1 className="text-3xl font-bold text-[#0B1F3B] mb-2">
-          {status === 'error' ? 'Setup Hit a Snag' : 'Setting Up Your AI Manager'}
+          {status === 'error' ? 'Setup Hit a Snag' : status === 'stuck' ? 'Setup Taking Too Long' : 'Setting Up Your AI Manager'}
         </h1>
         <p className="text-gray-500 mb-10">
           {status === 'error'
             ? "We're having trouble setting things up. Please try again."
+            : status === 'stuck'
+            ? 'Your setup seems stuck. Try restarting below.'
             : 'About 60 seconds. Hang tight!'}
         </p>
 
         {/* Progress Steps */}
-        {status !== 'error' && (
+        {(status === 'provisioning' || status === 'running') && (
           <div className="space-y-4 mb-10 text-left max-w-sm mx-auto">
             {STEPS.map((step, i) => {
               const isDone = i < currentStep || status === 'running';
@@ -215,6 +234,27 @@ function ProvisioningContent() {
               className="bg-[#0F6B6E] text-white px-8 py-3 rounded-xl font-semibold hover:bg-[#0B5456] transition-colors"
             >
               Try Again
+            </button>
+          </div>
+        )}
+
+        {/* Stuck state */}
+        {status === 'stuck' && (
+          <div className="mb-8">
+            <AlertCircle className="w-12 h-12 text-amber-400 mx-auto mb-4" />
+            <p className="text-gray-600 mb-4">Taking longer than expected. Your setup may need a restart.</p>
+            <button
+              onClick={() => {
+                setStatus('provisioning');
+                setCurrentStep(0);
+                provisionStarted.current = false;
+                provisioningStartedAt.current = Date.now();
+                setRetried(false);
+                startProvisioning();
+              }}
+              className="bg-[#0F6B6E] text-white px-8 py-3 rounded-xl font-semibold hover:bg-[#0B5456] transition-colors"
+            >
+              Retry Setup
             </button>
           </div>
         )}

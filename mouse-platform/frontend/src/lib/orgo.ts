@@ -56,7 +56,7 @@ export async function createComputer(
   ram: number = 8,
   cpu: number = 4
 ): Promise<OrgoResponse<Computer>> {
-  return orgoFetch('/v1/computers', {
+  return orgoFetch('/computers', {
     method: 'POST',
     body: JSON.stringify({
       workspace_id: workspaceId,
@@ -69,11 +69,11 @@ export async function createComputer(
 }
 
 export async function getComputer(id: string): Promise<OrgoResponse<Computer>> {
-  return orgoFetch(`/v1/computers/${id}`);
+  return orgoFetch(`/computers/${id}`);
 }
 
 export async function deleteComputer(id: string): Promise<OrgoResponse> {
-  return orgoFetch(`/v1/computers/${id}`, { method: 'DELETE' });
+  return orgoFetch(`/computers/${id}`, { method: 'DELETE' });
 }
 
 export async function bashExec(
@@ -81,7 +81,7 @@ export async function bashExec(
   command: string,
   timeout: number = 300
 ): Promise<OrgoResponse<{ output: string; exit_code: number }>> {
-  return orgoFetch(`/v1/computers/${computerId}/bash`, {
+  return orgoFetch(`/computers/${computerId}/bash`, {
     method: 'POST',
     body: JSON.stringify({ command, timeout }),
   });
@@ -93,7 +93,7 @@ export async function uploadFile(
   filePath: string,
   content: string
 ): Promise<OrgoResponse> {
-  return orgoFetch(`/v1/workspaces/${workspaceId}/computers/${computerId}/files`, {
+  return orgoFetch(`/workspaces/${workspaceId}/computers/${computerId}/files`, {
     method: 'POST',
     body: JSON.stringify({ file_path: filePath, content }),
   });
@@ -101,8 +101,11 @@ export async function uploadFile(
 
 export async function takeScreenshot(
   computerId: string
-): Promise<OrgoResponse<{ url: string }>> {
-  return orgoFetch(`/v1/computers/${computerId}/screenshot`, {
-    method: 'POST',
-  });
+): Promise<OrgoResponse<{ url: string; image?: string }>> {
+  const result = await orgoFetch<{ url?: string; image?: string }>(`/computers/${computerId}/screenshot`);
+  // Orgo returns 'image' field, normalize to 'url' for consistency
+  if (result.success && result.data && !result.data.url && result.data.image) {
+    result.data.url = result.data.image;
+  }
+  return result as OrgoResponse<{ url: string; image?: string }>;
 }

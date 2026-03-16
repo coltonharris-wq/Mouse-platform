@@ -1,11 +1,29 @@
 /**
  * GET /api/vm/status?customer_id=xxx
- * Check VM status for a customer
+ * Check VM status for a customer.
+ * Detects provision completion by checking for .provision-complete marker.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getComputer } from '@/lib/orgo';
+import { getComputer, bashExec } from '@/lib/orgo';
 import { supabaseQuery } from '@/lib/supabase-server';
+
+/**
+ * Check if the VM has finished provisioning by looking for the
+ * .provision-complete marker written by install.sh Phase 6.
+ */
+async function checkProvisionComplete(computerId: string): Promise<boolean> {
+  try {
+    const result = await bashExec(
+      computerId,
+      'cat /opt/king-mouse/.provision-complete 2>/dev/null',
+      5
+    );
+    return result.success && result.data?.output?.trim() === 'SUCCESS';
+  } catch {
+    return false;
+  }
+}
 
 export async function GET(request: NextRequest) {
   const customerId = request.nextUrl.searchParams.get('customer_id');
@@ -39,9 +57,23 @@ export async function GET(request: NextRequest) {
 
     // Check actual VM status from Orgo
     const vm = await getComputer(customer.vm_computer_id);
+    let actualStatus = customer.vm_status;
+
+    // If VM is running and still marked as provisioning/installing,
+    // check for the .provision-complete marker
+    if (
+      vm.data?.status === 'running' &&
+      (customer.vm_status === 'provisioning' || customer.vm_status === 'installing')
+    ) {
+      const complete = await checkProvisionComplete(customer.vm_computer_id);
+      if (complete) {
+        actualStatus = 'ready';
+      }
+    } else if (vm.data?.status === 'running' && customer.vm_status !== 'ready') {
+      actualStatus = 'running';
+    }
 
     // Update DB if status changed
-    const actualStatus = vm.data?.status === 'running' ? 'running' : customer.vm_status;
     if (actualStatus !== customer.vm_status) {
       await supabaseQuery('customers', 'PATCH',
         { vm_status: actualStatus },

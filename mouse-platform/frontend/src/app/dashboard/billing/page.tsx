@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Clock, TrendingUp, CreditCard, ArrowUpRight, FileText, Download, AlertTriangle, BarChart3 } from 'lucide-react';
+import { Clock, TrendingUp, CreditCard, ArrowUpRight, FileText, Download, AlertTriangle, BarChart3, Loader2, ShoppingCart } from 'lucide-react';
 import { SUBSCRIPTION_PLANS } from '@/lib/plans';
 
 interface UsageData {
@@ -29,11 +29,18 @@ interface DailyUsage {
   hours: number;
 }
 
+const HOUR_PACKAGES = [
+  { key: '10hr', hours: 10, price: 49.80, label: '10 Hours' },
+  { key: '25hr', hours: 25, price: 124.50, label: '25 Hours' },
+  { key: '50hr', hours: 50, price: 249.00, label: '50 Hours' },
+];
+
 export default function BillingPage() {
   const [usage, setUsage] = useState<UsageData | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [dailyUsage, setDailyUsage] = useState<DailyUsage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [buyingHours, setBuyingHours] = useState<string | null>(null);
 
   useEffect(() => {
     const customerId = sessionStorage.getItem('customer_id') || 'demo';
@@ -193,6 +200,57 @@ export default function BillingPage() {
           )}
         </div>
       )}
+
+      {/* Buy Hours */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
+        <div className="flex items-center gap-3 mb-6">
+          <ShoppingCart className="w-6 h-6 text-teal-600" />
+          <h3 className="text-xl font-semibold text-gray-900">Buy More Hours</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {HOUR_PACKAGES.map((pkg) => (
+            <button
+              key={pkg.key}
+              disabled={buyingHours !== null}
+              onClick={async () => {
+                const customerId = sessionStorage.getItem('customer_id') || 'demo';
+                setBuyingHours(pkg.key);
+                try {
+                  const res = await fetch('/api/billing/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customer_id: customerId, topup: pkg.key }),
+                  });
+                  const data = await res.json();
+                  if (data.checkout_url) {
+                    window.location.href = data.checkout_url;
+                  } else {
+                    alert(data.error || 'Failed to create checkout session');
+                    setBuyingHours(null);
+                  }
+                } catch {
+                  alert('Something went wrong. Please try again.');
+                  setBuyingHours(null);
+                }
+              }}
+              className="border-2 border-gray-200 rounded-xl p-6 text-left hover:border-[#0F6B6E] hover:shadow-md transition-all disabled:opacity-50"
+            >
+              <p className="text-3xl font-bold text-gray-900">{pkg.hours} hrs</p>
+              <p className="text-xl text-gray-500 mt-1">${pkg.price.toFixed(2)}</p>
+              <p className="text-base text-gray-400 mt-1">${(pkg.price / pkg.hours).toFixed(2)}/hr</p>
+              <div className="mt-4">
+                {buyingHours === pkg.key ? (
+                  <span className="inline-flex items-center gap-2 text-[#0F6B6E] font-semibold">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Redirecting...
+                  </span>
+                ) : (
+                  <span className="text-[#0F6B6E] font-semibold text-lg">Buy now &rarr;</span>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Invoice History */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-8">

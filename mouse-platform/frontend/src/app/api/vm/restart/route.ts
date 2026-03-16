@@ -33,10 +33,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No VM provisioned' }, { status: 400 });
     }
 
-    // Restart OpenClaw gateway on the VM
+    // Restart OpenClaw gateway on the VM (source env for MOONSHOT_API_KEY)
     const result = await bashExec(
       customer.vm_computer_id,
-      'cd /root/openclaw && pkill -f "node.*gateway" 2>/dev/null; sleep 2 && nohup node gateway.js > /tmp/openclaw.log 2>&1 &',
+      'pkill -f "openclaw gateway" 2>/dev/null; sleep 2 && source /etc/environment 2>/dev/null && cd /opt/king-mouse/workspace && DISPLAY=:99 nohup openclaw gateway run > /opt/king-mouse/gateway.log 2>&1 &',
       30
     );
 
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update status
-    await supabaseQuery('customers', 'PATCH', { vm_status: 'running' }, `id=eq.${customerId}`);
+    await supabaseQuery('customers', 'PATCH', { vm_status: 'ready' }, `id=eq.${customerId}`);
 
     return NextResponse.json({ success: true, message: 'King Mouse restarted successfully' });
   } catch (err: unknown) {

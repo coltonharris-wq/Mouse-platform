@@ -66,6 +66,13 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+  // ── HANDLE TOP-UP PURCHASES ──
+  // Top-ups have customer_id + topup + hours in metadata (no pro_slug/plan_slug)
+  if (session.metadata?.topup && session.metadata?.customer_id && session.metadata?.hours) {
+    await handleTopUpCompleted(session);
+    return;
+  }
+
   const proSlug = session.metadata?.pro_slug;
   const planSlug = session.metadata?.plan_slug;
   const sessionKey = session.metadata?.session_key;
@@ -261,16 +268,95 @@ async function triggerProvisioning(
   });
 }
 
+/**
+ * Handle completed top-up checkout — credit purchased hours to customer balance.
+ */
+async function handleTopUpCompleted(session: Stripe.Checkout.Session) {
+  const customerId = session.metadata!.customer_id;
+  const topup = session.metadata!.topup;
+  const hours = parseFloat(session.metadata!.hours);
+
+  if (!hours || hours <= 0) {
+    console.error(`[STRIPE_WEBHOOK] Invalid top-up hours: ${hours}`);
+    return;
+  }
+
+  // Resolve customer's user_id for usage_events
+  const customers = await supabaseQuery('customers', 'GET', undefined,
+    `id=eq.${customerId}&select=hours_included,user_id`
+  );
+
+  if (!customers || customers.length === 0) {
+    console.error(`[STRIPE_WEBHOOK] Customer not found for top-up: ${customerId}`);
+    return;
+  }
+
+  const userId = customers[0].user_id || customerId;
+
+  // Idempotency — check if this session was already processed
+  try {
+    const existing = await supabaseQuery('usage_events', 'GET', undefined,
+      `user_id=eq.${userId}&service=eq.hour_topup&description=like.*${session.id}*&select=id&limit=1`
+    );
+    if (existing && existing.length > 0) {
+      console.log(`[STRIPE_WEBHOOK] Top-up already processed for session ${session.id}`);
+      return;
+    }
+  } catch {
+    // Continue — better to double-credit than not credit
+  }
+
+  // Credit hours by increasing hours_included
+  const currentIncluded = parseFloat(customers[0].hours_included) || 0;
+  await supabaseQuery('customers', 'PATCH',
+    { hours_included: currentIncluded + hours },
+    `id=eq.${customerId}`
+  );
+
+  // Log the credit (uses user_id and hours_used per DB schema)
+  await supabaseQuery('usage_events', 'POST', {
+    user_id: userId,
+    service: 'hour_topup',
+    description: `Top-up: +${hours} hours (${topup}) — Stripe ${session.id}`,
+    hours_used: -hours, // Negative = credit
+  });
+
+  console.log(`[STRIPE_WEBHOOK] Top-up credited: ${hours} hours to ${customerId} (${topup})`);
+}
+
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   const subscriptionId = invoice.subscription as string;
   if (!subscriptionId) return;
 
+  // Look up the customer's base plan hours so we reset correctly
+  // (clears expired top-up hours that were added to hours_included)
+  const customers = await supabaseQuery('customers', 'GET', undefined,
+    `stripe_subscription_id=eq.${subscriptionId}&select=subscription_plan`
+  );
+
+  let baseHours = 0;
+  if (customers?.[0]?.subscription_plan) {
+    try {
+      const plans = await supabaseQuery('subscription_plans', 'GET', undefined,
+        `slug=eq.${customers[0].subscription_plan}&select=hours_included`
+      );
+      baseHours = plans?.[0]?.hours_included || 0;
+    } catch {
+      // Fall back to just resetting hours_used
+    }
+  }
+
+  const patch: Record<string, number> = { hours_used: 0 };
+  if (baseHours > 0) {
+    patch.hours_included = baseHours;
+  }
+
   await supabaseQuery('customers', 'PATCH',
-    { hours_used: 0 },
+    patch,
     `stripe_subscription_id=eq.${subscriptionId}`
   );
 
-  console.log(`[STRIPE_WEBHOOK] Hours reset for subscription: ${subscriptionId}`);
+  console.log(`[STRIPE_WEBHOOK] Billing cycle reset for subscription: ${subscriptionId} (base hours: ${baseHours})`);
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {

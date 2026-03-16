@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Phone, Search, PhoneCall, Check, Volume2, Send, X, Loader2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Phone, PhoneCall, Check, Volume2, Send, X, Loader2, ArrowRight, ArrowLeft, Calendar, MessageSquare, Clock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface PhoneNumber {
@@ -32,22 +32,51 @@ interface CallLog {
   caller_number: string;
   duration_seconds: number;
   status: string;
+  action_taken: string | null;
+  ai_summary: string | null;
+  created_at: string;
+}
+
+interface Appointment {
+  id: string;
+  caller_name: string;
+  caller_phone: string;
+  preferred_date: string;
+  preferred_time: string;
+  service_requested: string;
+  notes: string;
+  status: string;
+  created_at: string;
+}
+
+interface ReceptionistMessage {
+  id: string;
+  caller_name: string;
+  caller_phone: string;
+  message: string;
+  urgency: string;
+  read: boolean;
   created_at: string;
 }
 
 const VOICES = [
-  { id: 'nova', name: 'Nova', desc: 'Warm and friendly, great for customer service', badge: 'Recommended' },
-  { id: 'onyx', name: 'Onyx', desc: 'Professional and deep, ideal for formal businesses', badge: null },
-  { id: 'shimmer', name: 'Shimmer', desc: 'Energetic and upbeat, perfect for retail and food', badge: null },
+  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah', desc: 'Professional & warm, great for customer service', badge: 'Recommended' },
+  { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel', desc: 'Energetic & upbeat, perfect for retail', badge: null },
+  { id: 'AZnzlk1XvdvUeBnXmlld', name: 'Domi', desc: 'Southern charm, friendly and approachable', badge: null },
+  { id: 'MF3mGyEYCl7XYWbV9V6O', name: 'Elli', desc: 'Clear & articulate, ideal for professional services', badge: null },
+  { id: 'VR6AewLTigWG4xSOukaG', name: 'Arnold', desc: 'Casual & relaxed, great for laid-back brands', badge: null },
+  { id: 'pNInz6obpgDQGcFmaJgB', name: 'Adam', desc: 'Deep & authoritative, perfect for formal businesses', badge: null },
 ];
 
 export default function ReceptionistPage() {
-  // ─── State (keeps existing API integrations) ───
+  // --- State ---
   const [areaCode, setAreaCode] = useState('');
   const [availableNumbers, setAvailableNumbers] = useState<PhoneNumber[]>([]);
   const [ownedNumbers, setOwnedNumbers] = useState<OwnedNumber[]>([]);
   const [config, setConfig] = useState<ReceptionistConfig | null>(null);
   const [calls, setCalls] = useState<CallLog[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [messages, setMessages] = useState<ReceptionistMessage[]>([]);
   const [searching, setSearching] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -55,9 +84,13 @@ export default function ReceptionistPage() {
 
   // Wizard state
   const [wizardStep, setWizardStep] = useState(0);
-  const [selectedVoice, setSelectedVoice] = useState('nova');
+  const [selectedVoice, setSelectedVoice] = useState('EXAVITQu4vr4xnSDxMaL');
   const [greetingText, setGreetingText] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
+
+  // Voice preview
+  const [previewingVoice, setPreviewingVoice] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Mini chat helper
   const [helperOpen, setHelperOpen] = useState(false);
@@ -68,11 +101,15 @@ export default function ReceptionistPage() {
   const [helperSending, setHelperSending] = useState(false);
   const helperEndRef = useRef<HTMLDivElement>(null);
 
+  // Active tab for management view
+  const [activeTab, setActiveTab] = useState<'calls' | 'appointments' | 'messages'>('calls');
+
   const customerId = typeof window !== 'undefined' ? sessionStorage.getItem('customer_id') || 'demo' : 'demo';
 
   const hasPhone = ownedNumbers.length > 0;
+  const unreadCount = messages.filter((m) => !m.read).length;
 
-  // ─── Data loading (unchanged API calls) ───
+  // --- Data loading ---
   useEffect(() => {
     fetch(`/api/receptionist/config?customer_id=${customerId}`)
       .then((r) => r.json())
@@ -87,17 +124,26 @@ export default function ReceptionistPage() {
       .then((r) => r.json())
       .then((data) => setCalls(data.calls || []))
       .catch(() => {});
+
+    fetch(`/api/receptionist/appointments?customer_id=${customerId}`)
+      .then((r) => r.json())
+      .then((data) => setAppointments(data.appointments || []))
+      .catch(() => {});
+
+    fetch(`/api/receptionist/messages?customer_id=${customerId}`)
+      .then((r) => r.json())
+      .then((data) => setMessages(data.messages || []))
+      .catch(() => {});
   }, [customerId]);
 
-  // Set default greeting from business name
   useEffect(() => {
     if (!greetingText) {
-      const biz = sessionStorage.getItem('signup_business_name') || 'our business';
+      const biz = typeof window !== 'undefined' ? sessionStorage.getItem('signup_business_name') || 'our business' : 'our business';
       setGreetingText(`Thanks for calling ${biz}! How can I help you today?`);
     }
   }, [greetingText]);
 
-  // ─── Existing API handlers (unchanged) ───
+  // --- Handlers ---
   const handleSearch = async () => {
     if (!areaCode || areaCode.length !== 3) return;
     setSearching(true);
@@ -120,7 +166,7 @@ export default function ReceptionistPage() {
       const data = await res.json();
       if (data.success) {
         setOwnedNumbers([{ id: 'new', phone_number: data.phone_number, friendly_name: data.phone_number, status: 'active' }]);
-        setWizardStep(3); // Jump to greeting step
+        setWizardStep(3);
         const configRes = await fetch(`/api/receptionist/config?customer_id=${customerId}`);
         const configData = await configRes.json();
         if (configData.config) setConfig(configData.config);
@@ -164,7 +210,49 @@ export default function ReceptionistPage() {
     setWizardStep(4);
   };
 
-  // ─── Mini chat helper ───
+  const handlePreviewVoice = async (voiceId: string) => {
+    if (previewingVoice === voiceId) {
+      audioRef.current?.pause();
+      setPreviewingVoice(null);
+      return;
+    }
+    setPreviewingVoice(voiceId);
+    try {
+      const res = await fetch('/api/receptionist/voice-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voice_id: voiceId }),
+      });
+      if (!res.ok) {
+        setPreviewingVoice(null);
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => setPreviewingVoice(null);
+      audio.play();
+    } catch {
+      setPreviewingVoice(null);
+    }
+  };
+
+  const handleMarkRead = async (messageId: string) => {
+    try {
+      await fetch('/api/receptionist/messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message_id: messageId }),
+      });
+      setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, read: true } : m));
+    } catch { /* ignore */ }
+  };
+
+  // Mini chat helper
   const sendHelperMessage = async () => {
     if (!helperInput.trim() || helperSending) return;
     const msg = helperInput.trim();
@@ -331,11 +419,16 @@ export default function ReceptionistPage() {
                           : 'border-gray-200 bg-white hover:border-gray-300'
                       }`}
                     >
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
-                        selectedVoice === v.id ? 'bg-[#0F6B6E] text-white' : 'bg-gray-100 text-gray-500'
-                      }`}>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); handlePreviewVoice(v.id); }}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                          previewingVoice === v.id ? 'bg-orange-500 text-white animate-pulse' :
+                          selectedVoice === v.id ? 'bg-[#0F6B6E] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                        }`}
+                      >
                         <Volume2 className="w-6 h-6" />
-                      </div>
+                      </button>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-bold text-gray-900">{v.name}</span>
@@ -380,7 +473,7 @@ export default function ReceptionistPage() {
             <p className="text-lg text-gray-400 mb-8">Tell your customers to call this number — or forward your existing number to it.</p>
             <div className="bg-gray-50 rounded-xl p-5 max-w-md mx-auto mb-8">
               <p className="text-lg text-gray-600">
-                {'\u{1F42D}'} <strong>Want to port your existing number?</strong> Ask King Mouse in the main chat and he&apos;ll handle it for you.
+                {'\u{1F42D}'} <strong>Want to port your existing number?</strong> This feature is coming soon.
               </p>
             </div>
             <Link href="/dashboard" className="bg-[#0F6B6E] text-white px-8 py-3 rounded-xl text-xl font-semibold hover:bg-[#0B5456] transition-colors">
@@ -405,8 +498,7 @@ export default function ReceptionistPage() {
   }
 
   // ═══════════════════════════════════════════════
-  //  ACTIVE VIEW — when phone number EXISTS
-  //  Single page: number + settings + recent calls
+  //  ACTIVE VIEW — phone number EXISTS
   // ═══════════════════════════════════════════════
   return (
     <div className="max-w-3xl">
@@ -451,10 +543,10 @@ export default function ReceptionistPage() {
             />
           </div>
 
-          {/* Voice Cards (not dropdown) */}
+          {/* Voice Cards with Preview */}
           <div>
             <label className="block text-lg font-medium text-gray-700 mb-3">Voice</label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {VOICES.map((v) => (
                 <button
                   key={v.id}
@@ -465,8 +557,19 @@ export default function ReceptionistPage() {
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <p className="text-lg font-bold text-gray-900">{v.name}</p>
-                  <p className="text-base text-gray-500 mt-1">{v.desc.split(',')[0]}</p>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-lg font-bold text-gray-900">{v.name}</p>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); handlePreviewVoice(v.id); }}
+                      className={`p-1.5 rounded-full transition-colors ${
+                        previewingVoice === v.id ? 'bg-orange-500 text-white animate-pulse' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      }`}
+                    >
+                      <Volume2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <p className="text-base text-gray-500">{v.desc.split(',')[0]}</p>
                   {config.voice_id === v.id && <Check className="w-5 h-5 text-[#0F6B6E] mt-2" />}
                 </button>
               ))}
@@ -505,48 +608,184 @@ export default function ReceptionistPage() {
         </div>
       )}
 
-      {/* Port Number — simplified */}
+      {/* Port Number */}
       <div className="bg-gray-50 rounded-xl border border-gray-200 p-6 mb-8">
         <h3 className="text-xl font-bold text-gray-900 mb-2">Want to use your existing number?</h3>
         <p className="text-lg text-gray-600">
-          {'\u{1F42D}'} Ask King Mouse in the main chat and he&apos;ll handle the number porting paperwork for you.
+          Number porting is coming soon. For now, you can forward your existing number to the one above.
         </p>
-        <Link href="/dashboard" className="inline-block mt-3 text-[#0F6B6E] text-lg font-semibold hover:underline">
-          Go to Chat &rarr;
-        </Link>
       </div>
 
-      {/* Recent Calls */}
-      <div className="bg-white rounded-xl border border-gray-200 mb-8">
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-900">Recent Calls</h2>
-        </div>
-        {calls.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
-            <PhoneCall className="w-14 h-14 mx-auto mb-4 text-gray-300" />
-            <p className="text-xl">No calls yet</p>
-            <p className="text-lg mt-2">Call logs will appear here after your first call.</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-gray-50">
-            {calls.slice(0, 10).map((call) => (
-              <div key={call.id} className="flex items-center gap-4 p-5 hover:bg-gray-50">
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <PhoneCall className="w-5 h-5 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-lg font-medium text-gray-900">{call.caller_number || 'Unknown'}</p>
-                  <p className="text-base text-gray-400">{new Date(call.created_at).toLocaleString()}</p>
-                </div>
-                <span className="text-lg text-gray-500">{call.duration_seconds}s</span>
-                <span className={`text-base px-3 py-1 rounded-full ${
-                  call.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                }`}>{call.status}</span>
-              </div>
-            ))}
-          </div>
-        )}
+      {/* Tabs: Calls | Appointments | Messages */}
+      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-4">
+        <button
+          onClick={() => setActiveTab('calls')}
+          className={`flex-1 py-3 px-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
+            activeTab === 'calls' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <PhoneCall className="w-5 h-5" /> Calls
+        </button>
+        <button
+          onClick={() => setActiveTab('appointments')}
+          className={`flex-1 py-3 px-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
+            activeTab === 'appointments' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <Calendar className="w-5 h-5" /> Appointments
+          {appointments.filter((a) => a.status === 'pending').length > 0 && (
+            <span className="bg-orange-500 text-white text-sm px-2 py-0.5 rounded-full">
+              {appointments.filter((a) => a.status === 'pending').length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('messages')}
+          className={`flex-1 py-3 px-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
+            activeTab === 'messages' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <MessageSquare className="w-5 h-5" /> Messages
+          {unreadCount > 0 && (
+            <span className="bg-red-500 text-white text-sm px-2 py-0.5 rounded-full">{unreadCount}</span>
+          )}
+        </button>
       </div>
+
+      {/* Recent Calls Tab */}
+      {activeTab === 'calls' && (
+        <div className="bg-white rounded-xl border border-gray-200 mb-8">
+          <div className="p-5 border-b border-gray-100">
+            <h2 className="text-2xl font-bold text-gray-900">Recent Calls</h2>
+          </div>
+          {calls.length === 0 ? (
+            <div className="text-center py-16 text-gray-400">
+              <PhoneCall className="w-14 h-14 mx-auto mb-4 text-gray-300" />
+              <p className="text-xl">No calls yet</p>
+              <p className="text-lg mt-2">Call logs will appear here after your first call.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {calls.slice(0, 10).map((call) => (
+                <div key={call.id} className="flex items-center gap-4 p-5 hover:bg-gray-50">
+                  <div className="p-3 bg-blue-100 rounded-lg">
+                    <PhoneCall className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-lg font-medium text-gray-900">{call.caller_number || 'Unknown'}</p>
+                    <p className="text-base text-gray-400">{new Date(call.created_at).toLocaleString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-lg text-gray-500">{call.duration_seconds}s</span>
+                    {call.action_taken && (
+                      <p className="text-sm text-[#0F6B6E] font-medium mt-0.5">
+                        {call.action_taken === 'book_appointment' ? 'Booked appt.' : call.action_taken === 'take_message' ? 'Took message' : call.action_taken}
+                      </p>
+                    )}
+                  </div>
+                  <span className={`text-base px-3 py-1 rounded-full ${
+                    call.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                  }`}>{call.status}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Appointments Tab */}
+      {activeTab === 'appointments' && (
+        <div className="bg-white rounded-xl border border-gray-200 mb-8">
+          <div className="p-5 border-b border-gray-100">
+            <h2 className="text-2xl font-bold text-gray-900">Appointments</h2>
+          </div>
+          {appointments.length === 0 ? (
+            <div className="text-center py-16 text-gray-400">
+              <Calendar className="w-14 h-14 mx-auto mb-4 text-gray-300" />
+              <p className="text-xl">No appointments yet</p>
+              <p className="text-lg mt-2">When callers book appointments, they&apos;ll show up here.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {appointments.map((apt) => (
+                <div key={apt.id} className="p-5 hover:bg-gray-50">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <p className="text-lg font-bold text-gray-900">{apt.caller_name || 'Unknown'}</p>
+                      <p className="text-base text-gray-500">{apt.caller_phone}</p>
+                    </div>
+                    <span className={`text-sm px-3 py-1 rounded-full font-medium ${
+                      apt.status === 'pending' ? 'bg-orange-100 text-orange-700' :
+                      apt.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                      'bg-gray-100 text-gray-500'
+                    }`}>{apt.status}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-base text-gray-600">
+                    {apt.preferred_date && (
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" /> {apt.preferred_date}
+                      </span>
+                    )}
+                    {apt.preferred_time && (
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" /> {apt.preferred_time}
+                      </span>
+                    )}
+                  </div>
+                  {apt.service_requested && (
+                    <p className="text-base text-gray-600 mt-1">Service: {apt.service_requested}</p>
+                  )}
+                  {apt.notes && (
+                    <p className="text-base text-gray-400 mt-1">{apt.notes}</p>
+                  )}
+                  <p className="text-sm text-gray-400 mt-2">{new Date(apt.created_at).toLocaleString()}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Messages Tab */}
+      {activeTab === 'messages' && (
+        <div className="bg-white rounded-xl border border-gray-200 mb-8">
+          <div className="p-5 border-b border-gray-100">
+            <h2 className="text-2xl font-bold text-gray-900">Messages</h2>
+          </div>
+          {messages.length === 0 ? (
+            <div className="text-center py-16 text-gray-400">
+              <MessageSquare className="w-14 h-14 mx-auto mb-4 text-gray-300" />
+              <p className="text-xl">No messages yet</p>
+              <p className="text-lg mt-2">When callers leave messages, they&apos;ll show up here.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`p-5 hover:bg-gray-50 cursor-pointer ${!msg.read ? 'bg-blue-50/50' : ''}`}
+                  onClick={() => !msg.read && handleMarkRead(msg.id)}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      {!msg.read && <span className="w-2.5 h-2.5 bg-blue-500 rounded-full shrink-0" />}
+                      <p className="text-lg font-bold text-gray-900">{msg.caller_name || 'Unknown'}</p>
+                    </div>
+                    {msg.urgency === 'urgent' && (
+                      <span className="flex items-center gap-1 text-sm text-red-600 font-medium bg-red-50 px-2 py-1 rounded-full">
+                        <AlertCircle className="w-3.5 h-3.5" /> Urgent
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-base text-gray-500 mb-1">{msg.caller_phone}</p>
+                  <p className="text-lg text-gray-700">{msg.message}</p>
+                  <p className="text-sm text-gray-400 mt-2">{new Date(msg.created_at).toLocaleString()}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Floating helper */}
       <FloatingHelper
@@ -563,7 +802,7 @@ export default function ReceptionistPage() {
   );
 }
 
-// ─── Floating Helper Mini-Chat ───
+// --- Floating Helper Mini-Chat ---
 function FloatingHelper({
   open,
   onToggle,
