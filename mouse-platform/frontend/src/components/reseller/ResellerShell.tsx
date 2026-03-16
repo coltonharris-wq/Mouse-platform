@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import KingMouseAvatar from '@/components/KingMouseAvatar';
 import type { KingMouseStatus } from '@/types/kingmouse-status';
+import ResellerOnboardingWizard from '@/components/reseller/ResellerOnboardingWizard';
 
 interface Conversation {
   id: string;
@@ -185,7 +186,7 @@ export default function ResellerShell({ children }: ResellerShellProps) {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`} style={{ backgroundColor: '#141420', color: '#9ca3af' }}>
         {/* Header */}
-        <div className="p-4 flex items-center justify-between">
+        <div className="p-4 flex items-center justify-between" data-onboarding="sidebar-header">
           <Link href="/reseller" className="flex items-center gap-2">
             <KingMouseAvatar status={kmStatus} size="sm" />
             <div className="flex flex-col">
@@ -296,6 +297,7 @@ export default function ResellerShell({ children }: ResellerShellProps) {
                       key={item.slug}
                       href={item.route}
                       onClick={() => setSidebarOpen(false)}
+                      data-onboarding={item.slug}
                       className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                         isActive
                           ? 'text-white'
@@ -327,10 +329,12 @@ export default function ResellerShell({ children }: ResellerShellProps) {
           <div className="w-10" />
         </header>
 
-        <main className={`flex-1 ${isChat ? '' : 'p-6 lg:p-8 overflow-y-auto'}`}>
+        <main className={`flex-1 ${isChat ? '' : 'p-6 lg:p-8 overflow-y-auto'}`} data-onboarding="earnings">
           {children}
         </main>
       </div>
+
+      <ResellerOnboardingWizard />
     </div>
   );
 }

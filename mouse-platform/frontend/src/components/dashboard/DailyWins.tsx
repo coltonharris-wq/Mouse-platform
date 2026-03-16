@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { X, Clock, CheckCircle, Phone, Mail } from 'lucide-react';
+import { apiFetch } from '@/lib/api-client';
 
 interface DailyWinsData {
   hours_worked: number;
@@ -26,7 +27,7 @@ export default function DailyWins() {
     }
 
     const customerId = sessionStorage.getItem('customer_id') || 'demo';
-    fetch(`/api/engagement/daily-wins?customer_id=${customerId}`)
+    apiFetch(`/api/engagement/daily-wins?customer_id=${customerId}`)
       .then((r) => r.json())
       .then((d) => { if (d.has_data) setData(d); })
       .catch(() => {});

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Loader2, Zap, Clock, CheckCircle, ListTodo, PlayCircle, Plus, X, Send } from 'lucide-react';
 import ScreenReplay from '@/components/dashboard/ScreenReplay';
+import { apiFetch } from '@/lib/api-client';
 
 type TaskTab = 'working' | 'scheduled' | 'completed';
 
@@ -35,7 +36,7 @@ export default function TasksPage() {
 
   const loadTasks = () => {
     setLoading(true);
-    fetch(`/api/tasks?customer_id=${customerId}`)
+    apiFetch(`/api/tasks?customer_id=${customerId}`)
       .then((r) => r.json())
       .then((data) => {
         const items: TaskItem[] = (data.tasks || []).map(
@@ -73,7 +74,7 @@ export default function TasksPage() {
         body.schedule_at = new Date(newScheduleAt).toISOString();
       }
 
-      const res = await fetch('/api/tasks', {
+      const res = await apiFetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

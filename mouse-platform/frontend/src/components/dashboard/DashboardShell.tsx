@@ -10,6 +10,7 @@ import {
 import KingMouseAvatar from '@/components/KingMouseAvatar';
 import NotificationBell from '@/components/dashboard/NotificationBell';
 import type { KingMouseStatus } from '@/types/kingmouse-status';
+import { apiFetch } from '@/lib/api-client';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -48,7 +49,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch(`/api/kingmouse/status?customer_id=${customerId}`);
+      const res = await apiFetch(`/api/kingmouse/status?customer_id=${customerId}`);
       const data = await res.json();
       if (data.status) setKmStatus(data.status as KingMouseStatus);
     } catch { /* ignore */ }
@@ -58,19 +59,19 @@ export default function DashboardShell({ children }: DashboardShellProps) {
     fetchStatus();
 
     // Load pro name and template info
-    fetch(`/api/dashboard/modules?customer_id=${customerId}`)
+    apiFetch(`/api/dashboard/modules?customer_id=${customerId}`)
       .then((r) => r.json())
       .then((d) => setProName(d.pro_name || ''))
       .catch(() => {});
 
     // Load customer template for header display
     if (customerId !== 'demo') {
-      fetch(`/api/customers/${customerId}`)
+      apiFetch(`/api/customers/${customerId}`)
         .then((r) => r.json())
         .then((customer) => {
           if (customer.business_name) setBusinessDisplayName(customer.business_name);
           if (customer.pro_template_id) {
-            fetch(`/api/templates/${customer.pro_template_id}`)
+            apiFetch(`/api/templates/${customer.pro_template_id}`)
               .then((r) => r.json())
               .then((tmpl) => {
                 if (tmpl.emoji) setBusinessEmoji(tmpl.emoji);
@@ -83,7 +84,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
     }
 
     // Check billing overage for header banner
-    fetch(`/api/billing/usage?customer_id=${customerId}`)
+    apiFetch(`/api/billing/usage?customer_id=${customerId}`)
       .then((r) => r.json())
       .then((d) => {
         if (d.hours_included > 0) {

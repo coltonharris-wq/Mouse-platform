@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Bell, Check, Zap, Phone, Mail, AlertCircle } from 'lucide-react';
+import { apiFetch } from '@/lib/api-client';
 
 interface Notification {
   id: string;
@@ -33,7 +34,7 @@ export default function NotificationBell() {
 
   const fetchNotifications = useCallback(async () => {
     try {
-      const res = await fetch(`/api/notifications?customer_id=${customerId}`);
+      const res = await apiFetch(`/api/notifications?customer_id=${customerId}`);
       const data = await res.json();
       setNotifications(data.notifications || []);
       setUnreadCount(data.unread_count || 0);
@@ -61,7 +62,7 @@ export default function NotificationBell() {
 
   const markAsRead = async (id: string) => {
     try {
-      await fetch('/api/notifications', {
+      await apiFetch('/api/notifications', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id }),
@@ -77,7 +78,7 @@ export default function NotificationBell() {
 
   const markAllRead = async () => {
     try {
-      await fetch(`/api/notifications/mark-all-read?customer_id=${customerId}`, {
+      await apiFetch(`/api/notifications/mark-all-read?customer_id=${customerId}`, {
         method: 'POST',
       });
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
