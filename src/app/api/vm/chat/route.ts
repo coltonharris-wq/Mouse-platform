@@ -203,6 +203,9 @@ export async function POST(request: NextRequest) {
         const msgB64 = Buffer.from(lastUserMsg).toString('base64');
         const vmConfig = vm as Record<string, unknown>;
         const vmApiKey = ((vmConfig.config_json as Record<string, unknown>)?.moonshot_api_key as string) || '';
+        if (!vmApiKey) {
+          console.error(`[Chat] WARNING: moonshot_api_key is empty for VM ${vm.id}. config_json keys: ${Object.keys((vmConfig.config_json as Record<string, unknown>) || {}).join(',')}`);
+        }
         const keyB64 = Buffer.from(vmApiKey).toString('base64');
         const pythonCode = [
           'import subprocess,json,base64,os,time',
@@ -332,6 +335,8 @@ export async function POST(request: NextRequest) {
           '  print(json.dumps({"error":f"All methods failed. HTTP: {http_err}","via":"none"}))',
         ].join('\n');
 
+        console.log(`[Chat] Sending exec to VM ${vm.orgo_vm_id}, api_key_length=${vmApiKey.length}, msg_length=${message.length}`);
+
         const execRes = await fetch(`${ORGO_BASE}/computers/${vm.orgo_vm_id}/exec`, {
           method: 'POST',
           headers: {
@@ -408,7 +413,7 @@ export async function POST(request: NextRequest) {
         tokenUsage = { inputTokens, outputTokens, inputCost, outputCost };
       } catch (vmErr) {
         const errMsg = vmErr instanceof Error ? vmErr.message : String(vmErr);
-        console.error('VM chat failed:', errMsg);
+        console.error(`[Chat] VM chat failed — vm_id=${vm?.id}, orgo_vm_id=${vm?.orgo_vm_id}, api_key_length=${vmApiKey?.length || 0}, error=${errMsg}`);
 
         const isTimeout = /time.?out/i.test(errMsg);
         const isApiKeyError = /401|403|unauthorized|invalid.*key|api.?key/i.test(errMsg);
