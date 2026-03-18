@@ -1,7 +1,7 @@
 // Orgo.ai VM provisioning client
 
 const ORGO_API_KEY = process.env.ORGO_API_KEY!;
-const ORGO_BASE_URL = process.env.ORGO_BASE_URL || 'https://api.orgo.ai';
+const ORGO_BASE_URL = process.env.ORGO_BASE_URL || 'https://www.orgo.ai/api';
 const ORGO_WORKSPACE_ID = process.env.ORGO_WORKSPACE_ID!;
 
 interface CreateVMResponse {
@@ -20,7 +20,7 @@ interface VMStatusResponse {
 export async function createVM(configPayload: Record<string, unknown>): Promise<CreateVMResponse> {
   const configB64 = Buffer.from(JSON.stringify(configPayload)).toString('base64');
 
-  const res = await fetch(`${ORGO_BASE_URL}/v1/machines`, {
+  const res = await fetch(`${ORGO_BASE_URL}/computers`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${ORGO_API_KEY}`,
@@ -48,7 +48,7 @@ export async function createVM(configPayload: Record<string, unknown>): Promise<
 }
 
 export async function getVMStatus(vmId: string): Promise<VMStatusResponse> {
-  const res = await fetch(`${ORGO_BASE_URL}/v1/machines/${vmId}`, {
+  const res = await fetch(`${ORGO_BASE_URL}/computers/${vmId}`, {
     headers: {
       'Authorization': `Bearer ${ORGO_API_KEY}`,
     },
@@ -62,7 +62,7 @@ export async function getVMStatus(vmId: string): Promise<VMStatusResponse> {
 }
 
 export async function executeOnVM(vmId: string, command: string): Promise<string> {
-  const res = await fetch(`${ORGO_BASE_URL}/v1/machines/${vmId}/exec`, {
+  const res = await fetch(`${ORGO_BASE_URL}/computers/${vmId}/exec`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${ORGO_API_KEY}`,
@@ -105,8 +105,7 @@ export async function checkVMHealth(ipAddress: string, port: number = 18789): Pr
 
 /** Take a screenshot of the VM via Orgo API */
 export async function takeScreenshot(vmId: string): Promise<{ url?: string; screenshot_base64?: string }> {
-  // Try the /v1/computers/ endpoint first (matches reseller portal pattern)
-  const res = await fetch(`${ORGO_BASE_URL}/v1/computers/${vmId}/screenshot`, {
+  const res = await fetch(`${ORGO_BASE_URL}/computers/${vmId}/screenshot`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${ORGO_API_KEY}`,
@@ -123,7 +122,7 @@ export async function takeScreenshot(vmId: string): Promise<{ url?: string; scre
 
 /** Click at coordinates on VM screen */
 export async function clickOnVM(vmId: string, x: number, y: number, double: boolean = false): Promise<void> {
-  const res = await fetch(`${ORGO_BASE_URL}/v1/computers/${vmId}/click`, {
+  const res = await fetch(`${ORGO_BASE_URL}/computers/${vmId}/click`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${ORGO_API_KEY}`,
@@ -139,7 +138,7 @@ export async function clickOnVM(vmId: string, x: number, y: number, double: bool
 
 /** Type text on VM */
 export async function typeOnVM(vmId: string, text: string): Promise<void> {
-  const res = await fetch(`${ORGO_BASE_URL}/v1/computers/${vmId}/type`, {
+  const res = await fetch(`${ORGO_BASE_URL}/computers/${vmId}/type`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${ORGO_API_KEY}`,
@@ -155,7 +154,7 @@ export async function typeOnVM(vmId: string, text: string): Promise<void> {
 
 /** Press a key on VM */
 export async function pressKeyOnVM(vmId: string, key: string): Promise<void> {
-  const res = await fetch(`${ORGO_BASE_URL}/v1/computers/${vmId}/key`, {
+  const res = await fetch(`${ORGO_BASE_URL}/computers/${vmId}/key`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${ORGO_API_KEY}`,

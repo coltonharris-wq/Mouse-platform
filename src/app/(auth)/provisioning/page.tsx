@@ -152,13 +152,22 @@ export default function ProvisioningPage() {
 
       if (data.success && data.data?.status) {
         const newStatus = data.data.status;
-        setVmStatus(newStatus);
 
-        if (newStatus === 'ready') {
-          // ONLY redirect when health check passes
+        if (newStatus === 'retrying') {
+          // Silent retry — keep progress bar moving, user doesn't know
+          setVmStatus('installing');
+        } else if (newStatus === 'ready') {
+          setVmStatus('ready');
           setTimeout(() => { window.location.href = '/king-mouse'; }, 2000);
         } else if (newStatus === 'error' || newStatus === 'failed') {
-          setError('Something went wrong. We are on it.');
+          setVmStatus('failed');
+          if (data.data?.error === 'max_retries') {
+            setError("We're experiencing high demand. We'll email you the moment your AI employee is ready. Usually within the hour.");
+          } else {
+            setError('Something went wrong. We are on it.');
+          }
+        } else {
+          setVmStatus(newStatus);
         }
       }
     } catch {

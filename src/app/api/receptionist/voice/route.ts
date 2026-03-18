@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase-server';
 
-const HOURS_PER_MINUTE = 0.01;
+const HOURS_PER_MINUTE = 0.6024;  // $3.00/min at $4.98/hr
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,6 +36,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Balance pre-check before calling ElevenLabs
+    const { data: workHoursCheck } = await supabase
+      .from('work_hours')
+      .select('remaining')
+      .eq('user_id', user.id)
+      .single();
+
+    const estimatedMinutes = Math.max(text.length / 750, 0.1);
+    const estimatedHours = estimatedMinutes * HOURS_PER_MINUTE;
+
+    if (!workHoursCheck || workHoursCheck.remaining < estimatedHours) {
+      return NextResponse.json(
+        { success: false, error: 'Insufficient hours' },
+        { status: 402 }
+      );
+    }
+
     const selectedVoiceId = voice_id || 'EXAVITQu4vr4xnSDxMaL'; // Default ElevenLabs voice
 
     // Call ElevenLabs API
@@ -67,9 +84,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Estimate duration based on text length (approx 150 words per minute, 5 chars per word)
-    const estimatedMinutes = Math.max(text.length / 750, 0.1);
-    const hoursUsed = estimatedMinutes * HOURS_PER_MINUTE;
+    // Use the same estimate from pre-check for billing
+    const hoursUsed = estimatedHours;
 
     // Log usage
     await supabase

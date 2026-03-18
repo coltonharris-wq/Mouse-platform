@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase-server';
 import { getVerticalConfig } from '@/lib/config-loader';
 
+export const maxDuration = 60;
+
 const ORGO_BASE = 'https://www.orgo.ai/api';
 
 export async function POST(request: NextRequest) {
@@ -58,7 +60,7 @@ export async function POST(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    // Build config payload for the VM (includes vertical config for SOUL.md, USER.md, agents.md)
+    // Build config payload for the VM
     const nicheSlug = profile?.niche?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'general';
     const verticalConfig = getVerticalConfig(profile?.vertical_config_id || nicheSlug);
 
@@ -80,12 +82,40 @@ export async function POST(request: NextRequest) {
       receptionist: verticalConfig?.receptionist || {},
       leads: verticalConfig?.leads || {},
       moonshot_api_key: process.env.MOONSHOT_API_KEY || '',
+      anthropic_api_key: process.env.ANTHROPIC_API_KEY || '',
     };
 
-    // Base64 encode config for the install script
-    const configB64 = Buffer.from(JSON.stringify(configPayload)).toString('base64');
+    // Generate callback secret for install-complete verification
+    const callbackSecret = crypto.randomUUID();
 
-    // Step 1: Create VM via Orgo API with startup script that installs the Mouse fork
+    // Insert VM record FIRST to get vm.id (needed in config for callback)
+    const { data: vm, error: insertError } = await supabase
+      .from('vms')
+      .insert({
+        user_id: user.id,
+        status: 'provisioning',
+        port: 18789,
+        provision_started_at: new Date().toISOString(),
+        config_json: configPayload,
+        callback_secret: callbackSecret,
+        attempt_count: 1,
+      })
+      .select()
+      .single();
+
+    if (insertError || !vm) {
+      console.error('Failed to save VM record:', insertError);
+      return NextResponse.json(
+        { success: false, error: 'Failed to save VM record' },
+        { status: 500 }
+      );
+    }
+
+    // Add vm_id + callback_secret to config so install.sh can call back
+    const fullConfig = { ...configPayload, vm_id: vm.id, callback_secret: callbackSecret };
+    const configB64 = Buffer.from(JSON.stringify(fullConfig)).toString('base64');
+
+    // Create VM via Orgo API
     const orgoResponse = await fetch(`${ORGO_BASE}/computers`, {
       method: 'POST',
       headers: {
@@ -95,7 +125,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         workspace_id: process.env.ORGO_WORKSPACE_ID,
         name: `mouse-${user.id.slice(0, 8)}-${Date.now()}`,
-        ram: 8,
+        ram: 16,
         cpu: 4,
         startup_script: `#!/bin/bash\ncurl -sSL https://mouse.is/install.sh | bash -s -- ${configB64}`,
       }),
@@ -106,7 +136,9 @@ export async function POST(request: NextRequest) {
       const errorData = await orgoResponse.text();
       console.error(`Orgo create computer error (${orgoResponse.status}):`, errorData);
 
-      // Detect capacity exhaustion and return a specific error code
+      // Clean up the VM record since Orgo failed
+      await supabase.from('vms').delete().eq('id', vm.id);
+
       if (errorData.includes('no servers available')) {
         return NextResponse.json(
           { success: false, error: 'no_capacity' },
@@ -115,7 +147,7 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json(
-        { success: false, error: `Failed to provision VM (${orgoResponse.status}): ${errorData.slice(0, 200)}` },
+        { success: false, error: `Failed to provision VM (${orgoResponse.status}): ${errorData.slice(0, 200)}`, debug: errorData.slice(0, 500) },
         { status: 502 }
       );
     }
@@ -126,28 +158,14 @@ export async function POST(request: NextRequest) {
 
     console.log('[Provision] Orgo response:', JSON.stringify(orgoData).slice(0, 500));
 
-    // Save VM record — mark as provisioning (install script needs to complete first)
-    const { data: vm, error: insertError } = await supabase
+    // Update VM record with Orgo details
+    await supabase
       .from('vms')
-      .insert({
-        user_id: user.id,
+      .update({
         orgo_vm_id: computerId,
         ip_address: vmAddress,
-        status: 'provisioning',
-        port: 18789,
-        provision_started_at: new Date().toISOString(),
-        config_json: configPayload,
       })
-      .select()
-      .single();
-
-    if (insertError) {
-      console.error('Failed to save VM record:', insertError);
-      return NextResponse.json(
-        { success: false, error: 'Failed to save VM record' },
-        { status: 500 }
-      );
-    }
+      .eq('id', vm.id);
 
     // Create work_hours record for new user (2.0 free hours to start)
     const { data: existingHours } = await supabase
@@ -177,10 +195,10 @@ export async function POST(request: NextRequest) {
         { status: 504 }
       );
     }
+    const errMsg = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: 'Internal server error', debug: errMsg },
       { status: 500 }
     );
   }
 }
-

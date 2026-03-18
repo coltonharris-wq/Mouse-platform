@@ -3,12 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
-/* ------------------------------------------------------------------ */
-/*  Step definitions                                                   */
-/* ------------------------------------------------------------------ */
-
 interface Step {
-  /** CSS selector used with document.querySelector to find the target element */
   selector: string;
   title: string;
   description: string;
@@ -29,8 +24,7 @@ const STEPS: Step[] = [
   {
     selector: '[data-onboarding="king-mouse"]',
     title: 'King Mouse',
-    description:
-      'He works for YOU. Find leads, write scripts, listen in on calls.',
+    description: 'He works for YOU. Find leads, write scripts, listen in on calls.',
   },
   {
     selector: '[data-onboarding="lead-finder"]',
@@ -41,36 +35,28 @@ const STEPS: Step[] = [
   {
     selector: '[data-onboarding="pipeline"]',
     title: 'Pipeline',
-    description:
-      'Drag deals across stages. King Mouse auto-follows up on stale deals.',
+    description: 'Drag deals across stages. King Mouse auto-follows up on stale deals.',
   },
   {
     selector: '[data-onboarding="invite"]',
     title: 'Invite a Customer',
-    description:
-      'One-click invite at YOUR price. You earn the markup forever.',
+    description: 'One-click invite at YOUR price. You earn the markup forever.',
   },
   {
     selector: '[data-onboarding="niches"]',
     title: 'Niche Previews',
-    description:
-      'On a call with a roofer? Show them their exact dashboard. 150+ niches.',
+    description: 'On a call with a roofer? Show them their exact dashboard. 150+ niches.',
   },
   {
     selector: '[data-onboarding="commissions"]',
     title: 'Commissions',
-    description:
-      'You sell, they use, you get paid. Instant Stripe deposits.',
+    description: 'You sell, they use, you get paid. Instant Stripe deposits.',
   },
 ];
 
 const STORAGE_KEY = 'reseller_onboarding_complete';
-const SPOTLIGHT_PADDING = 8; // px around the target element
-const SPOTLIGHT_RADIUS = 12; // border-radius of the spotlight cutout
-
-/* ------------------------------------------------------------------ */
-/*  Tooltip placement helper                                           */
-/* ------------------------------------------------------------------ */
+const SPOTLIGHT_PADDING = 8;
+const SPOTLIGHT_RADIUS = 12;
 
 type Placement = 'right' | 'left' | 'bottom' | 'top';
 
@@ -80,10 +66,10 @@ interface TooltipPosition {
   placement: Placement;
 }
 
-/**
- * Decide where to place the tooltip card relative to the spotlight rect.
- * Prefers right, then bottom, then left, then top — whichever has room.
- */
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
 function computeTooltipPosition(
   rect: DOMRect,
   cardWidth: number,
@@ -94,7 +80,6 @@ function computeTooltipPosition(
   const vh = window.innerHeight;
   const pad = SPOTLIGHT_PADDING;
 
-  // Try right
   const rightLeft = rect.right + pad + gap;
   if (rightLeft + cardWidth < vw - 16) {
     return {
@@ -104,7 +89,6 @@ function computeTooltipPosition(
     };
   }
 
-  // Try bottom
   const bottomTop = rect.bottom + pad + gap;
   if (bottomTop + cardHeight < vh - 16) {
     return {
@@ -114,7 +98,6 @@ function computeTooltipPosition(
     };
   }
 
-  // Try left
   const leftLeft = rect.left - pad - gap - cardWidth;
   if (leftLeft > 16) {
     return {
@@ -124,7 +107,6 @@ function computeTooltipPosition(
     };
   }
 
-  // Fallback: top
   const topTop = rect.top - pad - gap - cardHeight;
   return {
     top: Math.max(topTop, 16),
@@ -132,14 +114,6 @@ function computeTooltipPosition(
     placement: 'top',
   };
 }
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
-}
-
-/* ------------------------------------------------------------------ */
-/*  Component                                                          */
-/* ------------------------------------------------------------------ */
 
 export default function ResellerOnboardingWizard() {
   const [visible, setVisible] = useState(false);
@@ -149,32 +123,22 @@ export default function ResellerOnboardingWizard() {
   const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
 
   const cardRef = useRef<HTMLDivElement>(null);
-
-  // ---- Estimated card dimensions (used before the ref is available) ----
   const CARD_W = 340;
   const CARD_H = 220;
 
-  /* ------ mount: check localStorage, set portal root ------ */
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
     setPortalRoot(document.body);
-
     if (localStorage.getItem(STORAGE_KEY) === 'true') return;
-
-    // Small delay so the shell DOM has rendered and data-onboarding attrs exist
     const timer = setTimeout(() => setVisible(true), 600);
     return () => clearTimeout(timer);
   }, []);
 
-  /* ------ measure target element whenever step changes ------ */
   const measureTarget = useCallback(() => {
     const step = STEPS[currentStep];
     if (!step) return;
-
     const el = document.querySelector(step.selector);
     if (!el) {
-      // Element not found — still show the card centred
       setTargetRect(null);
       setTooltipPos({
         top: window.innerHeight / 2 - CARD_H / 2,
@@ -183,20 +147,16 @@ export default function ResellerOnboardingWizard() {
       });
       return;
     }
-
     const rect = el.getBoundingClientRect();
     setTargetRect(rect);
-
     const cw = cardRef.current?.offsetWidth ?? CARD_W;
     const ch = cardRef.current?.offsetHeight ?? CARD_H;
     setTooltipPos(computeTooltipPosition(rect, cw, ch));
-  }, [currentStep, CARD_W, CARD_H]);
+  }, [currentStep]);
 
   useEffect(() => {
     if (!visible) return;
     measureTarget();
-
-    // Re-measure on resize / scroll so the spotlight tracks the element
     window.addEventListener('resize', measureTarget);
     window.addEventListener('scroll', measureTarget, true);
     return () => {
@@ -205,7 +165,6 @@ export default function ResellerOnboardingWizard() {
     };
   }, [visible, measureTarget]);
 
-  /* ------ keyboard: Escape to skip, arrows to navigate ------ */
   useEffect(() => {
     if (!visible) return;
     function handleKey(e: KeyboardEvent) {
@@ -218,13 +177,9 @@ export default function ResellerOnboardingWizard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, currentStep]);
 
-  /* ------ actions ------ */
   function goNext() {
-    if (currentStep < STEPS.length - 1) {
-      setCurrentStep((s) => s + 1);
-    } else {
-      completeOnboarding();
-    }
+    if (currentStep < STEPS.length - 1) setCurrentStep((s) => s + 1);
+    else completeOnboarding();
   }
 
   function goBack() {
@@ -236,7 +191,6 @@ export default function ResellerOnboardingWizard() {
     setVisible(false);
   }
 
-  /* ------ render ------ */
   if (!visible || !portalRoot) return null;
 
   const step = STEPS[currentStep];
@@ -244,60 +198,31 @@ export default function ResellerOnboardingWizard() {
   const isLast = currentStep === STEPS.length - 1;
 
   const overlay = (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 99999,
-      }}
-      aria-label="Onboarding overlay"
-    >
-      {/* Dark overlay with spotlight cutout */}
+    <div style={{ position: 'fixed', inset: 0, zIndex: 99999 }} aria-label="Onboarding overlay">
       {targetRect ? (
-        <svg
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-          pointerEvents="none"
-        >
+        <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} pointerEvents="none">
           <defs>
             <mask id="onboarding-mask">
-              {/* White = visible overlay, black = transparent cutout */}
               <rect width="100%" height="100%" fill="white" />
               <rect
-                x={targetRect!.left - SPOTLIGHT_PADDING}
-                y={targetRect!.top - SPOTLIGHT_PADDING}
-                width={targetRect!.width + SPOTLIGHT_PADDING * 2}
-                height={targetRect!.height + SPOTLIGHT_PADDING * 2}
+                x={targetRect.left - SPOTLIGHT_PADDING}
+                y={targetRect.top - SPOTLIGHT_PADDING}
+                width={targetRect.width + SPOTLIGHT_PADDING * 2}
+                height={targetRect.height + SPOTLIGHT_PADDING * 2}
                 rx={SPOTLIGHT_RADIUS}
                 ry={SPOTLIGHT_RADIUS}
                 fill="black"
               />
             </mask>
           </defs>
-          <rect
-            width="100%"
-            height="100%"
-            fill="rgba(0,0,0,0.60)"
-            mask="url(#onboarding-mask)"
-          />
+          <rect width="100%" height="100%" fill="rgba(0,0,0,0.60)" mask="url(#onboarding-mask)" />
         </svg>
       ) : (
-        /* No target found — simple full overlay */
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundColor: 'rgba(0,0,0,0.60)',
-          }}
-        />
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.60)' }} />
       )}
 
-      {/* Transparent click-blocker over the whole viewport so users can't interact */}
-      <div
-        style={{ position: 'absolute', inset: 0 }}
-        onClick={(e) => e.stopPropagation()}
-      />
+      <div style={{ position: 'absolute', inset: 0 }} onClick={(e) => e.stopPropagation()} />
 
-      {/* Spotlight border ring — visual emphasis */}
       {targetRect && (
         <div
           style={{
@@ -315,7 +240,6 @@ export default function ResellerOnboardingWizard() {
         />
       )}
 
-      {/* Tooltip card */}
       {tooltipPos && (
         <div
           ref={cardRef}
@@ -327,37 +251,17 @@ export default function ResellerOnboardingWizard() {
             maxWidth: 'calc(100vw - 32px)',
             backgroundColor: '#ffffff',
             borderRadius: 16,
-            boxShadow:
-              '0 25px 50px -12px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.05)',
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.05)',
             padding: 24,
             zIndex: 100000,
             transition: 'top 300ms ease, left 300ms ease',
           }}
         >
-          {/* Step indicator */}
-          <p
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: '#F07020',
-              marginBottom: 4,
-              letterSpacing: '0.025em',
-            }}
-          >
+          <p style={{ fontSize: 12, fontWeight: 600, color: '#F07020', marginBottom: 4, letterSpacing: '0.025em' }}>
             Step {currentStep + 1} of {STEPS.length}
           </p>
 
-          {/* Progress bar */}
-          <div
-            style={{
-              width: '100%',
-              height: 3,
-              borderRadius: 2,
-              backgroundColor: '#e5e7eb',
-              marginBottom: 16,
-              overflow: 'hidden',
-            }}
-          >
+          <div style={{ width: '100%', height: 3, borderRadius: 2, backgroundColor: '#e5e7eb', marginBottom: 16, overflow: 'hidden' }}>
             <div
               style={{
                 width: `${((currentStep + 1) / STEPS.length) * 100}%`,
@@ -369,84 +273,29 @@ export default function ResellerOnboardingWizard() {
             />
           </div>
 
-          {/* Title */}
-          <h3
-            style={{
-              fontSize: 18,
-              fontWeight: 700,
-              color: '#1e2a3a',
-              marginBottom: 8,
-              lineHeight: 1.3,
-            }}
-          >
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1e2a3a', marginBottom: 8, lineHeight: 1.3 }}>
             {step.title}
           </h3>
 
-          {/* Description */}
-          <p
-            style={{
-              fontSize: 14,
-              lineHeight: 1.6,
-              color: '#4b5563',
-              marginBottom: 24,
-            }}
-          >
+          <p style={{ fontSize: 14, lineHeight: 1.6, color: '#4b5563', marginBottom: 24 }}>
             {step.description}
           </p>
 
-          {/* Buttons */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            {/* Left: Skip */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <button
               onClick={completeOnboarding}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#9ca3af',
-                fontSize: 13,
-                cursor: 'pointer',
-                padding: '4px 0',
-                fontWeight: 500,
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.color = '#6b7280';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.color = '#9ca3af';
-              }}
+              style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: 13, cursor: 'pointer', padding: '4px 0', fontWeight: 500 }}
             >
               Skip Tour
             </button>
 
-            {/* Right: Back + Next */}
             <div style={{ display: 'flex', gap: 8 }}>
               {!isFirst && (
                 <button
                   onClick={goBack}
                   style={{
-                    padding: '8px 16px',
-                    borderRadius: 8,
-                    border: '1px solid #d1d5db',
-                    backgroundColor: '#ffffff',
-                    color: '#374151',
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'background-color 150ms ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                      '#f3f4f6';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                      '#ffffff';
+                    padding: '8px 16px', borderRadius: 8, border: '1px solid #d1d5db',
+                    backgroundColor: '#ffffff', color: '#374151', fontSize: 14, fontWeight: 600, cursor: 'pointer',
                   }}
                 >
                   Back
@@ -455,23 +304,8 @@ export default function ResellerOnboardingWizard() {
               <button
                 onClick={goNext}
                 style={{
-                  padding: '8px 20px',
-                  borderRadius: 8,
-                  border: 'none',
-                  backgroundColor: '#F07020',
-                  color: '#ffffff',
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'background-color 150ms ease',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                    '#d9621a';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                    '#F07020';
+                  padding: '8px 20px', borderRadius: 8, border: 'none',
+                  backgroundColor: '#F07020', color: '#ffffff', fontSize: 14, fontWeight: 600, cursor: 'pointer',
                 }}
               >
                 {isLast ? 'Get Started!' : 'Next'}
@@ -485,4 +319,3 @@ export default function ResellerOnboardingWizard() {
 
   return createPortal(overlay, portalRoot);
 }
-

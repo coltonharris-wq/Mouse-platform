@@ -102,7 +102,7 @@ export default function ResellerSettingsPage() {
     <div className="max-w-2xl">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
 
-      {/* ── Profile ── */}
+      {/* Profile */}
       <div className="bg-white rounded-xl border border-[#e4e0da] p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Profile</h2>
 
@@ -150,7 +150,7 @@ export default function ResellerSettingsPage() {
         </div>
       </div>
 
-      {/* ── Pricing ── */}
+      {/* Pricing */}
       <div className="bg-white rounded-xl border border-[#e4e0da] p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Pricing</h2>
 
@@ -169,12 +169,10 @@ export default function ResellerSettingsPage() {
           </div>
         </div>
 
-        <p className="text-xs text-gray-500">
-          Contact support to change your rate.
-        </p>
+        <p className="text-xs text-gray-500">Contact support to change your rate.</p>
       </div>
 
-      {/* ── Payout Method ── */}
+      {/* Payout Method */}
       <div className="bg-white rounded-xl border border-[#e4e0da] p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Payout Method</h2>
 
@@ -185,9 +183,7 @@ export default function ResellerSettingsPage() {
           </div>
         ) : (
           <div>
-            <p className="text-sm text-gray-500 mb-4">
-              Connect your bank account through Stripe to receive payouts.
-            </p>
+            <p className="text-sm text-gray-500 mb-4">Connect your bank account through Stripe to receive payouts.</p>
             <button
               onClick={handleConnectStripe}
               disabled={connectingStripe}
@@ -199,29 +195,21 @@ export default function ResellerSettingsPage() {
         )}
       </div>
 
-      {/* ── Talk to a Human ── */}
+      {/* Talk to a Human */}
       <div className="bg-white rounded-xl border border-[#e4e0da] p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Talk to a Human</h2>
-        <p className="text-sm text-gray-500 mb-4">
-          Need help? Reach out to our support team directly.
-        </p>
+        <p className="text-sm text-gray-500 mb-4">Need help? Reach out to our support team directly.</p>
 
         <div className="space-y-3">
           <div className="flex items-center gap-3">
             <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <a
-              href="tel:+19105158927"
-              className="text-sm text-gray-800 hover:text-[#F07020] transition-colors"
-            >
+            <a href="tel:+19105158927" className="text-sm text-gray-800 hover:text-[#F07020] transition-colors">
               (910) 515-8927
             </a>
           </div>
           <div className="flex items-center gap-3">
             <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <a
-              href="mailto:colton.harris@automioapp.com"
-              className="text-sm text-gray-800 hover:text-[#F07020] transition-colors"
-            >
+            <a href="mailto:colton.harris@automioapp.com" className="text-sm text-gray-800 hover:text-[#F07020] transition-colors">
               colton.harris@automioapp.com
             </a>
           </div>

@@ -436,7 +436,7 @@ export default function KingMousePage() {
             };
             setMessages((prev) => [...prev, assistantMsg]);
           }
-        } else if (data.error === 'king_mouse_down' || data.error === 'no_vm') {
+        } else if (data.support_message) {
           // King Mouse is down or VM not ready — show support contact
           const supportMsg: Message = {
             id: 'support-' + Date.now(),

@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
       provisioning_checked: 0,
       provisioning_ready: 0,
       provisioning_failed: 0,
+      installs_triggered: 0,
       tasks_processed: 0,
       errors: [] as Array<{ context: string; error: string }>,
     };
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
     const { data: provisioningVms, error: vmsError } = await supabase
       .from('vms')
       .select('*')
-      .eq('status', 'provisioning');
+      .in('status', ['provisioning', 'installing']);
 
     if (vmsError) {
       console.error('Failed to fetch provisioning VMs:', vmsError);
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
         try {
           // Check Orgo API for VM status updates
           const orgoResponse = await fetch(
-            `${process.env.ORGO_BASE_URL}/v1/machines/${vm.orgo_vm_id}`,
+            `${process.env.ORGO_BASE_URL || 'https://www.orgo.ai/api'}/computers/${vm.orgo_vm_id}`,
             {
               headers: {
                 'Authorization': `Bearer ${process.env.ORGO_API_KEY}`,
@@ -56,15 +57,14 @@ export async function GET(request: NextRequest) {
           const orgoData = await orgoResponse.json();
 
           if (orgoData.status === 'running' || orgoData.status === 'ready') {
-            // VM is ready - update record
+            // Orgo container is up, but install.sh may still be running.
+            // Only promote to 'installing' — the install-complete callback
+            // (POST /api/vm/install-complete) is the ONLY path to 'ready'.
             await supabase
               .from('vms')
               .update({
-                status: 'ready',
-                ip_address: orgoData.ip_address || orgoData.ip,
-                port: orgoData.port || 18789,
-                ready_at: new Date().toISOString(),
-                last_health_check: new Date().toISOString(),
+                status: 'installing',
+                ip_address: orgoData.url || orgoData.ip_address || orgoData.ip || null,
                 config_json: {
                   ...vm.config_json,
                   orgo_status: orgoData,
@@ -73,6 +73,72 @@ export async function GET(request: NextRequest) {
               .eq('id', vm.id);
 
             results.provisioning_ready++;
+
+            // Trigger install.sh via exec if not already triggered
+            if (!vm.config_json?.install_triggered && vm.orgo_vm_id) {
+              try {
+                const fullConfig = {
+                  ...vm.config_json,
+                  vm_id: vm.id,
+                  callback_secret: vm.callback_secret,
+                };
+                // Remove orgo_status (monitoring data, not needed by install.sh)
+                delete fullConfig.orgo_status;
+                delete fullConfig.install_triggered;
+                delete fullConfig.install_triggered_at;
+                const configB64 = Buffer.from(JSON.stringify(fullConfig)).toString('base64');
+
+                const installPython = [
+                  'import subprocess',
+                  `cb64 = "${configB64}"`,
+                  'log = open("/tmp/king-mouse-install.log", "w")',
+                  'subprocess.Popen(',
+                  '  ["bash", "-c", f"curl -sSL https://mouse.is/install.sh | bash -s -- {cb64}"],',
+                  '  stdout=log, stderr=subprocess.STDOUT,',
+                  '  start_new_session=True',
+                  ')',
+                  'print("INSTALL_STARTED")',
+                ].join('\n');
+
+                const execRes = await fetch(
+                  `${process.env.ORGO_BASE_URL || 'https://www.orgo.ai/api'}/computers/${vm.orgo_vm_id}/exec`,
+                  {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Bearer ${process.env.ORGO_API_KEY}`,
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ code: installPython }),
+                    signal: AbortSignal.timeout(15000),
+                  }
+                );
+
+                if (execRes.ok) {
+                  const execData = await execRes.json();
+                  if (execData.success && execData.output?.includes('INSTALL_STARTED')) {
+                    // Mark as triggered so we don't re-fire
+                    await supabase
+                      .from('vms')
+                      .update({
+                        config_json: {
+                          ...vm.config_json,
+                          install_triggered: true,
+                          install_triggered_at: new Date().toISOString(),
+                          orgo_status: orgoData,
+                        },
+                      })
+                      .eq('id', vm.id);
+
+                    console.log(`[MetaAgent] Triggered install.sh on VM ${vm.id} (Orgo ${vm.orgo_vm_id})`);
+                    results.installs_triggered++;
+                  }
+                }
+              } catch (installErr) {
+                const msg = installErr instanceof Error ? installErr.message : 'Unknown';
+                console.error(`[MetaAgent] Failed to trigger install on VM ${vm.id}:`, msg);
+                results.errors.push({ context: `install_trigger_${vm.id}`, error: msg });
+              }
+            }
           } else if (orgoData.status === 'failed' || orgoData.status === 'error') {
             // VM provisioning failed
             await supabase

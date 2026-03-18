@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase-server';
 
+export const maxDuration = 30;
+
 const ORGO_BASE = process.env.ORGO_BASE_URL || 'https://www.orgo.ai/api';
 
 /** Run a command on the VM via Orgo exec API (Python wrapper around bash) */
@@ -12,7 +14,7 @@ async function execOnVM(orgoVmId: string, pythonCode: string): Promise<{ success
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ code: pythonCode }),
-    signal: AbortSignal.timeout(30000),
+    signal: AbortSignal.timeout(10000),
   });
 
   if (!res.ok) {
@@ -22,29 +24,75 @@ async function execOnVM(orgoVmId: string, pythonCode: string): Promise<{ success
   return { success: data.success ?? false, output: data.output ?? '' };
 }
 
-async function runInstallOnVM(orgoVmId: string, bashCommand: string): Promise<void> {
-  const scriptB64 = Buffer.from(
-    `#!/bin/bash\nset -euo pipefail\nexec > /tmp/mouse-install.log 2>&1\n${bashCommand}\n`
-  ).toString('base64');
-
-  const pythonCode = [
-    'import base64, subprocess',
-    `open("/tmp/run-install.sh","wb").write(base64.b64decode("${scriptB64}"))`,
-    'subprocess.Popen(["bash","/tmp/run-install.sh"])',
-    'print("install started in background")',
-  ].join('; ');
-
-  const result = await execOnVM(orgoVmId, pythonCode);
-  if (!result.success) {
-    throw new Error(`Orgo exec failed: ${result.output}`);
-  }
-}
-
 /** Check gateway health via Orgo exec (internal curl) since VM ports aren't externally exposed */
 async function checkHealthViaExec(orgoVmId: string, port: number): Promise<boolean> {
   const pythonCode = `import subprocess; r = subprocess.run(["curl", "-sf", "http://127.0.0.1:${port}/health"], capture_output=True, text=True, timeout=5); print("HEALTHY" if r.returncode == 0 else "DOWN")`;
   const result = await execOnVM(orgoVmId, pythonCode);
   return result.success && result.output.includes('HEALTHY');
+}
+
+
+/** Auto-retry: destroy old VM in Orgo, create new one with same config */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function retryProvision(supabase: ReturnType<typeof createServiceClient>, vm: Record<string, any>) {
+  // Delete old VM from Orgo
+  if (vm.orgo_vm_id) {
+    await fetch(`${ORGO_BASE}/computers/${vm.orgo_vm_id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${process.env.ORGO_API_KEY}` },
+    }).catch(() => {});
+  }
+
+  // Generate new callback secret
+  const newSecret = crypto.randomUUID();
+
+  // Rebuild config with same vm_id but new secret
+  const fullConfig = { ...vm.config_json, vm_id: vm.id, callback_secret: newSecret };
+  const configB64 = Buffer.from(JSON.stringify(fullConfig)).toString('base64');
+
+  // Create new VM in Orgo
+  const orgoRes = await fetch(`${ORGO_BASE}/computers`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.ORGO_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      workspace_id: process.env.ORGO_WORKSPACE_ID,
+      name: `mouse-${vm.user_id.slice(0, 8)}-${Date.now()}`,
+      ram: 16,
+      cpu: 4,
+      startup_script: `#!/bin/bash\ncurl -sSL https://mouse.is/install.sh | bash -s -- ${configB64}`,
+    }),
+  });
+
+  if (!orgoRes.ok) {
+    const errText = await orgoRes.text().catch(() => '');
+    throw new Error(`Orgo retry failed (${orgoRes.status}): ${errText.slice(0, 200)}`);
+  }
+
+  const orgoData = await orgoRes.json();
+
+  // Update Supabase record (same row, new Orgo VM)
+  await supabase.from('vms').update({
+    orgo_vm_id: orgoData.id,
+    ip_address: orgoData.url || orgoData.ip_address || orgoData.address || orgoData.ip || null,
+    status: 'provisioning',
+    provision_started_at: new Date().toISOString(),
+    attempt_count: (vm.attempt_count || 1) + 1,
+    callback_secret: newSecret,
+    error_message: null,
+    ready_at: null,
+    last_health_check: null,
+    config_json: {
+      ...vm.config_json,
+      install_triggered: false,
+      install_triggered_at: null,
+      orgo_status: null,
+    },
+  }).eq('id', vm.id);
+
+  console.log(`[Status] Retry #${(vm.attempt_count || 1) + 1} for VM ${vm.id} → new Orgo ID ${orgoData.id}`);
 }
 
 export async function GET(request: NextRequest) {
@@ -95,91 +143,120 @@ export async function GET(request: NextRequest) {
 
     let healthStatus: string | null = null;
 
-    // If VM has no IP address yet, try to fetch it from Orgo
-    if (!vm.ip_address && vm.orgo_vm_id) {
-      try {
-        const orgoRes = await fetch(`${ORGO_BASE}/computers/${vm.orgo_vm_id}`, {
-          headers: { 'Authorization': `Bearer ${process.env.ORGO_API_KEY}` },
-          signal: AbortSignal.timeout(5000),
-        });
-        if (orgoRes.ok) {
-          const orgoData = await orgoRes.json();
-          const ip = orgoData.url || orgoData.ip_address || orgoData.address || orgoData.ip || null;
-          if (ip) {
-            await supabase.from('vms').update({ ip_address: ip }).eq('id', vmId);
-            vm.ip_address = ip;
-          }
+    // ── Already ready (callback arrived) ─────────────────────────────
+    if (vm.status === 'ready') {
+      if (vm.orgo_vm_id) {
+        try {
+          const healthy = await checkHealthViaExec(vm.orgo_vm_id, vm.port);
+          healthStatus = healthy ? 'healthy' : 'unhealthy';
+          await supabase
+            .from('vms')
+            .update({ last_health_check: new Date().toISOString() })
+            .eq('id', vmId);
+        } catch {
+          healthStatus = 'unreachable';
         }
-      } catch {
-        // Orgo fetch failed — will retry on next poll
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          vm_id: vm.id,
+          status: 'ready',
+          ip_address: vm.ip_address,
+          port: vm.port,
+          health: healthStatus,
+          provision_started_at: vm.provision_started_at,
+          ready_at: vm.ready_at,
+          last_health_check: vm.last_health_check,
+          error_message: vm.error_message,
+        },
+      });
+    }
+
+    // ── Provisioning / Installing ────────────────────────────────────
+    if (vm.status === 'provisioning' || vm.status === 'installing') {
+      // Try to fetch IP from Orgo if missing
+      if (!vm.ip_address && vm.orgo_vm_id) {
+        try {
+          const orgoRes = await fetch(`${ORGO_BASE}/computers/${vm.orgo_vm_id}`, {
+            headers: { 'Authorization': `Bearer ${process.env.ORGO_API_KEY}` },
+            signal: AbortSignal.timeout(5000),
+          });
+          if (orgoRes.ok) {
+            const orgoData = await orgoRes.json();
+            const ip = orgoData.url || orgoData.ip_address || orgoData.address || orgoData.ip || null;
+            if (ip) {
+              await supabase.from('vms').update({ ip_address: ip, status: 'installing' }).eq('id', vmId);
+              vm.ip_address = ip;
+              vm.status = 'installing';
+            }
+          }
+        } catch {
+          // Orgo fetch failed — will retry on next poll
+        }
+      }
+
+      // NOTE: Do NOT promote to "ready" here via exec checks.
+      // Orgo exec returns false positives on fresh VMs before install.sh finishes.
+      // The ONLY path to "ready" is the install-complete callback (POST /api/vm/install-complete).
+
+      // Check timeout → auto-retry
+      if (vm.provision_started_at) {
+        const elapsedMs = Date.now() - new Date(vm.provision_started_at).getTime();
+        const attemptCount = vm.attempt_count || 1;
+
+        if (elapsedMs >= 4 * 60 * 1000) {
+          if (attemptCount < 3) {
+            try {
+              await retryProvision(supabase, vm);
+              return NextResponse.json({
+                success: true,
+                data: {
+                  vm_id: vm.id,
+                  status: 'retrying',
+                  attempt: attemptCount + 1,
+                  ip_address: null,
+                  port: vm.port,
+                  health: null,
+                  provision_started_at: new Date().toISOString(),
+                  ready_at: null,
+                  last_health_check: null,
+                  error_message: null,
+                },
+              });
+            } catch (err) {
+              console.error(`[Status] Retry failed for VM ${vm.id}:`, err);
+              // Fall through to mark as failed
+            }
+          }
+
+          // Exhausted retries or retry failed
+          await supabase.from('vms').update({
+            status: 'failed',
+            error_message: 'VM provisioning failed after multiple attempts',
+          }).eq('id', vmId);
+
+          return NextResponse.json({
+            success: true,
+            data: {
+              vm_id: vm.id,
+              status: 'failed',
+              error: 'max_retries',
+              ip_address: vm.ip_address,
+              port: vm.port,
+              health: null,
+              provision_started_at: vm.provision_started_at,
+              ready_at: null,
+              last_health_check: null,
+              error_message: 'VM provisioning failed after multiple attempts',
+            },
+          });
+        }
       }
     }
 
-    // If VM is provisioning/installing, check health via exec and trigger install if needed
-    if ((vm.status === 'provisioning' || vm.status === 'installing') && vm.ip_address && vm.orgo_vm_id) {
-      // Check health via Orgo exec (internal curl) — ports aren't exposed externally
-      let gatewayUp = false;
-      try {
-        gatewayUp = await checkHealthViaExec(vm.orgo_vm_id, vm.port);
-      } catch {
-        // Exec failed — VM may still be booting
-      }
-
-      if (gatewayUp) {
-        // Install complete — promote to ready
-        await supabase
-          .from('vms')
-          .update({
-            status: 'ready',
-            ready_at: new Date().toISOString(),
-            last_health_check: new Date().toISOString(),
-          })
-          .eq('id', vmId);
-        vm.status = 'ready';
-        vm.ready_at = new Date().toISOString();
-        healthStatus = 'healthy';
-      } else if (vm.orgo_vm_id && (
-        vm.status === 'provisioning' ||
-        // Retry if stuck in 'installing' for over 5 minutes (install may have failed silently)
-        (vm.status === 'installing' && vm.provision_started_at &&
-          Date.now() - new Date(vm.provision_started_at).getTime() > 5 * 60 * 1000)
-      )) {
-        // VM is booted (has IP) but gateway not running — trigger install script
-        await supabase
-          .from('vms')
-          .update({ status: 'installing', provision_started_at: new Date().toISOString() })
-          .eq('id', vmId);
-        vm.status = 'installing';
-
-        // Build install command from stored config
-        const configB64 = vm.config_json
-          ? Buffer.from(JSON.stringify(vm.config_json)).toString('base64')
-          : '';
-        const installCmd = `curl -sSL https://mouse.is/install.sh | bash -s -- ${configB64}`;
-
-        // Fire-and-forget: run install on the VM via Orgo exec API
-        runInstallOnVM(vm.orgo_vm_id, installCmd).catch((err) => {
-          console.error(`[Status] Failed to execute install on VM ${vm.orgo_vm_id}:`, err);
-        });
-
-        console.log(`[Status] Triggered install on VM ${vm.orgo_vm_id} (${vm.ip_address})`);
-      }
-    }
-
-    // If VM is ready, check health via exec
-    if (vm.status === 'ready' && vm.orgo_vm_id && healthStatus === null) {
-      try {
-        const healthy = await checkHealthViaExec(vm.orgo_vm_id, vm.port);
-        healthStatus = healthy ? 'healthy' : 'unhealthy';
-        await supabase
-          .from('vms')
-          .update({ last_health_check: new Date().toISOString() })
-          .eq('id', vmId);
-      } catch {
-        healthStatus = 'unreachable';
-      }
-    }
-
+    // Return current status (provisioning/installing within timeout, or any other status)
     return NextResponse.json({
       success: true,
       data: {

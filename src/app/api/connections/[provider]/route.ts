@@ -1,23 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase-server';
-import crypto from 'crypto';
+import { encryptCredentials } from '@/lib/connection-credentials';
 
 const SUPPORTED_PROVIDERS = [
   'gmail',
   'google_calendar',
+  'outlook',
+  'yahoo-mail',
   'quickbooks',
+  'freshbooks',
+  'xero',
+  'wave',
+  'hubspot',
+  'salesforce',
+  'zoho-crm',
+  'facebook',
+  'instagram',
+  'google-my-business',
+  'yelp',
+  'tiktok',
+  'slack',
+  'microsoft-teams',
+  'twilio',
+  'google-drive',
+  'dropbox',
+  'onedrive',
   'jobber',
   'servicetitan',
   'housecall_pro',
+  'google-calendar',
+  'housecall-pro',
+  // Legacy aliases used in specs or older rows.
+  'google_drive',
+  'google_business',
+  'teams',
+  'zoho',
 ];
 
 const GOOGLE_SCOPES: Record<string, string> = {
   gmail: 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send',
   google_calendar: 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events',
+  'google-calendar': 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events',
 };
 
 function isGoogleProvider(provider: string): boolean {
-  return provider === 'gmail' || provider === 'google_calendar';
+  return provider === 'gmail' || provider === 'google_calendar' || provider === 'google-calendar';
 }
 
 export async function GET(
@@ -79,6 +106,13 @@ export async function GET(
       oauthUrl.searchParams.set('state', state);
       oauthUrl.searchParams.set('access_type', 'offline');
       oauthUrl.searchParams.set('prompt', 'consent');
+
+      if (request.headers.get('x-requested-with') === 'fetch') {
+        return NextResponse.json({
+          success: true,
+          data: { authorize_url: oauthUrl.toString() },
+        });
+      }
 
       return NextResponse.redirect(oauthUrl.toString());
     }
@@ -218,23 +252,4 @@ export async function POST(
       { status: 500 }
     );
   }
-}
-
-function encryptCredentials(credentials: Record<string, string>): string {
-  // Simple encryption using AES-256-GCM with the encryption key from env
-  const key = process.env.ENCRYPTION_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY!;
-  const keyBuffer = crypto.createHash('sha256').update(key).digest();
-  const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv('aes-256-gcm', keyBuffer, iv);
-
-  let encrypted = cipher.update(JSON.stringify(credentials), 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-
-  const authTag = cipher.getAuthTag();
-
-  return JSON.stringify({
-    iv: iv.toString('hex'),
-    data: encrypted,
-    tag: authTag.toString('hex'),
-  });
 }

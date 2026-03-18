@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/meta-agent?secret=${CRON_SECRET}",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-stuck-vms?secret=${CRON_SECRET}",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

@@ -13,6 +13,15 @@ const VOICES = [
   { id: 'deep', name: 'Deep', description: 'Authoritative, bold' },
 ];
 
+const ELEVENLABS_VOICE_IDS: Record<string, string> = {
+  professional: 'EXAVITQu4vr4xnSDxMaL',  // Rachel
+  energetic: '21m00Tcm4TlvDq8ikWAM',      // Rachel variant
+  southern: 'AZnzlk1XvdvUeBnXmlld',       // Domi
+  female: 'MF3mGyEYCl7XYWbV9V6O',         // Elli
+  casual: 'TxGEqnHWrfWFTfGW9XjX',         // Josh
+  deep: 'VR6AewLTigWG4xSOukaG',           // Arnold
+};
+
 type PhoneOption = 'new' | 'port';
 
 export default function ReceptionistPage() {
@@ -24,6 +33,13 @@ export default function ReceptionistPage() {
   const [saving, setSaving] = useState(false);
   const [phoneOption, setPhoneOption] = useState<PhoneOption>('new');
   const [areaCode, setAreaCode] = useState('');
+  const [provisioningNumber, setProvisioningNumber] = useState(false);
+  const [provisionError, setProvisionError] = useState<string | null>(null);
+  const [provisionSuccess, setProvisionSuccess] = useState<string | null>(null);
+  const [editingGreeting, setEditingGreeting] = useState(false);
+  const [greetingDraft, setGreetingDraft] = useState('');
+  const [savingGreeting, setSavingGreeting] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const supabase = createBrowserClient();
@@ -90,12 +106,148 @@ export default function ReceptionistPage() {
     }
   }
 
-  function togglePlayVoice(voiceId: string) {
+  async function togglePlayVoice(voiceId: string) {
+    // If currently playing this voice, stop it
     if (playingVoice === voiceId) {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.src = '';
+        setCurrentAudio(null);
+      }
       setPlayingVoice(null);
-    } else {
-      setPlayingVoice(voiceId);
-      setTimeout(() => setPlayingVoice(null), 3000);
+      return;
+    }
+
+    // Stop any currently playing audio
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.src = '';
+      setCurrentAudio(null);
+    }
+
+    setPlayingVoice(voiceId);
+
+    try {
+      const supabase = createBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        setPlayingVoice(null);
+        return;
+      }
+
+      const elevenlabsVoiceId = ELEVENLABS_VOICE_IDS[voiceId] || ELEVENLABS_VOICE_IDS.professional;
+      const sampleText = config?.greeting || 'Hello, thank you for calling. How can I help you today?';
+
+      const response = await fetch('/api/receptionist/voice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          text: sampleText,
+          voice_id: elevenlabsVoiceId,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('Voice test failed:', response.statusText);
+        setPlayingVoice(null);
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      setCurrentAudio(audio);
+
+      audio.onended = () => {
+        setPlayingVoice(null);
+        setCurrentAudio(null);
+        URL.revokeObjectURL(url);
+      };
+
+      audio.onerror = () => {
+        setPlayingVoice(null);
+        setCurrentAudio(null);
+        URL.revokeObjectURL(url);
+      };
+
+      audio.play();
+    } catch (err) {
+      console.error('Voice test error:', err);
+      setPlayingVoice(null);
+      setCurrentAudio(null);
+    }
+  }
+
+  async function provisionNumber() {
+    setProvisioningNumber(true);
+    setProvisionError(null);
+    setProvisionSuccess(null);
+
+    try {
+      const supabase = createBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        setProvisionError('Not authenticated. Please sign in again.');
+        setProvisioningNumber(false);
+        return;
+      }
+
+      const response = await fetch('/api/receptionist/provision-number', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ area_code: areaCode || undefined }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setProvisionError(data.error || 'Failed to provision phone number');
+        setProvisioningNumber(false);
+        return;
+      }
+
+      // Update config state with new phone number
+      setConfig((prev) =>
+        prev
+          ? { ...prev, phone_number: data.data.phone_number, enabled: true }
+          : { phone_number: data.data.phone_number, enabled: true } as ReceptionistConfig
+      );
+      setProvisionSuccess(`Number provisioned: ${data.data.phone_number}`);
+    } catch (err) {
+      console.error('Provision error:', err);
+      setProvisionError('An unexpected error occurred. Please try again.');
+    } finally {
+      setProvisioningNumber(false);
+    }
+  }
+
+  async function saveGreeting() {
+    setSavingGreeting(true);
+
+    try {
+      const supabase = createBrowserClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await supabase
+        .from('receptionist_config')
+        .upsert({
+          user_id: user.id,
+          greeting: greetingDraft,
+        });
+
+      setConfig((prev) => (prev ? { ...prev, greeting: greetingDraft } : prev));
+      setEditingGreeting(false);
+    } catch (err) {
+      console.error('Failed to save greeting:', err);
+    } finally {
+      setSavingGreeting(false);
     }
   }
 
@@ -420,38 +572,61 @@ export default function ReceptionistPage() {
             </div>
 
             {phoneOption === 'new' && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input
-                  type="text"
-                  placeholder="Area code (e.g. 512)"
-                  value={areaCode}
-                  onChange={(e) => setAreaCode(e.target.value)}
-                  maxLength={3}
-                  style={{
-                    padding: '9px 12px',
-                    borderRadius: 8,
-                    border: '0.5px solid #e8e8e4',
-                    fontSize: 13,
-                    outline: 'none',
-                    width: 160,
-                    color: '#1a1a1a',
-                    background: '#fff',
-                  }}
-                />
-                <button
-                  style={{
-                    padding: '9px 18px',
-                    borderRadius: 8,
-                    background: '#F07020',
-                    color: '#fff',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Get number
-                </button>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <input
+                    type="text"
+                    placeholder="Area code (e.g. 512)"
+                    value={areaCode}
+                    onChange={(e) => setAreaCode(e.target.value)}
+                    maxLength={3}
+                    disabled={provisioningNumber}
+                    style={{
+                      padding: '9px 12px',
+                      borderRadius: 8,
+                      border: '0.5px solid #e8e8e4',
+                      fontSize: 13,
+                      outline: 'none',
+                      width: 160,
+                      color: '#1a1a1a',
+                      background: provisioningNumber ? '#f6f6f4' : '#fff',
+                    }}
+                  />
+                  <button
+                    onClick={provisionNumber}
+                    disabled={provisioningNumber}
+                    style={{
+                      padding: '9px 18px',
+                      borderRadius: 8,
+                      background: provisioningNumber ? '#ccc' : '#F07020',
+                      color: '#fff',
+                      fontSize: 13,
+                      fontWeight: 500,
+                      border: 'none',
+                      cursor: provisioningNumber ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    {provisioningNumber && (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" style={{ animation: 'spin 1s linear infinite' }}>
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                      </svg>
+                    )}
+                    {provisioningNumber ? 'Getting number...' : 'Get number'}
+                  </button>
+                </div>
+                {provisionError && (
+                  <p style={{ fontSize: 12, color: '#A32D2D', marginTop: 8, marginBottom: 0 }}>
+                    {provisionError}
+                  </p>
+                )}
+                {provisionSuccess && (
+                  <p style={{ fontSize: 12, color: '#1D9E75', marginTop: 8, marginBottom: 0 }}>
+                    {provisionSuccess}
+                  </p>
+                )}
               </div>
             )}
 
@@ -516,35 +691,103 @@ export default function ReceptionistPage() {
           <h2 style={{ fontSize: 15, fontWeight: 500, color: '#1a1a1a', margin: '4px 0 0 0' }}>Your greeting</h2>
         </div>
 
-        <div
-          style={{
-            background: '#f6f6f4',
-            borderRadius: 8,
-            padding: '14px 16px',
-            marginBottom: 14,
-            border: '0.5px solid #e8e8e4',
-          }}
-        >
-          <p style={{ fontSize: 13, color: '#444', fontStyle: 'italic', margin: 0, lineHeight: 1.6 }}>
-            {config?.greeting ||
-              '"Hi, thanks for calling! This is King Mouse, your AI assistant. I can help you schedule an appointment, answer questions about our services, or take a message. How can I help you today?"'}
-          </p>
-        </div>
+        {editingGreeting ? (
+          <>
+            <textarea
+              value={greetingDraft}
+              onChange={(e) => setGreetingDraft(e.target.value)}
+              rows={4}
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                borderRadius: 8,
+                border: '0.5px solid #1D9E75',
+                fontSize: 13,
+                color: '#444',
+                lineHeight: 1.6,
+                resize: 'vertical',
+                outline: 'none',
+                fontFamily: 'inherit',
+                marginBottom: 14,
+                background: '#fff',
+                boxSizing: 'border-box',
+              }}
+            />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={saveGreeting}
+                disabled={savingGreeting}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 8,
+                  background: savingGreeting ? '#9FE1CB' : '#1D9E75',
+                  color: '#fff',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  border: 'none',
+                  cursor: savingGreeting ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {savingGreeting ? 'Saving...' : 'Save'}
+              </button>
+              <button
+                onClick={() => setEditingGreeting(false)}
+                disabled={savingGreeting}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 8,
+                  background: '#fff',
+                  color: '#1a1a1a',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  border: '0.5px solid #e8e8e4',
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div
+              style={{
+                background: '#f6f6f4',
+                borderRadius: 8,
+                padding: '14px 16px',
+                marginBottom: 14,
+                border: '0.5px solid #e8e8e4',
+              }}
+            >
+              <p style={{ fontSize: 13, color: '#444', fontStyle: 'italic', margin: 0, lineHeight: 1.6 }}>
+                {config?.greeting ||
+                  '"Hi, thanks for calling! This is King Mouse, your AI assistant. I can help you schedule an appointment, answer questions about our services, or take a message. How can I help you today?"'}
+              </p>
+            </div>
 
-        <button
-          style={{
-            padding: '8px 16px',
-            borderRadius: 8,
-            background: '#fff',
-            color: '#1a1a1a',
-            fontSize: 13,
-            fontWeight: 500,
-            border: '0.5px solid #e8e8e4',
-            cursor: 'pointer',
-          }}
-        >
-          Edit greeting
-        </button>
+            <button
+              onClick={() => {
+                setGreetingDraft(
+                  config?.greeting ||
+                    'Hi, thanks for calling! This is King Mouse, your AI assistant. I can help you schedule an appointment, answer questions about our services, or take a message. How can I help you today?'
+                );
+                setEditingGreeting(true);
+              }}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 8,
+                background: '#fff',
+                color: '#1a1a1a',
+                fontSize: 13,
+                fontWeight: 500,
+                border: '0.5px solid #e8e8e4',
+                cursor: 'pointer',
+              }}
+            >
+              Edit greeting
+            </button>
+          </>
+        )}
       </div>
 
       {/* Card 4: Call log */}

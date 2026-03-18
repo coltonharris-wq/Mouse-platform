@@ -5,15 +5,15 @@ import { createBrowserClient } from '@/lib/supabase-browser';
 import type { WorkHours, UsageEvent } from '@/lib/types';
 
 const HOUR_PACKAGES = [
-  { hours: 10, price: 49.80, popular: false },
-  { hours: 20, price: 99.60, popular: false },
-  { hours: 50, price: 249.00, popular: true },
-  { hours: 100, price: 498.00, popular: false },
+  { hours: 10, price: 49.80, slug: '10hr', popular: false },
+  { hours: 25, price: 124.50, slug: '25hr', popular: true },
+  { hours: 50, price: 249.00, slug: '50hr', popular: false },
 ];
 
 export default function BillingPage() {
   const [workHours, setWorkHours] = useState<WorkHours | null>(null);
   const [usage, setUsage] = useState<UsageEvent[]>([]);
+  const [buying, setBuying] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -61,8 +61,38 @@ export default function BillingPage() {
     ? Math.min(100, (totalUsed / totalPurchased) * 100)
     : 0;
 
-  function handleBuyHours(hours: number, price: number) {
-    alert(`Redirecting to purchase ${hours} hours for $${price.toFixed(2)}...`);
+  async function handleBuyHours(slug: string) {
+    if (buying) return;
+    setBuying(slug);
+    try {
+      const supabase = createBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('Please log in to purchase hours.');
+        return;
+      }
+
+      const res = await fetch('/api/billing/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ topup: slug }),
+      });
+
+      const json = await res.json();
+      if (json.success && json.data?.checkout_url) {
+        window.location.href = json.data.checkout_url;
+      } else {
+        alert(json.error || 'Failed to start checkout');
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setBuying(null);
+    }
   }
 
   if (loading) {
@@ -177,7 +207,7 @@ export default function BillingPage() {
       {/* ── Buy more hours ── */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 12, color: '#1a1a1a' }}>Purchase more hours</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
           {HOUR_PACKAGES.map((pkg) => (
             <div
               key={pkg.hours}
@@ -214,20 +244,22 @@ export default function BillingPage() {
                 ${pkg.price.toFixed(2)}
               </div>
               <button
-                onClick={() => handleBuyHours(pkg.hours, pkg.price)}
+                onClick={() => handleBuyHours(pkg.slug)}
+                disabled={buying === pkg.slug}
                 style={{
                   width: '100%',
                   padding: '10px 0',
-                  backgroundColor: '#F07020',
+                  backgroundColor: buying === pkg.slug ? '#c0c0c0' : '#F07020',
                   color: '#fff',
                   border: 'none',
                   borderRadius: 8,
                   fontSize: 14,
                   fontWeight: 500,
-                  cursor: 'pointer',
+                  cursor: buying === pkg.slug ? 'not-allowed' : 'pointer',
+                  opacity: buying === pkg.slug ? 0.7 : 1,
                 }}
               >
-                Buy
+                {buying === pkg.slug ? 'Redirecting...' : 'Buy'}
               </button>
             </div>
           ))}

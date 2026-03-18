@@ -7,22 +7,22 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 // Subscription plan price IDs (set these in your Stripe dashboard)
 const PLAN_PRICES: Record<string, { price_id: string; name: string; mode: 'subscription' }> = {
   starter: {
-    price_id: process.env.STRIPE_PRICE_STARTER || 'price_starter',
+    price_id: process.env.STRIPE_STARTER_PRICE_ID || 'price_starter',
     name: 'Starter',
     mode: 'subscription',
   },
   pro: {
-    price_id: process.env.STRIPE_PRICE_PRO || 'price_pro',
+    price_id: process.env.STRIPE_PRO_PRICE_ID || 'price_pro',
     name: 'Pro',
     mode: 'subscription',
   },
   growth: {
-    price_id: process.env.STRIPE_PRICE_GROWTH || 'price_growth',
+    price_id: process.env.STRIPE_GROWTH_PRICE_ID || 'price_growth',
     name: 'Growth',
     mode: 'subscription',
   },
   enterprise: {
-    price_id: process.env.STRIPE_PRICE_ENTERPRISE || 'price_enterprise',
+    price_id: process.env.STRIPE_ENTERPRISE_PRICE_ID || 'price_enterprise',
     name: 'Enterprise',
     mode: 'subscription',
   },
@@ -31,17 +31,17 @@ const PLAN_PRICES: Record<string, { price_id: string; name: string; mode: 'subsc
 // Top-up price IDs
 const TOPUP_PRICES: Record<string, { price_id: string; hours: number; name: string }> = {
   '10hr': {
-    price_id: process.env.STRIPE_PRICE_TOPUP_10 || 'price_topup_10',
+    price_id: process.env.STRIPE_TOPUP_10_PRICE_ID || 'price_topup_10',
     hours: 10,
     name: '10 Hour Top-Up',
   },
   '25hr': {
-    price_id: process.env.STRIPE_PRICE_TOPUP_25 || 'price_topup_25',
+    price_id: process.env.STRIPE_TOPUP_25_PRICE_ID || 'price_topup_25',
     hours: 25,
     name: '25 Hour Top-Up',
   },
   '50hr': {
-    price_id: process.env.STRIPE_PRICE_TOPUP_50 || 'price_topup_50',
+    price_id: process.env.STRIPE_TOPUP_50_PRICE_ID || 'price_topup_50',
     hours: 50,
     name: '50 Hour Top-Up',
   },

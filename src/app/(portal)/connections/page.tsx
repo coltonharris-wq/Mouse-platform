@@ -15,6 +15,11 @@ interface Category {
   apps: AppCard[];
 }
 
+type ToastState = {
+  type: 'success' | 'warning' | 'error';
+  message: string;
+};
+
 const CATEGORIES: Category[] = [
   {
     label: 'Email',
@@ -85,8 +90,10 @@ export default function ConnectionsPage() {
   const [credEmail, setCredEmail] = useState('');
   const [credPassword, setCredPassword] = useState('');
   const [connecting, setConnecting] = useState(false);
+  const [configuringAppId, setConfiguringAppId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [hoveredBtn, setHoveredBtn] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState | null>(null);
 
   useEffect(() => {
     const supabase = createBrowserClient();
@@ -114,20 +121,110 @@ export default function ConnectionsPage() {
     loadConnections();
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get('success');
+    const error = params.get('error');
+
+    if (success) {
+      setToast({ type: 'success', message: success });
+    } else if (error) {
+      setToast({ type: 'error', message: error });
+    }
+
+    if (success || error) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('success');
+      url.searchParams.delete('error');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setToast(null);
+    }, 4500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [toast]);
+
   function isConnected(appId: string): boolean {
     return connections.some(
       (c) => c.provider === appId && c.status === 'connected'
     );
   }
 
-  function handleConnect(app: AppCard) {
+  function upsertLocalConnection(userId: string, provider: string, accountEmail: string) {
+    const connectedAt = new Date().toISOString();
+
+    setConnections((prev) => {
+      const existing = prev.find((c) => c.provider === provider);
+      if (existing) {
+        return prev.map((c) =>
+          c.provider === provider
+            ? { ...c, status: 'connected', account_email: accountEmail, connected_at: connectedAt }
+            : c
+        );
+      }
+
+      return [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          user_id: userId,
+          provider,
+          status: 'connected',
+          account_email: accountEmail,
+          connected_at: connectedAt,
+          last_sync: null,
+        },
+      ];
+    });
+  }
+
+  async function handleConnect(app: AppCard) {
     if (app.oauthFlow) {
-      window.location.href = `/api/connections/${app.id}/authorize`;
-    } else {
-      setModalApp(app);
-      setCredEmail('');
-      setCredPassword('');
+      try {
+        const supabase = createBrowserClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+
+        if (!token) {
+          setToast({ type: 'error', message: 'Please sign in again and retry.' });
+          return;
+        }
+
+        const authorizeResponse = await fetch(`/api/connections/${app.id}?action=authorize`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'x-requested-with': 'fetch',
+          },
+        });
+
+        const authorizePayload = await authorizeResponse.json().catch(() => null);
+        const location = authorizePayload?.data?.authorize_url;
+
+        if (!location) {
+          throw new Error(`Unable to start ${app.name} authorization.`);
+        }
+
+        window.location.href = location;
+        return;
+      } catch (err) {
+        console.error('Failed to start OAuth connection:', err);
+        setToast({
+          type: 'error',
+          message: err instanceof Error ? err.message : `Unable to start ${app.name} authorization.`,
+        });
+        return;
+      }
     }
+
+    setModalApp(app);
+    setCredEmail('');
+    setCredPassword('');
   }
 
   async function handleDisconnect(appId: string) {
@@ -154,49 +251,88 @@ export default function ConnectionsPage() {
 
   async function handleCredentialSubmit() {
     if (!modalApp) return;
+
+    const activeApp = modalApp;
     setConnecting(true);
+    setConfiguringAppId(activeApp.id);
 
     try {
       const supabase = createBrowserClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const [
+        { data: { user } },
+        { data: { session } },
+      ] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.auth.getSession(),
+      ]);
 
-      await supabase.from('connections').upsert({
-        user_id: user.id,
-        provider: modalApp.id,
-        status: 'connected',
-        account_email: credEmail,
-        connected_at: new Date().toISOString(),
-      });
+      const token = session?.access_token;
 
-      setConnections((prev) => {
-        const existing = prev.find((c) => c.provider === modalApp.id);
-        if (existing) {
-          return prev.map((c) =>
-            c.provider === modalApp.id
-              ? { ...c, status: 'connected', account_email: credEmail }
-              : c
-          );
-        }
-        return [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            user_id: user.id,
-            provider: modalApp.id,
-            status: 'connected',
-            account_email: credEmail,
-            connected_at: new Date().toISOString(),
-            last_sync: null,
+      if (!user || !token) {
+        throw new Error('Please sign in again and retry.');
+      }
+
+      const saveResponse = await fetch(`/api/connections/${activeApp.id}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          credentials: {
+            email: credEmail,
+            password: credPassword,
           },
-        ];
+          account_email: credEmail,
+        }),
       });
+
+      const savePayload = await saveResponse.json().catch(() => null);
+
+      if (!saveResponse.ok || !savePayload?.success) {
+        throw new Error(savePayload?.error || `Failed to save ${activeApp.name} credentials.`);
+      }
+
+      upsertLocalConnection(user.id, activeApp.id, credEmail);
+
+      const configureResponse = await fetch('/api/vm/configure-skill', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          provider: activeApp.id,
+          account_email: credEmail,
+        }),
+      });
+
+      const configurePayload = await configureResponse.json().catch(() => null);
+
+      if (configureResponse.ok && configurePayload?.success) {
+        setToast({
+          type: 'success',
+          message: `${activeApp.name} connected and ready to use.`,
+        });
+      } else {
+        setToast({
+          type: 'warning',
+          message: 'Saved credentials. King Mouse will finish setup shortly.',
+        });
+      }
 
       setModalApp(null);
+      setCredEmail('');
+      setCredPassword('');
     } catch (err) {
       console.error('Failed to connect:', err);
+      setToast({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Failed to save this connection.',
+      });
     } finally {
       setConnecting(false);
+      setConfiguringAppId(null);
     }
   }
 
@@ -219,6 +355,39 @@ export default function ConnectionsPage() {
 
   return (
     <div style={{ padding: 32, maxWidth: 960, marginLeft: 'auto', marginRight: 'auto' }}>
+      {toast && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 20,
+            right: 20,
+            zIndex: 70,
+            minWidth: 280,
+            maxWidth: 420,
+            padding: '12px 14px',
+            borderRadius: 10,
+            color: toast.type === 'warning' ? '#7C4A03' : '#1a1a1a',
+            background:
+              toast.type === 'success'
+                ? '#EAF8F1'
+                : toast.type === 'warning'
+                  ? '#FFF4DD'
+                  : '#FDECEC',
+            border:
+              toast.type === 'success'
+                ? '1px solid #BFE7D0'
+                : toast.type === 'warning'
+                  ? '1px solid #F2D18B'
+                  : '1px solid #F0B7B7',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
+            fontSize: 13,
+            lineHeight: 1.45,
+          }}
+        >
+          {toast.message}
+        </div>
+      )}
+
       {/* Header */}
       <h1 style={{ fontSize: 20, fontWeight: 500, margin: 0, color: '#1a1a1a' }}>
         Connections
@@ -289,6 +458,7 @@ export default function ConnectionsPage() {
           >
             {cat.apps.map((app) => {
               const connected = isConnected(app.id);
+              const configuring = configuringAppId === app.id;
               const btnKey = app.id;
               const isHovered = hoveredBtn === btnKey;
 
@@ -349,6 +519,11 @@ export default function ConnectionsPage() {
                             }}
                           />
                           <span style={{ fontSize: 11, color: '#1D9E75' }}>Connected</span>
+                        </div>
+                      )}
+                      {!connected && configuring && (
+                        <div style={{ fontSize: 11, color: '#F07020', marginTop: 2 }}>
+                          Setting up integration...
                         </div>
                       )}
                     </div>
@@ -437,15 +612,16 @@ export default function ConnectionsPage() {
                 Connect {modalApp.name}
               </h2>
               <button
-                onClick={() => setModalApp(null)}
+                onClick={() => !connecting && setModalApp(null)}
                 style={{
                   background: 'none',
                   border: 'none',
-                  cursor: 'pointer',
+                  cursor: connecting ? 'default' : 'pointer',
                   padding: 4,
                   color: '#888',
                   fontSize: 18,
                   lineHeight: 1,
+                  opacity: connecting ? 0.5 : 1,
                 }}
               >
                 &#x2715;
@@ -471,6 +647,7 @@ export default function ConnectionsPage() {
                   value={credEmail}
                   onChange={(e) => setCredEmail(e.target.value)}
                   placeholder="your@email.com"
+                  disabled={connecting}
                   style={{
                     width: '100%',
                     boxSizing: 'border-box',
@@ -500,6 +677,7 @@ export default function ConnectionsPage() {
                   value={credPassword}
                   onChange={(e) => setCredPassword(e.target.value)}
                   placeholder="Your password"
+                  disabled={connecting}
                   style={{
                     width: '100%',
                     boxSizing: 'border-box',
@@ -514,10 +692,28 @@ export default function ConnectionsPage() {
               </div>
             </div>
 
+            {connecting && (
+              <div
+                style={{
+                  marginTop: 16,
+                  borderRadius: 10,
+                  background: '#FFF6ED',
+                  border: '1px solid #F5D2B5',
+                  color: '#9A4D11',
+                  fontSize: 13,
+                  lineHeight: 1.5,
+                  padding: '10px 12px',
+                }}
+              >
+                King Mouse is setting up your {modalApp.name} integration...
+              </div>
+            )}
+
             {/* Modal buttons */}
             <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
               <button
-                onClick={() => setModalApp(null)}
+                onClick={() => !connecting && setModalApp(null)}
+                disabled={connecting}
                 style={{
                   flex: 1,
                   padding: '10px 0',
@@ -547,7 +743,7 @@ export default function ConnectionsPage() {
                   cursor: connecting || !credEmail || !credPassword ? 'default' : 'pointer',
                 }}
               >
-                {connecting ? 'Connecting...' : 'Connect'}
+                {connecting ? 'Setting up integration...' : 'Connect'}
               </button>
             </div>
           </div>

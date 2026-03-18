@@ -27,7 +27,6 @@ export default function ResellerChatPage() {
     return (window as unknown as Record<string, unknown>).__km_activeConversationId as string | null;
   }, []);
 
-  // Load messages for active conversation
   const loadMessages = useCallback(async (convId: string) => {
     try {
       const res = await fetch(`/api/conversations/${convId}/messages?limit=100`);
@@ -74,7 +73,6 @@ export default function ResellerChatPage() {
     let convId = conversationId;
     const customerId = `reseller_${resellerId}`;
 
-    // Create conversation if none active
     if (!convId) {
       try {
         const res = await fetch('/api/conversations', {
@@ -94,17 +92,14 @@ export default function ResellerChatPage() {
       }
     }
 
-    // Add user message optimistically
     const tempId = `temp-${Date.now()}`;
     setMessages((prev) => [...prev, { id: tempId, role: 'user', content: messageText }]);
     setMessages((prev) => [...prev, { id: 'typing', role: 'assistant', content: '' }]);
 
-    // Set thinking status
     const win = window as unknown as Record<string, (arg?: string) => void>;
     if (win.__km_setStatus) win.__km_setStatus('thinking');
 
     try {
-      // Route to demo chat with reseller system prompt
       const history = messages.slice(-10).map((m) => ({ role: m.role, content: m.content }));
       const res = await fetch('/api/demo/chat', {
         method: 'POST',
@@ -118,7 +113,6 @@ export default function ResellerChatPage() {
       const data = await res.json();
       const response = data.response || 'Sorry, I encountered an error. Please try again.';
 
-      // Save messages to conversation
       if (convId) {
         await fetch(`/api/conversations/${convId}/messages`, {
           method: 'POST',
