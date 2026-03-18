@@ -198,8 +198,44 @@ export async function GET(request: NextRequest) {
       }
 
       // NOTE: Do NOT promote to "ready" here via exec checks.
-      // Orgo exec returns false positives on fresh VMs before install.sh finishes.
       // The ONLY path to "ready" is the install-complete callback (POST /api/vm/install-complete).
+
+      // Fallback: if install wasn't triggered by provision route, trigger it now
+      // (Orgo startup_script is ignored — we must exec install.sh manually)
+      const vmConfig = (vm.config_json || {}) as Record<string, unknown>;
+      if (vm.orgo_vm_id && !vmConfig.install_triggered) {
+        try {
+          const configB64 = Buffer.from(JSON.stringify(vm.config_json)).toString('base64');
+          const installPython = [
+            'import subprocess',
+            `cmd = "curl -sSL https://mouse.is/install.sh 2>/dev/null | bash -s -- ${configB64} > /tmp/mouse-install.log 2>&1"`,
+            'subprocess.Popen(["bash", "-c", cmd], stdout=open("/dev/null","w"), stderr=open("/dev/null","w"), start_new_session=True)',
+            'print("install_triggered")',
+          ].join('\n');
+
+          const triggerRes = await fetch(`${ORGO_BASE}/computers/${vm.orgo_vm_id}/exec`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${process.env.ORGO_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code: installPython }),
+            signal: AbortSignal.timeout(10000),
+          });
+          const triggerData = await triggerRes.json();
+          const triggered = triggerRes.ok && triggerData.output?.includes('install_triggered');
+          if (triggered) {
+            console.log(`[Status] Install triggered for VM ${vm.id} via status fallback`);
+            await supabase.from('vms').update({
+              status: 'installing',
+              config_json: { ...vm.config_json, install_triggered: true, install_triggered_at: new Date().toISOString() },
+            }).eq('id', vmId);
+            vm.status = 'installing';
+          }
+        } catch {
+          // Will retry on next poll
+        }
+      }
 
       // Check timeout → auto-retry
       if (vm.provision_started_at) {

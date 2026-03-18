@@ -167,6 +167,43 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', vm.id);
 
+    // Fire-and-forget: trigger install.sh via Orgo exec API
+    // (Orgo startup_script param is ignored — VMs only run their built-in desktop)
+    const installPython = [
+      'import subprocess',
+      `cmd = "curl -sSL https://mouse.is/install.sh 2>/dev/null | bash -s -- ${configB64} > /tmp/mouse-install.log 2>&1"`,
+      'subprocess.Popen(["bash", "-c", cmd], stdout=open("/dev/null","w"), stderr=open("/dev/null","w"), start_new_session=True)',
+      'print("install_triggered")',
+    ].join('\n');
+
+    // Wait briefly for VM to boot, then trigger install
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    try {
+      const installRes = await fetch(`${ORGO_BASE}/computers/${computerId}/exec`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.ORGO_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code: installPython }),
+        signal: AbortSignal.timeout(10000),
+      });
+      const installData = await installRes.json();
+      const triggered = installRes.ok && installData.output?.includes('install_triggered');
+      console.log(`[Provision] Install trigger: ok=${installRes.ok}, triggered=${triggered}`);
+
+      await supabase.from('vms').update({
+        status: 'installing',
+        config_json: { ...fullConfig, install_triggered: triggered, install_triggered_at: new Date().toISOString() },
+      }).eq('id', vm.id);
+    } catch (triggerErr) {
+      // VM may not be ready yet — status endpoint will retry
+      console.log(`[Provision] Install trigger failed (status endpoint will retry):`, triggerErr);
+      await supabase.from('vms').update({
+        config_json: { ...fullConfig, install_triggered: false },
+      }).eq('id', vm.id);
+    }
+
     // Create work_hours record for new user (2.0 free hours to start)
     const { data: existingHours } = await supabase
       .from('work_hours')
