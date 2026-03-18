@@ -279,9 +279,10 @@ export async function POST(request: NextRequest) {
           '      raise',
           'except Exception as e:',
           '  http_err=str(e)[:200]',
+          '  _skip_cli=any(x in http_err for x in ["401","403","Unauthorized","Forbidden","invalid","API key"])',
           '',
-          '# Fallback: CLI with FRESH session and rate-limit retry',
-          'if not ok:',
+          '# Fallback: CLI with FRESH session and rate-limit retry (skip if API-level error)',
+          'if not ok and not _skip_cli:',
           '  subprocess.run("rm -rf $HOME/.openclaw/agents/main/sessions $HOME/.openclaw/sessions",shell=True,capture_output=True)',
           '  for attempt in range(5):',
           '    r=subprocess.run(["openclaw","agent","--agent","main","-m",msg,"--json","--timeout","240"],capture_output=True,text=True,timeout=250)',
@@ -295,6 +296,7 @@ export async function POST(request: NextRequest) {
           '      except:',
           '        text=r.stdout.strip()',
           '        print(json.dumps({"response":text,"input_tokens":0,"output_tokens":0,"system_prompt_chars":0,"response_chars":len(text),"via":"cli","retries":attempt,"http_error":http_err}))',
+          '      ok=True',
           '      break',
           '    elif attempt<4:',
           '      wait=3*(2**attempt) if "rate limit" in (r.stderr or "").lower() else 2',
@@ -324,6 +326,10 @@ export async function POST(request: NextRequest) {
           '      print(json.dumps({"response":text,"input_tokens":usage.get("prompt_tokens",0),"output_tokens":usage.get("completion_tokens",0),"system_prompt_chars":0,"response_chars":len(text),"via":"http_after_doctor"}))',
           '      ok=True',
           '    except: pass',
+          '',
+          '# Catch-all: ensure we always print structured output',
+          'if not ok:',
+          '  print(json.dumps({"error":f"All methods failed. HTTP: {http_err}","via":"none"}))',
         ].join('\n');
 
         const execRes = await fetch(`${ORGO_BASE}/computers/${vm.orgo_vm_id}/exec`, {
@@ -346,14 +352,33 @@ export async function POST(request: NextRequest) {
           throw new Error(`Orgo exec failed: ${execData.output?.slice(0, 200)}`);
         }
 
-        // Extract JSON even if exec output has extra text around it
+        // Extract first complete JSON object from exec output
         const rawOutput = execData.output?.trim() || '';
-        const jsonStart = rawOutput.indexOf('{');
-        const jsonEnd = rawOutput.lastIndexOf('}');
-        if (jsonStart === -1 || jsonEnd === -1) {
+        const firstBrace = rawOutput.indexOf('{');
+        if (firstBrace === -1) {
           throw new Error(`No JSON in exec output: ${rawOutput.slice(0, 200)}`);
         }
-        const vmData = JSON.parse(rawOutput.slice(jsonStart, jsonEnd + 1));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let vmData: any = null;
+        for (let i = firstBrace; i < rawOutput.length; i++) {
+          if (rawOutput[i] === '{') {
+            let depth = 0;
+            for (let j = i; j < rawOutput.length; j++) {
+              if (rawOutput[j] === '{') depth++;
+              else if (rawOutput[j] === '}') depth--;
+              if (depth === 0) {
+                try {
+                  vmData = JSON.parse(rawOutput.slice(i, j + 1));
+                } catch { /* try next '{' */ }
+                break;
+              }
+            }
+            if (vmData) break;
+          }
+        }
+        if (!vmData) {
+          throw new Error(`Failed to parse JSON from exec output: ${rawOutput.slice(0, 300)}`);
+        }
 
         if (vmData.error) {
           throw new Error(`Agent error: ${vmData.error.slice(0, 200)}`);
@@ -384,14 +409,34 @@ export async function POST(request: NextRequest) {
       } catch (vmErr) {
         const errMsg = vmErr instanceof Error ? vmErr.message : String(vmErr);
         console.error('VM chat failed:', errMsg);
+
         const isTimeout = /time.?out/i.test(errMsg);
+        const isApiKeyError = /401|403|unauthorized|invalid.*key|api.?key/i.test(errMsg);
+        const isRateLimit = /429|rate.?limit/i.test(errMsg);
+        const isModelError = /model.*not.*found|invalid.*model/i.test(errMsg);
+
+        let error_code = 'king_mouse_down';
+        let support_message = 'King Mouse is temporarily unavailable. Please call (910) 515-8927 for immediate human support to get this back online for you ASAP.';
+
+        if (isTimeout) {
+          error_code = 'task_timeout';
+          support_message = 'That task is taking longer than expected. Try breaking it into smaller steps.';
+        } else if (isApiKeyError) {
+          error_code = 'api_key_error';
+          support_message = 'There is an issue with King Mouse\'s API configuration. Our team has been notified and is fixing it now.';
+        } else if (isRateLimit) {
+          error_code = 'rate_limited';
+          support_message = 'King Mouse is handling a lot of requests right now. Please try again in a moment.';
+        } else if (isModelError) {
+          error_code = 'model_error';
+          support_message = 'There is a configuration issue with King Mouse. Our team has been notified.';
+        }
+
         return NextResponse.json({
           reply: null,
           conversation_id: activeConversationId,
-          error: isTimeout ? 'task_timeout' : 'king_mouse_down',
-          support_message: isTimeout
-            ? 'That task is taking longer than expected. Try breaking it into smaller steps.'
-            : 'King Mouse is temporarily unavailable. Please call (910) 515-8927 for immediate human support to get this back online for you ASAP.',
+          error: error_code,
+          support_message,
           support_phone: isTimeout ? undefined : '9105158927',
           debug: errMsg,
         }, { status: 503 });
