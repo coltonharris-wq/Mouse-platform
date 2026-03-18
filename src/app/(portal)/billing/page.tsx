@@ -154,7 +154,7 @@ export default function BillingPage() {
           padding: 20,
         }}>
           <div style={{ fontSize: 13, color: '#888', marginBottom: 6 }}>Hours used</div>
-          <div style={{ fontSize: 32, fontWeight: 500, color: '#1a1a1a' }}>{totalUsed.toFixed(1)}</div>
+          <div style={{ fontSize: 32, fontWeight: 500, color: '#1a1a1a' }}>{totalUsed < 0.1 ? totalUsed.toFixed(3) : totalUsed.toFixed(1)}</div>
           <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>total used</div>
         </div>
 
@@ -199,7 +199,7 @@ export default function BillingPage() {
           justifyContent: 'space-between',
           marginTop: 8,
         }}>
-          <span style={{ fontSize: 12, color: '#888' }}>Used: {totalUsed.toFixed(1)} hrs</span>
+          <span style={{ fontSize: 12, color: '#888' }}>Used: {totalUsed < 0.1 ? totalUsed.toFixed(3) : totalUsed.toFixed(1)} hrs</span>
           <span style={{ fontSize: 12, color: '#888' }}>Remaining: {remaining.toFixed(1)} hrs</span>
         </div>
       </div>
@@ -341,7 +341,7 @@ export default function BillingPage() {
                       {event.description || '--'}
                     </td>
                     <td style={{ padding: '12px 0 12px 8px', fontSize: 13, color: '#1a1a1a', textAlign: 'right', fontWeight: 500 }}>
-                      {event.hours_used.toFixed(2)}h
+                      {event.hours_used < 0.01 ? '< 0.01h' : `${event.hours_used.toFixed(2)}h`}
                     </td>
                   </tr>
                 ))}
