@@ -411,13 +411,86 @@ export default function AuditPage() {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer style={{ backgroundColor: COLORS.cream, padding: '40px 24px', textAlign: 'center', borderTop: `1px solid ${COLORS.border}` }}>
-        <span style={{ fontSize: 20, fontWeight: 800, color: COLORS.navy }}>
-          Mouse<span style={{ color: COLORS.orange }}>.</span>
-        </span>
-        <p style={{ fontSize: 13, color: COLORS.muted, marginTop: 8 }}>
-          &copy; {new Date().getFullYear()} Mouse. All rights reserved.
-        </p>
+      <footer style={{ backgroundColor: COLORS.navy, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{
+          maxWidth: 1000, margin: '0 auto', padding: '64px 24px 32px',
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 48,
+        }}>
+          {/* Brand column */}
+          <div>
+            <span style={{ fontSize: 22, fontWeight: 800, color: COLORS.white }}>
+              Mouse<span style={{ color: COLORS.orange }}>.</span>
+            </span>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginTop: 12, lineHeight: 1.6 }}>
+              AI employees for small businesses. Based in Wilmington, NC.
+            </p>
+          </div>
+
+          {/* Company column */}
+          <div>
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16 }}>Company</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[
+                { label: 'About', href: '#' },
+                { label: 'Free AI Audit', href: '/audit' },
+                { label: 'Pricing', href: '#' },
+                { label: 'Contact', href: 'mailto:colton@mouse.is' },
+              ].map((link, i) => (
+                <a key={i} href={link.href} style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = COLORS.white)}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+                >{link.label}</a>
+              ))}
+            </div>
+          </div>
+
+          {/* Legal column */}
+          <div>
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16 }}>Legal</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[
+                { label: 'Terms of Service', href: '#' },
+                { label: 'Privacy Policy', href: '#' },
+                { label: 'Cookie Policy', href: '#' },
+              ].map((link, i) => (
+                <a key={i} href={link.href} style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = COLORS.white)}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+                >{link.label}</a>
+              ))}
+            </div>
+          </div>
+
+          {/* Contact column */}
+          <div>
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16 }}>Get in Touch</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <a href="mailto:colton@mouse.is" style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = COLORS.white)}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+              >colton@mouse.is</a>
+              <a href="tel:+19105158927" style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = COLORS.white)}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+              >(910) 515-8927</a>
+              <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>Wilmington, NC</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div style={{
+          maxWidth: 1000, margin: '0 auto', padding: '24px 24px 32px',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12,
+        }}>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>
+            &copy; {new Date().getFullYear()} Mouse Technologies, LLC. All rights reserved.
+          </p>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>
+            Made with AI in Wilmington, NC
+          </p>
+        </div>
       </footer>
 
       {/* ─── RESPONSIVE STYLES ─── */}
