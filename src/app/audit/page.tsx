@@ -41,8 +41,8 @@ const CAPABILITIES = [
   { icon: TrendingUp, title: 'Lead Generation', desc: 'Capture, score, and follow up with leads automatically.' },
   { icon: Phone, title: 'Customer Communication', desc: 'AI phone, email, and chat that sounds like your best employee.' },
   { icon: Share2, title: 'Social Media & Content', desc: 'Consistent posting and engagement on autopilot.' },
-  { icon: Settings, title: 'Operations & Workflow', desc: 'Scheduling, invoicing, reporting \u2014 automated.' },
-  { icon: Mail, title: 'Sales & Follow-up', desc: 'Never let a warm lead go cold again.' },
+  { icon: Settings, title: 'Operations & Workflow', desc: 'Scheduling, invoicing, inventory tracking, reporting \u2014 automated.' },
+  { icon: Mail, title: 'Marketing', desc: 'Never let a warm lead go cold again.' },
   { icon: Bot, title: 'Custom AI Agents', desc: 'Purpose-built AI for whatever your business needs.' },
 ];
 
