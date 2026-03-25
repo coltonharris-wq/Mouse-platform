@@ -65,7 +65,9 @@ const FAQS = [
 /* ─── COMPONENT ──────────────────────────────────────── */
 export default function AuditPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [showExitPopup, setShowExitPopup] = useState(false);
   const calendlyRef = useRef<HTMLDivElement>(null);
+  const exitShownRef = useRef(false);
 
   // Load Calendly embed script
   useEffect(() => {
@@ -74,6 +76,21 @@ export default function AuditPage() {
     script.async = true;
     document.head.appendChild(script);
     return () => { document.head.removeChild(script); };
+  }, []);
+
+  // Exit-intent detection
+  useEffect(() => {
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (e.clientY <= 0 && !exitShownRef.current) {
+        const dismissed = sessionStorage.getItem('exit_popup_dismissed');
+        if (!dismissed) {
+          exitShownRef.current = true;
+          setShowExitPopup(true);
+        }
+      }
+    };
+    document.addEventListener('mouseleave', handleMouseLeave);
+    return () => document.removeEventListener('mouseleave', handleMouseLeave);
   }, []);
 
   function scrollTo(id: string) {
@@ -492,6 +509,44 @@ export default function AuditPage() {
           </p>
         </div>
       </footer>
+
+      {/* ─── EXIT-INTENT POPUP ─── */}
+      {showExitPopup && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex',
+          alignItems: 'center', justifyContent: 'center', padding: 24,
+        }} onClick={() => { setShowExitPopup(false); sessionStorage.setItem('exit_popup_dismissed', '1'); }}>
+          <div style={{
+            backgroundColor: COLORS.white, borderRadius: 16, padding: '48px 40px',
+            maxWidth: 480, width: '100%', textAlign: 'center', position: 'relative',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.2)',
+          }} onClick={e => e.stopPropagation()}>
+            <button onClick={() => { setShowExitPopup(false); sessionStorage.setItem('exit_popup_dismissed', '1'); }} style={{
+              position: 'absolute', top: 16, right: 16, background: 'none', border: 'none',
+              fontSize: 24, color: COLORS.muted, cursor: 'pointer', lineHeight: 1,
+            }}>&times;</button>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>&#128075;</div>
+            <h2 style={{ fontSize: 26, fontWeight: 800, color: COLORS.navy, marginBottom: 12, lineHeight: 1.2 }}>
+              Wait &mdash; before you go
+            </h2>
+            <p style={{ fontSize: 16, color: COLORS.muted, lineHeight: 1.6, marginBottom: 28 }}>
+              Get a free AI roadmap for your business. 30 minutes, no strings attached. We&apos;ll show you exactly where AI can save you 20+ hours a week.
+            </p>
+            <button onClick={() => { setShowExitPopup(false); sessionStorage.setItem('exit_popup_dismissed', '1'); scrollTo('book'); }} style={{
+              fontSize: 17, fontWeight: 700, color: COLORS.white, backgroundColor: COLORS.orange,
+              padding: '14px 36px', borderRadius: 10, border: 'none', cursor: 'pointer',
+              boxShadow: '0 4px 20px rgba(240,112,32,0.3)', width: '100%',
+            }}>
+              Book Your Free Audit
+            </button>
+            <p style={{ fontSize: 13, color: COLORS.muted, marginTop: 14, cursor: 'pointer' }}
+              onClick={() => { setShowExitPopup(false); sessionStorage.setItem('exit_popup_dismissed', '1'); }}>
+              No thanks, I&apos;ll figure it out myself
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ─── RESPONSIVE STYLES ─── */}
       <style>{`

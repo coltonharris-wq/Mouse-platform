@@ -279,19 +279,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'vm_exec_failed' }, { status: 502 });
     }
 
-    const rawOutput = String(execData.output);
-    let result: { success?: boolean; skill?: string; error?: string; notes?: string; provider?: string };
-    try {
-      result = JSON.parse(rawOutput.trim());
-    } catch {
-      // Find last JSON object containing "success" in the output
-      const jsonMatch = rawOutput.match(/\{[^{}]*"success"[^{}]*\}/g);
-      if (!jsonMatch) {
-        console.error('No JSON found in configure-skill output:', rawOutput.slice(-500));
-        return NextResponse.json({ success: false, error: 'no_json_in_output' }, { status: 502 });
-      }
-      result = JSON.parse(jsonMatch[jsonMatch.length - 1]);
-    }
+    const result = JSON.parse(String(execData.output).trim()) as {
+      success?: boolean;
+      skill?: string;
+      error?: string;
+      notes?: string;
+      provider?: string;
+    };
 
     if (!result.success) {
       return NextResponse.json({

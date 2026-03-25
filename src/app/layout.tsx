@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Instrument_Serif } from "next/font/google";
+import TrackingScripts from "@/components/TrackingScripts";
 import "./globals.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -97,6 +98,7 @@ export default function RootLayout({
             }),
           }}
         />
+        <TrackingScripts />
         {children}
       </body>
     </html>
