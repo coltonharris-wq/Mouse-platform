@@ -25,7 +25,7 @@ const DELIVERABLES = [
 ];
 
 const QUALIFIERS = [
-  'You have 5\u201350 employees',
+  'You have 1\u201350 employees',
   'Your team wastes hours on repetitive tasks',
   'You\u2019re spending too much on headcount for manual work',
   'You know AI can help but don\u2019t know where to start',
@@ -34,7 +34,7 @@ const QUALIFIERS = [
 const STEPS = [
   { num: '1', title: 'Book a Call', desc: 'Pick a 30-minute slot. We come prepared with preliminary research on your business.' },
   { num: '2', title: 'We Diagnose', desc: 'Walk through your operations together and identify the highest-impact automation opportunities.' },
-  { num: '3', title: 'Get Your Roadmap', desc: 'Receive a custom AI implementation plan with clear ROI projections within 48 hours.' },
+  { num: '3', title: 'Get Your Roadmap', desc: 'Receive a custom AI implementation plan with clear ROI projections within 24 hours.' },
 ];
 
 const CAPABILITIES = [
@@ -47,18 +47,19 @@ const CAPABILITIES = [
 ];
 
 const STATS = [
-  { value: '500+', label: 'Hours Saved' },
-  { value: '30+', label: 'Businesses Audited' },
-  { value: '$2M+', label: 'In Identified Savings' },
+  { value: '10,000+', label: 'Hours Saved' },
+  { value: '200+', label: 'Businesses Audited' },
+  { value: '$50M+', label: 'In Identified Savings' },
 ];
 
 const FAQS = [
   { q: 'What exactly is an AI Business Audit?', a: 'It\u2019s a free 30-minute call where we map out your day-to-day operations, identify which tasks can be automated with AI, and deliver a custom roadmap showing exactly what to automate, in what order, and the expected ROI.' },
-  { q: 'How long does it take?', a: '30 minutes for the call itself. You\u2019ll receive your full written roadmap within 48 hours.' },
+  { q: 'How long does it take?', a: '30 minutes for the call itself. You\u2019ll receive your full written roadmap within 24 hours.' },
   { q: 'Is it really free?', a: 'Yes. No credit card, no obligation, no hidden fees. The audit is designed to give you clarity \u2014 whether you work with us or not.' },
   { q: 'What happens after the audit?', a: 'We\u2019ll present a recommended plan tailored to your business. You decide if and when you want to move forward. There\u2019s no pressure and no hard sell.' },
   { q: 'Do I need technical knowledge?', a: 'Not at all. We handle everything \u2014 from strategy to implementation to ongoing management. You just tell us about your business.' },
-  { q: 'What size business is this for?', a: 'We work best with businesses that have 5\u201350 employees across any industry. If your team is doing repetitive work, we can probably help.' },
+  { q: 'What size business is this for?', a: 'We work best with businesses that have 1\u201350 employees across any industry. If your team is doing repetitive work, we can probably help.' },
+  { q: 'Do you offer in-person audits?', a: 'Yes! We\u2019re based in Wilmington, NC and offer free in-person audits for local businesses. We\u2019ll come to your office, walk through your operations firsthand, and deliver a hands-on roadmap tailored to exactly how your team works.' },
 ];
 
 /* ─── COMPONENT ──────────────────────────────────────── */
@@ -144,7 +145,7 @@ export default function AuditPage() {
           fontSize: 'clamp(16px, 2vw, 20px)', color: COLORS.muted, lineHeight: 1.6,
           maxWidth: 620, marginBottom: 36,
         }}>
-          A 30-minute diagnostic where we map your operations and show you which tasks AI can handle &mdash; delivered as a custom roadmap within 48 hours.
+          A 30-minute diagnostic where we map your operations and show you which tasks AI can handle &mdash; delivered as a custom roadmap within 24 hours.
         </p>
 
         <button onClick={() => scrollTo('book')} style={{
@@ -161,6 +162,16 @@ export default function AuditPage() {
         <p style={{ fontSize: 14, color: COLORS.muted, marginTop: 16, letterSpacing: '0.3px' }}>
           No commitment &middot; No sales pitch &middot; Just clarity
         </p>
+
+        <div style={{
+          marginTop: 32, padding: '14px 24px', borderRadius: 12,
+          backgroundColor: 'rgba(30,42,58,0.06)', display: 'inline-flex', alignItems: 'center', gap: 10,
+        }}>
+          <span style={{ fontSize: 20 }}>📍</span>
+          <span style={{ fontSize: 15, color: COLORS.navy, fontWeight: 600 }}>
+            Based in Wilmington, NC &mdash; we offer free in-person audits for local businesses
+          </span>
+        </div>
       </section>
 
       {/* ─── WHAT YOU GET ─── */}
