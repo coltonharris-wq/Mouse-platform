@@ -64,7 +64,6 @@ const FAQS = [
 /* ─── COMPONENT ──────────────────────────────────────── */
 export default function AuditPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [mobileNav, setMobileNav] = useState(false);
   const calendlyRef = useRef<HTMLDivElement>(null);
 
   // Load Calendly embed script
@@ -78,7 +77,6 @@ export default function AuditPage() {
 
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    setMobileNav(false);
   }
 
   return (
