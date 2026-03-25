@@ -1,621 +1,506 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { Map, BarChart3, Route, Phone, Mail, Share2, Settings, TrendingUp, Bot, Check, ChevronDown } from 'lucide-react';
 
-/* ─── DATA ──────────────────────────────────────────── */
-const INDUSTRIES = [
-  { name: 'Construction', niches: ['Roofing','General contractor','Electrical','Plumbing','HVAC','Concrete','Painting','Framing','Landscaping','Fencing','Drywall','Flooring','Solar installation'] },
-  { name: 'Healthcare', niches: ['Dental','Chiropractic','Med spa','Veterinary','Optometry','Physical therapy','Mental health','Primary care','Dermatology','Orthodontics','Podiatry','Urgent care','Cosmetic surgery'] },
-  { name: 'Home services', niches: ['Cleaning','Pest control','Lawn care','Pool service','Handyman','Locksmith','Moving','Junk removal','Pressure washing','Window cleaning','Carpet cleaning','Appliance repair','Tree service'] },
-  { name: 'Food & Drink', niches: ['Restaurant','Catering','Food truck','Bakery','Bar/lounge','Coffee shop','Meal prep','Ghost kitchen','Brewery','Juice bar','Pizzeria','BBQ','Fine dining'] },
-  { name: 'Legal', niches: ['Personal injury','Family law','Criminal defense','Estate planning','Immigration','Business law','Real estate law','Bankruptcy','Tax law','DUI defense','Employment law','Civil litigation'] },
-  { name: 'Automotive', niches: ['Auto repair','Body shop','Detailing','Tire shop','Dealership','Towing','Oil change','Transmission','Auto glass','Diesel repair','Fleet maintenance','EV service'] },
-  { name: 'Real estate', niches: ['Residential agent','Commercial agent','Property management','Mortgage broker','Home staging','Appraisal','Title company','Inspector','Vacation rental','HOA management'] },
-  { name: 'Retail', niches: ['Clothing','Electronics','Jewelry','Pet store','Sporting goods','Furniture','Gift shop','Hardware','Florist','Bookstore','Toy store','Thrift/consignment'] },
+/* ─── CONSTANTS ──────────────────────────────────────── */
+const COLORS = {
+  navy: '#1e2a3a',
+  orange: '#F07020',
+  cream: '#FAF8F4',
+  creamAlt: '#FFFDF9',
+  muted: '#5a6a7a',
+  border: '#e8e4df',
+  green: '#1D9E75',
+  white: '#fff',
+};
+
+const SERIF = "var(--font-instrument), 'Instrument Serif', serif";
+const SANS = "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif";
+
+const DELIVERABLES = [
+  { icon: Map, title: 'Operations Map', desc: 'A visual breakdown of every task your team handles manually today.' },
+  { icon: BarChart3, title: 'AI Opportunity Score', desc: 'Each process ranked by automation potential and ROI.' },
+  { icon: Route, title: 'Custom Roadmap', desc: 'A prioritized plan showing what to automate first and expected savings.' },
 ];
 
-const NICHE_GREETINGS: Record<string, string> = {};
-INDUSTRIES.forEach(ind => {
-  ind.niches.forEach(n => {
-    const key = `${ind.name}::${n}`;
-    NICHE_GREETINGS[key] = `${n} — awesome. I work with a lot of ${n.toLowerCase()} businesses. I can answer your phones while you're busy, follow up on estimates that haven't closed yet, manage your Google reviews, and run your ads. What's eating up most of your time right now?`;
-  });
-});
-
-const QUICK_ACTIONS = [
-  'Follow up on my estimates',
-  'Answer my phones 24/7',
-  'Help me get more leads',
-  'Manage my Google reviews',
+const QUALIFIERS = [
+  'You have 1\u201350 employees',
+  'Your team wastes hours on repetitive tasks',
+  'You\u2019re spending too much on headcount for manual work',
+  'You know AI can help but don\u2019t know where to start',
 ];
 
-const TESTIMONIALS = [
-  { name: 'Mike R.', role: 'Roofing contractor, Dallas TX', text: "King Mouse answers my calls while I'm on the roof. I've closed 3 extra jobs this month just from callbacks I would've missed." },
-  { name: 'Sarah L.', role: 'Dental office manager, Austin TX', text: "We stopped losing patients to voicemail. King Mouse books appointments, sends reminders, and asks for Google reviews automatically." },
-  { name: 'James T.', role: 'Auto repair shop owner, Phoenix AZ', text: "I was paying $22/hr for a receptionist who called in sick half the time. King Mouse works 24/7 for $4.98/hr. No brainer." },
+const STEPS = [
+  { num: '1', title: 'Book a Call', desc: 'Pick a 30-minute slot. We come prepared with preliminary research on your business.' },
+  { num: '2', title: 'We Diagnose', desc: 'Walk through your operations together and identify the highest-impact automation opportunities.' },
+  { num: '3', title: 'Get Your Roadmap', desc: 'Receive a custom AI implementation plan with clear ROI projections within 24 hours.' },
 ];
 
-const FEATURES = [
-  { title: 'AI Receptionist', desc: 'Answers every call, books appointments, captures leads. Never misses a ring.', icon: '📞' },
-  { title: 'Smart Follow-ups', desc: 'Automatically follows up on quotes, estimates, and leads that went cold.', icon: '🔁' },
-  { title: 'Review Manager', desc: 'Requests Google reviews from happy customers. Responds to new reviews.', icon: '⭐' },
-  { title: 'App Connections', desc: 'Connects to QuickBooks, Gmail, Google Calendar, Jobber, and 50+ more.', icon: '🔗' },
-  { title: 'Full Dashboard', desc: 'See calls, leads, revenue, tasks, and everything in one place.', icon: '📊' },
-  { title: 'Voice Chat', desc: 'Talk to King Mouse like a real employee. He understands your business.', icon: '🎤' },
+const CAPABILITIES = [
+  { icon: TrendingUp, title: 'Lead Generation', desc: 'Capture, score, and follow up with leads automatically.' },
+  { icon: Phone, title: 'Customer Communication', desc: 'AI phone, email, and chat that sounds like your best employee.' },
+  { icon: Share2, title: 'Social Media & Content', desc: 'Consistent posting and engagement on autopilot.' },
+  { icon: Settings, title: 'Operations & Workflow', desc: 'Scheduling, invoicing, inventory tracking, reporting \u2014 automated.' },
+  { icon: Mail, title: 'Marketing', desc: 'Never let a warm lead go cold again.' },
+  { icon: Bot, title: 'Custom AI Agents', desc: 'Purpose-built AI for whatever your business needs.' },
 ];
 
-type ChatMsg = { role: 'user' | 'assistant'; content: string };
+const STATS = [
+  { value: '10,000+', label: 'Hours Saved' },
+  { value: '200+', label: 'Businesses Audited' },
+  { value: '$50M+', label: 'In Identified Savings' },
+];
+
+const FAQS = [
+  { q: 'What exactly is an AI Business Audit?', a: 'It\u2019s a free 30-minute call where we map out your day-to-day operations, identify which tasks can be automated with AI, and deliver a custom roadmap showing exactly what to automate, in what order, and the expected ROI.' },
+  { q: 'How long does it take?', a: '30 minutes for the call itself. You\u2019ll receive your full written roadmap within 24 hours.' },
+  { q: 'Is it really free?', a: 'Yes. No credit card, no obligation, no hidden fees. The audit is designed to give you clarity \u2014 whether you work with us or not.' },
+  { q: 'What happens after the audit?', a: 'We\u2019ll present a recommended plan tailored to your business. You decide if and when you want to move forward. There\u2019s no pressure and no hard sell.' },
+  { q: 'Do I need technical knowledge?', a: 'Not at all. We handle everything \u2014 from strategy to implementation to ongoing management. You just tell us about your business.' },
+  { q: 'What size business is this for?', a: 'We work best with businesses that have 1\u201350 employees across any industry. If your team is doing repetitive work, we can probably help.' },
+  { q: 'Do you offer in-person audits?', a: 'Yes! We\u2019re based in Wilmington, NC and offer free in-person audits for local businesses. We\u2019ll come to your office, walk through your operations firsthand, and deliver a hands-on roadmap tailored to exactly how your team works.' },
+];
 
 /* ─── COMPONENT ──────────────────────────────────────── */
-export default function LandingPage() {
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+export default function AuditPage() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const calendlyRef = useRef<HTMLDivElement>(null);
 
-  // Chat state
-  const [messages, setMessages] = useState<ChatMsg[]>([
-    { role: 'assistant', content: "Hey! I'm King Mouse. I help business owners like you answer phones, follow up on quotes, book appointments, and send invoices — for $4.98/hr instead of $35. What type of business do you run?" },
-  ]);
-  const [input, setInput] = useState('');
-  const [sending, setSending] = useState(false);
-  const [msgCount, setMsgCount] = useState(0);
-  const [showFirewall, setShowFirewall] = useState(false);
-  const [chatLocked, setChatLocked] = useState(false);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-
-  // Industry/niche state
-  const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
-  const [selectedNiche, setSelectedNiche] = useState<string | null>(null);
-  const [nichesVisible, setNichesVisible] = useState(false);
-
-  // Dashboard preview state
-  const [previewIndustry, setPreviewIndustry] = useState('Construction');
-  const [previewNiche, setPreviewNiche] = useState('Roofing');
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const dashRef = useRef<HTMLDivElement>(null);
-
-  const hasInteracted = useRef(false);
+  // Load Calendly embed script
   useEffect(() => {
-    if (!hasInteracted.current) {
-      hasInteracted.current = true;
-      return; // skip initial mount scroll
-    }
-    // scroll only the chat container, not the page
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-  }, [messages]);
+    const script = document.createElement('script');
+    script.src = 'https://assets.calendly.com/assets/external/widget.js';
+    script.async = true;
+    document.head.appendChild(script);
+    return () => { document.head.removeChild(script); };
+  }, []);
 
-  /* ─── CHAT HANDLERS ─── */
-  async function sendMessage(text?: string) {
-    const msg = text || input.trim();
-    if (!msg || sending || chatLocked) return;
-
-    const userMsg: ChatMsg = { role: 'user', content: msg };
-    const newMessages = [...messages, userMsg];
-    setMessages(newMessages);
-    setInput('');
-    setSending(true);
-    const newCount = msgCount + 1;
-    setMsgCount(newCount);
-
-    // After 3 user messages, show firewall
-    if (newCount >= 3) {
-      try {
-        const res = await fetch('/api/trial-chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: newMessages.map(m => ({ role: m.role, content: m.content })),
-            industry: selectedIndustry || '',
-            niche: selectedNiche || '',
-          }),
-        });
-        const data = await res.json();
-        if (data.success) {
-          setMessages(prev => [...prev, { role: 'assistant', content: data.data.text }]);
-        }
-      } catch { /* ignore */ }
-      setSending(false);
-      setChatLocked(true);
-      setTimeout(() => setShowFirewall(true), 1500);
-      return;
-    }
-
-    try {
-      const res = await fetch('/api/trial-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
-          industry: selectedIndustry || '',
-          niche: selectedNiche || '',
-        }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.data.text }]);
-      } else {
-        setMessages(prev => [...prev, { role: 'assistant', content: "I'm having a brief technical moment — try again!" }]);
-      }
-    } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: "Connection hiccup — try again!" }]);
-    }
-    setSending(false);
+  function scrollTo(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   }
-
-  function handleIndustryClick(name: string) {
-    if (selectedIndustry === name) {
-      setSelectedIndustry(null);
-      setNichesVisible(false);
-      return;
-    }
-    setSelectedIndustry(name);
-    setSelectedNiche(null);
-    setNichesVisible(false);
-    setTimeout(() => setNichesVisible(true), 50);
-    // King Mouse acknowledges the industry
-    setMessages(prev => [...prev, { role: 'assistant', content: `Great — ${name.toLowerCase()}! What's your specialty?` }]);
-  }
-
-  function handleNicheClick(niche: string) {
-    setSelectedNiche(niche);
-    const greeting = NICHE_GREETINGS[`${selectedIndustry}::${niche}`] || `${niche} — great choice! I can help with phones, follow-ups, reviews, and more. What's your biggest headache right now?`;
-    setMessages(prev => [...prev, { role: 'assistant', content: greeting }]);
-  }
-
-  function handleDashboardMouse(e: React.MouseEvent) {
-    if (!dashRef.current) return;
-    const rect = dashRef.current.getBoundingClientRect();
-    setMousePos({
-      x: ((e.clientX - rect.left) / rect.width - 0.5) * 12,
-      y: ((e.clientY - rect.top) / rect.height - 0.5) * -12,
-    });
-  }
-
-  function slugify(s: string) {
-    return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  }
-
-  const previewData = getPreviewData(previewIndustry);
 
   return (
-    <div style={{ backgroundColor: '#FAF8F4', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div style={{ backgroundColor: COLORS.cream, minHeight: '100vh', fontFamily: SANS }}>
 
       {/* ─── NAV ─── */}
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, backgroundColor: 'rgba(250,248,244,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e8e4df' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 24, fontWeight: 800, color: '#1e2a3a', letterSpacing: '-0.5px' }}>Mouse<span style={{ color: '#F07020' }}>.</span></span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-            <a href="#how-it-works" style={{ fontSize: 15, fontWeight: 500, color: '#5a6a7a', textDecoration: 'none' }}>How it works</a>
-            <a href="#features" style={{ fontSize: 15, fontWeight: 500, color: '#5a6a7a', textDecoration: 'none' }}>Features</a>
-            <a href="#pricing" style={{ fontSize: 15, fontWeight: 500, color: '#5a6a7a', textDecoration: 'none' }}>Pricing</a>
-            <a href="/login" style={{ fontSize: 15, fontWeight: 600, color: '#1e2a3a', textDecoration: 'none' }}>Log in</a>
-            <a href="/signup" style={{ fontSize: 15, fontWeight: 700, color: '#fff', backgroundColor: '#F07020', padding: '10px 22px', borderRadius: 10, textDecoration: 'none' }}>Get started free</a>
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        backgroundColor: 'rgba(250,248,244,0.92)', backdropFilter: 'blur(12px)',
+        borderBottom: `1px solid ${COLORS.border}`,
+      }}>
+        <div style={{
+          maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 64,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <span style={{ fontSize: 24, fontWeight: 800, color: COLORS.navy, letterSpacing: '-0.5px', cursor: 'pointer' }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            Mouse<span style={{ color: COLORS.orange }}>.</span>
+          </span>
+
+          {/* Desktop links */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 32 }} className="nav-desktop">
+            <a onClick={() => scrollTo('what-you-get')} style={{ fontSize: 15, fontWeight: 500, color: COLORS.muted, textDecoration: 'none', cursor: 'pointer' }}>What You Get</a>
+            <a onClick={() => scrollTo('how-it-works')} style={{ fontSize: 15, fontWeight: 500, color: COLORS.muted, textDecoration: 'none', cursor: 'pointer' }}>How It Works</a>
+            <a onClick={() => scrollTo('faq')} style={{ fontSize: 15, fontWeight: 500, color: COLORS.muted, textDecoration: 'none', cursor: 'pointer' }}>FAQ</a>
+            <button onClick={() => scrollTo('book')} style={{
+              fontSize: 15, fontWeight: 700, color: COLORS.white, backgroundColor: COLORS.orange,
+              padding: '10px 22px', borderRadius: 10, border: 'none', cursor: 'pointer',
+            }}>Book Your Free Audit</button>
           </div>
+
+          {/* Mobile CTA */}
+          <button onClick={() => scrollTo('book')} style={{
+            fontSize: 14, fontWeight: 700, color: COLORS.white, backgroundColor: COLORS.orange,
+            padding: '10px 18px', borderRadius: 10, border: 'none', cursor: 'pointer',
+          }} className="nav-mobile">Book Free Audit</button>
         </div>
       </nav>
 
-      {/* ─── HERO CHAT ─── */}
-      <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: 80, paddingBottom: 40, backgroundColor: '#FFFDF9' }}>
-        {/* Logo */}
-        <div style={{ fontSize: 42, fontWeight: 800, color: '#1e2a3a', marginBottom: 12, letterSpacing: '-1px' }}>
-          Mouse<span style={{ color: '#F07020' }}>.</span>
+      {/* ─── HERO ─── */}
+      <section style={{
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        backgroundColor: COLORS.creamAlt,
+        textAlign: 'center', padding: '120px 24px 40px',
+      }}>
+        <div style={{
+          fontSize: 13, fontWeight: 700, letterSpacing: '2.5px', color: COLORS.orange,
+          textTransform: 'uppercase' as const, marginBottom: 20,
+        }}>
+          Free AI Business Audit
         </div>
-        <h1 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 800, color: '#1e2a3a', textAlign: 'center', marginBottom: 32, lineHeight: 1.15 }}>
-          What can I do for{' '}
-          <span style={{ fontFamily: "var(--font-instrument), 'Instrument Serif', serif", fontStyle: 'italic', color: '#F07020' }}>your business</span>
-          ?
+
+        <h1 style={{
+          fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 800, color: COLORS.navy,
+          lineHeight: 1.12, marginBottom: 20, maxWidth: 800,
+        }}>
+          Find out exactly where AI can{' '}
+          <span style={{ fontFamily: SERIF, fontStyle: 'italic', color: COLORS.orange }}>
+            save you 20+ hours a week
+          </span>
         </h1>
 
-        {/* Chat area */}
-        <div style={{ width: '100%', maxWidth: 680, padding: '0 24px' }}>
-          {/* Messages */}
-          <div ref={chatContainerRef} style={{ maxHeight: 320, overflowY: 'auto', marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {messages.map((msg, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                <div style={{
-                  maxWidth: '85%',
-                  padding: '14px 18px',
-                  borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                  backgroundColor: msg.role === 'user' ? '#F07020' : '#f0ede8',
-                  color: msg.role === 'user' ? '#fff' : '#1e2a3a',
-                  fontSize: 15,
-                  lineHeight: 1.55,
-                  fontWeight: 500,
-                }}>
-                  {msg.content}
-                </div>
-              </div>
-            ))}
-            {sending && (
-              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                <div style={{ padding: '14px 18px', borderRadius: '18px 18px 18px 4px', backgroundColor: '#f0ede8', color: '#5a6a7a', fontSize: 15 }}>
-                  <span className="typing-dots">Thinking</span>
-                </div>
-              </div>
-            )}
-          </div>
+        <p style={{
+          fontSize: 'clamp(16px, 2vw, 20px)', color: COLORS.muted, lineHeight: 1.6,
+          maxWidth: 620, marginBottom: 36,
+        }}>
+          A 30-minute diagnostic where we map your operations and show you which tasks AI can handle &mdash; delivered as a custom roadmap within 24 hours.
+        </p>
 
-          {/* Quick actions (show after niche selected) */}
-          {selectedNiche && msgCount === 0 && !chatLocked && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14, justifyContent: 'center' }}>
-              {QUICK_ACTIONS.map(action => (
-                <button key={action} onClick={() => sendMessage(action)} style={{
-                  padding: '10px 18px', fontSize: 14, fontWeight: 600, borderRadius: 20,
-                  border: '1.5px solid #e8e4df', backgroundColor: '#fff', color: '#1e2a3a',
-                  cursor: 'pointer', transition: 'all 0.15s',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#F07020'; e.currentTarget.style.color = '#F07020'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8e4df'; e.currentTarget.style.color = '#1e2a3a'; }}
-                >{action}</button>
-              ))}
-            </div>
-          )}
+        <button onClick={() => scrollTo('book')} style={{
+          fontSize: 18, fontWeight: 700, color: COLORS.white, backgroundColor: COLORS.orange,
+          padding: '16px 40px', borderRadius: 12, border: 'none', cursor: 'pointer',
+          boxShadow: '0 4px 20px rgba(240,112,32,0.3)', transition: 'transform 0.2s, box-shadow 0.2s',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(240,112,32,0.4)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(240,112,32,0.3)'; }}
+        >
+          Book Your Free Audit
+        </button>
 
-          {/* Input box */}
-          <div style={{ position: 'relative', backgroundColor: '#fff', borderRadius: 16, border: '2px solid #e8e4df', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={e => { if (!chatLocked) setInput(e.target.value); }}
-              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }}}
-              placeholder={chatLocked ? "Create a free account to keep chatting..." : "Tell me about your business or pick your industry below..."}
-              disabled={chatLocked}
-              rows={1}
-              style={{ width: '100%', padding: '18px 60px 18px 20px', fontSize: 16, border: 'none', outline: 'none', resize: 'none', fontFamily: "'Plus Jakarta Sans', sans-serif", color: chatLocked ? '#999' : '#1e2a3a', backgroundColor: 'transparent', cursor: chatLocked ? 'not-allowed' : 'text' }}
-            />
-            <button onClick={() => chatLocked ? setShowFirewall(true) : sendMessage()} disabled={sending || (!chatLocked && !input.trim())} style={{
-              position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-              width: 40, height: 40, borderRadius: 10, border: 'none',
-              backgroundColor: input.trim() ? '#F07020' : '#e8e4df',
-              color: '#fff', cursor: input.trim() ? 'pointer' : 'default',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s',
-              fontSize: 20,
-            }}>↑</button>
-          </div>
+        <p style={{ fontSize: 14, color: COLORS.muted, marginTop: 16, letterSpacing: '0.3px' }}>
+          No commitment &middot; No sales pitch &middot; Just clarity
+        </p>
+
+        <div style={{
+          marginTop: 32, padding: '14px 24px', borderRadius: 12,
+          backgroundColor: 'rgba(30,42,58,0.06)', display: 'inline-flex', alignItems: 'center', gap: 10,
+        }}>
+          <span style={{ fontSize: 20 }}>📍</span>
+          <span style={{ fontSize: 15, color: COLORS.navy, fontWeight: 600 }}>
+            Based in Wilmington, NC &mdash; we offer free in-person audits for local businesses
+          </span>
         </div>
+      </section>
 
-        {/* Industry pills */}
-        <div style={{ maxWidth: 720, padding: '0 24px', marginTop: 28, width: '100%' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
-            {INDUSTRIES.map(ind => (
-              <button
-                key={ind.name}
-                onClick={() => handleIndustryClick(ind.name)}
-                style={{
-                  padding: '11px 22px', fontSize: 15, fontWeight: 600, borderRadius: 24,
-                  border: '2px solid transparent',
-                  backgroundColor: selectedIndustry === ind.name ? '#F07020' : '#fff',
-                  color: selectedIndustry === ind.name ? '#fff' : '#1e2a3a',
-                  cursor: 'pointer', transition: 'all 0.2s',
-                  boxShadow: selectedIndustry === ind.name ? '0 2px 12px rgba(240,112,32,0.3)' : '0 1px 4px rgba(0,0,0,0.06)',
-                }}
-              >{ind.name}</button>
-            ))}
-          </div>
-
-          {/* Niche pills - animated */}
-          <div style={{
-            maxHeight: nichesVisible && selectedIndustry ? 200 : 0,
-            overflow: 'hidden',
-            transition: 'max-height 0.4s ease, opacity 0.3s ease',
-            opacity: nichesVisible && selectedIndustry ? 1 : 0,
-            marginTop: nichesVisible && selectedIndustry ? 16 : 0,
+      {/* ─── WHAT YOU GET ─── */}
+      <section id="what-you-get" style={{ padding: '64px 24px 80px', backgroundColor: COLORS.cream }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          <h2 style={{
+            fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 800, color: COLORS.navy,
+            textAlign: 'center', marginBottom: 12,
           }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
-              {INDUSTRIES.find(i => i.name === selectedIndustry)?.niches.map(niche => (
-                <button
-                  key={niche}
-                  onClick={() => handleNicheClick(niche)}
-                  style={{
-                    padding: '8px 16px', fontSize: 14, fontWeight: 500, borderRadius: 20,
-                    border: selectedNiche === niche ? '2px solid #F07020' : '1.5px solid #e8e4df',
-                    backgroundColor: selectedNiche === niche ? '#FFF3EB' : '#fff',
-                    color: selectedNiche === niche ? '#F07020' : '#5a6a7a',
-                    cursor: 'pointer', transition: 'all 0.15s',
-                  }}
-                >{niche}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div style={{ marginTop: 48, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, opacity: 0.5 }}>
-          <span style={{ fontSize: 13, color: '#5a6a7a', fontWeight: 500 }}>Scroll to learn more</span>
-          <svg width="20" height="12" viewBox="0 0 20 12" fill="none"><path d="M1 1L10 10L19 1" stroke="#5a6a7a" strokeWidth="2" strokeLinecap="round"/></svg>
-        </div>
-      </section>
-
-      {/* ─── FIREWALL MODAL ─── */}
-      {showFirewall && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-          <div style={{ backgroundColor: '#fff', borderRadius: 20, padding: '48px 40px', maxWidth: 440, width: '90%', textAlign: 'center', position: 'relative', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-            <button onClick={() => setShowFirewall(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', fontSize: 22, color: '#999', cursor: 'pointer' }}>×</button>
-            <div style={{ fontSize: 36, marginBottom: 16 }}>🐭</div>
-            <h3 style={{ fontSize: 24, fontWeight: 800, color: '#1e2a3a', marginBottom: 12 }}>Want to keep going?</h3>
-            <p style={{ fontSize: 16, color: '#5a6a7a', lineHeight: 1.6, marginBottom: 28 }}>
-              Create your free account and get <strong>2 work hours</strong> to test King Mouse with your real business.
-            </p>
-            <a href={`/signup?niche=${slugify(selectedNiche || '')}&industry=${slugify(selectedIndustry || '')}`} style={{
-              display: 'block', padding: '16px 32px', fontSize: 18, fontWeight: 700,
-              backgroundColor: '#F07020', color: '#fff', borderRadius: 12,
-              textDecoration: 'none', marginBottom: 12,
-            }}>Create free account</a>
-            <p style={{ fontSize: 13, color: '#999' }}>No credit card required</p>
-          </div>
-        </div>
-      )}
-
-      {/* ─── PRICE STRIP ─── */}
-      <section style={{ backgroundColor: '#1e2a3a', padding: '40px 24px', textAlign: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
-          <div>
-            <span style={{ fontSize: 28, color: '#fff', opacity: 0.4, textDecoration: 'line-through', fontWeight: 600 }}>$35/hr</span>
-            <span style={{ fontSize: 14, color: '#fff', opacity: 0.4, marginLeft: 8 }}>typical employee</span>
-          </div>
-          <svg width="32" height="2"><rect width="32" height="2" fill="#fff" opacity="0.2"/></svg>
-          <div>
-            <span style={{ fontSize: 44, fontWeight: 800, color: '#F07020' }}>$4.98</span>
-            <span style={{ fontSize: 18, color: '#F07020', fontWeight: 600 }}>/hr</span>
-          </div>
-          <div style={{ backgroundColor: '#1D9E75', padding: '8px 20px', borderRadius: 20, fontSize: 15, fontWeight: 700, color: '#fff' }}>
-            Save 86%
-          </div>
-        </div>
-      </section>
-
-      {/* ─── DASHBOARD PREVIEW ─── */}
-      <section style={{ padding: '80px 24px', backgroundColor: '#FAF8F4' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', fontWeight: 800, color: '#1e2a3a', textAlign: 'center', marginBottom: 8 }}>
-            Your AI employee&apos;s{' '}
-            <span style={{ fontFamily: "var(--font-instrument), 'Instrument Serif', serif", fontStyle: 'italic', color: '#F07020' }}>command center</span>
+            What you{' '}
+            <span style={{ fontFamily: SERIF, fontStyle: 'italic', color: COLORS.orange }}>walk away with</span>
           </h2>
-          <p style={{ textAlign: 'center', color: '#5a6a7a', fontSize: 18, marginBottom: 32 }}>Pick an industry to see a live preview</p>
+          <p style={{ textAlign: 'center', color: COLORS.muted, fontSize: 17, marginBottom: 48, maxWidth: 540, marginLeft: 'auto', marginRight: 'auto' }}>
+            Every audit includes three concrete deliverables &mdash; yours to keep regardless of next steps.
+          </p>
 
-          {/* Industry pills for preview */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginBottom: 16 }}>
-            {INDUSTRIES.map(ind => (
-              <button key={ind.name} onClick={() => { setPreviewIndustry(ind.name); setPreviewNiche(ind.niches[0]); }} style={{
-                padding: '9px 18px', fontSize: 14, fontWeight: 600, borderRadius: 20,
-                border: previewIndustry === ind.name ? '2px solid #F07020' : '1.5px solid #e8e4df',
-                backgroundColor: previewIndustry === ind.name ? '#FFF3EB' : '#fff',
-                color: previewIndustry === ind.name ? '#F07020' : '#5a6a7a',
-                cursor: 'pointer', transition: 'all 0.15s',
-              }}>{ind.name}</button>
-            ))}
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center', marginBottom: 40 }}>
-            {INDUSTRIES.find(i => i.name === previewIndustry)?.niches.slice(0, 8).map(n => (
-              <button key={n} onClick={() => setPreviewNiche(n)} style={{
-                padding: '6px 14px', fontSize: 13, fontWeight: 500, borderRadius: 16,
-                border: previewNiche === n ? '1.5px solid #1D9E75' : '1px solid #e8e4df',
-                backgroundColor: previewNiche === n ? '#e6f7f1' : '#fff',
-                color: previewNiche === n ? '#1D9E75' : '#5a6a7a',
-                cursor: 'pointer', transition: 'all 0.15s',
-              }}>{n}</button>
-            ))}
-          </div>
-
-          {/* 3D Dashboard card */}
-          <div ref={dashRef} onMouseMove={handleDashboardMouse} onMouseLeave={() => setMousePos({ x: 0, y: 0 })}
-            style={{ maxWidth: 900, margin: '0 auto', perspective: '1200px' }}>
-            <div style={{
-              transform: `rotateY(${mousePos.x}deg) rotateX(${mousePos.y}deg)`,
-              transition: 'transform 0.1s ease-out',
-              borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.12)',
-              border: '1px solid #e8e4df',
-            }}>
-              {/* Dashboard mock */}
-              <div style={{ display: 'flex', minHeight: 400 }}>
-                {/* Sidebar */}
-                <div style={{ width: 220, backgroundColor: '#1e2a3a', padding: '24px 0', flexShrink: 0 }}>
-                  <div style={{ padding: '0 20px', marginBottom: 24 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', opacity: 0.9 }}>{previewNiche} Co.</div>
-                    <div style={{ fontSize: 11, color: '#fff', opacity: 0.4, marginTop: 2 }}>{previewIndustry}</div>
-                  </div>
-                  {['King Mouse', 'Dashboard', ...previewData.tabs].map((tab, i) => (
-                    <div key={tab} style={{
-                      padding: '10px 20px', fontSize: 13, fontWeight: i === 0 ? 700 : 500,
-                      color: '#fff', opacity: i === 0 ? 1 : 0.5,
-                      backgroundColor: i === 0 ? 'rgba(29,158,117,0.2)' : 'transparent',
-                      borderLeft: i === 0 ? '3px solid #1D9E75' : '3px solid transparent',
-                    }}>{tab}</div>
-                  ))}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+            {DELIVERABLES.map((d, i) => (
+              <div key={i} style={{
+                backgroundColor: COLORS.white, borderRadius: 16, padding: '32px 28px',
+                border: `1px solid ${COLORS.border}`,
+                transition: 'transform 0.2s, box-shadow 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.08)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+              >
+                <div style={{
+                  width: 48, height: 48, borderRadius: 12, backgroundColor: '#FFF3EB',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20,
+                }}>
+                  <d.icon size={24} color={COLORS.orange} strokeWidth={2} />
                 </div>
-                {/* Main content */}
-                <div style={{ flex: 1, backgroundColor: '#f6f6f4', padding: 24 }}>
-                  {/* Metrics row */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
-                    {previewData.metrics.map(m => (
-                      <div key={m.label} style={{ backgroundColor: '#fff', borderRadius: 10, padding: '16px 14px', border: '1px solid #e8e4df' }}>
-                        <div style={{ fontSize: 11, color: '#5a6a7a', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{m.label}</div>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: '#1e2a3a', marginTop: 4 }}>{m.value}</div>
-                      </div>
-                    ))}
-                  </div>
-                  {/* Activity */}
-                  <div style={{ backgroundColor: '#fff', borderRadius: 10, padding: 16, border: '1px solid #e8e4df' }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1e2a3a', marginBottom: 12 }}>Recent activity</div>
-                    {previewData.activity.map((a, i) => (
-                      <div key={i} style={{ padding: '10px 0', borderTop: i > 0 ? '1px solid #f0ede8' : 'none', fontSize: 13, color: '#5a6a7a' }}>
-                        <span style={{ color: '#1D9E75', fontWeight: 600 }}>King Mouse</span> {a}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <h3 style={{ fontSize: 20, fontWeight: 700, color: COLORS.navy, marginBottom: 8 }}>{d.title}</h3>
+                <p style={{ fontSize: 15, color: COLORS.muted, lineHeight: 1.6 }}>{d.desc}</p>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── WHO IT'S FOR ─── */}
+      <section style={{ padding: '80px 24px', backgroundColor: COLORS.creamAlt }}>
+        <div style={{
+          maxWidth: 960, margin: '0 auto',
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 48,
+          alignItems: 'center',
+        }}>
+          <div>
+            <h2 style={{
+              fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 800, color: COLORS.navy,
+              marginBottom: 16, lineHeight: 1.15,
+            }}>
+              Built for business owners who are{' '}
+              <span style={{ fontFamily: SERIF, fontStyle: 'italic', color: COLORS.orange }}>stretched thin</span>
+            </h2>
+            <p style={{ fontSize: 17, color: COLORS.muted, lineHeight: 1.7 }}>
+              You didn&apos;t start a business to spend your days on admin work. If your team is drowning in repetitive tasks, this audit will show you exactly what to hand off to AI.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {QUALIFIERS.map((q, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: '50%', backgroundColor: '#E8F8F1',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1,
+                }}>
+                  <Check size={16} color={COLORS.green} strokeWidth={3} />
+                </div>
+                <span style={{ fontSize: 16, color: COLORS.navy, fontWeight: 500, lineHeight: 1.5 }}>{q}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section id="how-it-works" style={{ padding: '80px 24px', backgroundColor: '#FFFDF9' }}>
+      <section id="how-it-works" style={{ padding: '80px 24px', backgroundColor: COLORS.cream }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', fontWeight: 800, color: '#1e2a3a', textAlign: 'center', marginBottom: 48 }}>
-            Up and running in{' '}
-            <span style={{ fontFamily: "var(--font-instrument), 'Instrument Serif', serif", fontStyle: 'italic', color: '#F07020' }}>5 minutes</span>
+          <h2 style={{
+            fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 800, color: COLORS.navy,
+            textAlign: 'center', marginBottom: 48,
+          }}>
+            Three steps to{' '}
+            <span style={{ fontFamily: SERIF, fontStyle: 'italic', color: COLORS.orange }}>clarity</span>
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 32 }}>
-            {[
-              { step: '1', title: 'Pick your industry', desc: 'Select your niche. King Mouse loads tools, templates, and knowledge specific to your business.' },
-              { step: '2', title: 'Answer a few questions', desc: 'Company name, location, biggest headache. Takes 60 seconds. King Mouse learns your business.' },
-              { step: '3', title: 'Start working', desc: 'King Mouse answers calls, follows up on leads, manages reviews, and handles operations. 24/7.' },
-            ].map(s => (
-              <div key={s.step} style={{ textAlign: 'center' }}>
-                <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: '#F07020', color: '#fff', fontSize: 24, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>{s.step}</div>
-                <h3 style={{ fontSize: 20, fontWeight: 700, color: '#1e2a3a', marginBottom: 8 }}>{s.title}</h3>
-                <p style={{ fontSize: 15, color: '#5a6a7a', lineHeight: 1.6 }}>{s.desc}</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 40 }}>
+            {STEPS.map((s, i) => (
+              <div key={i} style={{ textAlign: 'center' }}>
+                <div style={{
+                  width: 56, height: 56, borderRadius: '50%', backgroundColor: COLORS.orange,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 20px', fontSize: 22, fontWeight: 800, color: COLORS.white,
+                }}>
+                  {s.num}
+                </div>
+                <h3 style={{ fontSize: 20, fontWeight: 700, color: COLORS.navy, marginBottom: 8 }}>{s.title}</h3>
+                <p style={{ fontSize: 15, color: COLORS.muted, lineHeight: 1.6 }}>{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── FEATURES ─── */}
-      <section id="features" style={{ padding: '80px 24px', backgroundColor: '#FAF8F4' }}>
+      {/* ─── CAPABILITIES ─── */}
+      <section style={{ padding: '80px 24px', backgroundColor: COLORS.creamAlt }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', fontWeight: 800, color: '#1e2a3a', textAlign: 'center', marginBottom: 48 }}>
-            Everything a $35/hr employee does.{' '}
-            <span style={{ fontFamily: "var(--font-instrument), 'Instrument Serif', serif", fontStyle: 'italic', color: '#F07020' }}>For $4.98.</span>
+          <h2 style={{
+            fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 800, color: COLORS.navy,
+            textAlign: 'center', marginBottom: 12,
+          }}>
+            AI that works{' '}
+            <span style={{ fontFamily: SERIF, fontStyle: 'italic', color: COLORS.orange }}>across your business</span>
           </h2>
+          <p style={{ textAlign: 'center', color: COLORS.muted, fontSize: 17, marginBottom: 48, maxWidth: 520, marginLeft: 'auto', marginRight: 'auto' }}>
+            We don&apos;t just automate one thing. We look at your entire operation and find every opportunity.
+          </p>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
-            {FEATURES.map(f => (
-              <div key={f.title} style={{ backgroundColor: '#fff', borderRadius: 14, padding: '28px 24px', border: '1px solid #e8e4df' }}>
-                <div style={{ fontSize: 32, marginBottom: 12 }}>{f.icon}</div>
-                <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1e2a3a', marginBottom: 8 }}>{f.title}</h3>
-                <p style={{ fontSize: 15, color: '#5a6a7a', lineHeight: 1.6 }}>{f.desc}</p>
+            {CAPABILITIES.map((c, i) => (
+              <div key={i} style={{
+                backgroundColor: COLORS.white, borderRadius: 14, padding: '28px 24px',
+                border: `1px solid ${COLORS.border}`,
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                display: 'flex', alignItems: 'flex-start', gap: 16,
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.07)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+              >
+                <div style={{
+                  width: 44, height: 44, borderRadius: 10, backgroundColor: '#FFF3EB',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  <c.icon size={22} color={COLORS.orange} strokeWidth={2} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: 17, fontWeight: 700, color: COLORS.navy, marginBottom: 4 }}>{c.title}</h3>
+                  <p style={{ fontSize: 14, color: COLORS.muted, lineHeight: 1.55 }}>{c.desc}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── INDUSTRY TICKER ─── */}
-      <section style={{ padding: '32px 0', backgroundColor: '#1e2a3a', overflow: 'hidden' }}>
-        <div className="ticker-track" style={{ display: 'flex', gap: 32, whiteSpace: 'nowrap' }}>
-          {[...INDUSTRIES.flatMap(i => i.niches), ...INDUSTRIES.flatMap(i => i.niches)].map((n, i) => (
-            <span key={i} style={{ fontSize: 14, fontWeight: 500, color: '#fff', opacity: 0.4 }}>{n}</span>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── STATS ─── */}
-      <section style={{ padding: '64px 24px', backgroundColor: '#FFFDF9' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 32, textAlign: 'center' }}>
-          {[
-            { value: '86%', label: 'cheaper than hiring' },
-            { value: '24/7', label: 'always available' },
-            { value: '22hrs', label: 'saved per week avg' },
-            { value: '5min', label: 'setup time' },
-          ].map(s => (
-            <div key={s.label}>
-              <div style={{ fontSize: 44, fontWeight: 800, color: '#F07020' }}>{s.value}</div>
-              <div style={{ fontSize: 15, color: '#5a6a7a', fontWeight: 500, marginTop: 4 }}>{s.label}</div>
+      {/* ─── SOCIAL PROOF ─── */}
+      <section style={{ backgroundColor: COLORS.navy, padding: '64px 24px' }}>
+        <div style={{
+          maxWidth: 900, margin: '0 auto',
+          display: 'flex', justifyContent: 'center', gap: 64, flexWrap: 'wrap',
+        }}>
+          {STATS.map((s, i) => (
+            <div key={i} style={{ textAlign: 'center', minWidth: 160 }}>
+              <div style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 800, color: COLORS.orange, lineHeight: 1 }}>{s.value}</div>
+              <div style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.6)', marginTop: 8 }}>{s.label}</div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ─── TESTIMONIALS ─── */}
-      <section style={{ padding: '80px 24px', backgroundColor: '#FAF8F4' }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', fontWeight: 800, color: '#1e2a3a', textAlign: 'center', marginBottom: 48 }}>
-            Business owners{' '}
-            <span style={{ fontFamily: "var(--font-instrument), 'Instrument Serif', serif", fontStyle: 'italic', color: '#F07020' }}>love</span>{' '}
-            King Mouse
+      {/* ─── FAQ ─── */}
+      <section id="faq" style={{ padding: '80px 24px', backgroundColor: COLORS.cream }}>
+        <div style={{ maxWidth: 700, margin: '0 auto' }}>
+          <h2 style={{
+            fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 800, color: COLORS.navy,
+            textAlign: 'center', marginBottom: 48,
+          }}>
+            Frequently asked{' '}
+            <span style={{ fontFamily: SERIF, fontStyle: 'italic', color: COLORS.orange }}>questions</span>
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
-            {TESTIMONIALS.map(t => (
-              <div key={t.name} style={{ backgroundColor: '#fff', borderRadius: 14, padding: '28px 24px', border: '1px solid #e8e4df' }}>
-                <p style={{ fontSize: 15, color: '#1e2a3a', lineHeight: 1.7, marginBottom: 20, fontStyle: 'italic' }}>&ldquo;{t.text}&rdquo;</p>
-                <div style={{ fontWeight: 700, fontSize: 15, color: '#1e2a3a' }}>{t.name}</div>
-                <div style={{ fontSize: 13, color: '#5a6a7a' }}>{t.role}</div>
+
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {FAQS.map((faq, i) => (
+              <div key={i} style={{ borderBottom: `1px solid ${COLORS.border}` }}>
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  style={{
+                    width: '100%', padding: '20px 0', border: 'none', backgroundColor: 'transparent',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    cursor: 'pointer', textAlign: 'left', gap: 16,
+                  }}
+                >
+                  <span style={{ fontSize: 17, fontWeight: 600, color: COLORS.navy }}>{faq.q}</span>
+                  <ChevronDown
+                    size={20}
+                    color={COLORS.muted}
+                    style={{
+                      transition: 'transform 0.25s ease',
+                      transform: openFaq === i ? 'rotate(180deg)' : 'rotate(0deg)',
+                      flexShrink: 0,
+                    }}
+                  />
+                </button>
+                <div style={{
+                  maxHeight: openFaq === i ? 200 : 0,
+                  overflow: 'hidden',
+                  transition: 'max-height 0.3s ease, opacity 0.25s ease',
+                  opacity: openFaq === i ? 1 : 0,
+                }}>
+                  <p style={{ fontSize: 15, color: COLORS.muted, lineHeight: 1.7, paddingBottom: 20 }}>
+                    {faq.a}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── PRICING ─── */}
-      <section id="pricing" style={{ padding: '80px 24px', backgroundColor: '#FFFDF9' }}>
-        <div style={{ maxWidth: 500, margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', fontWeight: 800, color: '#1e2a3a', marginBottom: 12 }}>
-            Simple{' '}
-            <span style={{ fontFamily: "var(--font-instrument), 'Instrument Serif', serif", fontStyle: 'italic', color: '#F07020' }}>pricing</span>
+      {/* ─── FINAL CTA + CALENDLY ─── */}
+      <section id="book" style={{ backgroundColor: COLORS.navy, padding: '80px 24px' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{
+            fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 800, color: COLORS.white,
+            marginBottom: 12, lineHeight: 1.15,
+          }}>
+            Ready to see what AI can do for{' '}
+            <span style={{ fontFamily: SERIF, fontStyle: 'italic', color: COLORS.orange }}>your business</span>
+            ?
           </h2>
-          <p style={{ color: '#5a6a7a', fontSize: 16, marginBottom: 32 }}>Pay only for the hours King Mouse works. No contracts.</p>
-          <div style={{ backgroundColor: '#fff', borderRadius: 16, padding: '40px 32px', border: '2px solid #F07020', boxShadow: '0 8px 32px rgba(240,112,32,0.1)' }}>
-            <div style={{ fontSize: 56, fontWeight: 800, color: '#F07020' }}>$4.98<span style={{ fontSize: 20, fontWeight: 600 }}>/hr</span></div>
-            <p style={{ color: '#5a6a7a', fontSize: 15, margin: '16px 0 24px', lineHeight: 1.6 }}>Includes AI receptionist, lead follow-up, review management, full dashboard, and all 150+ integrations.</p>
-            <ul style={{ textAlign: 'left', listStyle: 'none', padding: 0, margin: '0 0 28px' }}>
-              {['2 free hours to start', 'No credit card required', 'Cancel anytime', 'Works 24/7', '150+ industry configs'].map(item => (
-                <li key={item} style={{ padding: '8px 0', fontSize: 15, color: '#1e2a3a', fontWeight: 500 }}>
-                  <span style={{ color: '#1D9E75', marginRight: 10 }}>✓</span>{item}
-                </li>
-              ))}
-            </ul>
-            <a href="/signup" style={{ display: 'block', padding: '16px 32px', fontSize: 18, fontWeight: 700, backgroundColor: '#F07020', color: '#fff', borderRadius: 12, textDecoration: 'none' }}>
-              Start free — no credit card
-            </a>
-          </div>
-        </div>
-      </section>
+          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.6)', marginBottom: 40 }}>
+            Book your free 30-minute AI Business Audit
+          </p>
 
-      {/* ─── FINAL CTA ─── */}
-      <section style={{ padding: '80px 24px', backgroundColor: '#1e2a3a', textAlign: 'center' }}>
-        <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', fontWeight: 800, color: '#fff', marginBottom: 16 }}>
-          Ready to hire your{' '}
-          <span style={{ fontFamily: "var(--font-instrument), 'Instrument Serif', serif", fontStyle: 'italic', color: '#F07020' }}>AI employee</span>?
-        </h2>
-        <p style={{ color: '#fff', opacity: 0.7, fontSize: 18, marginBottom: 32, maxWidth: 500, margin: '0 auto 32px' }}>
-          2 free work hours. No credit card. Setup takes 5 minutes.
-        </p>
-        <a href="/signup" style={{ display: 'inline-block', padding: '18px 40px', fontSize: 20, fontWeight: 700, backgroundColor: '#F07020', color: '#fff', borderRadius: 12, textDecoration: 'none' }}>
-          Get started free
-        </a>
+          <div
+            ref={calendlyRef}
+            className="calendly-inline-widget"
+            data-url="https://calendly.com/harriscolton29/30min"
+            style={{
+              minWidth: 280, height: 660,
+              backgroundColor: COLORS.white, borderRadius: 16,
+              overflow: 'hidden',
+            }}
+          />
+        </div>
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer style={{ padding: '40px 24px', backgroundColor: '#161e2a', textAlign: 'center' }}>
-        <div style={{ fontSize: 20, fontWeight: 800, color: '#fff', marginBottom: 12 }}>Mouse<span style={{ color: '#F07020' }}>.</span></div>
-        <p style={{ color: '#fff', opacity: 0.4, fontSize: 14 }}>AI employees for small business. 150+ industries. $4.98/hr.</p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 16 }}>
-          <a href="/login" style={{ color: '#fff', opacity: 0.5, fontSize: 14, textDecoration: 'none' }}>Log in</a>
-          <a href="/signup" style={{ color: '#fff', opacity: 0.5, fontSize: 14, textDecoration: 'none' }}>Sign up</a>
-          <a href="mailto:colton.harris@automioapp.com" style={{ color: '#fff', opacity: 0.5, fontSize: 14, textDecoration: 'none' }}>Contact</a>
+      <footer style={{ backgroundColor: COLORS.navy, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{
+          maxWidth: 1000, margin: '0 auto', padding: '64px 24px 32px',
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 48,
+        }}>
+          {/* Brand column */}
+          <div>
+            <span style={{ fontSize: 22, fontWeight: 800, color: COLORS.white }}>
+              Mouse<span style={{ color: COLORS.orange }}>.</span>
+            </span>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginTop: 12, lineHeight: 1.6 }}>
+              AI employees for small businesses. Based in Wilmington, NC.
+            </p>
+          </div>
+
+          {/* Company column */}
+          <div>
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16 }}>Company</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[
+                { label: 'About', href: '#' },
+                { label: 'Free AI Audit', href: '/audit' },
+                { label: 'Pricing', href: '#' },
+                { label: 'Contact', href: 'mailto:colton@mouse.is' },
+              ].map((link, i) => (
+                <a key={i} href={link.href} style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = COLORS.white)}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+                >{link.label}</a>
+              ))}
+            </div>
+          </div>
+
+          {/* Legal column */}
+          <div>
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16 }}>Legal</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[
+                { label: 'Terms of Service', href: '#' },
+                { label: 'Privacy Policy', href: '#' },
+                { label: 'Cookie Policy', href: '#' },
+              ].map((link, i) => (
+                <a key={i} href={link.href} style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = COLORS.white)}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+                >{link.label}</a>
+              ))}
+            </div>
+          </div>
+
+          {/* Contact column */}
+          <div>
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16 }}>Get in Touch</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <a href="mailto:colton@mouse.is" style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = COLORS.white)}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+              >colton@mouse.is</a>
+              <a href="tel:+19105158927" style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = COLORS.white)}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+              >(910) 515-8927</a>
+              <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>Wilmington, NC</span>
+            </div>
+          </div>
         </div>
-        <p style={{ color: '#fff', opacity: 0.25, fontSize: 12, marginTop: 24 }}>© 2026 Mouse Platform. All rights reserved.</p>
+
+        {/* Bottom bar */}
+        <div style={{
+          maxWidth: 1000, margin: '0 auto', padding: '24px 24px 32px',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12,
+        }}>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>
+            &copy; {new Date().getFullYear()} Mouse Technologies, LLC. All rights reserved.
+          </p>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>
+            Made with AI in Wilmington, NC
+          </p>
+        </div>
       </footer>
 
-      {/* ─── GLOBAL STYLES ─── */}
+      {/* ─── RESPONSIVE STYLES ─── */}
       <style>{`
-        .typing-dots::after { content: '...'; animation: dots 1.5s infinite; }
-        @keyframes dots { 0%,20% { content: '.'; } 40% { content: '..'; } 60%,100% { content: '...'; } }
-        .ticker-track { animation: ticker 60s linear infinite; }
-        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .nav-mobile { display: none; }
         @media (max-width: 768px) {
-          nav > div > div:nth-child(2) a:not(:last-child):not(:nth-last-child(2)) { display: none; }
+          .nav-desktop { display: none !important; }
+          .nav-mobile { display: block !important; }
         }
-        textarea::placeholder { color: #999; }
-        html { scroll-behavior: smooth; }
       `}</style>
     </div>
   );
-}
-
-/* ─── DASHBOARD PREVIEW DATA ─── */
-function getPreviewData(industry: string) {
-  const configs: Record<string, { tabs: string[]; metrics: { label: string; value: string }[]; activity: string[] }> = {
-    Construction: { tabs: ['Lead funnel', 'Estimates', 'Job scheduler', 'Reviews', 'Ads'], metrics: [{ label: 'Calls', value: '12' }, { label: 'Leads', value: '8' }, { label: 'Jobs', value: '3' }, { label: 'Revenue', value: '$14.2k' }], activity: ['followed up on estimate for Smith residence', 'answered call from new lead — roof inspection', 'sent Google review request to Johnson family', 'scheduled crew for Monday 8am — 742 Oak St'] },
-    Healthcare: { tabs: ['Appointments', 'Patient intake', 'Billing', 'Reviews', 'Referrals'], metrics: [{ label: 'Appointments', value: '24' }, { label: 'Patients', value: '18' }, { label: 'No-shows', value: '1' }, { label: 'Billings', value: '$8.4k' }], activity: ['confirmed appointment for Sarah M. — 2pm', 'sent intake forms to new patient', 'requested review from completed visit', 'rescheduled cancellation to Thursday'] },
-    'Home services': { tabs: ['Lead funnel', 'Scheduling', 'Estimates', 'Reviews', 'Route planner'], metrics: [{ label: 'Calls', value: '9' }, { label: 'Bookings', value: '6' }, { label: 'Reviews', value: '4.8', }, { label: 'Revenue', value: '$3.2k' }], activity: ['booked cleaning for 123 Main St — Friday', 'sent follow-up estimate to Williams household', 'responded to 5-star Google review', 'optimized tomorrow\'s route — 3 stops'] },
-    'Food & Drink': { tabs: ['Reservations', 'Orders', 'Menu builder', 'Reviews', 'Social media'], metrics: [{ label: 'Reservations', value: '32' }, { label: 'Orders', value: '47' }, { label: 'Rating', value: '4.7' }, { label: 'Revenue', value: '$6.8k' }], activity: ['confirmed 8pm reservation for party of 6', 'responded to Yelp review — 4 stars', 'posted daily special to Instagram', 'sent catering quote to corporate client'] },
-    Legal: { tabs: ['Case intake', 'Client portal', 'Billing', 'Calendar', 'Documents'], metrics: [{ label: 'Inquiries', value: '7' }, { label: 'Consults', value: '4' }, { label: 'Active cases', value: '12' }, { label: 'Billings', value: '$18k' }], activity: ['scheduled free consultation — personal injury', 'sent retainer agreement to new client', 'followed up on outstanding invoice', 'filed motion deadline reminder — Thursday'] },
-    Automotive: { tabs: ['Work orders', 'Estimates', 'Parts inventory', 'Reviews', 'Scheduling'], metrics: [{ label: 'Calls', value: '14' }, { label: 'Work orders', value: '8' }, { label: 'Reviews', value: '4.6' }, { label: 'Revenue', value: '$9.1k' }], activity: ['created estimate — brake job, 2018 Camry', 'texted customer: vehicle ready for pickup', 'ordered parts from AutoZone — alternator', 'requested Google review from satisfied customer'] },
-    'Real estate': { tabs: ['Listings', 'Showings', 'Client CRM', 'Market reports', 'Marketing'], metrics: [{ label: 'Showings', value: '6' }, { label: 'Leads', value: '11' }, { label: 'Listings', value: '4' }, { label: 'Volume', value: '$1.2M' }], activity: ['scheduled showing for 456 Elm — Saturday 2pm', 'sent market report to seller lead', 'followed up with buyer from open house', 'posted new listing to MLS and Zillow'] },
-    Retail: { tabs: ['Inventory', 'Orders', 'Customers', 'Reviews', 'Promotions'], metrics: [{ label: 'Orders', value: '28' }, { label: 'Customers', value: '19' }, { label: 'Rating', value: '4.8' }, { label: 'Revenue', value: '$4.5k' }], activity: ['processed online order #1847 — shipped', 'sent loyalty discount to returning customer', 'restocked low-inventory alert — 3 items', 'posted new arrivals to social media'] },
-  };
-  return configs[industry] || configs.Construction;
 }
