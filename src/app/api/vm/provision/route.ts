@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase-server';
 import { getVerticalConfig } from '@/lib/config-loader';
+import { buildVMConfigFiles, writeConfigFilesToVM } from '@/lib/vm-config-builder';
 
 export const maxDuration = 60;
 
@@ -167,7 +168,23 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', vm.id);
 
-    // Fire-and-forget: trigger install.sh via Orgo exec API
+    // Wait briefly for VM to boot
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    // Pre-upload config files via Orgo bash API (skips openclaw onboard in install.sh)
+    let configsWritten = false;
+    try {
+      const configFiles = buildVMConfigFiles(fullConfig);
+      const writeResult = await writeConfigFilesToVM(computerId, configFiles);
+      configsWritten = writeResult.success;
+      if (!writeResult.success) {
+        console.log(`[Provision] Config pre-upload partial failure: ${writeResult.errors.join(', ')}`);
+      }
+    } catch (err) {
+      console.log(`[Provision] Config pre-upload failed (install.sh will handle it):`, err);
+    }
+
+    // Trigger install.sh via Orgo exec API
     // (Orgo startup_script param is ignored — VMs only run their built-in desktop)
     const installPython = [
       'import subprocess',
@@ -176,8 +193,6 @@ export async function POST(request: NextRequest) {
       'print("install_triggered")',
     ].join('\n');
 
-    // Wait briefly for VM to boot, then trigger install
-    await new Promise(resolve => setTimeout(resolve, 5000));
     try {
       const installRes = await fetch(`${ORGO_BASE}/computers/${computerId}/exec`, {
         method: 'POST',
@@ -190,17 +205,17 @@ export async function POST(request: NextRequest) {
       });
       const installData = await installRes.json();
       const triggered = installRes.ok && installData.output?.includes('install_triggered');
-      console.log(`[Provision] Install trigger: ok=${installRes.ok}, triggered=${triggered}`);
+      console.log(`[Provision] Install trigger: ok=${installRes.ok}, triggered=${triggered}, configsPreUploaded=${configsWritten}`);
 
       await supabase.from('vms').update({
         status: 'installing',
-        config_json: { ...fullConfig, install_triggered: triggered, install_triggered_at: new Date().toISOString() },
+        config_json: { ...fullConfig, install_triggered: triggered, configs_pre_uploaded: configsWritten, install_triggered_at: new Date().toISOString() },
       }).eq('id', vm.id);
     } catch (triggerErr) {
       // VM may not be ready yet — status endpoint will retry
       console.log(`[Provision] Install trigger failed (status endpoint will retry):`, triggerErr);
       await supabase.from('vms').update({
-        config_json: { ...fullConfig, install_triggered: false },
+        config_json: { ...fullConfig, install_triggered: false, configs_pre_uploaded: configsWritten },
       }).eq('id', vm.id);
     }
 

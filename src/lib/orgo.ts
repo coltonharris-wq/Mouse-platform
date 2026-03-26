@@ -79,6 +79,30 @@ export async function executeOnVM(vmId: string, command: string): Promise<string
   return data.output || '';
 }
 
+/** Run a bash command on the VM via Orgo bash API */
+export async function bashOnVM(
+  vmId: string,
+  command: string,
+  timeoutMs = 15000
+): Promise<{ success: boolean; output: string }> {
+  try {
+    const res = await fetch(`${ORGO_BASE_URL}/computers/${vmId}/bash`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${ORGO_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ command }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!res.ok) return { success: false, output: `HTTP ${res.status}` };
+    const data = await res.json();
+    return { success: data.success ?? false, output: data.output ?? '' };
+  } catch (err) {
+    return { success: false, output: err instanceof Error ? err.message : String(err) };
+  }
+}
+
 /** Extract bare IP from Orgo URL like "http://67.213.119.157:29629" */
 export function extractVmIp(ipOrUrl: string): string {
   try {

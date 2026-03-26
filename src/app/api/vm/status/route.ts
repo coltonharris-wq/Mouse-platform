@@ -93,6 +93,19 @@ async function retryProvision(supabase: ReturnType<typeof createServiceClient>, 
   }).eq('id', vm.id);
 
   console.log(`[Status] Retry #${(vm.attempt_count || 1) + 1} for VM ${vm.id} → new Orgo ID ${orgoData.id}`);
+
+  // Pre-upload configs to new VM (fire-and-forget — fallback trigger will catch if this fails)
+  const retryConfig = { ...vm.config_json, vm_id: vm.id, callback_secret: newSecret };
+  try {
+    const { buildVMConfigFiles, writeConfigFilesToVM } = await import('@/lib/vm-config-builder');
+    const configFiles = buildVMConfigFiles(retryConfig);
+    setTimeout(async () => {
+      try {
+        await writeConfigFilesToVM(orgoData.id, configFiles);
+        console.log(`[Status] Config pre-uploaded for retry VM ${orgoData.id}`);
+      } catch {}
+    }, 5000);
+  } catch {}
 }
 
 export async function GET(request: NextRequest) {
@@ -204,6 +217,14 @@ export async function GET(request: NextRequest) {
       // (Orgo startup_script is ignored — we must exec install.sh manually)
       const vmConfig = (vm.config_json || {}) as Record<string, unknown>;
       if (vm.orgo_vm_id && !vmConfig.install_triggered) {
+        // Pre-upload configs before triggering install (best-effort)
+        try {
+          const { buildVMConfigFiles, writeConfigFilesToVM } = await import('@/lib/vm-config-builder');
+          const fallbackConfig = { ...vm.config_json, vm_id: vm.id, callback_secret: vm.callback_secret };
+          const configFiles = buildVMConfigFiles(fallbackConfig);
+          await writeConfigFilesToVM(vm.orgo_vm_id, configFiles);
+        } catch {}
+
         try {
           const configB64 = Buffer.from(JSON.stringify(vm.config_json)).toString('base64');
           const installPython = [
