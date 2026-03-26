@@ -120,6 +120,7 @@ export default function AuditPage() {
             <a onClick={() => scrollTo('what-you-get')} style={{ fontSize: 15, fontWeight: 500, color: COLORS.muted, textDecoration: 'none', cursor: 'pointer' }}>What You Get</a>
             <a onClick={() => scrollTo('how-it-works')} style={{ fontSize: 15, fontWeight: 500, color: COLORS.muted, textDecoration: 'none', cursor: 'pointer' }}>How It Works</a>
             <a onClick={() => scrollTo('faq')} style={{ fontSize: 15, fontWeight: 500, color: COLORS.muted, textDecoration: 'none', cursor: 'pointer' }}>FAQ</a>
+            <a href="/blog" style={{ fontSize: 15, fontWeight: 500, color: COLORS.muted, textDecoration: 'none', cursor: 'pointer' }}>Blog</a>
             <button onClick={() => scrollTo('book')} style={{
               fontSize: 15, fontWeight: 700, color: COLORS.white, backgroundColor: COLORS.orange,
               padding: '10px 22px', borderRadius: 10, border: 'none', cursor: 'pointer',
@@ -450,6 +451,7 @@ export default function AuditPage() {
               {[
                 { label: 'About', href: '#' },
                 { label: 'Free AI Audit', href: '/audit' },
+                { label: 'Blog', href: '/blog' },
                 { label: 'Pricing', href: '#' },
                 { label: 'Contact', href: 'mailto:colton@mouse.is' },
               ].map((link, i) => (
